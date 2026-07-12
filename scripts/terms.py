@@ -141,15 +141,21 @@ def build_term_inventory(raw_text: str) -> list[dict]:
         line_offsets[no] = pos
         pos += len(line_text) + 1
 
-    # term -> {"first_line": int, "count": int}
+    # term -> {"first_line": int, "first_offset": int}
+    # first_offset は初出行内での文字オフセット。カタカナ複合語・ASCII英略語・
+    # 固有名詞をそれぞれ別のパスで走査しているため、同一行内での実際の出現順は
+    # first_line だけでは判定できない（先に全行を走査するパスの語が、行内では
+    # 後ろにあっても先に登録されてしまう）。first_offset を合わせて記録し、
+    # 最後に (first_line, first_offset) の複合キーでソートすることで、
+    # 文書内の実際の出現位置の昇順にする。
     seen: dict[str, dict] = {}
 
-    def register(term: str, no: int) -> None:
+    def register(term: str, no: int, offset: int) -> None:
         term = term.strip()
         if not term:
             return
         if term not in seen:
-            seen[term] = {"first_line": no}
+            seen[term] = {"first_line": no, "first_offset": offset}
 
     for no, line in combined_lines:
         if not line.strip():
@@ -157,7 +163,7 @@ def build_term_inventory(raw_text: str) -> list[dict]:
 
         # (b) ASCII英略語（大文字2文字以上）は表層の正規表現で拾う
         for m in _ASCII_ACRONYM_RE.finditer(line):
-            register(m.group(0), no)
+            register(m.group(0), no, m.start())
 
         # (a) カタカナ複合語 / (c) 固有名詞・製品名らしき語（sudachiのPOSが固有名詞、
         # または先頭大文字の英単語=製品名によくある表層形）は形態素解析で連続する
@@ -176,7 +182,7 @@ def build_term_inventory(raw_text: str) -> list[dict]:
                 span_end = morphemes[j - 1].end()
                 term = line[span_start:span_end]
                 if len(term) >= TERMS_KATAKANA_MIN_LEN:
-                    register(term, no)
+                    register(term, no, span_start)
                 i = j
                 continue
             if _is_proper_noun_or_capitalized_latin_morpheme(m0):
@@ -186,7 +192,7 @@ def build_term_inventory(raw_text: str) -> list[dict]:
                 span_start = m0.begin()
                 span_end = morphemes[j - 1].end()
                 term = line[span_start:span_end]
-                register(term, no)
+                register(term, no, span_start)
                 i = j
                 continue
             i += 1
@@ -209,9 +215,9 @@ def build_term_inventory(raw_text: str) -> list[dict]:
             }
         )
 
-    # 初出順（first_line 昇順、同じ行内では検出順=辞書の挿入順を維持するため
-    # stable sort の line だけをキーにする）
-    results.sort(key=lambda r: r["first_line"])
+    # 初出順（文書内の実際の出現位置＝(first_line, first_offset) の昇順）。
+    # first_offset は出力スキーマに含めない内部情報なので、seen から引いてソートキーに使う。
+    results.sort(key=lambda r: (r["first_line"], seen[r["term"]]["first_offset"]))
     return results
 
 

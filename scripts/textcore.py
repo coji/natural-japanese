@@ -335,8 +335,15 @@ def split_sentences_with_lines(
 
 
 def _heading_level_and_text(line: str) -> tuple[int, str]:
-    """見出し行から (レベル, 見出しテキスト) を取り出す。"""
-    m = re.match(r"^\s*(#{1,6})\s*(.*?)\s*#*\s*$", line)
+    """見出し行から (レベル, 見出しテキスト) を取り出す。
+
+    ATX見出しの closing sequence（末尾の `#` 列）は、CommonMark と同様に
+    「直前に空白がある場合のみ」除去する。空白なしで見出しテキストに直接続く
+    `#`（例: 「# C#」「# F#入門」）は closing sequence ではなくテキストの一部
+    なので、除去してはいけない（`(?:\\s+#+)?` で closing sequence の手前に
+    最低1文字の空白を要求することで区別する）。
+    """
+    m = re.match(r"^\s*(#{1,6})\s*(.*?)(?:\s+#+)?\s*$", line)
     if not m:
         return 0, line.strip()
     return len(m.group(1)), m.group(2).strip()

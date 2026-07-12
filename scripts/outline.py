@@ -67,6 +67,11 @@ def build_outline(raw_text: str) -> list[dict]:
       （段落先頭行の最初の文、句点等が無ければ先頭行全体）
     - 箇条書きだけの段落: kind="bullets"（「(箇条書き N 項目)」プレースホルダ）
     - コードブロック・引用・表の段落は出力しない（スキップ）
+
+    ブロックの区切りは空行だけではない。箇条書き行の直後に空行なしで通常段落行が
+    続く（またはその逆順の）場合も、そこでブロック種別が切り替わるため flush する
+    （空行がないからといって同じブロックにまとめてしまうと、後続ブロックの内容が
+    丸ごと出力から消えてしまう）。
     """
     text = mask_html_comments(raw_text)
     lines = text.split("\n")
@@ -77,6 +82,19 @@ def build_outline(raw_text: str) -> list[dict]:
     fence_char = ""
     fence_len = 0
     in_front_matter = False
+
+    def line_kind(line_text: str) -> str:
+        """flush_buffer() のブロック種別判定（buffer[0] 基準）と対応する、
+        単一行の分類。ブロック種別が切り替わったかどうかの判定に使う。"""
+        if _LIST_ITEM_RE.match(line_text):
+            return "bullets"
+        if _BLOCKQUOTE_RE.match(line_text):
+            return "blockquote"
+        if (_TABLE_ROW_RE.match(line_text) and line_text.count("|") >= 2) or _TABLE_DELIMITER_RE.match(
+            line_text
+        ):
+            return "table"
+        return "lead"
 
     def flush_buffer() -> None:
         if not buffer:
@@ -134,6 +152,22 @@ def build_outline(raw_text: str) -> list[dict]:
             level, heading_text = _heading_level_and_text(line)
             outline.append({"line": i, "kind": "heading", "level": level, "text": heading_text})
             continue
+
+        # 空行を挟まずにブロック種別（箇条書き/引用/表/通常段落）が切り替わった
+        # 場合も、そこで現在のバッファを確定させてから新しいブロックを始める。
+        # ただし箇条書きブロックの途中に現れるインデントされた継続行（折り返された
+        # 項目の2行目以降。行頭に空白がありマーカーを持たない）は、種別変化とみなさず
+        # 同じ箇条書きブロックに含める（マーカー行だけを項目数として数えるので、
+        # 継続行が項目数を水増しすることはない）。
+        if buffer:
+            cur_kind = line_kind(buffer[0][1])
+            is_indented_continuation = (
+                cur_kind == "bullets"
+                and line_kind(line) == "lead"
+                and re.match(r"^\s+\S", line) is not None
+            )
+            if cur_kind != line_kind(line) and not is_indented_continuation:
+                flush_buffer()
 
         buffer.append((i, line))
 
