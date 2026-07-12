@@ -83,9 +83,38 @@ TOPICS: list[dict] = [
     {"id": "blog-saido-nyumon", "genre": "blog", "topic": "副業を始めた理由"},
     {"id": "blog-benkyokai-shusai", "genre": "blog", "topic": "勉強会を主催してみた感想"},
     {"id": "blog-shoseki-shokai", "genre": "blog", "topic": "最近読んで良かった本の紹介"},
+
+    # business(ビジネス文書: 社内報告書・社外メール・提案書)
+    {"id": "business-getsuji-hokoku", "genre": "business", "doc_type": "report", "topic": "月次業務報告"},
+    {"id": "business-shogai-hokoku", "genre": "business", "doc_type": "report", "topic": "障害報告書"},
+    {"id": "business-shutcho-hokoku", "genre": "business", "doc_type": "report", "topic": "出張報告"},
+    {"id": "business-project-shinchoku", "genre": "business", "doc_type": "report", "topic": "プロジェクト進捗報告"},
+    {"id": "business-mitsumori-soufu", "genre": "business", "doc_type": "email", "topic": "見積もり送付"},
+    {"id": "business-noki-okure-owabi", "genre": "business", "doc_type": "email", "topic": "納期遅延の連絡とお詫び"},
+    {"id": "business-uchiawase-nittei", "genre": "business", "doc_type": "email", "topic": "打ち合わせ日程調整"},
+    {"id": "business-keiyaku-koushin", "genre": "business", "doc_type": "email", "topic": "契約更新の案内"},
+    {"id": "business-gyomu-system-kaishin", "genre": "business", "doc_type": "proposal", "topic": "業務システム刷新提案"},
+    {"id": "business-consulting-kaizen", "genre": "business", "doc_type": "proposal", "topic": "コンサルティング提案(業務改善)"},
+    {"id": "business-tool-donyu-ringi", "genre": "business", "doc_type": "proposal", "topic": "新規ツール導入稟議"},
+    {"id": "business-marketing-sesaku", "genre": "business", "doc_type": "proposal", "topic": "マーケティング施策提案"},
 ]
 
 PROMPT_TEMPLATE = "{topic}についてブログ記事を書いて。"
+
+# business ジャンルは文書種別によってプロンプトの型が異なる(報告書/メール/
+# 提案書)。他ジャンルと同様、文体・自然さの指示は入れず「素の状態」を保つ。
+BUSINESS_PROMPT_TEMPLATES: dict[str, str] = {
+    "report": "{topic}の報告書を書いて。",
+    "email": "{topic}のメールを書いて。",
+    "proposal": "{topic}の提案書を書いて。",
+}
+
+
+def build_prompt(topic: dict) -> str:
+    if topic["genre"] == "business":
+        template = BUSINESS_PROMPT_TEMPLATES[topic["doc_type"]]
+        return template.format(topic=topic["topic"])
+    return PROMPT_TEMPLATE.format(topic=topic["topic"])
 
 # generate.py は claude -p を1往復のみの非対話呼び出しとして使う。
 # ユーザー向けプロンプト自体は「素の状態」(文体・自然さの指示なし)に保つが、
@@ -144,7 +173,7 @@ def generate_one(
     topic: dict, engine: str, model: str, *, retries: int = 1, force: bool = False
 ) -> dict | None:
     """1トピックを生成する。スキップ時は None、生成時はメタ情報 dict を返す。"""
-    prompt = PROMPT_TEMPLATE.format(topic=topic["topic"])
+    prompt = build_prompt(topic)
     out_model = "codex-cli" if engine == "codex" else model
     out_dir = AI_DIR / out_model
     out_path = out_dir / f"{topic['id']}.md"
@@ -208,7 +237,7 @@ def main() -> None:
     parser.add_argument("--engine", choices=["claude", "codex"], default="claude")
     parser.add_argument("--model", default="claude-sonnet-4-5", help="claude -p --model に渡すモデル名")
     parser.add_argument("--limit", type=int, help="先頭 N トピックだけ生成する(動作確認用)")
-    parser.add_argument("--genre", choices=["essay", "tech", "blog"], help="このジャンルだけ生成する")
+    parser.add_argument("--genre", choices=["essay", "tech", "blog", "business"], help="このジャンルだけ生成する")
     parser.add_argument("--retries", type=int, default=1, help="失敗時のリトライ回数(既定 1)")
     parser.add_argument("--force", action="store_true", help="既存ファイルがあっても再生成する")
     args = parser.parse_args()

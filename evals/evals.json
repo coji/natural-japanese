@@ -35,6 +35,17 @@
     { "id": "n7", "set": "test", "should_trigger": false, "query": "この技術書の章を一文一行形式に整形して" },
     { "id": "n8", "set": "test", "should_trigger": false, "query": "Pythonのdocstringを書いて" },
     { "id": "n9", "set": "test", "should_trigger": false, "query": "この日本語を英訳してnativeっぽくして" },
-    { "id": "n10", "set": "test", "should_trigger": false, "query": "スペルミスだけ直して、内容はそのまま" }
+    { "id": "n10", "set": "test", "should_trigger": false, "query": "スペルミスだけ直して、内容はそのまま" },
+    { "id": "p21", "set": "train", "should_trigger": true, "query": "この文章読みにくいから直して" },
+    { "id": "p22", "set": "train", "should_trigger": true, "query": "何が言いたいのかよく分からない文章を分かりやすくしたい" },
+    { "id": "p23", "set": "train", "should_trigger": true, "query": "報告書の文章を校正してほしい" },
+    { "id": "p24", "set": "train", "should_trigger": true, "query": "取引先に送るメールの文面を見てほしい" },
+    { "id": "p25", "set": "train", "should_trigger": true, "query": "提案書の日本語をもっとわかりやすくしたい" },
+    { "id": "p26", "set": "test", "should_trigger": true, "query": "一文が長すぎて読みにくいので直して" },
+    { "id": "p27", "set": "test", "should_trigger": true, "query": "読点の位置がおかしい気がする" },
+    { "id": "p28", "set": "test", "should_trigger": true, "query": "上司から報告書がわかりにくいと言われた" },
+    { "id": "n11", "set": "train", "should_trigger": false, "query": "この報告書のグラフをExcelで作って" },
+    { "id": "n12", "set": "train", "should_trigger": false, "query": "英語のビジネス提案書をレビューして" },
+    { "id": "n13", "set": "test", "should_trigger": false, "query": "報告書のテンプレートのExcelファイルを作って" }
   ]
 }

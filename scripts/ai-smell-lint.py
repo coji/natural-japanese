@@ -340,11 +340,36 @@ GENRE_PROFILES: dict[str, dict] = {
         "nominal_min_chars": 3000,
         "lead_repeat_threshold": 7,
     },
-    # business はコーパスが薄い（人間n=10、AI側の該当データなし）ため、
-    # 指示どおり tech と同値を暫定採用する（後日コーパス拡充後に見直す）。
+    # business は 2026-07 の実地校正（corpus/reports/business-calibration.md）で
+    # 実測した。人間側コーパスは corpus/human/web の biz-* 10件のみと薄いため、
+    # 「AIで強く光る検出器を厳しくする」方向の調整はせず、事業文書の正当な慣習
+    # （箇条書き・太字強調・定型見出し・フェーズ表現）と衝突しうる検出器は
+    # 無効化するに留めている（詳細は上記レポート参照）。
+    #   - nominal_min_chars: tech と同値（3000）を維持。実測では business
+    #     コーパス（人間・AIとも）で nominal_ending が閾値に関わらず一度も
+    #     発火しなかった（文書が短くAI/人間どちらの誤検知リスクも無い）ため、
+    #     変更する実測的根拠がない。
+    #   - lead_repeat_threshold: tech と同値（7）を維持。実測でこの値が
+    #     human_business の誤検知（デフォルト閾値6で20%→閾値7で10%）を
+    #     半減させつつ ai_business の検出率（4%）を落とさない局所最適点。
+    #   - disabled_categories: high_bullet_ratio・high_bold_density・
+    #     boilerplate_heading・numbered_phase_structure は、事業文書
+    #     （報告書・提案書・議事録等）で箇条書き・太字強調・「まとめ」等の
+    #     定型見出し・フェーズ/ステップ表現が正当に多用されるため、
+    #     AI側の発火率がどうであれ business ジャンルでは無効化する。
+    #     これらはいずれも EXPERIMENTAL_CATEGORIES に属し、デフォルトでは
+    #     既に出力されない（--experimental 指定時のみ影響する）が、将来
+    #     デフォルト化された場合の誤検知を防ぐため、ジャンル側でも明示的に
+    #     無効化しておく。
     "business": {
         "nominal_min_chars": 3000,
         "lead_repeat_threshold": 7,
+        "disabled_categories": {
+            "high_bullet_ratio",
+            "high_bold_density",
+            "boilerplate_heading",
+            "numbered_phase_structure",
+        },
     },
 }
 
@@ -1968,6 +1993,13 @@ def run_lint(
     # EXPERIMENTAL_CATEGORIES はデフォルトでは除外する（--experimental でのみ出力）。
     if not experimental:
         findings = [f for f in findings if f.category not in EXPERIMENTAL_CATEGORIES]
+
+    # ジャンルプロファイルによるカテゴリ単位の無効化（現状 business のみ使用）。
+    # --experimental を付けて実験的カテゴリを表示させた場合でも、そのジャンルの
+    # 正当な文書慣習と衝突すると判定された検出器はここで確実に除外する。
+    disabled_categories = profile.get("disabled_categories", set())
+    if disabled_categories:
+        findings = [f for f in findings if f.category not in disabled_categories]
 
     findings.sort(key=lambda f: f.line)
 

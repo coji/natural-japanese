@@ -8,5 +8,15 @@ corpus/ai/*
 !corpus/ai/.gitkeep
 
 # corpus/reports: calibrate.py の出力（再生成可能なレポート）
+# readability-sweep.md / business-calibration.md はドキュメントから参照される
+# 根拠レポートのため例外的にコミット対象とする（著作権のある引用は含まない）
 corpus/reports/*
 !corpus/reports/.gitkeep
+!corpus/reports/readability-sweep.md
+!corpus/reports/business-calibration.md
+
+# corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
+# readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象
+corpus/experiments/*
+!corpus/experiments/.gitkeep
+!corpus/experiments/readability-sweep.py

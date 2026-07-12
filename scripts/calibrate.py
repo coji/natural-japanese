@@ -83,16 +83,41 @@ def _read_texts(directory: Path, patterns: list[str]) -> list[Path]:
     return files
 
 
+def _load_sources_genre_map() -> dict[str, str]:
+    """corpus/sources.json の id -> genre マップを返す（business 判定用）。
+    ファイルが無い/壊れている場合は空 dict を返す（コーパスが部分的でも動く要件）。
+    """
+    sources_path = CORPUS_DIR / "sources.json"
+    if not sources_path.exists():
+        return {}
+    try:
+        entries = json.loads(sources_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return {e.get("id"): e.get("genre") for e in entries if isinstance(e, dict) and e.get("id")}
+
+
 def load_corpus() -> dict[str, list[CorpusDoc]]:
     """corpus/human/aozora, corpus/human/web, corpus/ai/**  を読み込む。
     存在しないディレクトリ・0件のディレクトリがあっても構わない
     （コーパスが部分的でも動く要件）。読めないファイル（binary 等）はスキップする。
+
+    加えて、business ジャンル校正用に human_business / ai_business のサブビンも作る。
+    human 側は corpus/sources.json の genre=="business" で判定（human/web 配下の
+    biz-* ファイル）。ai 側はファイル名が "business-" で始まるかで判定
+    （corpus/ai/<model>/business-*.md の命名規則に依拠）。
+    どちらも上記の human_web / ai 集合の部分集合であり、二重集計にはならない
+    （report のマトリクスでは別列として並べて表示するだけ）。
     """
     groups: dict[str, list[CorpusDoc]] = {
         "human_aozora": [],
         "human_web": [],
+        "human_business": [],
         "ai": [],
+        "ai_business": [],
     }
+
+    genre_map = _load_sources_genre_map()
 
     aozora_files = _read_texts(CORPUS_DIR / "human" / "aozora", ["*.txt", "*.md"])
     for p in aozora_files:
@@ -111,6 +136,8 @@ def load_corpus() -> dict[str, list[CorpusDoc]]:
             continue
         if text.strip():
             groups["human_web"].append(CorpusDoc("human_web", p, text))
+            if genre_map.get(p.stem) == "business":
+                groups["human_business"].append(CorpusDoc("human_business", p, text))
 
     ai_files = _read_texts(CORPUS_DIR / "ai", ["*.md", "*.txt"])
     for p in ai_files:
@@ -120,6 +147,8 @@ def load_corpus() -> dict[str, list[CorpusDoc]]:
             continue
         if text.strip():
             groups["ai"].append(CorpusDoc("ai", p, text))
+            if p.name.startswith("business-"):
+                groups["ai_business"].append(CorpusDoc("ai_business", p, text))
 
     return groups
 
@@ -316,19 +345,21 @@ def cmd_report(mod) -> None:
     lines_out.append("")
     lines_out.append(
         f"標本数: human_aozora={sample_counts['human_aozora']}件, "
-        f"human_web={sample_counts['human_web']}件, ai={sample_counts['ai']}件"
+        f"human_web={sample_counts['human_web']}件（うち business={sample_counts['human_business']}件）, "
+        f"ai={sample_counts['ai']}件（うち business={sample_counts['ai_business']}件）"
     )
     lines_out.append("")
     lines_out.append(
         "各セルは「文書発火率（1件以上検出した文書の割合）／1000字あたり件数」。"
-        "標本0件の種別は `-` 表記。"
+        "標本0件の種別は `-` 表記。human_business/ai_business はそれぞれ "
+        "human_web/ai の部分集合（business ジャンルのみ）で、二重集計ではなく参考列。"
     )
     lines_out.append("")
-    lines_out.append("| 検出器 | human_aozora | human_web | ai |")
-    lines_out.append("| --- | --- | --- | --- |")
+    lines_out.append("| 検出器 | human_aozora | human_web | human_business | ai | ai_business |")
+    lines_out.append("| --- | --- | --- | --- | --- | --- |")
     for category in ALL_CATEGORIES:
         row = [category]
-        for corpus_type in ("human_aozora", "human_web", "ai"):
+        for corpus_type in ("human_aozora", "human_web", "human_business", "ai", "ai_business"):
             cell = matrix[category][corpus_type]
             if cell["n_docs"] == 0:
                 row.append("-")
