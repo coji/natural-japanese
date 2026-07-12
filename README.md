@@ -3,17 +3,21 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-読みやすくわかりやすい、自然な日本語の文章を書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。AI臭さ（AIっぽい／機械翻訳っぽい）の除去を中核機能としつつ、語順・読点・一文一義といった読みやすさ全般の改善、note・ブログ・エッセイ・技術文書・ビジネス文書（報告書・メール・提案書）など文種を問わず使えます。
+仕事の日本語を、読みやすくわかりやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成といった仕事の文書から、note・ブログ・エッセイまで。AIと文書を作るとき毎回プロンプトに書いている指示——結論から書いて、論旨を明確に、見出しは端的に、専門用語は文中で説明して——を、書く前の設計・書くときの制約・書いた後の検査の全工程に組み込みます。AI臭さ（AIっぽい／機械翻訳っぽい）の除去は工程の一部です。
 
-> An Agent Skill for writing and revising readable, natural Japanese text — mechanically detecting and removing "AI-smelling" patterns via sudachipy morphological analysis, then guiding a readability review pass using curated references, iterating until the text converges.
+> An Agent Skill for writing clear, readable Japanese work documents — designing the argument before writing, constraining generation with a 12-article style constitution, then mechanically detecting "AI-smelling" patterns via sudachipy morphological analysis and iterating until the text converges.
 
 ## 設計思想
 
-AI は自分自身の AI 臭さを認識しにくい、という前提に立ちます。だから修正の前に、まず `scripts/ai-smell-lint.py` が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。何をどう直すかはエージェント（あなた）の判断に委ねます。「検出は機械、判断は人間（またはAI）」という役割分担が軸です。
+軸は二つあります。
+
+第一に「検出は機械、判断は人間（またはAI）」。AI は自分自身の AI 臭さを認識しにくい、という前提に立ち、修正の前にまず `scripts/ai-smell-lint.py` が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。何をどう直すかはエージェント（あなた）の判断に委ねます。
 
 - 禁止語・紋切り型フレーズの検出（`references/forbidden-patterns.md`）
 - 文リズムの単調さ、段落構造の均質さの検出
 - 英語統語の直訳調（無生物主語+他動詞、連体修飾の入れ子など）の検出
+
+第二に「事後修正より生成時制約」。書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しスケルトン）と書くときの制約（`references/writing-constitution.md` の文体憲法12箇条）で発生自体を防ぐほうが効きます。文書タイプ別の型——議事録・調査レポート・社内ガイド・リサーチメモ/ディスカッションペーパー・スライド構成——は `references/doctypes/` にまとめてあります。
 
 一方で、語順・読点の位置・一文一義・主語述語の距離といった「そもそも読みにくい」領域は、コーパス検証の結果、機械的な閾値化ができない判断領域だと判明しています（`corpus/reports/readability-sweep.md`）。この領域は検出器を増やすのではなく、`references/readability-principles.md`（ジャンル横断の一般原則）と `references/readability-antipatterns.md`（悪文パターンカタログ）を参照しながら、AI自身が周回ごとに目視でレビューする設計にしています。ジャンル（tech/business/essay/公用文）ごとの判断の重みづけの違いは `references/genre-notes.md` にまとめてあります。
 
@@ -68,11 +72,11 @@ npx openskills sync
 
 スキルをインストールした状態で、以下のような場面で自動的に発動します。
 
+- 議事録の作成（文字起こしからの議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・ディスカッションペーパー・企画書、スライド構成案といった仕事の文書の作成・校正（ビジネス文書なら `--genre business` を使う）
+- 「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示
 - 「AIっぽい」「AI臭い」「機械翻訳っぽい」「不自然」といった指摘への修正
 - 「読みにくい」「何が言いたいか分からない」「一文が長い」「読点の位置がおかしい」といった読みやすさの改善依頼
-- 新規記事の執筆・下書き（note・ブログ・エッセイ）
-- 既存文章のリライト・推敲
-- 報告書・メール・提案書などビジネス文書の作成・校正（対象文書がビジネス文書なら `--genre business` を使う）
+- 新規記事の執筆・下書き（note・ブログ・エッセイ）、既存文章のリライト・推敲
 - 文体プロファイル（`style-profile.md`）のセットアップ
 
 フローは一回検出して終わりではありません。lint の指摘を「直した / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで**収束するまでループ**します。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
@@ -95,7 +99,8 @@ CI ゲートではなく lint であるため、検出件数に関わらず exit
 
 ```
 SKILL.md              # スキル本体（single source of truth）
-references/           # 禁止パターン・チェックリスト・翻訳調ガイド・読みやすさ原則/悪文カタログ/ジャンル差分など
+references/           # 文体憲法・禁止パターン・チェックリスト・翻訳調ガイド・読みやすさ原則/悪文カタログ/ジャンル差分など
+references/doctypes/  # 文書タイプ別の型（議事録・調査レポート・社内ガイド・メモ/DP・スライド）
 scripts/               # ai-smell-lint.py と fixtures
 assets/                # style-profile テンプレート
 skills/natural-japanese/  # プラグイン配布用コピー（自動生成。手で編集しない）
@@ -127,7 +132,7 @@ git config core.hooksPath .githooks
 
 このスキルの設計は、次の2つの公開資料に大きく影響を受けています。感謝します。
 
-- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、判断だけを委ねる」という本スキルの核となる考え方、揺らぎ設計、自己点検ループの元になった記事
+- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、判断だけを委ねる」という本スキルの核となる考え方、濃淡設計（旧称: 揺らぎ設計）、自己点検ループの元になった記事
 - [日本語技術文書の文章規範（k16shikano）](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) — 禁止語カタログのうち「LLMっぽい空句」のカテゴリ群（正面から系・空虚な形容・空虚な動詞）の出典
 
 ## ライセンス
