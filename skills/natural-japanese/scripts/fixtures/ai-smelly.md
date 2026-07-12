@@ -10,7 +10,7 @@
   旧設計の期待値（35/0）はコーパス校正で前提が誤りと判明した検出器
   （nested_attributive 削除、nominal_ending 反転等）を含んでいたため崩れている。
   2026-07 Phase 3 で low_specificity（段落単位の具体性/一般論臭検出器、
-  corpus/reports/sweep_low_specificity.md で校正）を新設し、一般論だけの段落を
+  corpus/reports/archive/sweep_low_specificity.md で校正）を新設し、一般論だけの段落を
   1つ追記して発火を確認した（既存の「このように、リモートワークには…」段落でも
   1件発火していたため、合計2件になっている）。
 -->

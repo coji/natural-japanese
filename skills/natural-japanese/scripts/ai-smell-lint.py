@@ -42,7 +42,7 @@ from pathlib import Path
 # ここは「拡張前提」のカタログ。新しい手癖フレーズに気づいたら追記していく。
 # 出典: HANDOFF.md 55-62行目、および note記事「禁止語60語超」の言及。
 #
-# 2026-07 コーパス校正（corpus/reports/deep-analysis.md §4a）による見直し:
+# 2026-07 コーパス校正（corpus/reports/archive/deep-analysis.md §4a）による見直し:
 # 実コーパス（人間103文書 + AI 81文書）で forbidden_phrase 全体の文書発火率が
 # human 58〜67% > ai 30〜33% と逆転していた。単語別ヒット数を見ると、
 # 「最後に」（人間48回 vs AI 2回）と「まさに」（人間24回 vs AI 0回）の2語だけで
@@ -181,7 +181,7 @@ ANTITHESIS_REPETITION_THRESHOLD = 3
 SENTENCE_VARIANCE_MIN_SENTENCES = 5
 SENTENCE_VARIANCE_CV_THRESHOLD = 0.25
 NOMINAL_ENDING_MIN_SENTENCES = 5
-# 2026-07 コーパス校正で検出方向を反転（corpus/reports/deep-analysis.md §3, §4b）。
+# 2026-07 コーパス校正で検出方向を反転（corpus/reports/archive/deep-analysis.md §3, §4b）。
 # 体言止めは AI の手癖ではなく人間の修辞技法で、essayジャンルでは人間60%が使う一方
 # AIは0%（essay同ジャンル比較、n=50/37）。「多用」を警告する検出器としては
 # 前提が誤りだったため、「長文なのに体言止めが1つもない」ことを人間的修辞の
@@ -198,7 +198,7 @@ UNIFORM_PARAGRAPH_MIN_PARAGRAPHS = 4
 UNIFORM_PARAGRAPH_CV_THRESHOLD = 0.15
 # NESTED_ATTRIBUTIVE_THRESHOLD は 2026-07 コーパス校正で検出器ごと削除（弁別力なし）。
 BURSTINESS_MIN_TOKENIZED = 6
-# 2026-07 コーパス校正（corpus/reports/sweep_low_burstiness.md）: 旧値-0.62では
+# 2026-07 コーパス校正（corpus/reports/archive/sweep_low_burstiness.md）: 旧値-0.62では
 # human/aiとも0%/0%で「無反応」だった。sweepで-0.9〜-0.2を走査した結果、
 # -0.24で human FP率2.4%・AI検出率100.0%と、他の統計系検出器の中では唯一
 # 弁別力を示したため、この値を採用する。ただしAI標本はn=3と極めて小さく、
@@ -219,7 +219,7 @@ NGRAM_TEMPLATE_RATIO_THRESHOLD = 0.4
 LEXDIV_MIN_TOKENS = 30
 TTR_THRESHOLD = 0.45
 MTLD_THRESHOLD = 40
-# 2026-07 コーパス校正（corpus/reports/length_analysis.md）: TTRが意味のある
+# 2026-07 コーパス校正（corpus/reports/archive/length_analysis.md）: TTRが意味のある
 # 差を示すのは文書長4000字以上のビンのみ（それ未満は human/ai とも0%で無意味）。
 LEXDIV_MIN_DOC_CHARS = 4000
 
@@ -236,9 +236,9 @@ LEXDIV_MIN_DOC_CHARS = 4000
 # 「密度」「率」は内容語（名詞/動詞/形容詞/副詞）数に対する割合。
 # 閾値・重みはこの時点では暫定値であり、scripts/calibrate.py の corpus/ 校正
 # （sweep --detector low_specificity）で確定させる前提（このコミット時点の値も
-# 校正済み。閾値変更の経緯は corpus/reports/sweep_low_specificity.md 参照）。
+# 校正済み。閾値変更の経緯は corpus/reports/archive/sweep_low_specificity.md 参照）。
 # ---------------------------------------------------------------------------
-# 2026-07 コーパス校正（corpus/reports/sweep_low_specificity.md、grid search
+# 2026-07 コーパス校正（corpus/reports/archive/sweep_low_specificity.md、grid search
 # ログはコミットしていないが手順は本ファイルのコメントに残す）: 当初の重み
 # （proper=3.0, numeric=4.0, abstract=1.0, threshold=0.05）は human FP率が
 # 46.6%（!）に達し、実用にならなかった。原因は「固有名詞も数値も例示マーカーも
@@ -263,7 +263,7 @@ LOW_SPECIFICITY_SCORE_THRESHOLD = -0.15
 #
 # 「こと」「もの」「の」はコーパス校正で除外した: 出現頻度が極端に高く
 # （human 82/103文書、ai 72/81文書で出現）、機能語に近い一般的な形式名詞のため
-# 弁別力がない（corpus/reports/sweep_low_specificity.md 参照）。
+# 弁別力がない（corpus/reports/archive/sweep_low_specificity.md 参照）。
 ABSTRACT_NOUN_WORDS: set[str] = {
     "側面",
     "観点",
@@ -1458,7 +1458,7 @@ def detect_lexical_diversity(
     """内容語（名詞/動詞/形容詞/副詞）の基本形を対象に TTR と MTLD を計測する。
     語彙が使い回されている（AIが同じ言い回しをループしがち）と TTR/MTLD が低くなる。
 
-    2026-07 コーパス校正（corpus/reports/length_analysis.md）: TTR は文書長
+    2026-07 コーパス校正（corpus/reports/archive/length_analysis.md）: TTR は文書長
     ~4000字未満のビンではhuman/aiとも一律0%で、統計として機能していない
     ことが判明した。4000字以上のビンで初めて意味のある差（human 77%）が
     出るため、文書全体の文字数が min_doc_chars 未満の場合は「文書が短いため
@@ -1906,7 +1906,7 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 # ---------------------------------------------------------------------------
 
 # 2026-07 コーパス校正で「無反応」（human/aiともにほぼ0%発火）と判定された
-# 検出器（corpus/reports/deep-analysis.md §3, §5）。sweepで閾値を緩めても
+# 検出器（corpus/reports/archive/deep-analysis.md §3, §5）。sweepで閾値を緩めても
 # low_burstiness 以外は弁別力を示す根拠データがまだない（sweepレポート未生成）ため、
 # 削除はせず「実験的（experimental）」としてデフォルト無効化する。
 # 加えて、新設の構造層検出器（high_bold_density 等）もまだ定量校正前なので

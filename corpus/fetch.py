@@ -2,6 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #     "httpx>=0.27",
+#     "pypdfium2>=4.30",
 # ]
 # ///
 """corpus/fetch.py — sources.json の type=web エントリを取得し、本文を
@@ -33,8 +34,9 @@ from pathlib import Path
 import httpx
 
 USER_AGENT = (
-    "natural-japanese-corpus-fetch/0.1 "
-    "(+https://github.com/coji/natural-japanese; research/calibration use)"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/122.0 Safari/537.36 "
+    "natural-japanese-corpus-fetch/0.1 (research/calibration use)"
 )
 
 CORPUS_DIR = Path(__file__).parent
@@ -101,6 +103,44 @@ def extract_title(html: str) -> str:
     return m.group(1).strip() if m else ""
 
 
+def extract_pdf(content: bytes) -> str:
+    """PDF バイト列からページ単位でテキストを抽出し、明らかなゴミ行
+    (単独のページ番号、ヘッダ/フッタの繰り返し行)を除去して結合する。"""
+    import pypdfium2 as pdfium
+
+    pdf = pdfium.PdfDocument(content)
+    page_texts = []
+    for page in pdf:
+        textpage = page.get_textpage()
+        page_texts.append(textpage.get_text_range())
+
+    # 繰り返し出現する短い行 (ヘッダ/フッタ) を検出して除去する
+    from collections import Counter
+
+    line_counts: Counter[str] = Counter()
+    for pt in page_texts:
+        for ln in {ln.strip() for ln in pt.splitlines() if ln.strip()}:
+            if len(ln) <= 40:
+                line_counts[ln] += 1
+    n_pages = max(len(page_texts), 1)
+    repeated = {
+        ln for ln, c in line_counts.items() if c >= max(3, n_pages // 2) and n_pages > 2
+    }
+
+    out_lines: list[str] = []
+    for pt in page_texts:
+        for ln in pt.splitlines():
+            s = ln.strip()
+            if not s:
+                continue
+            if s in repeated:
+                continue
+            if re.fullmatch(r"[-‐―ー0-9０-９ページPage/\s.]{1,10}", s):
+                continue
+            out_lines.append(s)
+    return "\n".join(out_lines)
+
+
 def extract_body(url: str, html: str) -> tuple[str, str]:
     """(抽出方式, 本文テキスト) を返す。"""
     if "note.com" in url:
@@ -145,11 +185,19 @@ def fetch_one(source: dict, client: httpx.Client) -> None:
     out_path = OUT_DIR / f"{source['id']}.md"
     url = source["url"]
     print(f"fetch: {source['id']} <- {url}", file=sys.stderr)
-    resp = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=30, follow_redirects=True)
+    resp = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=60, follow_redirects=True)
     resp.raise_for_status()
-    html = decode_html(resp)
-    method, body = extract_body(url, html)
-    title = source.get("title") or extract_title(html)
+
+    content_type = resp.headers.get("content-type", "").lower()
+    is_pdf = "application/pdf" in content_type or url.lower().split("?")[0].endswith(".pdf")
+    if is_pdf:
+        method = "pdf"
+        body = extract_pdf(resp.content)
+        title = source.get("title") or ""
+    else:
+        html = decode_html(resp)
+        method, body = extract_body(url, html)
+        title = source.get("title") or extract_title(html)
 
     frontmatter = (
         "---\n"

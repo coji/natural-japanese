@@ -1,4 +1,6 @@
-scripts/__pycache__/
+.DS_Store
+__pycache__/
+.claude/
 
 # corpus: 著作権のある本文・再生成可能な生成物はコミットしない
 # (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
@@ -7,13 +9,16 @@ corpus/human/web/*
 corpus/ai/*
 !corpus/ai/.gitkeep
 
-# corpus/reports: calibrate.py の出力（再生成可能なレポート）
-# readability-sweep.md / business-calibration.md はドキュメントから参照される
-# 根拠レポートのため例外的にコミット対象とする（著作権のある引用は含まない）
+# corpus/reports: calibrate.py の出力（再生成可能なレポート）。archive/ (旧世代)
+# と research/ (調査メモ) は直下のサブディレクトリごと非コミット。
+# readability-sweep.md / business-calibration.md / business-fp-check.md は
+# ドキュメントから参照される根拠レポートのため例外的にコミット対象とする
+# （著作権のある引用は含まない）
 corpus/reports/*
 !corpus/reports/.gitkeep
 !corpus/reports/readability-sweep.md
 !corpus/reports/business-calibration.md
+!corpus/reports/business-fp-check.md
 
 # corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
 # readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象

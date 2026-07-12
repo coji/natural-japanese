@@ -22,9 +22,9 @@ claude CLI または codex CLI に「素の状態」(AI臭除去の指示なし)
       次フェーズ)。
 
 使い方:
-    uv run corpus/generate.py --engine claude --model claude-sonnet-4-5 --limit 1
+    uv run corpus/generate.py --engine claude --model claude-sonnet-5 --limit 1
     uv run corpus/generate.py --engine codex --limit 1
-    uv run corpus/generate.py --engine claude --model claude-sonnet-4-5  # 全トピック生成(本格実行)
+    uv run corpus/generate.py --engine claude --model claude-sonnet-5  # 全トピック生成(本格実行)
 """
 
 from __future__ import annotations
@@ -97,6 +97,20 @@ TOPICS: list[dict] = [
     {"id": "business-consulting-kaizen", "genre": "business", "doc_type": "proposal", "topic": "コンサルティング提案(業務改善)"},
     {"id": "business-tool-donyu-ringi", "genre": "business", "doc_type": "proposal", "topic": "新規ツール導入稟議"},
     {"id": "business-marketing-sesaku", "genre": "business", "doc_type": "proposal", "topic": "マーケティング施策提案"},
+
+    # slide(スライド型資料: コンサル・ビジネスの現実的な場面)
+    {"id": "slide-dx-roadmap", "genre": "slide", "topic": "DX推進ロードマップについての経営層向け提案"},
+    {"id": "slide-cost-sakugen", "genre": "slide", "topic": "コスト削減施策についての経営層向け提案"},
+    {"id": "slide-shinki-jigyou-sannyu", "genre": "slide", "topic": "新規事業参入の検討についての経営層向け提案"},
+    {"id": "slide-shijou-chousa-summary", "genre": "slide", "topic": "市場調査結果サマリー"},
+    {"id": "slide-kokyaku-manzoku-chousa", "genre": "slide", "topic": "顧客満足度調査報告"},
+    {"id": "slide-kyougou-bunseki", "genre": "slide", "topic": "競合分析"},
+    {"id": "slide-zensha-kickoff", "genre": "slide", "topic": "全社キックオフの方針説明"},
+    {"id": "slide-shin-jinji-seido", "genre": "slide", "topic": "新人事制度の説明"},
+    {"id": "slide-system-ikou-keikaku", "genre": "slide", "topic": "システム移行計画の説明"},
+    {"id": "slide-service-shoukai", "genre": "slide", "topic": "サービス紹介資料"},
+    {"id": "slide-donyu-jirei", "genre": "slide", "topic": "導入事例紹介"},
+    {"id": "slide-partner-boshu", "genre": "slide", "topic": "パートナー募集説明"},
 ]
 
 PROMPT_TEMPLATE = "{topic}についてブログ記事を書いて。"
@@ -110,10 +124,18 @@ BUSINESS_PROMPT_TEMPLATES: dict[str, str] = {
 }
 
 
+SLIDE_PROMPT_TEMPLATE = (
+    "{topic}についてのプレゼン資料のスライド構成と各スライドの内容"
+    "(タイトル、メッセージライン、本文の箇条書き)をテキストで書いて。"
+)
+
+
 def build_prompt(topic: dict) -> str:
     if topic["genre"] == "business":
         template = BUSINESS_PROMPT_TEMPLATES[topic["doc_type"]]
         return template.format(topic=topic["topic"])
+    if topic["genre"] == "slide":
+        return SLIDE_PROMPT_TEMPLATE.format(topic=topic["topic"])
     return PROMPT_TEMPLATE.format(topic=topic["topic"])
 
 # generate.py は claude -p を1往復のみの非対話呼び出しとして使う。
@@ -157,9 +179,19 @@ def run_claude(prompt: str, model: str) -> str:
     return result.stdout.strip()
 
 
-def run_codex(prompt: str) -> str:
+def run_codex(prompt: str, model: str | None = None) -> str:
+    # codex exec には claude -p の --append-system-prompt に相当するフラグが
+    # ないため、非対話バッチ実行である旨の指示をプロンプト本文に前置する。
+    # これがないと、business ジャンルの「報告書/メールを書いて」のような
+    # 実務寄りのプロンプトに対して、codex が本文を書かず「情報を送って
+    # ください」という確認質問だけを返し、コーパスとして機能しないことがある。
+    full_prompt = f"{NONINTERACTIVE_SYSTEM_PROMPT}\n\n{prompt}"
+    cmd = ["codex", "exec", "--skip-git-repo-check"]
+    if model:
+        cmd += ["-m", model]
+    cmd.append(full_prompt)
     result = subprocess.run(
-        ["codex", "exec", "--skip-git-repo-check", prompt],
+        cmd,
         capture_output=True,
         text=True,
         timeout=300,
@@ -170,11 +202,18 @@ def run_codex(prompt: str) -> str:
 
 
 def generate_one(
-    topic: dict, engine: str, model: str, *, retries: int = 1, force: bool = False
+    topic: dict,
+    engine: str,
+    model: str,
+    *,
+    model_explicit: bool = True,
+    retries: int = 1,
+    force: bool = False,
 ) -> dict | None:
     """1トピックを生成する。スキップ時は None、生成時はメタ情報 dict を返す。"""
     prompt = build_prompt(topic)
-    out_model = "codex-cli" if engine == "codex" else model
+    codex_model = model if (engine == "codex" and model_explicit) else None
+    out_model = (codex_model or "codex-cli") if engine == "codex" else model
     out_dir = AI_DIR / out_model
     out_path = out_dir / f"{topic['id']}.md"
 
@@ -191,7 +230,7 @@ def generate_one(
             if engine == "claude":
                 body = run_claude(prompt, model)
             elif engine == "codex":
-                body = run_codex(prompt)
+                body = run_codex(prompt, codex_model)
             else:
                 raise ValueError(f"unknown engine: {engine}")
             last_error = None
@@ -234,10 +273,15 @@ def generate_one(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI コーパス生成(claude/codex CLI 経由)")
+    DEFAULT_MODEL = "claude-sonnet-5"
     parser.add_argument("--engine", choices=["claude", "codex"], default="claude")
-    parser.add_argument("--model", default="claude-sonnet-4-5", help="claude -p --model に渡すモデル名")
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help="claude -p --model / codex exec -m に渡すモデル名(--engine codex でも有効)",
+    )
     parser.add_argument("--limit", type=int, help="先頭 N トピックだけ生成する(動作確認用)")
-    parser.add_argument("--genre", choices=["essay", "tech", "blog", "business"], help="このジャンルだけ生成する")
+    parser.add_argument("--genre", choices=["essay", "tech", "blog", "business", "slide"], help="このジャンルだけ生成する")
     parser.add_argument("--retries", type=int, default=1, help="失敗時のリトライ回数(既定 1)")
     parser.add_argument("--force", action="store_true", help="既存ファイルがあっても再生成する")
     args = parser.parse_args()
@@ -248,9 +292,17 @@ def main() -> None:
     if args.limit:
         topics = topics[: args.limit]
 
+    model_explicit = args.model != DEFAULT_MODEL
     for topic in topics:
         try:
-            generate_one(topic, args.engine, args.model, retries=args.retries, force=args.force)
+            generate_one(
+                topic,
+                args.engine,
+                args.model,
+                model_explicit=model_explicit,
+                retries=args.retries,
+                force=args.force,
+            )
         except subprocess.CalledProcessError as e:
             print(f"  ERROR: {topic['id']}: {e.stderr}", file=sys.stderr)
         except Exception as e:  # noqa: BLE001

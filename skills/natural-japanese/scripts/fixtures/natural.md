@@ -3,7 +3,7 @@
   `uv run scripts/ai-smell-lint.py scripts/fixtures/natural.md --json` → 0件
   `--experimental` を付けても 0件（EXPERIMENTAL_CATEGORIES も含めて発火なし）。
   旧設計時は文長のばらつきが不足しており low_burstiness（新閾値-0.24。
-  corpus/reports/sweep_low_burstiness.md 参照）が誤検知していたため、
+  corpus/reports/archive/sweep_low_burstiness.md 参照）が誤検知していたため、
   文長にメリハリを持たせるよう本文を調整している。
   2026-07 Phase 3 で追加した low_specificity（段落単位の具体性/一般論臭検出器）
   もこの文書では0件（固有名詞・実例・エピソードが豊富なため）。

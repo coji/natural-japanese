@@ -10,7 +10,7 @@
 - AI(Claude / GPT系)が「素の状態」(AI臭除去の指示なしで)書いた文章
   (AIコーパス)に対する検出率を測る
 - 「人間側 FP率 5% 未満を保ちつつ AI 側検出率最大」となる閾値を
-  `scripts/calibrate.py`(Phase 2 後半で実装)で探索する
+  `scripts/calibrate.py` で探索する
 
 このコーパス自体は成果物ではなく、lint の品質を裏付けるための実験基盤。
 
@@ -18,14 +18,17 @@
 
 ```
 corpus/
-├── README.md          このファイル
-├── sources.json        人間コーパス(web/aozora)のソース定義
-├── fetch.py            sources.json の type=web を取得して corpus/human/web/ に保存
-├── generate.py         AI コーパスを claude/codex CLI 経由で生成し corpus/ai/ に保存
+├── README.md            このファイル
+├── sources.json          人間コーパス(web/aozora)のソース定義
+├── fetch.py               sources.json の type=web を取得して corpus/human/web/ に保存
+├── generate.py            AI コーパスを claude/codex CLI 経由で生成し corpus/ai/ に保存
+├── generate-all.sh        全モデル × 全ジャンルを一括生成するランナー(generate.py のループ)
 ├── human/
-│   ├── aozora/          青空文庫の随筆(パブリックドメイン、コミット対象)
-│   └── web/             note/Zenn の記事本文(著作権あり、非コミット、.gitkeep のみ)
-└── ai/                  AI生成記事(非コミット、.gitkeep のみ。再生成可能なため)
+│   ├── aozora/             青空文庫の随筆(パブリックドメイン、コミット対象)
+│   └── web/                note/Zenn/官公庁 等の記事本文(著作権あり、非コミット、.gitkeep のみ)
+├── ai/                     AI生成記事(非コミット、.gitkeep のみ。再生成可能なため)
+├── experiments/            検出器候補の使い捨て検証スクリプト・生データ(非コミット、一部例外あり)
+└── reports/                calibrate.py 等の出力レポート(下記「reports の構成」参照)
 ```
 
 ## ライセンス方針
@@ -33,8 +36,8 @@ corpus/
 | 区分 | 方針 | 理由 |
 | --- | --- | --- |
 | `corpus/human/aozora/` | **コミット可** | 青空文庫はパブリックドメイン作品(著作権保護期間満了)のみを収録。各ファイル冒頭に出典コメントを明記している。 |
-| `corpus/human/web/` | **非コミット**(`.gitignore` 対象) | note/Zenn 等の著作権のある記事本文をそのまま複製することになるため、評価目的であってもリポジトリに含めない。`corpus/sources.json` に URL のみを記録し、`fetch.py` で各自ローカルに取得する運用とする。 |
-| `corpus/ai/` | **非コミット**(`.gitignore` 対象) | `generate.py` で再生成可能であり、生成コスト(API呼び出し)をリポジトリサイズに持ち込む必要がないため。 |
+| `corpus/human/web/` | **非コミット**(`.gitignore` 対象) | note/Zenn/官公庁サイト等の著作権のある記事本文をそのまま複製することになるため、評価目的であってもリポジトリに含めない。`corpus/sources.json` に URL のみを記録し、`fetch.py` で各自ローカルに取得する運用とする。 |
+| `corpus/ai/` | **非コミット**(`.gitignore` 対象) | `generate.py` / `generate-all.sh` で再生成可能であり、生成コスト(API呼び出し)をリポジトリサイズに持ち込む必要がないため。 |
 
 `.gitkeep` はディレクトリ構成を保つためにコミットする(`.gitignore` の例外)。
 
@@ -62,25 +65,65 @@ corpus/
 理想的には、閾値校正のFP基準集合は「`quality: high` かつ `ai_era_risk` なし(2022年以前)」の記事に
 絞り込むことが望ましい。
 
-## 使い方
+## 収録状況
+
+- `corpus/human/aozora/`: 寺田寅彦・中島敦・坂口安吾・岸田國士の随筆 12本(実収録・コミット済み)
+- `corpus/human/web/`: `sources.json` に基づき `fetch.py` で取得した記事本文 125本
+  (note エッセイ 38 + Zenn 技術記事 43 + 官公庁系ビジネス文書 32 + スライド系資料 12)
+- `corpus/sources.json`: 上記 web エントリ 137件のソース定義(ジャンル別内訳: essay 50 / tech 43 / business 32 / slide 12。
+  一部エントリは genre ラベルと human/web/ 上のファイル接頭辞(note-/zenn-/biz-/slide-)が対応する)
+- `corpus/ai/`: 7モデル × 58本(essay/tech/blog 各10 + business 12 + slide 12) = 406本
+  (`generate.py` / `generate-all.sh` で全モデル・全ジャンル生成済み)
+  - Claude 系: `claude-haiku-4-5` / `claude-sonnet-5` / `claude-opus-4-8` / `claude-fable-5`
+  - Codex 系: `gpt-5.6-sol` / `gpt-5.6-terra` / `gpt-5.6-luna`
+
+## 再現手順
 
 ```bash
-# 人間コーパス(Web記事)をローカルに取得
+# 1. 人間コーパス(Web記事)をローカルに取得
 uv run corpus/fetch.py                      # 全件
 uv run corpus/fetch.py --limit 3            # 試走(先頭3件)
 uv run corpus/fetch.py --id <source-id>     # 1件だけ
 
-# AI コーパスを生成
-uv run corpus/generate.py --engine claude --model claude-sonnet-4-5 --limit 1  # 動作確認
-uv run corpus/generate.py --engine claude --model claude-sonnet-4-5           # 本格生成
-uv run corpus/generate.py --engine codex                                       # codex CLI 経由
+# 2. AI コーパスを生成
+uv run corpus/generate.py --engine claude --model claude-sonnet-5 --limit 1  # 動作確認
+uv run corpus/generate.py --engine claude --model claude-sonnet-5            # 1モデル・全ジャンル
+uv run corpus/generate.py --engine codex --genre business                    # 1モデル・1ジャンル
+./corpus/generate-all.sh                                                     # 全モデル × 全ジャンル一括
+#   generate.py は出力ファイルが既に存在する場合スキップするため、
+#   generate-all.sh は何度実行しても未生成分だけを追加生成する(安全に再実行可能)。
+
+# 3. 検出器の閾値校正・集計レポートを生成
+uv run scripts/calibrate.py report
 ```
 
-## 収録状況(Phase 2 コーパス基盤構築時点)
+## reports の構成
 
-- `corpus/human/aozora/`: 寺田寅彦・中島敦・坂口安吾・岸田國士の随筆 12本(実収録・コミット済み)
-- `corpus/sources.json`: 青空文庫12本 + note/Zenn の web記事32本(essay/tech genre)、計44エントリ
-- `corpus/human/web/`: `fetch.py` で3本を試走し抽出品質を確認済み(全件取得はコーパス本格構築フェーズで実施)
-- `corpus/ai/`: `generate.py` の動作確認として1本のみ生成済み(本格生成は次フェーズ)
+`corpus/reports/` は用途別に3層に分かれている:
 
-閾値校正(`scripts/calibrate.py`)自体は Phase 2 後半の作業であり、このディレクトリはまだ含まない。
+- **直下(`corpus/reports/*.md`)**: 現行の根拠レポート。コミット対象
+  (`.gitignore` に個別の否定パターンあり)。
+  - `readability-sweep.md` / `business-calibration.md` / `business-fp-check.md`
+  - ドキュメント(`references/`, `scripts/ai-smell-lint.py` のコメント等)から参照される、
+    現行の検出器設計の根拠となっているレポート。
+- **`corpus/reports/archive/`**: v0.3.0 校正期に作成された旧世代レポート。非コミット
+  (ローカルのみ、再生成しない過去のスナップショット)。ドキュメント中の経緯説明コメントから
+  参照されることがある(例: `deep-analysis.md`, `sweep_low_burstiness.md` 等)が、
+  再生成の対象ではない。
+- **`corpus/reports/research/`**: 収集・調査メモ。非コミット。
+  `business-corpus-sources.md`, `embed-research.md` など、レポートというより作業ログに近いもの。
+
+`calibrate.py` および `corpus/experiments/readability-sweep.py` の出力先は
+`corpus/reports/` 直下のまま(サブディレクトリ化していない)。次回実行時は直下に新しい版が
+生成される運用とし、必要であれば手動で `archive/` に退避する。
+
+## 収集の規律
+
+- **公開時期**: 人間側正例は原則として pre-2023(2022年以前公開、`ai_era_risk` なし)を優先する。
+  2023年以降の記事は生成AIによる執筆・校正支援の混入リスクがあるため `ai_era_risk: true` を付与し、
+  参考ビンとして残すが閾値校正の基準集合には含めない。
+- **quality 判定**: 機械的指標ではなく、1本ずつ本文を読んで文章としての完成度(リズム・冗長性のなさ・
+  読む際の負荷の低さ)を主観評価し `quality: "high"` / `"ordinary"` を付与する。
+- **FP基準集合**: 検出器の人間側 FP 率算出には `quality: "high"` かつ(aozora の場合)
+  `register: "modern-colloquial-classic"` のエントリのみを使う。`quality: "ordinary"` や
+  `register: "literary-classic"` は参考ビンとして保持するが、閾値算出には使わない。
