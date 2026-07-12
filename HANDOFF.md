@@ -1,8 +1,7 @@
-# kotonoha（仮名）— 引き継ぎドキュメント
+# natural-japanese — 引き継ぎドキュメント
 
-> 2026-07-12 に dajare リポジトリのセッションで行った設計議論の引き継ぎ。
-> このプロジェクトは「AI臭くない日本語文章」を書かせる Agent Skill / Claude Code プラグイン。
-> プロジェクト名は仮。決まったらディレクトリ名ごと rename する。
+> 2026-07-12 の設計議論の引き継ぎ。
+> このプロジェクトは「AI臭くない自然な日本語文章」を書かせる Agent Skill / Claude Code プラグイン。
 
 ## 元ネタとなる2記事
 
@@ -31,12 +30,12 @@
 
 ## 決定済みの設計方針
 
-### アーキテクチャ: 「dajare型 + lint」の1スキル構成
+### アーキテクチャ: 「オーケストレーター + 決定的 lint」の1スキル構成
 
-執筆フローは直列＋ループ（下書き→静的検知→自己点検→修正→再検知）なので、Sub-agent 並列型は不要、独立スキル Chain にするほど各段階に単体再利用価値なし。dajare リポジトリ（/Users/coji/progs/oss/dajare）と同じ「オーケストレーター SKILL.md + references/ + scripts/」構成を採用。dajare の rhyme.py（AIが苦手な音韻判定の決定化）と同じ役割を、AI臭検知スクリプトが担う。
+執筆フローは直列＋ループ（下書き→静的検知→自己点検→修正→再検知）なので、Sub-agent 並列型は不要、独立スキル Chain にするほど各段階に単体再利用価値なし。「フロー制御に徹する SKILL.md + 段階的開示用の references/ + AIが苦手な判定を決定化する scripts/」という構成を採用する。
 
 ```
-kotonoha/
+natural-japanese/
 ├── SKILL.md                    # フロー制御のみ（~120行、Progressive Disclosure）
 ├── scripts/
 │   └── ai-smell-lint.py        # PEP 723 + uv run。決定的なAI臭検知
@@ -49,6 +48,8 @@ kotonoha/
     └── style-profile-template.md
 ```
 
+Progressive Disclosure の3層: Level 1 = name+description（常時注入、~100トークン）、Level 2 = SKILL.md 本体（トリガー時）、Level 3 = references/・scripts/（フロー中に必要時のみ）。
+
 ### 勝ち筋（差別化の核）
 
 1. **静的検知スクリプト `ai-smell-lint.py`**。「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、修正判断だけAIに委ねる」を実装。検出対象案:
@@ -57,27 +58,28 @@ kotonoha/
    - 禁止語ヒット
    - 翻訳調（「〜することができる」「〜と言えるだろう」）
    - 体言止め頻度、段落頭の接続詞率
-   - 形態素解析は sudachipy（dajare で実績あり、PEP 723: sudachipy>=0.6.8, sudachidict-core>=20240409, requires-python >=3.10）
+   - 形態素解析は sudachipy（PEP 723: sudachipy>=0.6.8, sudachidict-core>=20240409, requires-python >=3.10, uv run で実行）
 2. **英語統語への部分回答**。生成側での修正は無理でも*検出*は形態素レベルで機械化可能（無生物主語+他動詞、連体修飾の入れ子、「それは〜である。なぜなら〜だ」構文）。「検出→書き直し指示→再検出」の外部ループで、AIが自己認識できない問題を回す。記事の「未解決の壁」への挑戦がこのスキルの本気ポイント。
 
 ### skill-creator 知見の適用
 
 - references は Why-driven の文体で書く
 - description は skill-creator の eval フロー（evals.json、with/without 比較）で統計的に最適化。執筆系はトリガー競合が激しい領域
-- 環境フォールバック: Claude.ai では uv run 不可 → lint の文章版チェックリストを references に持たせ、スクリプトは「あれば強化」のオプショナル扱い（agentic-bench 方式）
+- 環境フォールバック: Claude.ai では uv run 不可 → lint の文章版チェックリストを references に持たせ、スクリプトは「あれば強化」のオプショナル扱い
+
+### リポジトリ運用の規約（配布まで見据えた雛形）
+
+- **SKILL.md frontmatter**: agentskills.io 仕様で必須は name / description のみ。任意で license / metadata / compatibility / allowed-tools。`license: MIT` を入れる。`triggers` のような非標準フィールドは使わず、トリガー語は description に織り込む。name はディレクトリ名と一致（小文字英数字+ハイフン）
+- **配布4チャネル**: `npx skills add`（ルート SKILL.md）/ `npx openskills install`（AGENTS.md）/ Claude Code plugin marketplace（.claude-plugin/ + skills/ 配下コピー）/ GitHub Releases の .skill（実体は zip、Actions で自動ビルド）
+- **single source of truth**: ルートが正、`skills/` 配下はプラグイン配布用コピー。pre-commit hook で同期（一時ディレクトリにコピー→mv のアトミック置換、set -euo pipefail）
+- plugin.json と marketplace.json の version は常に一致させる
 
 ## 未決の論点（次セッションで詰める）
 
 1. **「まなざし」の扱い** — 提案: 初回にユーザーの過去文章を数本読ませて `style-profile.md` を生成し以後参照するセットアップフローをスキル内に持つ。プロファイルなしでも動く汎用モード（AI臭除去のみ）をデフォルトに。→ ユーザー未回答
 2. **既存の japanese-tech-writing スキル（coji のグローバルスキル）との関係** — 軸が違う（技術書規範 vs AI臭除去+文体）ので別スキルで良さそうだが、禁止句リスト（LLMっぽい空句）が重なるので参照関係を整理したい。→ 未決
 3. **スコープ** — 提案: まずブログ/note記事特化で始めて広げる（記事の知見はエッセイ寄りで検証されているため）。→ 未決
-4. **プロジェクト名** — kotonoha は仮。
 
 ## 推奨する最初の一手
 
 `ai-smell-lint.py` のプロトタイプを先に作る。何をどこまで機械検出できるかが分かると、SKILL.md のフロー設計（何をスクリプトに任せ、何をAIの判断に残すか）が地に足がつく。
-
-## 参照リポジトリ
-
-- **dajare** (/Users/coji/progs/oss/dajare) — 構造の参考元。CLAUDE.md に single-source-of-truth ルール、pre-commit hook による skills/ 同期、4配布チャネル（npx skills / openskills / plugin marketplace / .skill リリース）、GitHub Actions での .skill 自動ビルドがすべて揃っている。2026-07 にモダン化済み（PR #6）で、そのまま雛形にできる。
-- agentskills.io 仕様: 必須は name/description のみ。任意: license / metadata / compatibility / allowed-tools。非標準フィールド（triggers 等）は使わない。license: MIT を frontmatter に入れる。
