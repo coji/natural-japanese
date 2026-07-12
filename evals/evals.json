@@ -1,0 +1,40 @@
+{
+  "skill_name": "natural-japanese",
+  "description": "Trigger-precision eval set for the natural-japanese SKILL.md description. 20 positive queries (should trigger the skill; direct/indirect/colloquial phrasings) and 10 negative queries (should NOT trigger; adjacent domains such as English writing, JA->EN translation, code comments, technical-spec formatting overlapping with the japanese-tech-writing skill, and simple typo fixes). Split 60/40 into train/test by index order (train = positives 1-12 + negatives 1-6; test = positives 13-20 + negatives 7-10).",
+  "split": {
+    "train": "positive[1-12] + negative[1-6]",
+    "test": "positive[13-20] + negative[7-10]"
+  },
+  "evals": [
+    { "id": "p1", "set": "train", "should_trigger": true, "query": "この文章AIっぽいから直して" },
+    { "id": "p2", "set": "train", "should_trigger": true, "query": "noteの記事書いて" },
+    { "id": "p3", "set": "train", "should_trigger": true, "query": "もっと自然な日本語にして" },
+    { "id": "p4", "set": "train", "should_trigger": true, "query": "機械翻訳みたいと言われた" },
+    { "id": "p5", "set": "train", "should_trigger": true, "query": "ブログのリライトお願い" },
+    { "id": "p6", "set": "train", "should_trigger": true, "query": "文体を学ばせたい" },
+    { "id": "p7", "set": "train", "should_trigger": true, "query": "この原稿、なんかAI臭いんだよね" },
+    { "id": "p8", "set": "train", "should_trigger": true, "query": "エッセイの下書きを書いてほしい" },
+    { "id": "p9", "set": "train", "should_trigger": true, "query": "「〜することができる」を直したい" },
+    { "id": "p10", "set": "train", "should_trigger": true, "query": "過去記事を読ませて自分っぽく書いてほしい" },
+    { "id": "p11", "set": "train", "should_trigger": true, "query": "読み手に「これAIで書いた?」って聞かれた" },
+    { "id": "p12", "set": "train", "should_trigger": true, "query": "文章が単調で機械っぽいと指摘された" },
+    { "id": "p13", "set": "test", "should_trigger": true, "query": "この文章を人間っぽくして" },
+    { "id": "p14", "set": "test", "should_trigger": true, "query": "ブログ記事の推敲をお願いしたい" },
+    { "id": "p15", "set": "test", "should_trigger": true, "query": "禁止語チェックしてほしい" },
+    { "id": "p16", "set": "test", "should_trigger": true, "query": "段落構造が均質すぎる気がする" },
+    { "id": "p17", "set": "test", "should_trigger": true, "query": "リズムが単調な文章を直したい" },
+    { "id": "p18", "set": "test", "should_trigger": true, "query": "私の文体プロファイルを作ってほしい" },
+    { "id": "p19", "set": "test", "should_trigger": true, "query": "会社ブログの記事を書いて、機械っぽくならないように" },
+    { "id": "p20", "set": "test", "should_trigger": true, "query": "この文章、翻訳っぽい/直訳調な感じがする" },
+    { "id": "n1", "set": "train", "should_trigger": false, "query": "この英文のエッセイを書いて" },
+    { "id": "n2", "set": "train", "should_trigger": false, "query": "この日本語の文章を英語に訳して" },
+    { "id": "n3", "set": "train", "should_trigger": false, "query": "このコードにコメントを追加して" },
+    { "id": "n4", "set": "train", "should_trigger": false, "query": "技術仕様書のMarkdownフォーマットを整えて" },
+    { "id": "n5", "set": "train", "should_trigger": false, "query": "この一文の誤字を直して「今日わ晴れです」" },
+    { "id": "n6", "set": "train", "should_trigger": false, "query": "英語のビジネスメールを書いて" },
+    { "id": "n7", "set": "test", "should_trigger": false, "query": "この技術書の章を一文一行形式に整形して" },
+    { "id": "n8", "set": "test", "should_trigger": false, "query": "Pythonのdocstringを書いて" },
+    { "id": "n9", "set": "test", "should_trigger": false, "query": "この日本語を英訳してnativeっぽくして" },
+    { "id": "n10", "set": "test", "should_trigger": false, "query": "スペルミスだけ直して、内容はそのまま" }
+  ]
+}
