@@ -11,14 +11,15 @@ corpus/ai/*
 
 # corpus/reports: calibrate.py の出力（再生成可能なレポート）。archive/ (旧世代)
 # と research/ (調査メモ) は直下のサブディレクトリごと非コミット。
-# readability-sweep.md / business-calibration.md / business-fp-check.md は
-# ドキュメントから参照される根拠レポートのため例外的にコミット対象とする
-# （著作権のある引用は含まない）
+# readability-sweep.md / business-calibration.md / business-fp-check.md /
+# antithesis-recalibration.md は、ドキュメントから参照される根拠レポートのため
+# 例外的にコミット対象とする（著作権のある引用は含まない）
 corpus/reports/*
 !corpus/reports/.gitkeep
 !corpus/reports/readability-sweep.md
 !corpus/reports/business-calibration.md
 !corpus/reports/business-fp-check.md
+!corpus/reports/antithesis-recalibration.md
 
 # corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
 # readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象

@@ -95,6 +95,13 @@ uv run scripts/ai-smell-lint.py path/to/draft.md --json
 CI ゲートではなく lint であるため、検出件数に関わらず exit code は `0` です。検出結果をどう直すかは
 書き手（またはAI）の判断に委ねます。ファイル不在・ディレクトリ指定・読み取り不可などの入力エラーのときだけ exit code `1` になります。
 
+findings の代わりに構造・用語の「素材」だけを機械的に抽出するモードもあります（どちらも判断はせず抽出のみ）。
+
+```bash
+uv run scripts/ai-smell-lint.py path/to/draft.md --outline   # 見出し・各段落の先頭文・箇条書きプレースホルダを行番号付きで抽出
+uv run scripts/ai-smell-lint.py path/to/draft.md --terms     # カタカナ複合語/ASCII略語/固有名詞らしき語を初出順に抽出（説明マーカーの有無つき）
+```
+
 ## リポジトリ構成
 
 ```

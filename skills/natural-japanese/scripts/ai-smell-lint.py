@@ -178,6 +178,23 @@ SENTENCE_SPLIT_RE = re.compile(r"[。！？\n]")
 # 呼び出し側から上書きできる。
 # ---------------------------------------------------------------------------
 ANTITHESIS_REPETITION_THRESHOLD = 3
+# 2026-07 コーパス校正2（corpus/reports/antithesis-recalibration.md）: 絶対回数閾値
+# （3回以上）だけで severity=critical を出す旧仕様は、長文書（例: 12,000文規模の
+# 白書）では検出数が薄まって比率としてはノイズ同然でも critical 連打になる一方、
+# 質の高い書き手の修辞技法（誤解を先に否定してから定義する等）にも無差別に発火して
+# いた。実測（human quality:high、web+aozora、n=81）では絶対回数閾値ヒット率が
+# 23.5%（19文書）に達したが、そのヒット文書の「検出数/総文数」比率分布は中央値
+# 1.5%・90パーセンタイル2.4%・最大4.6%にとどまる。一方 AI 側のヒット文書
+# （hits>=3、n=48）の比率分布は中央値8.3%・最小でも2.65%と、human とほぼ重ならない
+# 分布を示した。この比率を使い、絶対回数閾値は維持しつつ severity を3段階化する:
+# ratio < ANTITHESIS_RATE_INFO_BELOW は info（薄い比率＝人間の技法との区別がつかない）、
+# ratio >= ANTITHESIS_RATE_CRITICAL_ABOVE は critical（高頻度＝真陽性の実測あり）、
+# その中間は warn。閾値0.02/0.03で human 全体の critical化率は4.9%（<5%目標達成）。
+# ただし tech ジャンルのみ human critical化率が11.1%と高く出たため、
+# GENRE_PROFILES["tech"]["antithesis_rate_critical_above"] で0.045に緩めている
+# （tech human critical化率は0%に低下、AI側もcritical 9/84 + warn 6/84 で検出は維持）。
+ANTITHESIS_RATE_INFO_BELOW = 0.02
+ANTITHESIS_RATE_CRITICAL_ABOVE = 0.03
 SENTENCE_VARIANCE_MIN_SENTENCES = 5
 SENTENCE_VARIANCE_CV_THRESHOLD = 0.25
 NOMINAL_ENDING_MIN_SENTENCES = 5
@@ -339,6 +356,12 @@ GENRE_PROFILES: dict[str, dict] = {
         # 誤検知を避けるため共通閾値よりやや保守的（緩め）にする。
         "nominal_min_chars": 3000,
         "lead_repeat_threshold": 7,
+        # antithesis_repetition の2026-07コーパス校正2（corpus/reports/
+        # antithesis-recalibration.md）: tech ジャンルは共通閾値0.03だと
+        # human quality:high の critical化率が11.1%（zennの技術記事2本）と
+        # 目標の5%を超えたため、0.045に緩める（tech human critical化率0%に低下、
+        # AI側もcritical 9/84 + warn 6/84 で検出は維持）。
+        "antithesis_rate_critical_above": 0.045,
     },
     # business は 2026-07 の実地校正（corpus/reports/business-calibration.md）で
     # 実測した。人間側コーパスは corpus/human/web の biz-* 10件のみと薄いため、
@@ -867,8 +890,20 @@ def detect_antithesis_repetition(
     lines: list[tuple[int, str]],
     raw_lines_by_no: dict[int, str] | None = None,
     threshold: int = ANTITHESIS_REPETITION_THRESHOLD,
+    rate_info_below: float = ANTITHESIS_RATE_INFO_BELOW,
+    rate_critical_above: float = ANTITHESIS_RATE_CRITICAL_ABOVE,
 ) -> list[Finding]:
-    """「〜ではなく、〜」「〜だけでなく〜も」を文書全体で数え、3回以上なら反復として警告。
+    """「〜ではなく、〜」「〜だけでなく〜も」を文書全体で数え、threshold回（デフォルト3回）
+    以上なら反復として検出する。
+
+    2026-07 コーパス校正2（corpus/reports/antithesis-recalibration.md、モジュール定数
+    ANTITHESIS_RATE_INFO_BELOW / ANTITHESIS_RATE_CRITICAL_ABOVE のコメントも参照）:
+    出現ごとに severity=critical を付けていた旧仕様は、長文書での薄い頻度でも
+    critical が連打されノイズ化する一方、人間の意図的な修辞技法にも無差別に発火して
+    いた。「検出数/総文数」の比率で severity を3段階化する: 比率が低ければ info
+    （人間の技法との区別がつかない参考情報）、高ければ critical（実測で真陽性が
+    多い高頻度パターン）、その中間は warn。
+
     どの文同士が反復としてカウントされたか追えるよう、全ヒット行番号を
     related_lines / detail の両方に含める。excerpt は原文から切り出す。
     """
@@ -882,6 +917,17 @@ def detect_antithesis_repetition(
 
     findings = []
     if len(hits) >= threshold:
+        # 文書全体の総文数に対する検出数の比率で severity を決める（絶対回数の閾値
+        # 判定とは別に、比率が文書の長さに関わらず一貫した「密度」の指標になる）。
+        total_sentences = len(split_sentences_with_lines(lines, raw_lines_by_no))
+        ratio = len(hits) / total_sentences if total_sentences else 0.0
+        if ratio < rate_info_below:
+            severity = "info"
+        elif ratio >= rate_critical_above:
+            severity = "critical"
+        else:
+            severity = "warn"
+
         all_lines = [no for no, _, _ in hits]
         related = format_related_lines(all_lines)
         for no, text, patname in hits:
@@ -890,8 +936,11 @@ def detect_antithesis_repetition(
                     line=no,
                     category="antithesis_repetition",
                     excerpt=text.strip(),
-                    severity="critical",
-                    detail=f"否定→肯定対比パターンが文書内で{len(hits)}回検出（閾値{threshold}回以上）。{related}",
+                    severity=severity,
+                    detail=(
+                        f"否定→肯定対比パターンが文書内で{len(hits)}回検出（閾値{threshold}回以上、"
+                        f"総文数に対する比率={ratio:.1%}）。{related}"
+                    ),
                     related_lines=all_lines,
                 )
             )
@@ -1902,6 +1951,325 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 
 
 # ---------------------------------------------------------------------------
+# --outline（スケルトン抽出）
+#
+# 設計原則「検出は機械、判断はAI」に基づき、文書の構造（見出し・各段落の先頭文・
+# 箇条書きブロック）を決定的に抽出するだけで、良し悪しの判断はしない。
+# SKILL.md §4 の構造レビュー（スケルトン通読）への入力として使う。
+#
+# 見出し・コードブロック・引用・表のマスクには mask_markdown_structure() は使わない
+# （見出し行そのものが空文字になってしまい、スケルトンの主役である見出しテキストが
+# 消えてしまうため）。かわりに、見出し検出は生テキストに対して直接行い、
+# 段落は「空行区切りの行グループ」として独自に走査する。HTMLコメントのみ
+# mask_html_comments() で先に空白化し、コメント内の見出し風・箇条書き風の行を
+# 誤ってスケルトンに含めないようにする。
+# ---------------------------------------------------------------------------
+
+
+def _heading_level_and_text(line: str) -> tuple[int, str]:
+    """見出し行から (レベル, 見出しテキスト) を取り出す。"""
+    m = re.match(r"^\s*(#{1,6})\s*(.*?)\s*#*\s*$", line)
+    if not m:
+        return 0, line.strip()
+    return len(m.group(1)), m.group(2).strip()
+
+
+def build_outline(raw_text: str) -> list[dict]:
+    """文書のスケルトン（見出し・各段落の先頭文・箇条書きプレースホルダ）を
+    行番号付きで抽出する。判断はせず、決定的な抽出のみを行う。
+
+    - 見出し行（#〜######）: kind="heading", level=1-6
+    - 空行区切りの段落のうち、箇条書き・コードブロック・引用・表以外: kind="lead"
+      （段落先頭行の最初の文、句点等が無ければ先頭行全体）
+    - 箇条書きだけの段落: kind="bullets"（「(箇条書き N 項目)」プレースホルダ）
+    - コードブロック・引用・表の段落は出力しない（スキップ）
+    """
+    text = mask_html_comments(raw_text)
+    lines = text.split("\n")
+
+    outline: list[dict] = []
+    buffer: list[tuple[int, str]] = []
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    in_front_matter = False
+
+    def flush_buffer() -> None:
+        if not buffer:
+            return
+        first_no, first_line = buffer[0]
+        if _LIST_ITEM_RE.match(first_line):
+            count = sum(1 for _, line_text in buffer if _LIST_ITEM_RE.match(line_text))
+            outline.append(
+                {"line": first_no, "kind": "bullets", "level": None, "text": f"(箇条書き {count} 項目)"}
+            )
+        elif _BLOCKQUOTE_RE.match(first_line):
+            pass  # 引用ブロックは段落として扱わずスキップ
+        elif (_TABLE_ROW_RE.match(first_line) and first_line.count("|") >= 2) or _TABLE_DELIMITER_RE.match(
+            first_line
+        ):
+            pass  # 表はスキップ
+        else:
+            m = re.search(r"[。！？]", first_line)
+            lead = first_line[: m.end()] if m else first_line
+            lead = lead.strip()
+            if lead:
+                outline.append({"line": first_no, "kind": "lead", "level": None, "text": lead})
+        buffer.clear()
+
+    for i, line in enumerate(lines, start=1):
+        if i == 1 and _FRONT_MATTER_DELIM_RE.match(line):
+            in_front_matter = True
+            continue
+        if in_front_matter:
+            if _FRONT_MATTER_DELIM_RE.match(line):
+                in_front_matter = False
+            continue
+
+        fence_match = _CODE_FENCE_RE.match(line)
+        if fence_match:
+            flush_buffer()
+            fence_run = fence_match.group(1)
+            fc, fl = fence_run[0], len(fence_run)
+            is_close_eligible = line[fence_match.end() :].strip() == ""
+            if not in_fence:
+                in_fence = True
+                fence_char, fence_len = fc, fl
+            elif fc == fence_char and fl >= fence_len and is_close_eligible:
+                in_fence = False
+            continue
+        if in_fence:
+            continue
+
+        if not line.strip():
+            flush_buffer()
+            continue
+
+        if _HEADING_RE.match(line):
+            flush_buffer()
+            level, heading_text = _heading_level_and_text(line)
+            outline.append({"line": i, "kind": "heading", "level": level, "text": heading_text})
+            continue
+
+        buffer.append((i, line))
+
+    flush_buffer()
+    return outline
+
+
+def print_outline_human(path: Path, outline: list[dict]) -> None:
+    print(f"=== ai-smell-lint outline: {path} ===")
+    print()
+    if not outline:
+        print("(スケルトンなし)")
+        return
+    for entry in outline:
+        line_tag = f"L{entry['line']}"
+        if entry["kind"] == "heading":
+            indent = "  " * max(0, entry["level"] - 1)
+            prefix = "#" * entry["level"]
+            print(f"{line_tag:>6}  {indent}{prefix} {entry['text']}")
+        else:
+            print(f"{line_tag:>6}    {entry['text']}")
+
+
+# ---------------------------------------------------------------------------
+# --terms（用語インベントリ）
+#
+# sudachipy の解析結果から、専門用語候補（カタカナ複合語・ASCII英略語・
+# 固有名詞らしき語）を機械的に列挙する。有用な専門用語かどうか、初出で
+# 説明済みかどうかの判断は行わない（has_gloss_hint はあくまでヒント）。
+# 文体憲法第4条（初出で説明すべき用語）の確認材料として AI に渡す素材。
+# ---------------------------------------------------------------------------
+
+_KATAKANA_CHAR_RE = re.compile(r"^[ァ-ヶー]+$")
+# Python の \b は Unicode 単語境界を使うため、日本語の文字（漢字・かな）は
+# 単語文字として扱われ、「APIとは」のように直後に日本語が続くと \b が成立せず
+# マッチしない。ASCII の英数字が前後に隣接していない（＝英略語として孤立している）
+# ことだけを見ればよいので、\b の代わりに明示的な否定先読み/後読みで判定する
+# （直前直後が日本語であることは許容し、直前直後が別の ASCII 英数字であることのみ排除）。
+_ASCII_ACRONYM_RE = re.compile(r"(?<![A-Za-z0-9])[A-Z]{2,}[0-9]*(?![A-Za-z0-9])")
+TERMS_KATAKANA_MIN_LEN = 3
+TERMS_GLOSS_CONTEXT_CHARS = 80
+TERMS_GLOSS_MARKER_WORDS = ["とは", "と呼ぶ", "という", "、つまり"]
+
+
+def _is_katakana_token(surface: str) -> bool:
+    return bool(_KATAKANA_CHAR_RE.match(surface))
+
+
+# 英字が先頭大文字で残りが英数字（"Cloudflare" "TypeScript" 等）の語。
+# sudachipy の辞書は未登録の製品名/固有名詞をしばしば「名詞,普通名詞」に倒す
+# （固有名詞タグに乗らない）ため、POS だけに頼ると製品名を取りこぼす。
+# 表層の形（先頭大文字+英数字）という単純なヒューリスティクスで補う
+# （除外辞書は作らない方針のため、あくまで形のみで判定する）。
+_CAPITALIZED_LATIN_WORD_RE = re.compile(r"^[A-Z][a-zA-Z0-9]*$")
+
+
+def _is_proper_noun_or_capitalized_latin_morpheme(morpheme) -> bool:
+    pos = morpheme.part_of_speech()
+    if pos[0] == "名詞" and pos[1] == "固有名詞":
+        return True
+    surface = morpheme.surface()
+    return len(surface) >= 2 and bool(_CAPITALIZED_LATIN_WORD_RE.match(surface))
+
+
+def _term_context_and_gloss_hint(
+    term: str, first_line_no: int, search_text: str, line_offsets: dict[int, int]
+) -> tuple[str, bool]:
+    """search_text（HTMLコメントのみ空白化済みの原文相当。文字数・行数は原文と同一）
+    全体における term の初出近傍（前後 TERMS_GLOSS_CONTEXT_CHARS 字）と、
+    説明の手掛かり（has_gloss_hint）の有無を返す。
+
+    raw_text そのものではなく HTML コメントを空白化したテキストを使うのは、
+    近傍表示にコメント内のメモ書き（校正メモ等）が紛れ込むのを防ぐため
+    （オフセット・行番号は raw_text と完全に一致するので、term の検索・切り出しは
+    この search_text に対して行っても line_offsets が raw_text 側と食い違わない）。
+    """
+    lines = search_text.split("\n")
+    line_text = lines[first_line_no - 1] if 0 < first_line_no <= len(lines) else ""
+    local_idx = line_text.find(term)
+    if local_idx == -1:
+        # 行内に見つからない場合（マスク処理の副作用等）は行全体を近傍として返す
+        return line_text.strip(), any(marker in line_text for marker in TERMS_GLOSS_MARKER_WORDS)
+
+    abs_pos = line_offsets.get(first_line_no, 0) + local_idx
+    ctx_start = max(0, abs_pos - TERMS_GLOSS_CONTEXT_CHARS)
+    ctx_end = abs_pos + len(term) + TERMS_GLOSS_CONTEXT_CHARS
+    context = search_text[ctx_start:ctx_end]
+
+    term_start_local = abs_pos - ctx_start
+    term_end_local = term_start_local + len(term)
+    after = context[term_end_local : term_end_local + 2]
+    has_gloss_hint = after.startswith("(") or after.startswith("（")
+    if not has_gloss_hint:
+        has_gloss_hint = any(marker in context for marker in TERMS_GLOSS_MARKER_WORDS)
+
+    return context.strip(), has_gloss_hint
+
+
+def build_term_inventory(raw_text: str) -> list[dict]:
+    """専門用語候補の一覧を初出順に抽出する。判断（有用な用語かどうか、
+    既に説明済みかどうか）はしない。has_gloss_hint はあくまで機械的なヒント。
+    """
+    tokenizer = get_tokenizer()
+    from sudachipy import SplitMode
+
+    masked_comments = mask_html_comments(raw_text)
+    masked_structure = mask_markdown_structure(masked_comments)
+    body_lines = iter_lines_with_no(masked_structure)
+
+    # 見出し行は mask_markdown_structure() で空文字化されるため、見出しテキストも
+    # 用語抽出の対象に含めたい場合は別途生テキストから拾って合流させる
+    # （制品名・専門用語が見出しで最初に登場するケースを取りこぼさないため）。
+    heading_lines: list[tuple[int, str]] = []
+    for no, line in iter_lines_with_no(masked_comments):
+        if _HEADING_RE.match(line):
+            _, heading_text = _heading_level_and_text(line)
+            heading_lines.append((no, heading_text))
+
+    combined_lines = sorted(body_lines + heading_lines, key=lambda t: t[0])
+
+    # masked_comments は raw_text と文字数・行数が完全に一致する（HTMLコメントの
+    # 中身のみ空白化）ため、ここで作るオフセットは raw_text 側にもそのまま使える。
+    line_offsets: dict[int, int] = {}
+    pos = 0
+    for no, line_text in enumerate(masked_comments.split("\n"), start=1):
+        line_offsets[no] = pos
+        pos += len(line_text) + 1
+
+    # term -> {"first_line": int, "count": int}
+    seen: dict[str, dict] = {}
+
+    def register(term: str, no: int) -> None:
+        term = term.strip()
+        if not term:
+            return
+        if term not in seen:
+            seen[term] = {"first_line": no}
+
+    for no, line in combined_lines:
+        if not line.strip():
+            continue
+
+        # (b) ASCII英略語（大文字2文字以上）は表層の正規表現で拾う
+        for m in _ASCII_ACRONYM_RE.finditer(line):
+            register(m.group(0), no)
+
+        # (a) カタカナ複合語 / (c) 固有名詞・製品名らしき語（sudachiのPOSが固有名詞、
+        # または先頭大文字の英単語=製品名によくある表層形）は形態素解析で連続する
+        # 同種の形態素をまとめて1つの候補語にする（元のスパンをそのまま使い、
+        # 語間の空白等も保持する）。
+        morphemes = list(tokenizer.tokenize(line, SplitMode.C))
+        i = 0
+        n = len(morphemes)
+        while i < n:
+            m0 = morphemes[i]
+            if _is_katakana_token(m0.surface()):
+                j = i + 1
+                while j < n and _is_katakana_token(morphemes[j].surface()):
+                    j += 1
+                span_start = m0.begin()
+                span_end = morphemes[j - 1].end()
+                term = line[span_start:span_end]
+                if len(term) >= TERMS_KATAKANA_MIN_LEN:
+                    register(term, no)
+                i = j
+                continue
+            if _is_proper_noun_or_capitalized_latin_morpheme(m0):
+                j = i + 1
+                while j < n and _is_proper_noun_or_capitalized_latin_morpheme(morphemes[j]):
+                    j += 1
+                span_start = m0.begin()
+                span_end = morphemes[j - 1].end()
+                term = line[span_start:span_end]
+                register(term, no)
+                i = j
+                continue
+            i += 1
+
+    results = []
+    for term, info in seen.items():
+        # 出現回数もコメントを除いた本文（masked_comments）基準で数える
+        # （校正メモ等のコメント内言及を実際の用語出現としてカウントしないため）。
+        count = len(re.findall(re.escape(term), masked_comments))
+        context, has_gloss_hint = _term_context_and_gloss_hint(
+            term, info["first_line"], masked_comments, line_offsets
+        )
+        results.append(
+            {
+                "term": term,
+                "first_line": info["first_line"],
+                "count": count,
+                "has_gloss_hint": has_gloss_hint,
+                "context": context,
+            }
+        )
+
+    # 初出順（first_line 昇順、同じ行内では検出順=辞書の挿入順を維持するため
+    # stable sort の line だけをキーにする）
+    results.sort(key=lambda r: r["first_line"])
+    return results
+
+
+def print_terms_human(path: Path, terms: list[dict]) -> None:
+    print(f"=== ai-smell-lint terms: {path} ===")
+    print(
+        "has_gloss_hint は「説明済みと判定した」印ではなく、初出近傍に説明マーカーが"
+        "見つかったという機械的なヒントに過ぎない。要確認は人間/AIの判断に委ねる。"
+    )
+    print()
+    if not terms:
+        print("(用語候補なし)")
+        return
+    for t in terms:
+        hint = "あり" if t["has_gloss_hint"] else "なし"
+        print(f"L{t['first_line']} {t['term']} (出現{t['count']}回, 説明手掛かり: {hint})")
+        print(f"    近傍: {t['context']}")
+        print()
+
+
+# ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
 
@@ -1959,7 +2327,11 @@ def run_lint(
     # --- 表層（正規表現）ベースの検出器 ---
     findings += detect_forbidden_phrases(lines, raw_lines_by_no)
     findings += detect_translationese(lines, raw_lines_by_no)
-    findings += detect_antithesis_repetition(lines, raw_lines_by_no)
+    findings += detect_antithesis_repetition(
+        lines,
+        raw_lines_by_no,
+        rate_critical_above=profile.get("antithesis_rate_critical_above", ANTITHESIS_RATE_CRITICAL_ABOVE),
+    )
     findings += detect_low_sentence_length_variance(sentences)
     findings += detect_english_syntax_smell(lines, raw_lines_by_no)
 
@@ -2101,6 +2473,25 @@ def main() -> int:
             "（EXPERIMENTAL_CATEGORIES）も出力する。デフォルトでは除外される"
         ),
     )
+    output_mode_group = parser.add_mutually_exclusive_group()
+    output_mode_group.add_argument(
+        "--outline",
+        action="store_true",
+        help=(
+            "findings の代わりに文書のスケルトン（見出し・各段落の先頭文・箇条書き"
+            "プレースホルダ）を抽出して出力する。判断はせず抽出のみ行う"
+            "（構造レビューのスケルトン通読への入力用。--json 併用可）"
+        ),
+    )
+    output_mode_group.add_argument(
+        "--terms",
+        action="store_true",
+        help=(
+            "findings の代わりに専門用語候補（カタカナ複合語/ASCII英略語/固有名詞）の"
+            "一覧を初出順に抽出して出力する。判断はせず抽出のみ行う"
+            "（初出説明の要否の確認材料。--json 併用可）"
+        ),
+    )
     args = parser.parse_args()
 
     # 「文章の中身に関する判断」と「そもそも実行できない入力エラー」は区別する。
@@ -2118,6 +2509,25 @@ def main() -> int:
     except (OSError, UnicodeDecodeError) as exc:
         print(f"エラー: ファイルを読み込めません: {args.file} ({exc})", file=sys.stderr)
         return 1
+
+    # --outline / --terms は findings とは別の出力モード（判断はせず抽出のみ）。
+    # --baseline / --genre / --experimental とは組み合わせない設計のため、
+    # ここで通常の lint フローより先に分岐して抜ける。
+    if args.outline:
+        outline = build_outline(text)
+        if args.json:
+            print(json.dumps({"outline": outline}, ensure_ascii=False, indent=2))
+        else:
+            print_outline_human(args.file, outline)
+        return 0
+
+    if args.terms:
+        terms = build_term_inventory(text)
+        if args.json:
+            print(json.dumps({"terms": terms}, ensure_ascii=False, indent=2))
+        else:
+            print_terms_human(args.file, terms)
+        return 0
 
     baseline_data = None
     if args.baseline is not None:
