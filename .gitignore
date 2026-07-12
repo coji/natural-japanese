@@ -20,9 +20,23 @@ corpus/reports/*
 !corpus/reports/business-calibration.md
 !corpus/reports/business-fp-check.md
 !corpus/reports/antithesis-recalibration.md
+# skill-eval-findings.md は corpus/experiments/skill-eval/eval.py が生成する、
+# スキル適用の抽象化された所見レポート（元文書の本文・固有名詞・数値は含まない）
+!corpus/reports/skill-eval-findings.md
 
 # corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
 # readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象
 corpus/experiments/*
 !corpus/experiments/.gitkeep
 !corpus/experiments/readability-sweep.py
+
+# corpus/experiments/skill-eval: スキル評価ハーネス。ハーネス本体・サンプル
+# manifest・READMEはコミット対象。runs/（生成物・批評JSON、NDA含みうる）と
+# manifest.local.json（実素材を指す）は非コミット
+# （ディレクトリ自体が上の corpus/experiments/* で除外されるため、まず
+# ディレクトリを明示的に un-ignore してから、中身を個別に絞り込む）。
+!corpus/experiments/skill-eval/
+corpus/experiments/skill-eval/*
+!corpus/experiments/skill-eval/eval.py
+!corpus/experiments/skill-eval/manifest.example.json
+!corpus/experiments/skill-eval/README.md

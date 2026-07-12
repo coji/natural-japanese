@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "minutes-syn-1",
+      "doctype": "minutes",
+      "mode": "generate",
+      "topic": "架空の社内ツール刷新に関する定例会議",
+      "baseline": "naive"
+    },
+    {
+      "id": "report-syn-1",
+      "doctype": "report",
+      "mode": "generate",
+      "topic": "架空のSaaS製品における解約率上昇の分析",
+      "baseline": "naive"
+    },
+    {
+      "id": "guide-syn-1",
+      "doctype": "guide",
+      "mode": "generate",
+      "topic": "架空の社内ナレッジベースの運用ガイド",
+      "baseline": "naive"
+    },
+    {
+      "id": "memo-syn-1",
+      "doctype": "memo",
+      "mode": "generate",
+      "topic": "架空の新規事業アイデアに関するディスカッションペーパー",
+      "baseline": "naive"
+    },
+    {
+      "id": "slide-syn-1",
+      "doctype": "slide",
+      "mode": "generate",
+      "topic": "架空の営業支援ツールの提案スライド構成",
+      "baseline": "naive"
+    }
+  ]
+}
