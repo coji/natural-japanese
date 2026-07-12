@@ -191,3 +191,97 @@ example).
 
 439 characters, well under the 1024-char limit. `name`, `license`, and frontmatter
 structure are unchanged from the original.
+
+## v2 — work-document scope expansion (仕事文書対応)
+
+Motivation: the skill's flow (SKILL.md §1.1) was redesigned to route by
+文書タイプ (議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成)
+via `references/doctypes/*.md`, so the description needed explicit anchors
+for these document types and for instruction-style requests ("結論から
+書いて" 等) that don't contain any of the existing AI-smell/readability
+keywords. The description was rewritten (by a separate process) before this
+eval pass; this iteration only updates `evals/evals.json` and re-validates.
+
+### evals.json changes
+
+- Top-level `description` field (previously an English meta-summary of the
+  eval set) replaced with the literal current SKILL.md `description` text,
+  so the file is self-contained about which description version the cases
+  target.
+- 19 new cases appended: **p29–p42 (14 positive)** covering work-document
+  triggers (議事録/文字起こし、調査レポート、分析レポート、社内ガイド、
+  業務マニュアル、ディスカッションペーパー、リサーチメモ、スライド構成、
+  提案書、および「結論から」「論旨を明確に」「専門用語をわかりやすく」
+  「見出しを端的に」の指示型トリガー) and **n14–n18 (5 negative)** covering
+  adjacent non-language tasks (Markdown整形のみ、英語指定、パワポの見た目
+  デザイン、表計算の数式、Excelテンプレート生成) that must stay out of
+  scope. Split 8 train / 6 test (positive) and 3 train / 2 test (negative),
+  following the existing ~60/40 convention. `id` sequence continues from
+  p28/n13. Existing 41 cases (p1–p28, n1–n13) were not modified.
+
+New description under test (current `SKILL.md` frontmatter, 661 chars):
+
+> 仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。議事録（文字起こしから
+> の議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・
+> ディスカッションペーパー・企画書・提案書・報告書・メール、スライド構成案といったビジネス
+> 文書の作成・校正、「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかり
+> やすく説明して」といった指示のいずれでも使用する。AI臭さの除去（「AIっぽい」「AI臭い」
+> 「機械翻訳っぽい」「不自然」「もっと自然な日本語に」「機械っぽい」「人間っぽくして」
+> 「単調」「〜することができる、と言えるだろう、のような言い回し」といった直接・間接・
+> 口語の指摘、AIで書いたと言われた/疑われた）、読みにくい・わかりにくい文章の改善依頼
+> （語順がおかしい、一文が長い、何が言いたいか分からない、読点の位置がおかしい等）、note
+> 記事やブログ記事・エッセイの新規執筆、既存文章のリライト・推敲、自分の文体を学ばせたい・
+> プロファイル化したいという要望（過去の文章を読ませて自分らしく書いてほしいという依頼も
+> 含む）にも対応する。禁止語の除去、リズムの単調さ・段落構造の均質さ・英語統語の直訳調に
+> 加え、語順・読点・一文一義・主語述語の距離といった読みやすさの原則にも対応する。技術文書
+> の章構成やMarkdownフォーマットの整形自体（一文一行化・引用ブロック・脚注記法など）は対象
+> 外——それは別スキルの領域であり、本スキルは文章の自然さ・読みやすさ・わかりやすさに特化
+> する。
+
+Relative to the description validated in the "v0.4.0" section above, this
+version reorders the opening (business-document types + instruction-style
+triggers now lead) and adds 議事録・調査レポート/分析レポート・社内ガイド・
+マニュアル・リサーチメモ・ディスカッションペーパー・企画書・スライド構成案
+and the four quoted instruction phrases. No existing anchor phrase was
+removed, so p1–p28/n1–n13 were re-checked for regressions (role-play, same
+protocol) and none were found — every anchor used in prior iterations
+(「AIっぽい」「機械っぽい」「プロファイル化したい」「読みにくい」「報告書」
+「メール」「提案書」, the japanese-tech-writing exclusion clause, etc.) is
+present verbatim in the new text.
+
+### Judgment (role-play method, same protocol as prior iterations)
+
+Only new cases and any changed existing judgments are tabulated (none of
+p1–p28/n1–n13 changed — see regression check above).
+
+| id | query | expected | judged | anchor |
+|----|-------|----------|--------|--------|
+| p29 | この文字起こしから議事録つくって | trigger | trigger | 「議事録（文字起こしからの議事録化を含む）」 |
+| p30 | 会議の議事録まとめて | trigger | trigger | 「議事録」 |
+| p31 | 調査結果をレポートにまとめて | trigger | trigger | 「調査レポート」 |
+| p32 | 分析レポート書いて | trigger | trigger | 「分析レポート」 |
+| p33 | 社内向けの使い方ガイドを書いて | trigger | trigger | 「社内ガイド」 |
+| p34 | 業務マニュアルの作成をお願いしたい | trigger | trigger | 「マニュアル」+「作成」 |
+| p35 | この内容をディスカッションペーパーにして | trigger | trigger | 「ディスカッションペーパー」 |
+| p36 | リサーチメモをまとめたい | trigger | trigger | 「リサーチメモ」 |
+| p37 | プレゼンのスライド構成を考えて | trigger | trigger | 「スライド構成案」 |
+| p38 | 提案書の骨子つくって | trigger | trigger | 「提案書」 |
+| p39 | 結論から書き直して | trigger | trigger | 「結論から書いて」の活用違いパラフレーズ |
+| p40 | 論旨を明確にして | trigger | trigger | 「論旨を明確に」 |
+| p41 | 専門用語をわかりやすく説明しながら書いて | trigger | trigger | 「専門用語をわかりやすく説明して」 |
+| p42 | 見出しをもっと端的にして | trigger | trigger | 「見出しを端的に」 |
+| n14 | このMarkdownを一文一行にして | no-trigger | no-trigger | フォーマット整形の除外節（一文一行化） |
+| n15 | 英語でレポート書いて | no-trigger | no-trigger | 冒頭「仕事の日本語文書を」と矛盾（英語指定） |
+| n16 | パワポのデザインをきれいにして | no-trigger | no-trigger | 「デザイン」は「構成」と無関係、視覚整形は対象外 |
+| n17 | この表計算の数式なおして | no-trigger | no-trigger | 数式修正は言語編集ではない |
+| n18 | 議事録のテンプレートをExcelで作って | no-trigger | no-trigger | Excelファイル生成であり文章の作成・校正ではない（n11/n13と同型） |
+
+**Result: 60/60 (100%)** — 42/42 positive, 18/18 negative, across the full
+combined eval set (existing 41 unchanged + 19 new). No description revision
+was needed: p39 (「書き直して」 vs quoted 「書いて」) is the only case with a
+paraphrase rather than a verbatim anchor match, and it was judged against
+the same standard used for p4/p9 in iteration 0–1 (inflected/paraphrased
+variants of an explicit anchor still count as anchored, not borderline).
+
+No changes were made to `SKILL.md`, `scripts/`, or `references/` in this
+pass — only `evals/evals.json` and this file.

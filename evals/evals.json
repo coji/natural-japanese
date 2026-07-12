@@ -1,6 +1,6 @@
 {
   "skill_name": "natural-japanese",
-  "description": "Trigger-precision eval set for the natural-japanese SKILL.md description. 20 positive queries (should trigger the skill; direct/indirect/colloquial phrasings) and 10 negative queries (should NOT trigger; adjacent domains such as English writing, JA->EN translation, code comments, technical-spec formatting overlapping with the japanese-tech-writing skill, and simple typo fixes). Split 60/40 into train/test by index order (train = positives 1-12 + negatives 1-6; test = positives 13-20 + negatives 7-10).",
+  "description": "仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。議事録（文字起こしからの議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・ディスカッションペーパー・企画書・提案書・報告書・メール、スライド構成案といったビジネス文書の作成・校正、「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示のいずれでも使用する。AI臭さの除去（「AIっぽい」「AI臭い」「機械翻訳っぽい」「不自然」「もっと自然な日本語に」「機械っぽい」「人間っぽくして」「単調」「〜することができる、と言えるだろう、のような言い回し」といった直接・間接・口語の指摘、AIで書いたと言われた/疑われた）、読みにくい・わかりにくい文章の改善依頼（語順がおかしい、一文が長い、何が言いたいか分からない、読点の位置がおかしい等）、note記事やブログ記事・エッセイの新規執筆、既存文章のリライト・推敲、自分の文体を学ばせたい・プロファイル化したいという要望（過去の文章を読ませて自分らしく書いてほしいという依頼も含む）にも対応する。禁止語の除去、リズムの単調さ・段落構造の均質さ・英語統語の直訳調に加え、語順・読点・一文一義・主語述語の距離といった読みやすさの原則にも対応する。技術文書の章構成やMarkdownフォーマットの整形自体（一文一行化・引用ブロック・脚注記法など）は対象外——それは別スキルの領域であり、本スキルは文章の自然さ・読みやすさ・わかりやすさに特化する。",
   "split": {
     "train": "positive[1-12] + negative[1-6]",
     "test": "positive[13-20] + negative[7-10]"
@@ -46,6 +46,25 @@
     { "id": "p28", "set": "test", "should_trigger": true, "query": "上司から報告書がわかりにくいと言われた" },
     { "id": "n11", "set": "train", "should_trigger": false, "query": "この報告書のグラフをExcelで作って" },
     { "id": "n12", "set": "train", "should_trigger": false, "query": "英語のビジネス提案書をレビューして" },
-    { "id": "n13", "set": "test", "should_trigger": false, "query": "報告書のテンプレートのExcelファイルを作って" }
+    { "id": "n13", "set": "test", "should_trigger": false, "query": "報告書のテンプレートのExcelファイルを作って" },
+    { "id": "p29", "set": "train", "should_trigger": true, "query": "この文字起こしから議事録つくって" },
+    { "id": "p30", "set": "train", "should_trigger": true, "query": "会議の議事録まとめて" },
+    { "id": "p31", "set": "train", "should_trigger": true, "query": "調査結果をレポートにまとめて" },
+    { "id": "p32", "set": "train", "should_trigger": true, "query": "分析レポート書いて" },
+    { "id": "p33", "set": "train", "should_trigger": true, "query": "社内向けの使い方ガイドを書いて" },
+    { "id": "p34", "set": "train", "should_trigger": true, "query": "業務マニュアルの作成をお願いしたい" },
+    { "id": "p35", "set": "train", "should_trigger": true, "query": "この内容をディスカッションペーパーにして" },
+    { "id": "p36", "set": "train", "should_trigger": true, "query": "リサーチメモをまとめたい" },
+    { "id": "p37", "set": "test", "should_trigger": true, "query": "プレゼンのスライド構成を考えて" },
+    { "id": "p38", "set": "test", "should_trigger": true, "query": "提案書の骨子つくって" },
+    { "id": "p39", "set": "test", "should_trigger": true, "query": "結論から書き直して" },
+    { "id": "p40", "set": "test", "should_trigger": true, "query": "論旨を明確にして" },
+    { "id": "p41", "set": "test", "should_trigger": true, "query": "専門用語をわかりやすく説明しながら書いて" },
+    { "id": "p42", "set": "test", "should_trigger": true, "query": "見出しをもっと端的にして" },
+    { "id": "n14", "set": "train", "should_trigger": false, "query": "このMarkdownを一文一行にして" },
+    { "id": "n15", "set": "train", "should_trigger": false, "query": "英語でレポート書いて" },
+    { "id": "n16", "set": "train", "should_trigger": false, "query": "パワポのデザインをきれいにして" },
+    { "id": "n17", "set": "test", "should_trigger": false, "query": "この表計算の数式なおして" },
+    { "id": "n18", "set": "test", "should_trigger": false, "query": "議事録のテンプレートをExcelで作って" }
   ]
 }
