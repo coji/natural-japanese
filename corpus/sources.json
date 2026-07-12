@@ -1,0 +1,442 @@
+[
+  {
+    "id": "aozora-terada-jiji-zakkan",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card2458.html",
+    "title": "時事雑感",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-terada-jishin-zakkan",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card43077.html",
+    "title": "地震雑感",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-terada-denen-zakkan",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card2441.html",
+    "title": "田園雑感",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-terada-zuihitsu-nan",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card4361.html",
+    "title": "随筆難",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-terada-radio-zakkan",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card42231.html",
+    "title": "ラジオ雑感",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-terada-eiga-zakkan1",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000042/card2467.html",
+    "title": "映画雑感（Ⅰ）",
+    "author": "寺田寅彦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-nakajima-kyoka-shi-no-bunsho",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000119/card24441.html",
+    "title": "鏡花氏の文章",
+    "author": "中島敦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-nakajima-rogiki",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000119/card42301.html",
+    "title": "狼疾記",
+    "author": "中島敦",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-sakaguchi-seishun-ron",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/001095/card42624.html",
+    "title": "青春論",
+    "author": "坂口安吾",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-sakaguchi-kyogo-ron",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/001095/card42841.html",
+    "title": "敬語論",
+    "author": "坂口安吾",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-sakaguchi-kyou-no-kanso",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/001095/card45737.html",
+    "title": "今日の感想",
+    "author": "坂口安吾",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "aozora-kishida-haha-no-hanashi",
+    "type": "aozora",
+    "url": "https://www.aozora.gr.jp/cards/000338/card46819.html",
+    "title": "母の話",
+    "author": "岸田國士",
+    "genre": "essay",
+    "license": "public-domain",
+    "notes": "青空文庫。パブリックドメインのためcorpus/human/aozora/にプレーンテキストをコミット済み。"
+  },
+  {
+    "id": "note-essay-shiitake-d40c75d8",
+    "type": "web",
+    "url": "https://shiitakeofficial.com/n/n3b50d40c75d8",
+    "title": null,
+    "author": "shiitake",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-kyoukn-2f5d2bbd",
+    "type": "web",
+    "url": "https://note.com/kyoukn/n/n9cb02f5d2bbd",
+    "title": null,
+    "author": "kyoukn",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-waamama-45ca7aca",
+    "type": "web",
+    "url": "https://note.com/waamama/n/n63e545ca7aca",
+    "title": null,
+    "author": "waamama",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-yuusuke3-49abedb5",
+    "type": "web",
+    "url": "https://note.com/yuusuke3/n/n912f49abedb5",
+    "title": null,
+    "author": "yuusuke3",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-hisamichi0226-898bd740",
+    "type": "web",
+    "url": "https://note.com/hisamichi0226/n/n2c98898bd740",
+    "title": null,
+    "author": "hisamichi0226",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-m_s_y-a7cf7146",
+    "type": "web",
+    "url": "https://note.com/m_s_y/n/nd8cfa7cf7146",
+    "title": null,
+    "author": "m_s_y",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-nyake-dc43a390",
+    "type": "web",
+    "url": "https://note.com/nyake/n/n827edc43a390",
+    "title": null,
+    "author": "nyake",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-uni_iga_iga-c515a05b",
+    "type": "web",
+    "url": "https://note.com/uni_iga_iga/n/n50b8c515a05b",
+    "title": null,
+    "author": "uni_iga_iga",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-westiguchi-a4ce9cd3",
+    "type": "web",
+    "url": "https://note.com/westiguchi/n/ne7b5a4ce9cd3",
+    "title": null,
+    "author": "westiguchi",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-ciotan-8a0bfe52",
+    "type": "web",
+    "url": "https://note.com/ciotan/n/nae828a0bfe52",
+    "title": null,
+    "author": "ciotan",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-shu_yamaguchi-8ef4d482",
+    "type": "web",
+    "url": "https://note.com/shu_yamaguchi/n/na89b8ef4d482",
+    "title": null,
+    "author": "shu_yamaguchi",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-kaien-11211017",
+    "type": "web",
+    "url": "https://note.com/kaien/n/n60f311211017",
+    "title": null,
+    "author": "kaien",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-ookichi-020335e8",
+    "type": "web",
+    "url": "https://note.com/ookichi/n/n2d99020335e8",
+    "title": null,
+    "author": "ookichi",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-masayachiba-23a5c533",
+    "type": "web",
+    "url": "https://note.com/masayachiba/n/n2ea223a5c533",
+    "title": null,
+    "author": "masayachiba",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-matsuhiro-6c7d3440",
+    "type": "web",
+    "url": "https://note.com/matsuhiro/n/n4c7a6c7d3440",
+    "title": null,
+    "author": "matsuhiro",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-ha_chu-84802fe9",
+    "type": "web",
+    "url": "https://note.com/ha_chu/n/nbcae84802fe9",
+    "title": null,
+    "author": "ha_chu",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-bar_bossa-d080b0ce",
+    "type": "web",
+    "url": "https://note.com/bar_bossa/n/n177dd080b0ce",
+    "title": null,
+    "author": "bar_bossa",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-sasakitoshinao-b9080448",
+    "type": "web",
+    "url": "https://note.com/sasakitoshinao/n/nf299b9080448",
+    "title": null,
+    "author": "sasakitoshinao",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-takesoup-5d94edf6",
+    "type": "web",
+    "url": "https://note.com/takesoup/n/nf7ac5d94edf6",
+    "title": null,
+    "author": "takesoup",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "note-essay-umiaruku-c131452b",
+    "type": "web",
+    "url": "https://note.com/umiaruku/n/neb50c131452b",
+    "title": null,
+    "author": "umiaruku",
+    "genre": "essay",
+    "license": "all-rights-reserved",
+    "notes": "note編集部「読者の心が動いたエッセイ・コラム記事20選」(https://note.com/notemag/n/n62602c4b3b17) 掲載作。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-the_exile-gy-stack",
+    "type": "web",
+    "url": "https://zenn.dev/the_exile/articles/2024-technology-stack",
+    "title": "2024年の個人開発おすすめ技術スタック",
+    "author": "the_exile",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-joo_hashi-d738f4be",
+    "type": "web",
+    "url": "https://zenn.dev/joo_hashi/articles/53f781d738f4be",
+    "title": "２０２５年個人開発者のお役に立つかも情報",
+    "author": "joo_hashi",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-nameless_sn-vlopment",
+    "type": "web",
+    "url": "https://zenn.dev/nameless_sn/articles/awesome_personal_devlopment",
+    "title": "個人開発を学べる記事23選",
+    "author": "nameless_sn",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-t_hayashi-1944731f",
+    "type": "web",
+    "url": "https://zenn.dev/t_hayashi/articles/faa1ec1944731f",
+    "title": "【読書感想文】TypeScriptとReact/Next.jsでつくる実践Webアプリケーション",
+    "author": "t_hayashi",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-kamo_tomoki-b5d6b056",
+    "type": "web",
+    "url": "https://zenn.dev/kamo_tomoki/articles/c8ab1cb5d6b056",
+    "title": "【2025年】爆速でゼロイチ開発するための技術スタック",
+    "author": "kamo_tomoki",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-gunners6518-ea29a5b4",
+    "type": "web",
+    "url": "https://zenn.dev/gunners6518/articles/147cceea29a5b4",
+    "title": "「State of JavaScript 2024」完全解説",
+    "author": "gunners6518",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-manalink_dev-age-2024",
+    "type": "web",
+    "url": "https://zenn.dev/manalink_dev/articles/howto-build-react-ui-private-package-2024",
+    "title": "Reactで社内向けUIライブラリ開発・ビルド・公開・布教入門【2024年】",
+    "author": "manalink_dev",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-nomikazu_x-pt-basic",
+    "type": "web",
+    "url": "https://zenn.dev/nomikazu_x/articles/typescript-basic",
+    "title": "【2024年最新】徹底解説！TypeScriptの超基本を超分かりやすく説明",
+    "author": "nomikazu_x",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-kugyu10-8e8ba334",
+    "type": "web",
+    "url": "https://zenn.dev/kugyu10/articles/ab393a8e8ba334",
+    "title": "TypeScript/React/Next.js本読んでみた感想（随時更新）",
+    "author": "kugyu10",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-acntechjp-ea504f48",
+    "type": "web",
+    "url": "https://zenn.dev/acntechjp/articles/8a4547ea504f48",
+    "title": "この1年ほぼ毎日Zenn記事を書き続けて思ったこと",
+    "author": "acntechjp",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-yskn_sid25-12e923ce",
+    "type": "web",
+    "url": "https://zenn.dev/yskn_sid25/articles/fe27a912e923ce",
+    "title": "ここ1年間のはてなブックマーク数の多かった記事から、Zennでウケそうな記事の傾向を考える",
+    "author": "yskn_sid25",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  },
+  {
+    "id": "zenn-tech-gachigachi-72f23252",
+    "type": "web",
+    "url": "https://zenn.dev/gachigachi/articles/c1ed7372f23252",
+    "title": "Zennを1年間運営した結果、PV数やフォロワー数はどう変化したのか？",
+    "author": "gachigachi",
+    "genre": "tech",
+    "license": "all-rights-reserved",
+    "notes": "Zenn掲載の技術記事。本文非コミット、fetch.pyでローカル取得して評価専用。"
+  }
+]

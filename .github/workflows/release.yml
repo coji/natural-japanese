@@ -15,6 +15,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Verify skills/natural-japanese is in sync with root sources
+        run: |
+          set -euo pipefail
+          # The .skill archive below is built from the root sources (SKILL.md,
+          # references/, scripts/, assets/), not from skills/natural-japanese/,
+          # so running scripts/sync-skill.sh here wouldn't actually protect the
+          # release artifact from drift. Instead, fail the release outright if
+          # skills/natural-japanese/ (the plugin-marketplace copy) has drifted
+          # from the root — that copy should always be produced by
+          # scripts/sync-skill.sh (see its pre-commit hook) and committed.
+          expected="$(mktemp -d)"
+          mkdir -p "${expected}/natural-japanese"
+          cp SKILL.md "${expected}/natural-japanese/SKILL.md"
+          cp -R references "${expected}/natural-japanese/references"
+          cp -R assets "${expected}/natural-japanese/assets"
+          mkdir -p "${expected}/natural-japanese/scripts"
+          for entry in scripts/*; do
+            base="$(basename "${entry}")"
+            case "${base}" in
+              sync-skill.sh|__pycache__) continue ;;
+            esac
+            cp -R "${entry}" "${expected}/natural-japanese/scripts/${base}"
+          done
+          if ! diff -r "${expected}/natural-japanese" skills/natural-japanese; then
+            echo "::error::skills/natural-japanese/ is out of sync with the root skill sources (SKILL.md, references/, scripts/, assets/). Run scripts/sync-skill.sh and commit the result before releasing." >&2
+            exit 1
+          fi
+          rm -rf "${expected}"
+
       - name: Build natural-japanese.skill
         run: |
           set -euo pipefail

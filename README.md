@@ -1,6 +1,11 @@
 # natural-japanese
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
+
 AI臭い（AIっぽい／機械翻訳っぽい）日本語文章を除去し、自然な日本語で書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。note・ブログ・エッセイ・技術文書など文種を問わず使えます。
+
+> An Agent Skill that mechanically detects and removes "AI-smelling" Japanese text via sudachipy morphological analysis, then iterates until the text converges to natural Japanese.
 
 ## 設計思想
 
@@ -66,6 +71,8 @@ npx openskills sync
 - 既存文章のリライト・推敲
 - 文体プロファイル（`style-profile.md`）のセットアップ
 
+フローは一回検出して終わりではありません。lint の指摘を「直した / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで**収束するまでループ**します。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
+
 詳しいフローは [`SKILL.md`](./SKILL.md) を参照してください。
 
 ## lint 単体の使い方
@@ -77,8 +84,8 @@ uv run scripts/ai-smell-lint.py path/to/draft.md
 uv run scripts/ai-smell-lint.py path/to/draft.md --json
 ```
 
-CI ゲートではなく lint であるため、検出件数に関わらず exit code は常に `0` です。検出結果をどう直すかは
-書き手（またはAI）の判断に委ねます。
+CI ゲートではなく lint であるため、検出件数に関わらず exit code は `0` です。検出結果をどう直すかは
+書き手（またはAI）の判断に委ねます。ファイル不在・ディレクトリ指定・読み取り不可などの入力エラーのときだけ exit code `1` になります。
 
 ## リポジトリ構成
 
@@ -107,6 +114,13 @@ git config core.hooksPath .githooks
 ```bash
 ./scripts/sync-skill.sh
 ```
+
+## 参考にした資料
+
+このスキルの設計は、次の2つの公開資料に大きく影響を受けています。感謝します。
+
+- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、判断だけを委ねる」という本スキルの核となる考え方、揺らぎ設計、自己点検ループの元になった記事
+- [日本語技術文書の文章規範（k16shikano）](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) — 禁止語カタログのうち「LLMっぽい空句」のカテゴリ群（正面から系・空虚な形容・空虚な動詞）の出典
 
 ## ライセンス
 

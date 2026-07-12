@@ -1,1 +1,8 @@
 scripts/__pycache__/
+
+# corpus: 著作権のある本文・再生成可能な生成物はコミットしない
+# (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
+corpus/human/web/*
+!corpus/human/web/.gitkeep
+corpus/ai/*
+!corpus/ai/.gitkeep

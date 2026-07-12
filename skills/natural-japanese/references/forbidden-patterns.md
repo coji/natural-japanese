@@ -64,7 +64,7 @@
 
 言い換えの多様性が低いと、TTR（Type-Token Ratio）やMTLDのような語彙多様性指標が下がる。人間の書き手は無意識に類義語や具体的な別表現に言い換えるが、LLMは統計的に最も自然な（＝最頻出の）語を選び続けるため、同じ語がループしやすい。lint の `low_lexical_diversity_ttr` / `_mtld` が該当する。
 
-## 正面から系（出典: coji のグローバルスキル japanese-tech-writing の規範から）
+## 正面から系（出典: [k16shikano の日本語技術文書規範](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) に基づく japanese-tech-writing の規範から）
 
 「正面から扱う」「正面から見る」「正面から書く」「正面から立てる」「正面から回収する」
 
