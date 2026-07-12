@@ -7,8 +7,8 @@
     {
       "name": "natural-japanese",
       "source": "./",
-      "description": "AI臭い日本語文章を機械的に検出し、自然な日本語に直すためのスキル。",
-      "version": "0.4.0",
+      "description": "仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。AI臭さの除去を工程の一部として組み込む。",
+      "version": "1.0.0",
       "author": {
         "name": "coji"
       }
