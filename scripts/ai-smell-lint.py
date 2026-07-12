@@ -146,9 +146,25 @@ class Finding:
     excerpt: str
     severity: str  # "info" | "warn" | "critical"
     detail: str = ""
+    # 文書全体集計型の検出器（antithesis_repetition, repeated_sentence_lead,
+    # repeated_syntax_template, paragraph_lead_conjunction, nominal_ending 等）で、
+    # 同じ集計に基づく他の該当行番号を列挙するための任意フィールド。
+    # 単発検出（forbidden_phrase 等）では None のまま。
+    related_lines: list[int] | None = None
+
+    def __post_init__(self) -> None:
+        # JSON 出力でも detail 表記と同じく重複除去・昇順に正規化する
+        if self.related_lines is not None:
+            self.related_lines = sorted(set(self.related_lines))
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
+
+
+def format_related_lines(related_lines: list[int]) -> str:
+    """related_lines を人間可読の「対応箇所: L12, L34, ...」形式に整形する（重複除去・昇順ソート）。"""
+    uniq_sorted = sorted(set(related_lines))
+    return "対応箇所: " + ", ".join(f"L{n}" for n in uniq_sorted)
 
 
 # ---------------------------------------------------------------------------
@@ -279,7 +295,10 @@ def detect_translationese(lines: list[tuple[int, str]]) -> list[Finding]:
 
 
 def detect_antithesis_repetition(lines: list[tuple[int, str]]) -> list[Finding]:
-    """「〜ではなく、〜」「〜だけでなく〜も」を文書全体で数え、3回以上なら反復として警告。"""
+    """「〜ではなく、〜」「〜だけでなく〜も」を文書全体で数え、3回以上なら反復として警告。
+    どの文同士が反復としてカウントされたか追えるよう、全ヒット行番号を
+    related_lines / detail の両方に含める。
+    """
     hits: list[tuple[int, str, str]] = []  # (line_no, matched_text, pattern_name)
     for no, line in lines:
         for pat in ANTITHESIS_PATTERNS:
@@ -288,6 +307,8 @@ def detect_antithesis_repetition(lines: list[tuple[int, str]]) -> list[Finding]:
 
     findings = []
     if len(hits) >= 3:
+        all_lines = [no for no, _, _ in hits]
+        related = format_related_lines(all_lines)
         for no, text, patname in hits:
             findings.append(
                 Finding(
@@ -295,7 +316,8 @@ def detect_antithesis_repetition(lines: list[tuple[int, str]]) -> list[Finding]:
                     category="antithesis_repetition",
                     excerpt=text.strip(),
                     severity="critical",
-                    detail=f"否定→肯定対比パターンが文書内で{len(hits)}回検出（閾値3回以上）",
+                    detail=f"否定→肯定対比パターンが文書内で{len(hits)}回検出（閾値3回以上）。{related}",
+                    related_lines=all_lines,
                 )
             )
     return findings
@@ -421,6 +443,8 @@ def detect_nominal_ending_and_paragraph_conjunctions(
 
     findings = []
     if total_sentences >= 5 and ratio >= 0.2:
+        nominal_ending_lines = [no for no, _ in nominal_ending_findings]
+        related = format_related_lines(nominal_ending_lines)
         for no, sent in nominal_ending_findings:
             findings.append(
                 Finding(
@@ -428,7 +452,11 @@ def detect_nominal_ending_and_paragraph_conjunctions(
                     category="nominal_ending",
                     excerpt=sent[-30:],
                     severity="info",
-                    detail=f"体言止め（形態素解析ベース、文書全体の体言止め率={ratio:.1%}、閾値20%以上で警告）",
+                    detail=(
+                        f"体言止め（形態素解析ベース、文書全体の体言止め率={ratio:.1%}、"
+                        f"閾値20%以上で警告）。{related}"
+                    ),
+                    related_lines=nominal_ending_lines,
                 )
             )
 
@@ -458,6 +486,8 @@ def detect_nominal_ending_and_paragraph_conjunctions(
 
     conj_ratio = conj_paragraph_count / total_paragraphs if total_paragraphs else 0.0
     if total_paragraphs >= 3 and conj_ratio >= 0.3:
+        conj_lines = [no for no, _, _ in conj_findings]
+        related = format_related_lines(conj_lines)
         for no, text_line, conj in conj_findings:
             findings.append(
                 Finding(
@@ -465,7 +495,11 @@ def detect_nominal_ending_and_paragraph_conjunctions(
                     category="paragraph_lead_conjunction",
                     excerpt=text_line[:40],
                     severity="info",
-                    detail=f"段落頭が接続詞「{conj}」で始まる（文書全体の段落頭接続詞率={conj_ratio:.1%}、閾値30%以上で警告）",
+                    detail=(
+                        f"段落頭が接続詞「{conj}」で始まる（文書全体の段落頭接続詞率={conj_ratio:.1%}、"
+                        f"閾値30%以上で警告）。{related}"
+                    ),
+                    related_lines=conj_lines,
                 )
             )
 
@@ -649,17 +683,19 @@ def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Fi
     bigram_counter = Counter(text for _, _, text, _ in lead_bigrams)
     for bigram, count in bigram_counter.items():
         if count >= 3:
+            bigram_lines = [no for no, _, text, _ in lead_bigrams if text == bigram]
+            related = format_related_lines(bigram_lines)
             for no, sent, text, is_tech_lead in lead_bigrams:
                 if text == bigram:
                     if is_tech_lead:
                         severity = "info"
                         detail = (
-                            f"文頭2形態素「{bigram}」が文書内で{count}回繰り返し使用"
-                            "（固有名詞/技術用語由来の可能性が高いため severity を下げています）"
+                            f"文頭2形態素「{bigram}」が{count}回反復（閾値3回以上）。"
+                            f"固有名詞/技術用語由来の可能性が高いため severity を下げています。{related}"
                         )
                     else:
                         severity = "warn"
-                        detail = f"文頭2形態素「{bigram}」が文書内で{count}回繰り返し使用"
+                        detail = f"文頭2形態素「{bigram}」が{count}回反復（閾値3回以上）。{related}"
                     findings.append(
                         Finding(
                             line=no,
@@ -667,6 +703,7 @@ def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Fi
                             excerpt=sent[:20],
                             severity=severity,
                             detail=detail,
+                            related_lines=bigram_lines,
                         )
                     )
 
@@ -685,6 +722,8 @@ def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Fi
         stats["lead_pos_4gram_top"] = "/".join(top_seq)
         stats["lead_pos_4gram_ratio"] = ratio
         if ratio >= 0.4:
+            template_lines = [no for no, _, seq in lead_pos_ngrams if seq == top_seq]
+            related = format_related_lines(template_lines)
             for no, sent, seq in lead_pos_ngrams:
                 if seq == top_seq:
                     findings.append(
@@ -695,8 +734,9 @@ def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Fi
                             severity="info",
                             detail=(
                                 f"文頭品詞4-gram「{'/'.join(top_seq)}」が全文の{ratio:.1%}で一致"
-                                "（閾値40%以上）。構文テンプレートの使い回しの疑い"
+                                f"（閾値40%以上）。構文テンプレートの使い回しの疑い。{related}"
                             ),
+                            related_lines=template_lines,
                         )
                     )
 
@@ -977,6 +1017,8 @@ def print_human_report(path: Path, findings: list[Finding], stats: dict) -> None
         print(f"[{label}] L{f.line} ({f.category})")
         print(f"    該当箇所: {f.excerpt}")
         if f.detail:
+            # 「対応箇所: L12, L34, ...」（related_lines）は detail 文字列に既に
+            # 含めているため、人間可読レポートでは detail をそのまま表示すれば十分。
             print(f"    詳細    : {f.detail}")
         print()
 
