@@ -76,6 +76,26 @@ FORBIDDEN_PHRASES: list[str] = [
     "一概には言えません",
     "個人差がありますが",
     "あくまで一例ですが",
+    # 正面から系（出典: japanese-tech-writing の規範から。中身の代わりに姿勢だけを宣言する）
+    "正面から扱う",
+    "正面から見る",
+    "正面から書く",
+    "正面から立てる",
+    "正面から回収する",
+    # 空虚な形容（出典: japanese-tech-writing の規範から。主張の中身を説明せず強調・網羅感だけ付ける）
+    "不可欠",
+    "核心的",
+    "鍵となる",
+    "根本的な",
+    "多角的",
+    "包括的",
+    "総合的",
+    # 空虚な動詞・予告口調（出典: japanese-tech-writing の規範から。何をどう書いたか示さず終わる）
+    "掘り下げる",
+    "深掘りする",
+    "言語化する",
+    "について見ていく",
+    "を探求する",
 ]
 
 # ---------------------------------------------------------------------------
@@ -584,10 +604,32 @@ def detect_rhythm_statistics(tokenized: list[TokenizedSentence]) -> tuple[list[F
     return findings, stats
 
 
+
+# 文頭反復の severity 判定: 固有名詞・製品名/技術用語（ラテン文字主体の表層）が
+# 文頭に来る場合は「そして」「また」のような定型導入の使い回しとは性質が異なり、
+# 技術文書では自然な反復（例: 「Cloudflareは」「better-authが」）なので
+# severity を warn ではなく info に下げる（検出自体は残し、判断材料として提示する）。
+_LATIN_TECH_TOKEN_RE = re.compile(r"^[A-Za-z][A-Za-z0-9\-_.]*$")
+
+
+def _is_proper_noun_or_tech_term(morpheme) -> bool:
+    """先頭形態素が固有名詞、またはラテン文字・数字主体（製品名/ライブラリ名等）かを判定する。
+    カタカナ語は一般語（「クラウド」「システム」等）も多く誤って severity を下げるリスクが
+    高いため、ここでは対象外とする（迷ったら対象外でよい、という方針）。
+    """
+    pos = morpheme.part_of_speech()
+    surface = morpheme.surface()
+    is_proper_noun = pos[0] == "名詞" and pos[1] == "固有名詞"
+    is_latin_tech = bool(_LATIN_TECH_TOKEN_RE.match(surface))
+    return is_proper_noun or is_latin_tech
+
+
 def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Finding], dict]:
     """
     1) 文頭2形態素（表層形）の n-gram が3回以上繰り返される
        → 「そして、」「また、」のような定型導入の使い回し
+       ただし先頭形態素が固有名詞・ラテン文字主体の技術用語（製品名/ライブラリ名等）の
+       場合は技術文書として自然な反復なので severity を info に下げる（検出自体は残す）。
     2) 文頭のPOS 4-gram（品詞の粗い並び）の一致率が高い
        → 語彙は違っても構文テンプレートが同じ（AIにありがちな構造の使い回し）
     をそれぞれ検出する。
@@ -598,22 +640,33 @@ def detect_ngram_repetition(tokenized: list[TokenizedSentence]) -> tuple[list[Fi
 
     lead_bigrams = []
     for ts in tokenized:
-        surfaces = [m.surface() for m in ts.morphemes[:2]]
+        lead_morphemes = ts.morphemes[:2]
+        surfaces = [m.surface() for m in lead_morphemes]
         if len(surfaces) == 2:
-            lead_bigrams.append((ts.line, ts.text, "".join(surfaces)))
+            is_tech_lead = _is_proper_noun_or_tech_term(lead_morphemes[0])
+            lead_bigrams.append((ts.line, ts.text, "".join(surfaces), is_tech_lead))
 
-    bigram_counter = Counter(text for _, _, text in lead_bigrams)
+    bigram_counter = Counter(text for _, _, text, _ in lead_bigrams)
     for bigram, count in bigram_counter.items():
         if count >= 3:
-            for no, sent, text in lead_bigrams:
+            for no, sent, text, is_tech_lead in lead_bigrams:
                 if text == bigram:
+                    if is_tech_lead:
+                        severity = "info"
+                        detail = (
+                            f"文頭2形態素「{bigram}」が文書内で{count}回繰り返し使用"
+                            "（固有名詞/技術用語由来の可能性が高いため severity を下げています）"
+                        )
+                    else:
+                        severity = "warn"
+                        detail = f"文頭2形態素「{bigram}」が文書内で{count}回繰り返し使用"
                     findings.append(
                         Finding(
                             line=no,
                             category="repeated_sentence_lead",
                             excerpt=sent[:20],
-                            severity="warn",
-                            detail=f"文頭2形態素「{bigram}」が文書内で{count}回繰り返し使用",
+                            severity=severity,
+                            detail=detail,
                         )
                     )
 

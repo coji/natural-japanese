@@ -1,7 +1,7 @@
 {
   "name": "natural-japanese",
   "description": "AI臭い日本語文章を機械的に検出し、自然な日本語に直すためのスキル。note・ブログ・エッセイ・技術文書のリライト、新規執筆、文体プロファイル作成に使う。",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "coji"
   },
