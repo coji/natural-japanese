@@ -38,6 +38,7 @@ from pathlib import Path
 
 CORPUS_DIR = Path(__file__).parent
 AI_DIR = CORPUS_DIR / "ai"
+NEUTRAL_CWD = "/tmp"
 
 # ---------------------------------------------------------------------------
 # トピックリスト(人間コーパスと同ジャンル)。各ジャンル 10本以上、合計 30本以上。
@@ -86,57 +87,120 @@ TOPICS: list[dict] = [
 
 PROMPT_TEMPLATE = "{topic}についてブログ記事を書いて。"
 
+# generate.py は claude -p を1往復のみの非対話呼び出しとして使う。
+# ユーザー向けプロンプト自体は「素の状態」(文体・自然さの指示なし)に保つが、
+# それとは別に「確認質問をせず本文を直接出力する」という運用上の指示だけは
+# システムプロンプトとして与える。そうしないと、素っ気ないプロンプトに対して
+# Claude が対話的な確認質問を返すだけで記事本文が得られず、コーパスとして
+# 機能しないため。
+NONINTERACTIVE_SYSTEM_PROMPT = (
+    "これは1往復のみの非対話バッチ呼び出しです。フォローアップの質問はできません。"
+    "確認や許可を求めず、指示に対して適切と思う内容を自分で判断し、"
+    "記事本文だけをそのまま出力してください。"
+)
+
 
 def run_claude(prompt: str, model: str) -> str:
+    # cwd をリポジトリ外(素の状態)にする: このリポジトリの CLAUDE.md や
+    # スキルのメモリが自動読み込みされると、Claude が「素っ気ないプロンプト」を
+    # 対話的な確認質問として扱ってしまい、記事本文が生成されないため。
     result = subprocess.run(
-        ["claude", "-p", prompt, "--model", model],
+        [
+            "claude",
+            "-p",
+            prompt,
+            "--model",
+            model,
+            # ツール(Write/Bash等)を一切使わせず、応答テキストだけを本文として
+            # 得る。ツールがあると「ファイルに保存しました」等の要約だけを
+            # 返したり、確認や許可を求めたりして本文が得られないことがある。
+            "--disallowed-tools",
+            "*",
+            "--append-system-prompt",
+            NONINTERACTIVE_SYSTEM_PROMPT,
+        ],
         capture_output=True,
         text=True,
         timeout=300,
         check=True,
+        cwd=NEUTRAL_CWD,
     )
     return result.stdout.strip()
 
 
 def run_codex(prompt: str) -> str:
     result = subprocess.run(
-        ["codex", "exec", prompt],
+        ["codex", "exec", "--skip-git-repo-check", prompt],
         capture_output=True,
         text=True,
         timeout=300,
         check=True,
+        cwd=NEUTRAL_CWD,
     )
     return result.stdout.strip()
 
 
-def generate_one(topic: dict, engine: str, model: str) -> None:
+def generate_one(
+    topic: dict, engine: str, model: str, *, retries: int = 1, force: bool = False
+) -> dict | None:
+    """1トピックを生成する。スキップ時は None、生成時はメタ情報 dict を返す。"""
     prompt = PROMPT_TEMPLATE.format(topic=topic["topic"])
-    print(f"generate: {topic['id']} (engine={engine}, model={model})", file=sys.stderr)
-
-    if engine == "claude":
-        body = run_claude(prompt, model)
-    elif engine == "codex":
-        body = run_codex(prompt)
-        model = "codex-cli"
-    else:
-        raise ValueError(f"unknown engine: {engine}")
-
-    out_dir = AI_DIR / model
-    out_dir.mkdir(parents=True, exist_ok=True)
+    out_model = "codex-cli" if engine == "codex" else model
+    out_dir = AI_DIR / out_model
     out_path = out_dir / f"{topic['id']}.md"
 
+    if out_path.exists() and not force:
+        print(f"skip (exists): {topic['id']} (engine={engine}, model={out_model})", file=sys.stderr)
+        return None
+
+    print(f"generate: {topic['id']} (engine={engine}, model={out_model})", file=sys.stderr)
+
+    last_error: Exception | None = None
+    body: str | None = None
+    for attempt in range(retries + 1):
+        try:
+            if engine == "claude":
+                body = run_claude(prompt, model)
+            elif engine == "codex":
+                body = run_codex(prompt)
+            else:
+                raise ValueError(f"unknown engine: {engine}")
+            last_error = None
+            break
+        except Exception as e:  # noqa: BLE001
+            last_error = e
+            if attempt < retries:
+                print(f"  retry ({attempt + 1}/{retries}): {topic['id']}: {e}", file=sys.stderr)
+            continue
+
+    if last_error is not None or body is None:
+        raise last_error or RuntimeError("empty response")
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    generated_at = dt.datetime.now().isoformat(timespec="seconds")
     frontmatter = (
         "---\n"
         f"id: {topic['id']}\n"
         f"genre: {topic['genre']}\n"
         f"engine: {engine}\n"
-        f"model: {model}\n"
-        f"generated_at: {dt.datetime.now().isoformat(timespec='seconds')}\n"
+        f"model: {out_model}\n"
+        f"generated_at: {generated_at}\n"
         f"prompt: {json.dumps(prompt, ensure_ascii=False)}\n"
         "---\n\n"
     )
     out_path.write_text(frontmatter + body + "\n", encoding="utf-8")
     print(f"  -> {out_path} ({len(body)} chars)", file=sys.stderr)
+
+    return {
+        "id": topic["id"],
+        "genre": topic["genre"],
+        "engine": engine,
+        "model": out_model,
+        "chars": len(body),
+        "generated_at": generated_at,
+        "path": str(out_path.relative_to(CORPUS_DIR)),
+    }
 
 
 def main() -> None:
@@ -145,6 +209,8 @@ def main() -> None:
     parser.add_argument("--model", default="claude-sonnet-4-5", help="claude -p --model に渡すモデル名")
     parser.add_argument("--limit", type=int, help="先頭 N トピックだけ生成する(動作確認用)")
     parser.add_argument("--genre", choices=["essay", "tech", "blog"], help="このジャンルだけ生成する")
+    parser.add_argument("--retries", type=int, default=1, help="失敗時のリトライ回数(既定 1)")
+    parser.add_argument("--force", action="store_true", help="既存ファイルがあっても再生成する")
     args = parser.parse_args()
 
     topics = TOPICS
@@ -155,7 +221,7 @@ def main() -> None:
 
     for topic in topics:
         try:
-            generate_one(topic, args.engine, args.model)
+            generate_one(topic, args.engine, args.model, retries=args.retries, force=args.force)
         except subprocess.CalledProcessError as e:
             print(f"  ERROR: {topic['id']}: {e.stderr}", file=sys.stderr)
         except Exception as e:  # noqa: BLE001

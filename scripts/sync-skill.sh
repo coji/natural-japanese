@@ -40,12 +40,13 @@ mkdir -p "${TMP_DIR}/natural-japanese"
 cp "${REPO_ROOT}/SKILL.md" "${TMP_DIR}/natural-japanese/SKILL.md"
 cp -R "${REPO_ROOT}/references" "${TMP_DIR}/natural-japanese/references"
 
-# Copy scripts/, excluding this sync script itself and __pycache__ noise.
+# Copy scripts/, excluding this sync script, the dev-only fixture regression
+# check, and __pycache__ noise.
 mkdir -p "${TMP_DIR}/natural-japanese/scripts"
 for entry in "${REPO_ROOT}"/scripts/*; do
   base="$(basename "${entry}")"
   case "${base}" in
-    sync-skill.sh|__pycache__)
+    sync-skill.sh|check-fixtures.sh|__pycache__)
       continue
       ;;
   esac

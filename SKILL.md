@@ -62,6 +62,8 @@ lint の `findings` はあくまで疑いの提示であり、機械的に全部
 - 禁止語・LLM常套句の詳細と理由 → `references/forbidden-patterns.md`
 - 英語統語・翻訳調のパターンと書き直し例 → `references/translationese.md`
 
+lint のカテゴリに当てはまらない「そもそも読みにくい」文章に見えるときは、`references/readability-principles.md`（語順・読点・一文一義・パラグラフなど、ジャンル横断の一般原則）と `references/readability-antipatterns.md`（人間の書き手もやりがちな悪文カタログ、lint 未対応の項目は目視確認と明記）を参照する。ジャンル（tech/business/essay/公用文）によって原則の重みづけが変わる場合は `references/genre-notes.md` の差分を当てる。
+
 ## 5. 再検知・収束
 
 台帳の「直した」項目を反映したら lint を再実行し、新しい finding が出ていないか確認する。台帳上の全 finding が「直した」か「残す（理由）」に仕分けられ、かつ「直した」による修正が新たな finding を生んでいない状態になるまで 3〜4 を繰り返す。同じ finding が2周連続で直しては再発する場合の扱いは `references/revision-guide.md` の「発散ガード」を参照。

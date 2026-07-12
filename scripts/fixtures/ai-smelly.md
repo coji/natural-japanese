@@ -1,3 +1,20 @@
+<!--
+2026-07 コーパス校正後の期待値（scripts/calibrate.py によるコーパス実測を反映した再設計）:
+  `uv run scripts/ai-smell-lint.py scripts/fixtures/ai-smelly.md --json`
+    → 25件 (forbidden_phrase:8, antithesis_repetition:5, low_burstiness:1,
+       english_syntax_inanimate_subject:2, inanimate_subject_morph:1,
+       translationese:5, translationese_morph:1, low_specificity:2)
+  `--experimental` を付けると EXPERIMENTAL_CATEGORIES も出力され 33件
+    （上記に加えて paragraph_lead_conjunction:4, english_syntax_cleft_because:1,
+      boilerplate_heading:1, high_bold_density:1, numbered_phase_structure:1）。
+  旧設計の期待値（35/0）はコーパス校正で前提が誤りと判明した検出器
+  （nested_attributive 削除、nominal_ending 反転等）を含んでいたため崩れている。
+  2026-07 Phase 3 で low_specificity（段落単位の具体性/一般論臭検出器、
+  corpus/reports/sweep_low_specificity.md で校正）を新設し、一般論だけの段落を
+  1つ追記して発火を確認した（既存の「このように、リモートワークには…」段落でも
+  1件発火していたため、合計2件になっている）。
+-->
+
 # AIっぽい文章のサンプル
 
 さて、今日はリモートワークについて考えていきましょう。重要なのは、働き方を単に変えることではなく、働く人自身の意識を変えることです。
@@ -14,4 +31,16 @@
 
 一方で、課題も存在します。孤独感の増大という点で、多くの企業が対策を模索しています。まとめると、リモートワークは万能ではありませんが、正しく運用すれば大きな効果をもたらすと言えるでしょう。
 
+働き方の多様性という観点は、これからの社会にとって重要な課題である。組織のあり方や個人の価値観の変化は、今後の労働環境に大きな影響を及ぼす可能性を秘めている。こうした変化への対応力は、企業の持続可能性を左右する重要な要素になっていく。
+
 いかがでしたか。今回はリモートワークの本質について、多角的に見ていきました。
+
+## まとめ
+
+リモートワーク導入を成功させるための**重要なポイント**は以下の3つです。
+
+- **フェーズ1**: 制度設計と**ツール選定**を行う
+- **フェーズ2**: 試験導入で**課題を洗い出す**
+- **フェーズ3**: 全社展開し**効果測定**を継続する
+
+これらの**ステップ**を着実に踏むことが、リモートワーク成功の鍵になります。✅📌

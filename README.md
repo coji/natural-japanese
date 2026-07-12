@@ -115,6 +115,10 @@ git config core.hooksPath .githooks
 ./scripts/sync-skill.sh
 ```
 
+`scripts/ai-smell-lint.py` や `scripts/fixtures/` を変更した場合は `./scripts/check-fixtures.sh` で
+期待検出件数（fixture 回帰）を確認してください。同条件で変更が staged されていれば pre-commit hook が
+自動実行し、リリース時は `.github/workflows/release.yml` でも実行されます。
+
 ## 参考にした資料
 
 このスキルの設計は、次の2つの公開資料に大きく影響を受けています。感謝します。

@@ -6,3 +6,7 @@ corpus/human/web/*
 !corpus/human/web/.gitkeep
 corpus/ai/*
 !corpus/ai/.gitkeep
+
+# corpus/reports: calibrate.py の出力（再生成可能なレポート）
+corpus/reports/*
+!corpus/reports/.gitkeep

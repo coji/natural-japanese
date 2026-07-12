@@ -56,6 +56,8 @@ def strip_tags(html: str) -> str:
     html = re.sub(r"<[^>]+>", "", html)
     html = html.replace("&nbsp;", " ").replace("&amp;", "&")
     html = html.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
+    html = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), html)
+    html = re.sub(r"&#x([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)), html)
     lines = [ln.strip() for ln in html.splitlines()]
     lines = [ln for ln in lines if ln]
     return "\n\n".join(lines)
@@ -112,6 +114,32 @@ def extract_body(url: str, html: str) -> tuple[str, str]:
     return "generic", extract_generic(html)
 
 
+def decode_html(resp: httpx.Response) -> str:
+    """レスポンス本文をデコードする。
+
+    HTTP ヘッダに charset が無い場合、httpx は utf-8 と誤検出することがある
+    (例: 総務省白書ページは Shift_JIS を meta/XML 宣言でのみ示す)。
+    HTTP ヘッダに charset が明示されていなければ、生バイト列から
+    <meta charset> / XML encoding 宣言を読み取ってデコードし直す。
+    """
+    content_type_header = resp.headers.get("content-type", "")
+    if "charset=" in content_type_header.lower():
+        return resp.text
+
+    raw = resp.content
+    head = raw[:2048].decode("ascii", errors="ignore")
+    m = re.search(r'charset=["\']?([\w-]+)', head, re.I) or re.search(
+        r'encoding=["\']([\w-]+)["\']', head, re.I
+    )
+    if m:
+        declared = m.group(1).strip().lower()
+        try:
+            return raw.decode(declared)
+        except (LookupError, UnicodeDecodeError):
+            pass
+    return resp.text
+
+
 def fetch_one(source: dict, client: httpx.Client) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     out_path = OUT_DIR / f"{source['id']}.md"
@@ -119,7 +147,7 @@ def fetch_one(source: dict, client: httpx.Client) -> None:
     print(f"fetch: {source['id']} <- {url}", file=sys.stderr)
     resp = client.get(url, headers={"User-Agent": USER_AGENT}, timeout=30, follow_redirects=True)
     resp.raise_for_status()
-    html = resp.text
+    html = decode_html(resp)
     method, body = extract_body(url, html)
     title = source.get("title") or extract_title(html)
 
@@ -138,7 +166,7 @@ def fetch_one(source: dict, client: httpx.Client) -> None:
     print(f"  -> {out_path} ({method}, {len(body)} chars)", file=sys.stderr)
 
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(description="corpus/sources.json の web エントリを取得する")
     parser.add_argument("--id", help="この id のエントリだけ取得する")
     parser.add_argument("--limit", type=int, help="先頭 N 件だけ取得する(試走用)")
@@ -153,15 +181,21 @@ def main() -> None:
     elif args.limit:
         sources = sources[: args.limit]
 
+    failed = 0
     with httpx.Client() as client:
         for i, source in enumerate(sources):
             try:
                 fetch_one(source, client)
             except Exception as e:  # noqa: BLE001 — 1件失敗しても続行する
+                failed += 1
                 print(f"  ERROR: {source['id']}: {e}", file=sys.stderr)
             if i < len(sources) - 1:
                 time.sleep(RATE_LIMIT_SECONDS)
 
+    succeeded = len(sources) - failed
+    print(f"summary: {succeeded} succeeded, {failed} failed (total {len(sources)})", file=sys.stderr)
+    return 1 if failed else 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

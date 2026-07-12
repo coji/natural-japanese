@@ -15,6 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Verify skills/natural-japanese is in sync with root sources
         run: |
           set -euo pipefail
@@ -34,7 +37,7 @@ jobs:
           for entry in scripts/*; do
             base="$(basename "${entry}")"
             case "${base}" in
-              sync-skill.sh|__pycache__) continue ;;
+              sync-skill.sh|check-fixtures.sh|__pycache__) continue ;;
             esac
             cp -R "${entry}" "${expected}/natural-japanese/scripts/${base}"
           done
@@ -44,11 +47,14 @@ jobs:
           fi
           rm -rf "${expected}"
 
+      - name: Run fixture regression check
+        run: scripts/check-fixtures.sh
+
       - name: Build natural-japanese.skill
         run: |
           set -euo pipefail
           zip -r natural-japanese.skill SKILL.md references scripts assets \
-            -x 'scripts/__pycache__/*'
+            -x 'scripts/__pycache__/*' -x 'scripts/check-fixtures.sh'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
