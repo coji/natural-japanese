@@ -1,6 +1,6 @@
 <!--
 2026-07 コーパス校正後の期待値（scripts/calibrate.py によるコーパス実測を反映した再設計）:
-  `uv run scripts/ai-smell-lint.py scripts/fixtures/ai-smelly.md --json`
+  `uv run scripts/lint.py scripts/fixtures/ai-smelly.md --json`
     → 25件 (forbidden_phrase:8, antithesis_repetition:5, low_burstiness:1,
        english_syntax_inanimate_subject:2, inanimate_subject_morph:1,
        translationese:5, translationese_morph:1, low_specificity:2)

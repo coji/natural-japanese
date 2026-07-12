@@ -5,17 +5,21 @@
 #     "sudachidict-core>=20240409",
 # ]
 # ///
-"""calibrate.py — corpus/ を使って ai-smell-lint.py の検出器を統計的に校正する。
+"""calibrate.py — corpus/ を使って scripts/lint.py の検出器を統計的に校正する。
 
 設計:
-    ai-smell-lint.py を subprocess で --json 実行するのではなく、importlib で
-    同ディレクトリの ai-smell-lint.py を直接モジュールとしてロードし、検出関数を
+    scripts/lint.py を subprocess で --json 実行するのではなく、importlib で
+    同ディレクトリの lint.py を直接モジュールとしてロードし、検出関数を
     直接呼ぶ。理由: sweep サブコマンドで検出器の内部閾値パラメータ（例:
     burstiness_threshold）を変えながら何度も評価する必要があり、subprocess 越しの
     CLI 呼び出しではプロセス起動コストと閾値受け渡しの両方がボトルネックになる。
-    ai-smell-lint.py 側は、この用途のためにすべての検出関数の閾値を「デフォルト値
+    lint.py 側は、この用途のためにすべての検出関数の閾値を「デフォルト値
     付きのキーワード引数（モジュールレベル定数がデフォルト）」として公開しており、
     引数を渡さなければ CLI と完全に同じ挙動になる。
+    lint.py は textcore.py（sudachi トークナイザ・マスク処理・文分割等の共有基盤、
+    scripts/outline.py・scripts/terms.py とも共用）に依存する。`uv run
+    scripts/calibrate.py` 実行時は sys.path[0] が scripts/ ディレクトリになるため、
+    importlib で読み込んだ lint.py 内部の `from textcore import ...` もそのまま解決できる。
 
 使い方:
     uv run scripts/calibrate.py report
@@ -41,19 +45,23 @@ REPORTS_DIR = CORPUS_DIR / "reports"
 
 
 def load_lint_module():
-    """scripts/ai-smell-lint.py をモジュールとして読み込む（ファイル名にハイフンを
-    含むため通常の import 文では読めない。importlib.util.spec_from_file_location
-    で明示的にロードする）。"""
-    lint_path = SCRIPT_DIR / "ai-smell-lint.py"
-    spec = importlib.util.spec_from_file_location("ai_smell_lint", lint_path)
+    """scripts/lint.py をモジュールとして読み込む。
+
+    lint.py 自体はハイフンを含まない通常のモジュール名になったが、
+    calibrate.py が sweep サブコマンドで検出関数を直接呼び、実行のたびに
+    パス経由でロードし直せるようにする設計は変えていないため、
+    importlib.util.spec_from_file_location による明示ロードを維持する。
+    """
+    lint_path = SCRIPT_DIR / "lint.py"
+    spec = importlib.util.spec_from_file_location("lint", lint_path)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"ai-smell-lint.py をロードできません: {lint_path}")
+        raise RuntimeError(f"lint.py をロードできません: {lint_path}")
     module = importlib.util.module_from_spec(spec)
     # dataclasses は cls.__module__ から sys.modules を引いて型解決するため、
     # exec_module() の前に sys.modules へ登録しておく必要がある
     # （登録しないと Finding/TokenizedSentence 等の @dataclass 定義で
     # 「'NoneType' object has no attribute '__dict__'」になる）。
-    sys.modules["ai_smell_lint"] = module
+    sys.modules["lint"] = module
     spec.loader.exec_module(module)
     return module
 
@@ -233,7 +241,7 @@ def run_full_lint(mod, prepared: PreparedDoc) -> None:
     }
 
 
-# 検出器カテゴリの一覧（report のマトリクス行に使う）。ai-smell-lint.py の
+# 検出器カテゴリの一覧（report のマトリクス行に使う）。lint.py の
 # run_lint() が生成しうる category と対応させている。
 # nested_attributive は 2026-07 コーパス校正で検出器ごと削除（弁別力なし）。
 ALL_CATEGORIES = [
@@ -762,7 +770,7 @@ def cmd_length_analysis(mod) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="ai-smell-lint.py 検出器の統計校正スクリプト")
+    parser = argparse.ArgumentParser(description="lint.py 検出器の統計校正スクリプト")
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("report", help="検出器×コーパス種別のヒット率マトリクスを出力")

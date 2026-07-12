@@ -8,8 +8,9 @@
 """readability-sweep.py — 14件の「読みやすさ」検出器候補をコーパスで検証する。
 
 背景:
-    v0.4.0 で ai-smell-lint.py を「AI臭除去」から「読みやすく自然な日本語」へ
-    拡張するための事前検証。14の候補メトリクスをコーパス全体（人間/AI）に対して
+    v0.4.0 で lint.py（当時のファイル名は ai-smell-lint.py。2026-07 に textcore.py /
+    lint.py / outline.py / terms.py へ分割・リネームされた）を「AI臭除去」から
+    「読みやすく自然な日本語」へ拡張するための事前検証。14の候補メトリクスをコーパス全体（人間/AI）に対して
     計測し、人間 quality:high（+ aozora modern-colloquial-classic）文書での
     誤検知率（FP率）が5%未満を保ちつつ AI 文書との弁別力があるかを確認する。
 
@@ -48,16 +49,26 @@ SOURCES_JSON = CORPUS_DIR / "sources.json"
 
 
 def load_lint_module():
-    """scripts/ai-smell-lint.py をモジュールとして importlib でロードする
-    （ファイル名にハイフンを含むため通常の import では読めない）。
-    tokenizer / masking / sentence-split ユーティリティの再利用のためだけに使う。
-    ai-smell-lint.py 自体は変更しない。"""
-    lint_path = REPO_ROOT / "scripts" / "ai-smell-lint.py"
-    spec = importlib.util.spec_from_file_location("ai_smell_lint", lint_path)
+    """scripts/lint.py をモジュールとして importlib でロードする。
+    tokenizer / masking / sentence-split ユーティリティ（textcore.py 由来のものを
+    含め、lint.py が re-export している）の再利用のためだけに使う。
+    lint.py / textcore.py 自体は変更しない。
+
+    このスクリプトは corpus/experiments/ から `uv run` されるため sys.path[0] は
+    scripts/ ではない。lint.py 内部の `from textcore import ...` を解決できるよう、
+    exec_module() の前に scripts/ を sys.path へ追加しておく必要がある
+    （scripts/calibrate.py は自身が scripts/ 内にあるためこの追加が不要だが、
+    このスクリプトは corpus/experiments/ にあるため明示的に追加する）。
+    """
+    scripts_dir = REPO_ROOT / "scripts"
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    lint_path = scripts_dir / "lint.py"
+    spec = importlib.util.spec_from_file_location("lint", lint_path)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"ai-smell-lint.py をロードできません: {lint_path}")
+        raise RuntimeError(f"lint.py をロードできません: {lint_path}")
     module = importlib.util.module_from_spec(spec)
-    sys.modules["ai_smell_lint"] = module
+    sys.modules["lint"] = module
     spec.loader.exec_module(module)
     return module
 
@@ -874,7 +885,7 @@ def main() -> None:
     # --- 候補11: 重複チェック ---
     report_lines.append(f"\n## 候補11: {METRIC_NAMES[11]}\n")
     report_lines.append(
-        "- **既存メトリクスとの重複確認**: `scripts/ai-smell-lint.py` の "
+        "- **既存メトリクスとの重複確認**: `scripts/lint.py` の "
         "`detect_nominal_ending_and_paragraph_conjunctions()` が計算する "
         "`paragraph_sentence_count_cv`（段落あたり文数の変動係数）と**同一定義**であり、"
         "`uniform_paragraph_structure` カテゴリとしてすでに検出・校正済みの検出器である。\n"

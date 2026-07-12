@@ -1,7 +1,7 @@
 # business-fp-check — 新規収集した政府系ビジネス文書・白書・スライドに対するAI検出器の誤検知チェック
 
 収集元: `corpus/human/web/biz-*.md`, `corpus/human/web/slide-*.md`（政府系/白書系サブタイプ、ラウンド1+ラウンド2合算で計10件）
-検出器: `ai-smell-lint.py` の全検出器（`uv run scripts/calibrate.py report` の human_business 列より抜粋、business=17件中の政府系/白書系サブセット）
+検出器: `lint.py` の全検出器（`uv run scripts/calibrate.py report` の human_business 列より抜粋、business=17件中の政府系/白書系サブセット）
 
 ### ラウンド1（4件、published <= 2021, quality: high）
 - biz-gov-soumu-dx-economic-impact-2021（総務省委託・情報通信総合研究所、2021年3月、DX調査報告書本文）

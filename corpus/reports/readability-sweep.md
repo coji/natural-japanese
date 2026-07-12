@@ -444,7 +444,7 @@ FP基準集合の内訳: web quality:high = 43件, aozora modern-colloquial-clas
 
 ## 候補11: 段落文数CV（既存重複チェック）
 
-- **既存メトリクスとの重複確認**: `scripts/ai-smell-lint.py` の `detect_nominal_ending_and_paragraph_conjunctions()` が計算する `paragraph_sentence_count_cv`（段落あたり文数の変動係数）と**同一定義**であり、`uniform_paragraph_structure` カテゴリとしてすでに検出・校正済みの検出器である。
+- **既存メトリクスとの重複確認**: `scripts/lint.py` の `detect_nominal_ending_and_paragraph_conjunctions()` が計算する `paragraph_sentence_count_cv`（段落あたり文数の変動係数）と**同一定義**であり、`uniform_paragraph_structure` カテゴリとしてすでに検出・校正済みの検出器である。
 
 - 参考: FP基準集合でのCV分布 mean=0.555
 

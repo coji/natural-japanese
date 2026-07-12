@@ -1,6 +1,6 @@
 <!--
 2026-07 コーパス校正後の期待値（scripts/calibrate.py によるコーパス実測を反映した再設計）:
-  `uv run scripts/ai-smell-lint.py scripts/fixtures/natural.md --json` → 0件
+  `uv run scripts/lint.py scripts/fixtures/natural.md --json` → 0件
   `--experimental` を付けても 0件（EXPERIMENTAL_CATEGORIES も含めて発火なし）。
   旧設計時は文長のばらつきが不足しており low_burstiness（新閾値-0.24。
   corpus/reports/archive/sweep_low_burstiness.md 参照）が誤検知していたため、

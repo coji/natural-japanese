@@ -14,7 +14,8 @@ git -C "${REPO_ROOT}" add skills/natural-japanese
 
 # Run the fixture regression check only when it's relevant (uv startup makes
 # running it on every commit noticeably slow), i.e. when the linter itself
-# or the fixtures were touched in this commit.
-if git -C "${REPO_ROOT}" diff --cached --name-only | grep -qE '^scripts/ai-smell-lint\.py$|^scripts/fixtures/'; then
+# (lint.py) or its shared foundation (textcore.py) or the fixtures were
+# touched in this commit.
+if git -C "${REPO_ROOT}" diff --cached --name-only | grep -qE '^scripts/lint\.py$|^scripts/textcore\.py$|^scripts/fixtures/'; then
   "${REPO_ROOT}/scripts/check-fixtures.sh"
 fi

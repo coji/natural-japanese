@@ -2,7 +2,7 @@
 
 ## 目的
 
-`scripts/ai-smell-lint.py` の各検出器(禁止語・統語パターン・統計指標など)は、
+`scripts/lint.py` の各検出器(禁止語・統語パターン・統計指標など)は、
 現状「経験則」で閾値を決めている。このコーパスは、その閾値を実測に基づいて
 校正するために存在する。具体的には:
 
@@ -103,8 +103,9 @@ uv run scripts/calibrate.py report
 
 - **直下(`corpus/reports/*.md`)**: 現行の根拠レポート。コミット対象
   (`.gitignore` に個別の否定パターンあり)。
-  - `readability-sweep.md` / `business-calibration.md` / `business-fp-check.md`
-  - ドキュメント(`references/`, `scripts/ai-smell-lint.py` のコメント等)から参照される、
+  - `readability-sweep.md` / `business-calibration.md` / `business-fp-check.md` /
+    `antithesis-recalibration.md`
+  - ドキュメント(`references/`, `scripts/lint.py` のコメント等)から参照される、
     現行の検出器設計の根拠となっているレポート。
 - **`corpus/reports/archive/`**: v0.3.0 校正期に作成された旧世代レポート。非コミット
   (ローカルのみ、再生成しない過去のスナップショット)。ドキュメント中の経緯説明コメントから

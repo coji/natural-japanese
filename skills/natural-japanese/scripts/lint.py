@@ -5,7 +5,7 @@
 #     "sudachidict-core>=20240409",
 # ]
 # ///
-"""ai-smell-lint.py — AI臭い日本語文章を決定的に検出する lint スクリプト。
+"""lint.py — AI臭い日本語文章を決定的に検出する lint スクリプト。
 
 設計思想（HANDOFF.md 参照）:
     「AI は自分自身の AI 臭さを認識できない」→ 機械的・決定的に検出して
@@ -18,13 +18,15 @@
     入力エラーの場合はエラーメッセージを表示し、exit code 1 で終了する。
 
 使い方:
-    uv run scripts/ai-smell-lint.py <file.md> [--json]
+    uv run scripts/lint.py <file.md> [--json]
 
 実装メモ:
     - sudachipy の Tokenizer 生成（辞書ロード）は重いので、プロセス内で
-      一度だけ生成し使い回す（lazy シングルトン）。
-    - 文分割は「。」「！」「？」「\n」を区切りとする簡易実装。厳密な文境界
-      解析ではないが、決定的検出のプロトタイプとしてはこれで十分。
+      一度だけ生成し使い回す（lazy シングルトン、textcore.get_tokenizer）。
+    - 文分割は「。」「！」「？」「\\n」を区切りとする簡易実装（textcore.split_sentences_with_lines）。
+      厳密な文境界解析ではないが、決定的検出のプロトタイプとしてはこれで十分。
+    - sudachi トークナイザ初期化・Markdown構造マスク・文分割・ファイル読み込みなどの
+      共有基盤は textcore.py にある（scripts/outline.py, scripts/terms.py と共用）。
 """
 
 from __future__ import annotations
@@ -36,6 +38,20 @@ import re
 import statistics
 import sys
 from pathlib import Path
+
+from textcore import (
+    Finding,
+    SENTENCE_SPLIT_RE,
+    _HEADING_RE,
+    _LIST_ITEM_RE,
+    get_tokenizer,
+    iter_lines_with_no,
+    iter_paragraphs_with_lines,
+    mask_html_comments,
+    mask_markdown_structure,
+    read_source_file,
+    split_sentences_with_lines,
+)
 
 # ---------------------------------------------------------------------------
 # 辞書: 禁止語・LLM 常套句カタログ
@@ -164,8 +180,6 @@ ANTITHESIS_PATTERNS = [
     re.compile(r"ではなく、?.{0,30}"),
     re.compile(r"だけでなく.{0,10}も"),
 ]
-
-SENTENCE_SPLIT_RE = re.compile(r"[。！？\n]")
 
 # ---------------------------------------------------------------------------
 # 検出器の閾値パラメータ（デフォルト値付きモジュールレベル定数）
@@ -397,37 +411,6 @@ GENRE_PROFILES: dict[str, dict] = {
 }
 
 
-@dataclasses.dataclass
-class Finding:
-    line: int
-    category: str
-    excerpt: str
-    severity: str  # "info" | "warn" | "critical"
-    detail: str = ""
-    # 文書全体集計型の検出器（antithesis_repetition, repeated_sentence_lead,
-    # repeated_syntax_template, paragraph_lead_conjunction, nominal_ending 等）で、
-    # 同じ集計に基づく他の該当行番号を列挙するための任意フィールド。
-    # 単発検出（forbidden_phrase 等）では None のまま。
-    related_lines: list[int] | None = None
-    # --baseline 比較を行ったときだけ "new" | "persisting" にセットされる
-    # （比較しない通常実行では None のまま。to_dict() で省く）。
-    status: str | None = None
-
-    def __post_init__(self) -> None:
-        # JSON 出力でも detail 表記と同じく重複除去・昇順に正規化する
-        if self.related_lines is not None:
-            self.related_lines = sorted(set(self.related_lines))
-
-    def to_dict(self) -> dict:
-        d = dataclasses.asdict(self)
-        # --baseline を使わない通常実行では status は常に None なので、
-        # JSON 出力のフィールド構成を従来どおりに保つためキー自体を省く
-        # （--baseline なしの挙動は完全に不変、という要件のため）。
-        if d.get("status") is None:
-            d.pop("status", None)
-        return d
-
-
 def format_related_lines(related_lines: list[int]) -> str:
     """related_lines を人間可読の「対応箇所: L12, L34, ...」形式に整形する（重複除去・昇順ソート）。"""
     uniq_sorted = sorted(set(related_lines))
@@ -585,239 +568,6 @@ def compute_baseline_diff(
     return resolved, summary
 
 
-# ---------------------------------------------------------------------------
-# sudachipy Tokenizer は生成コスト（辞書ロード）が高いので遅延・使い回し。
-# ---------------------------------------------------------------------------
-_tokenizer_obj = None
-
-
-def get_tokenizer():
-    global _tokenizer_obj
-    if _tokenizer_obj is None:
-        from sudachipy import Dictionary
-
-        _tokenizer_obj = Dictionary().create()
-    return _tokenizer_obj
-
-
-# ---------------------------------------------------------------------------
-# Markdown構造行のマスク処理
-# 見出し・リスト項目・コードブロック内・引用ブロックは「文章」ではないため、
-# 体言止め判定や翻訳調検出などの対象から外す。行を削除すると後続行の行番号が
-# ズレてレポートの L<n> が狂うので、該当行は「内容を空文字に置き換える」ことで
-# 行番号を保ったまま解析対象外にする（マスク方式）。
-# ---------------------------------------------------------------------------
-_HEADING_RE = re.compile(r"^\s*#{1,6}(\s|$)")
-_LIST_ITEM_RE = re.compile(r"^\s*([-*+]|\d+[.)])(\s|$)")
-_BLOCKQUOTE_RE = re.compile(r"^\s*>")
-# フェンス行の検出。開始/終了の判定では「同じ文字種（`` ` `` か `~`）かつ
-# 長さが開始フェンス以上」であることを別途チェックする（``` と ~~~ の混同や、
-# フェンス内に出てくる別種・より短いフェンス様の行での誤クローズを防ぐため）。
-_CODE_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
-# 表の行判定は保守的に: 「行が `|` で始まり、`|` を2個以上含む」または
-# 区切り行（`|---|---|` 的な、`-`/`:`/`|`/空白のみで構成される行）に限定する。
-# 本文中にたまたま `|` が1個だけ出るケースを誤マスクしないための条件。
-_TABLE_ROW_RE = re.compile(r"^\s*\|.*\|")
-_TABLE_DELIMITER_RE = re.compile(r"^\s*\|?[\s:|-]+\|[\s:|-]*\|?\s*$")
-# YAML フロントマター（ファイル先頭の `---` ... `---`）。先頭行が単独の `---` の
-# ときだけフロントマターとみなし、次の単独 `---` までをまとめてマスクする。
-_FRONT_MATTER_DELIM_RE = re.compile(r"^---\s*$")
-# インラインコードスパン（`code` / ``code`` のようにバッククォート1〜2個で
-# 囲まれた範囲）。CommonMark 完全準拠までは不要だが、コード自体にバッククォートを
-# 含む場合に使われる `` code `` 記法（主用途: コード中に単一のバッククォートが
-# 含まれる場合、例: `` `code` ``）程度は拾えるようにする。そのため、ダブル
-# バッククォート側の中身は「バッククォート以外」または「直後がバッククォートでない
-# 単独のバッククォート」を許可する（`(?:[^`]|`(?!`))+`）。貪欲になりすぎないよう
-# `` の直前で止まるようにしている。
-# 文解析前に該当部分だけ同じ文字数の空白に置換する（行番号・オフセットを保つため）。
-_INLINE_CODE_SPAN_RE = re.compile(r"``(?:[^`\n]|`(?!`))+``|`[^`\n]+`")
-# インデントコードブロック（4スペース以上のインデント）はマスク対象に含めない。
-# 通常の文中でも字下げされた引用・リストの続きなど紛らわしいケースが多く、
-# 誤マスクのリスクの方が高いと判断して見送る（要検討事項として明示しておく）。
-# Markdown 内のリンク・画像 `[text](url)` / `![alt](url)` の url 部分。
-# alt/text 側は自然文の一部として残し、URL のみ空白化する。
-_MARKDOWN_LINK_URL_RE = re.compile(r"(\]\()([^)]*)(\))")
-
-
-def _mask_html_comments_in_line(line: str, in_comment: bool) -> tuple[str, bool]:
-    """行内の HTML コメント（`<!-- ... -->`）を同じ長さの空白に置換する。
-
-    複数行コメント（前の行から続いている／次の行へ続く）に対応するため、
-    現在コメント内にいるかどうかを in_comment として受け取り、更新後の状態を
-    返す。1行に複数のコメントが含まれる場合や、コメントの開始・終了が
-    同一行内で完結する場合にも対応する。閉じタグ `-->` が見つからないまま
-    行末に達した場合は、行末までを空白化しコメント継続状態のまま返す
-    （CommonMark の閉じられないコメントは EOF までコメントとみなす扱いに合わせる）。
-    """
-    out = []
-    i = 0
-    n = len(line)
-    while i < n:
-        if in_comment:
-            close = line.find("-->", i)
-            if close == -1:
-                out.append(" " * (n - i))
-                i = n
-            else:
-                end = close + 3
-                out.append(" " * (end - i))
-                i = end
-                in_comment = False
-        else:
-            start = line.find("<!--", i)
-            if start == -1:
-                out.append(line[i:])
-                i = n
-            else:
-                out.append(line[i:start])
-                i = start
-                in_comment = True
-    return "".join(out), in_comment
-
-
-def mask_html_comments(text: str) -> str:
-    """HTML コメント（`<!-- ... -->`）のみを同じ長さの空白に置換したテキストを返す。
-
-    Markdown 構造（見出し・リスト・太字など）はマスクしない点が
-    mask_markdown_structure() と異なる。構造検出器（detect_structural_ai_habits）は
-    Markdown の構造そのものを検出対象とするため、構造はマスクせず、コメント内の
-    誤検知だけを防ぐために使う。行数・行内オフセットは元のテキストと完全に一致させる。
-    """
-    lines = text.split("\n")
-    masked_lines = []
-    in_html_comment = False
-    for line in lines:
-        masked_line, in_html_comment = _mask_html_comments_in_line(line, in_html_comment)
-        masked_lines.append(masked_line)
-    return "\n".join(masked_lines)
-
-
-def _blank_inline_code_spans(line: str) -> str:
-    """行内のインラインコードスパン・Markdownリンク/画像のURL部分を
-    同じ長さの空白に置換する（オフセット保持）。"""
-    line = _INLINE_CODE_SPAN_RE.sub(lambda m: " " * len(m.group(0)), line)
-    # `](url)` の url 部分だけ空白化し、`](` と `)` はそのまま残す
-    # （text/alt 側は文章の一部として解析対象に残すため）。
-    line = _MARKDOWN_LINK_URL_RE.sub(lambda m: m.group(1) + " " * len(m.group(2)) + m.group(3), line)
-    return line
-
-
-def mask_markdown_structure(text: str) -> str:
-    """見出し・リスト項目・コードブロック内・引用ブロック・表・YAMLフロントマターの行を
-    空文字に置き換え、さらにインラインコードスパンとリンク/画像URLを空白化したテキストを返す。
-    行数・行番号（およびインラインコードスパンの行内オフセット）は元のテキストと
-    完全に一致させる（削除ではなくマスク）。
-
-    インデントコードブロック（4スペースインデント）はマスク対象に含めない。
-    箇条書きの折り返しや引用の字下げ等と見分けがつきにくく、誤マスクのリスクが
-    フェンスコードブロックより高いと判断し、プロトタイプの段階では見送っている。
-    """
-    lines = text.split("\n")
-    masked_lines = []
-    in_code_block = False
-    # 開いているフェンスの (文字種, 長さ)。``` と ~~~ の混同や、フェンス内に
-    # 出てくる別種・より短いフェンス様の行での誤クローズを防ぐため、開始フェンスと
-    # 同じ文字種かつ同じ長さ以上の行でしか閉じない（CommonMark 準拠までは行わない）。
-    open_fence: tuple[str, int] | None = None
-    # YAML フロントマターは「ファイル先頭行が単独の `---`」の場合のみ認識する。
-    in_front_matter = False
-    # HTML コメント（<!-- ... -->）。複数行にまたがる場合があるため、
-    # 行をまたいで開いているかどうかを状態として持つ。
-    in_html_comment = False
-    for idx, line in enumerate(lines):
-        if idx == 0 and _FRONT_MATTER_DELIM_RE.match(line):
-            in_front_matter = True
-            masked_lines.append("")
-            continue
-        if in_front_matter:
-            masked_lines.append("")
-            if _FRONT_MATTER_DELIM_RE.match(line):
-                in_front_matter = False
-            continue
-
-        fence_match = _CODE_FENCE_RE.match(line)
-        if fence_match:
-            fence_run = fence_match.group(1)
-            fence_char = fence_run[0]
-            fence_len = len(fence_run)
-            # CommonMark に合わせ、閉じフェンスは「フェンス文字の連続＋後続は空白のみ」の
-            # 行に限定する（開始フェンスは ```python のような info string を許容するが、
-            # 閉じ側でそれを許すと、フェンス内の地の文がたまたま ``` で始まっただけの
-            # 行を誤ってクローズ扱いしてしまう）。
-            remainder_after_fence = line[fence_match.end() :]
-            is_close_eligible = remainder_after_fence.strip() == ""
-            if open_fence is None:
-                open_fence = (fence_char, fence_len)
-            elif fence_char == open_fence[0] and fence_len >= open_fence[1] and is_close_eligible:
-                open_fence = None
-            # 種類・長さが一致しない行、あるいは後ろに文字が続く行は
-            # 「フェンス内の地の文（例: ```内で ~~ とだけ書いた行や ```これはコード）」
-            # として扱い、トグルしない。
-            masked_lines.append("")
-            continue
-        if open_fence is not None:
-            masked_lines.append("")
-            continue
-
-        line, in_html_comment = _mask_html_comments_in_line(line, in_html_comment)
-
-        if (
-            _HEADING_RE.match(line)
-            or _LIST_ITEM_RE.match(line)
-            or _BLOCKQUOTE_RE.match(line)
-            or (_TABLE_ROW_RE.match(line) and line.count("|") >= 2)
-            or _TABLE_DELIMITER_RE.match(line)
-        ):
-            masked_lines.append("")
-            continue
-        masked_lines.append(_blank_inline_code_spans(line))
-    return "\n".join(masked_lines)
-
-
-def iter_lines_with_no(text: str) -> list[tuple[int, str]]:
-    """1-indexed 行番号付きで行を返す。"""
-    return list(enumerate(text.splitlines(), start=1))
-
-
-def find_line_no(lines: list[tuple[int, str]], needle: str, start_hint: int = 0) -> int:
-    """needle を含む行番号を探す。
-
-    start_hint（探索を始めたい行番号、例: 対象段落の開始行）以降を優先的に走査する。
-    同一内容の段落が文書中に複数回登場する場合、常に先頭から検索すると
-    最初に出現した行に誤帰属してしまうため、start_hint 以降の一致を優先し、
-    見つからない場合のみ文書全体（start_hint より前）にフォールバックする。
-    """
-    for no, line in lines:
-        if no >= start_hint and needle in line:
-            return no
-    for no, line in lines:
-        if needle in line:
-            return no
-    return start_hint or 1
-
-
-def iter_paragraphs_with_lines(
-    lines: list[tuple[int, str]],
-) -> list[list[tuple[int, str]]]:
-    """行番号付きの行リストを、空行区切りの段落（行のグループ）に分ける。
-
-    段落の開始行が呼び出し側に正確に分かるため、re.split(r"\\n\\s*\\n", text) と
-    テキスト検索（find_line_no）による近似の line_cursor 計算に頼らずに済む。
-    同一内容の段落が複数回登場しても、行番号を直接持っているので誤帰属しない。
-    """
-    paragraphs: list[list[tuple[int, str]]] = []
-    current: list[tuple[int, str]] = []
-    for no, line in lines:
-        if line.strip():
-            current.append((no, line))
-        else:
-            if current:
-                paragraphs.append(current)
-                current = []
-    if current:
-        paragraphs.append(current)
-    return paragraphs
-
 
 # ---------------------------------------------------------------------------
 # 各検出器
@@ -946,38 +696,6 @@ def detect_antithesis_repetition(
             )
     return findings
 
-
-def split_sentences_with_lines(
-    lines: list[tuple[int, str]], raw_lines_by_no: dict[int, str] | None = None
-) -> list[tuple[int, str, str]]:
-    """行番号付きで文を分割する（。！？で分割、行内に複数文があれば同じ行番号を割り当てる）。
-
-    マスク済みテキスト（見出し・表マスクやインラインコードスパンの空白置換済み）と
-    原文（raw_lines_by_no）を同じオフセットで同時に切り出し、
-    (行番号, マスク済み文, 原文の文) の3要素タプルを返す。
-    マスク処理は「行の全置換（同じ長さの空文字ではなく行そのものを""にする）」か
-    「インラインコードスパンを同じ文字数の空白に置換」のいずれかで、
-    どちらも文字位置を保つため、マスク済みテキストで見つけた区切り位置をそのまま
-    原文の同じオフセットに適用できる。
-    見出し・表・コードブロックなどマスクで丸ごと空文字になった行は、マスク済み側が
-    空になり文が生成されないため、原文にレポートに出したくない構造行の内容が
-    紛れ込むことはない。
-    """
-    sentences = []
-    for no, line in lines:
-        raw_line = raw_lines_by_no.get(no, line) if raw_lines_by_no else line
-        bounds = []
-        prev = 0
-        for m in SENTENCE_SPLIT_RE.finditer(line):
-            bounds.append((prev, m.start()))
-            prev = m.end()
-        bounds.append((prev, len(line)))
-        for s, e in bounds:
-            piece = line[s:e]
-            if piece.strip():
-                raw_piece = raw_line[s:e] if len(raw_line) >= e else piece
-                sentences.append((no, piece.strip(), raw_piece.strip()))
-    return sentences
 
 
 def detect_low_sentence_length_variance(
@@ -1951,325 +1669,6 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 
 
 # ---------------------------------------------------------------------------
-# --outline（スケルトン抽出）
-#
-# 設計原則「検出は機械、判断はAI」に基づき、文書の構造（見出し・各段落の先頭文・
-# 箇条書きブロック）を決定的に抽出するだけで、良し悪しの判断はしない。
-# SKILL.md §4 の構造レビュー（スケルトン通読）への入力として使う。
-#
-# 見出し・コードブロック・引用・表のマスクには mask_markdown_structure() は使わない
-# （見出し行そのものが空文字になってしまい、スケルトンの主役である見出しテキストが
-# 消えてしまうため）。かわりに、見出し検出は生テキストに対して直接行い、
-# 段落は「空行区切りの行グループ」として独自に走査する。HTMLコメントのみ
-# mask_html_comments() で先に空白化し、コメント内の見出し風・箇条書き風の行を
-# 誤ってスケルトンに含めないようにする。
-# ---------------------------------------------------------------------------
-
-
-def _heading_level_and_text(line: str) -> tuple[int, str]:
-    """見出し行から (レベル, 見出しテキスト) を取り出す。"""
-    m = re.match(r"^\s*(#{1,6})\s*(.*?)\s*#*\s*$", line)
-    if not m:
-        return 0, line.strip()
-    return len(m.group(1)), m.group(2).strip()
-
-
-def build_outline(raw_text: str) -> list[dict]:
-    """文書のスケルトン（見出し・各段落の先頭文・箇条書きプレースホルダ）を
-    行番号付きで抽出する。判断はせず、決定的な抽出のみを行う。
-
-    - 見出し行（#〜######）: kind="heading", level=1-6
-    - 空行区切りの段落のうち、箇条書き・コードブロック・引用・表以外: kind="lead"
-      （段落先頭行の最初の文、句点等が無ければ先頭行全体）
-    - 箇条書きだけの段落: kind="bullets"（「(箇条書き N 項目)」プレースホルダ）
-    - コードブロック・引用・表の段落は出力しない（スキップ）
-    """
-    text = mask_html_comments(raw_text)
-    lines = text.split("\n")
-
-    outline: list[dict] = []
-    buffer: list[tuple[int, str]] = []
-    in_fence = False
-    fence_char = ""
-    fence_len = 0
-    in_front_matter = False
-
-    def flush_buffer() -> None:
-        if not buffer:
-            return
-        first_no, first_line = buffer[0]
-        if _LIST_ITEM_RE.match(first_line):
-            count = sum(1 for _, line_text in buffer if _LIST_ITEM_RE.match(line_text))
-            outline.append(
-                {"line": first_no, "kind": "bullets", "level": None, "text": f"(箇条書き {count} 項目)"}
-            )
-        elif _BLOCKQUOTE_RE.match(first_line):
-            pass  # 引用ブロックは段落として扱わずスキップ
-        elif (_TABLE_ROW_RE.match(first_line) and first_line.count("|") >= 2) or _TABLE_DELIMITER_RE.match(
-            first_line
-        ):
-            pass  # 表はスキップ
-        else:
-            m = re.search(r"[。！？]", first_line)
-            lead = first_line[: m.end()] if m else first_line
-            lead = lead.strip()
-            if lead:
-                outline.append({"line": first_no, "kind": "lead", "level": None, "text": lead})
-        buffer.clear()
-
-    for i, line in enumerate(lines, start=1):
-        if i == 1 and _FRONT_MATTER_DELIM_RE.match(line):
-            in_front_matter = True
-            continue
-        if in_front_matter:
-            if _FRONT_MATTER_DELIM_RE.match(line):
-                in_front_matter = False
-            continue
-
-        fence_match = _CODE_FENCE_RE.match(line)
-        if fence_match:
-            flush_buffer()
-            fence_run = fence_match.group(1)
-            fc, fl = fence_run[0], len(fence_run)
-            is_close_eligible = line[fence_match.end() :].strip() == ""
-            if not in_fence:
-                in_fence = True
-                fence_char, fence_len = fc, fl
-            elif fc == fence_char and fl >= fence_len and is_close_eligible:
-                in_fence = False
-            continue
-        if in_fence:
-            continue
-
-        if not line.strip():
-            flush_buffer()
-            continue
-
-        if _HEADING_RE.match(line):
-            flush_buffer()
-            level, heading_text = _heading_level_and_text(line)
-            outline.append({"line": i, "kind": "heading", "level": level, "text": heading_text})
-            continue
-
-        buffer.append((i, line))
-
-    flush_buffer()
-    return outline
-
-
-def print_outline_human(path: Path, outline: list[dict]) -> None:
-    print(f"=== ai-smell-lint outline: {path} ===")
-    print()
-    if not outline:
-        print("(スケルトンなし)")
-        return
-    for entry in outline:
-        line_tag = f"L{entry['line']}"
-        if entry["kind"] == "heading":
-            indent = "  " * max(0, entry["level"] - 1)
-            prefix = "#" * entry["level"]
-            print(f"{line_tag:>6}  {indent}{prefix} {entry['text']}")
-        else:
-            print(f"{line_tag:>6}    {entry['text']}")
-
-
-# ---------------------------------------------------------------------------
-# --terms（用語インベントリ）
-#
-# sudachipy の解析結果から、専門用語候補（カタカナ複合語・ASCII英略語・
-# 固有名詞らしき語）を機械的に列挙する。有用な専門用語かどうか、初出で
-# 説明済みかどうかの判断は行わない（has_gloss_hint はあくまでヒント）。
-# 文体憲法第4条（初出で説明すべき用語）の確認材料として AI に渡す素材。
-# ---------------------------------------------------------------------------
-
-_KATAKANA_CHAR_RE = re.compile(r"^[ァ-ヶー]+$")
-# Python の \b は Unicode 単語境界を使うため、日本語の文字（漢字・かな）は
-# 単語文字として扱われ、「APIとは」のように直後に日本語が続くと \b が成立せず
-# マッチしない。ASCII の英数字が前後に隣接していない（＝英略語として孤立している）
-# ことだけを見ればよいので、\b の代わりに明示的な否定先読み/後読みで判定する
-# （直前直後が日本語であることは許容し、直前直後が別の ASCII 英数字であることのみ排除）。
-_ASCII_ACRONYM_RE = re.compile(r"(?<![A-Za-z0-9])[A-Z]{2,}[0-9]*(?![A-Za-z0-9])")
-TERMS_KATAKANA_MIN_LEN = 3
-TERMS_GLOSS_CONTEXT_CHARS = 80
-TERMS_GLOSS_MARKER_WORDS = ["とは", "と呼ぶ", "という", "、つまり"]
-
-
-def _is_katakana_token(surface: str) -> bool:
-    return bool(_KATAKANA_CHAR_RE.match(surface))
-
-
-# 英字が先頭大文字で残りが英数字（"Cloudflare" "TypeScript" 等）の語。
-# sudachipy の辞書は未登録の製品名/固有名詞をしばしば「名詞,普通名詞」に倒す
-# （固有名詞タグに乗らない）ため、POS だけに頼ると製品名を取りこぼす。
-# 表層の形（先頭大文字+英数字）という単純なヒューリスティクスで補う
-# （除外辞書は作らない方針のため、あくまで形のみで判定する）。
-_CAPITALIZED_LATIN_WORD_RE = re.compile(r"^[A-Z][a-zA-Z0-9]*$")
-
-
-def _is_proper_noun_or_capitalized_latin_morpheme(morpheme) -> bool:
-    pos = morpheme.part_of_speech()
-    if pos[0] == "名詞" and pos[1] == "固有名詞":
-        return True
-    surface = morpheme.surface()
-    return len(surface) >= 2 and bool(_CAPITALIZED_LATIN_WORD_RE.match(surface))
-
-
-def _term_context_and_gloss_hint(
-    term: str, first_line_no: int, search_text: str, line_offsets: dict[int, int]
-) -> tuple[str, bool]:
-    """search_text（HTMLコメントのみ空白化済みの原文相当。文字数・行数は原文と同一）
-    全体における term の初出近傍（前後 TERMS_GLOSS_CONTEXT_CHARS 字）と、
-    説明の手掛かり（has_gloss_hint）の有無を返す。
-
-    raw_text そのものではなく HTML コメントを空白化したテキストを使うのは、
-    近傍表示にコメント内のメモ書き（校正メモ等）が紛れ込むのを防ぐため
-    （オフセット・行番号は raw_text と完全に一致するので、term の検索・切り出しは
-    この search_text に対して行っても line_offsets が raw_text 側と食い違わない）。
-    """
-    lines = search_text.split("\n")
-    line_text = lines[first_line_no - 1] if 0 < first_line_no <= len(lines) else ""
-    local_idx = line_text.find(term)
-    if local_idx == -1:
-        # 行内に見つからない場合（マスク処理の副作用等）は行全体を近傍として返す
-        return line_text.strip(), any(marker in line_text for marker in TERMS_GLOSS_MARKER_WORDS)
-
-    abs_pos = line_offsets.get(first_line_no, 0) + local_idx
-    ctx_start = max(0, abs_pos - TERMS_GLOSS_CONTEXT_CHARS)
-    ctx_end = abs_pos + len(term) + TERMS_GLOSS_CONTEXT_CHARS
-    context = search_text[ctx_start:ctx_end]
-
-    term_start_local = abs_pos - ctx_start
-    term_end_local = term_start_local + len(term)
-    after = context[term_end_local : term_end_local + 2]
-    has_gloss_hint = after.startswith("(") or after.startswith("（")
-    if not has_gloss_hint:
-        has_gloss_hint = any(marker in context for marker in TERMS_GLOSS_MARKER_WORDS)
-
-    return context.strip(), has_gloss_hint
-
-
-def build_term_inventory(raw_text: str) -> list[dict]:
-    """専門用語候補の一覧を初出順に抽出する。判断（有用な用語かどうか、
-    既に説明済みかどうか）はしない。has_gloss_hint はあくまで機械的なヒント。
-    """
-    tokenizer = get_tokenizer()
-    from sudachipy import SplitMode
-
-    masked_comments = mask_html_comments(raw_text)
-    masked_structure = mask_markdown_structure(masked_comments)
-    body_lines = iter_lines_with_no(masked_structure)
-
-    # 見出し行は mask_markdown_structure() で空文字化されるため、見出しテキストも
-    # 用語抽出の対象に含めたい場合は別途生テキストから拾って合流させる
-    # （制品名・専門用語が見出しで最初に登場するケースを取りこぼさないため）。
-    heading_lines: list[tuple[int, str]] = []
-    for no, line in iter_lines_with_no(masked_comments):
-        if _HEADING_RE.match(line):
-            _, heading_text = _heading_level_and_text(line)
-            heading_lines.append((no, heading_text))
-
-    combined_lines = sorted(body_lines + heading_lines, key=lambda t: t[0])
-
-    # masked_comments は raw_text と文字数・行数が完全に一致する（HTMLコメントの
-    # 中身のみ空白化）ため、ここで作るオフセットは raw_text 側にもそのまま使える。
-    line_offsets: dict[int, int] = {}
-    pos = 0
-    for no, line_text in enumerate(masked_comments.split("\n"), start=1):
-        line_offsets[no] = pos
-        pos += len(line_text) + 1
-
-    # term -> {"first_line": int, "count": int}
-    seen: dict[str, dict] = {}
-
-    def register(term: str, no: int) -> None:
-        term = term.strip()
-        if not term:
-            return
-        if term not in seen:
-            seen[term] = {"first_line": no}
-
-    for no, line in combined_lines:
-        if not line.strip():
-            continue
-
-        # (b) ASCII英略語（大文字2文字以上）は表層の正規表現で拾う
-        for m in _ASCII_ACRONYM_RE.finditer(line):
-            register(m.group(0), no)
-
-        # (a) カタカナ複合語 / (c) 固有名詞・製品名らしき語（sudachiのPOSが固有名詞、
-        # または先頭大文字の英単語=製品名によくある表層形）は形態素解析で連続する
-        # 同種の形態素をまとめて1つの候補語にする（元のスパンをそのまま使い、
-        # 語間の空白等も保持する）。
-        morphemes = list(tokenizer.tokenize(line, SplitMode.C))
-        i = 0
-        n = len(morphemes)
-        while i < n:
-            m0 = morphemes[i]
-            if _is_katakana_token(m0.surface()):
-                j = i + 1
-                while j < n and _is_katakana_token(morphemes[j].surface()):
-                    j += 1
-                span_start = m0.begin()
-                span_end = morphemes[j - 1].end()
-                term = line[span_start:span_end]
-                if len(term) >= TERMS_KATAKANA_MIN_LEN:
-                    register(term, no)
-                i = j
-                continue
-            if _is_proper_noun_or_capitalized_latin_morpheme(m0):
-                j = i + 1
-                while j < n and _is_proper_noun_or_capitalized_latin_morpheme(morphemes[j]):
-                    j += 1
-                span_start = m0.begin()
-                span_end = morphemes[j - 1].end()
-                term = line[span_start:span_end]
-                register(term, no)
-                i = j
-                continue
-            i += 1
-
-    results = []
-    for term, info in seen.items():
-        # 出現回数もコメントを除いた本文（masked_comments）基準で数える
-        # （校正メモ等のコメント内言及を実際の用語出現としてカウントしないため）。
-        count = len(re.findall(re.escape(term), masked_comments))
-        context, has_gloss_hint = _term_context_and_gloss_hint(
-            term, info["first_line"], masked_comments, line_offsets
-        )
-        results.append(
-            {
-                "term": term,
-                "first_line": info["first_line"],
-                "count": count,
-                "has_gloss_hint": has_gloss_hint,
-                "context": context,
-            }
-        )
-
-    # 初出順（first_line 昇順、同じ行内では検出順=辞書の挿入順を維持するため
-    # stable sort の line だけをキーにする）
-    results.sort(key=lambda r: r["first_line"])
-    return results
-
-
-def print_terms_human(path: Path, terms: list[dict]) -> None:
-    print(f"=== ai-smell-lint terms: {path} ===")
-    print(
-        "has_gloss_hint は「説明済みと判定した」印ではなく、初出近傍に説明マーカーが"
-        "見つかったという機械的なヒントに過ぎない。要確認は人間/AIの判断に委ねる。"
-    )
-    print()
-    if not terms:
-        print("(用語候補なし)")
-        return
-    for t in terms:
-        hint = "あり" if t["has_gloss_hint"] else "なし"
-        print(f"L{t['first_line']} {t['term']} (出現{t['count']}回, 説明手掛かり: {hint})")
-        print(f"    近傍: {t['context']}")
-        print()
-
-
-# ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
 
@@ -2405,7 +1804,7 @@ def print_human_report(
     stats: dict,
     baseline_summary: dict[str, int] | None = None,
 ) -> None:
-    print(f"=== ai-smell-lint report: {path} ===")
+    print(f"=== lint: {path} ===")
     print(f"検出件数: {stats['total_findings']}")
     if stats["by_category"]:
         print("カテゴリ別内訳:")
@@ -2473,61 +1872,15 @@ def main() -> int:
             "（EXPERIMENTAL_CATEGORIES）も出力する。デフォルトでは除外される"
         ),
     )
-    output_mode_group = parser.add_mutually_exclusive_group()
-    output_mode_group.add_argument(
-        "--outline",
-        action="store_true",
-        help=(
-            "findings の代わりに文書のスケルトン（見出し・各段落の先頭文・箇条書き"
-            "プレースホルダ）を抽出して出力する。判断はせず抽出のみ行う"
-            "（構造レビューのスケルトン通読への入力用。--json 併用可）"
-        ),
-    )
-    output_mode_group.add_argument(
-        "--terms",
-        action="store_true",
-        help=(
-            "findings の代わりに専門用語候補（カタカナ複合語/ASCII英略語/固有名詞）の"
-            "一覧を初出順に抽出して出力する。判断はせず抽出のみ行う"
-            "（初出説明の要否の確認材料。--json 併用可）"
-        ),
-    )
     args = parser.parse_args()
 
     # 「文章の中身に関する判断」と「そもそも実行できない入力エラー」は区別する。
     # 前者（検出結果）は exit 0（lintでありCIゲートではない）、
     # 後者（ファイル不在/ディレクトリ指定/読み取り不可/非UTF-8等）は exit 1。
-    if not args.file.exists():
-        print(f"エラー: ファイルが見つかりません: {args.file}", file=sys.stderr)
+    text, err = read_source_file(args.file)
+    if err is not None:
+        print(err, file=sys.stderr)
         return 1
-    if args.file.is_dir():
-        print(f"エラー: ディレクトリが指定されました（ファイルを指定してください）: {args.file}", file=sys.stderr)
-        return 1
-
-    try:
-        text = args.file.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as exc:
-        print(f"エラー: ファイルを読み込めません: {args.file} ({exc})", file=sys.stderr)
-        return 1
-
-    # --outline / --terms は findings とは別の出力モード（判断はせず抽出のみ）。
-    # --baseline / --genre / --experimental とは組み合わせない設計のため、
-    # ここで通常の lint フローより先に分岐して抜ける。
-    if args.outline:
-        outline = build_outline(text)
-        if args.json:
-            print(json.dumps({"outline": outline}, ensure_ascii=False, indent=2))
-        else:
-            print_outline_human(args.file, outline)
-        return 0
-
-    if args.terms:
-        terms = build_term_inventory(text)
-        if args.json:
-            print(json.dumps({"terms": terms}, ensure_ascii=False, indent=2))
-        else:
-            print_terms_human(args.file, terms)
-        return 0
 
     baseline_data = None
     if args.baseline is not None:
@@ -2581,3 +1934,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

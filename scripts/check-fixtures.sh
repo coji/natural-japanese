@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Fixture regression check: verify ai-smell-lint.py detects the expected
+# Fixture regression check: verify scripts/lint.py detects the expected
 # number of findings on the checked-in fixtures. Catches drift caused by
 # lint rule changes or fixture edits (e.g. a fixture edit that accidentally
 # introduces/removes a detectable pattern) before it lands in a commit or
 # release.
 #
-# NOTE: If you intentionally change scripts/ai-smell-lint.py or
+# NOTE: If you intentionally change scripts/lint.py, scripts/textcore.py, or
 # scripts/fixtures/, update the expected counts below to match.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LINT="${REPO_ROOT}/scripts/ai-smell-lint.py"
+LINT="${REPO_ROOT}/scripts/lint.py"
 SMELLY_FIXTURE="${REPO_ROOT}/scripts/fixtures/ai-smelly.md"
 NATURAL_FIXTURE="${REPO_ROOT}/scripts/fixtures/natural.md"
 

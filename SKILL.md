@@ -51,7 +51,7 @@ license: MIT
 ## 3. 検査(1) — 静的検知
 
 ```
-uv run scripts/ai-smell-lint.py --json <file>
+uv run scripts/lint.py --json <file>
 ```
 
 禁止語・翻訳調・否定肯定対比の反復・文長の均質さ・体言止め率・段落頭の接続詞率・語彙多様性・英語統語の疑いなどを機械的に検出する。検出結果は件数に関わらず exit code 0（CI ゲートではなく lint）。入力エラーのときだけ exit code 1。
@@ -64,11 +64,11 @@ uv run scripts/ai-smell-lint.py --json <file>
 
 lint の findings は疑いの提示であり、機械的に全部直せという指示ではない。今回ヒットしたカテゴリの節を `references/revision-guide.md` で読み直し、文脈に照らして「直す/直さない」を判断する。判断は finding 一つひとつに「直した」か「残す（理由）」かを書き残しながら進める（台帳の形式は同ファイルの「判断台帳」を参照）。
 
-用語カタログが必要なら: 禁止語 → `references/forbidden-patterns.md`、翻訳調 → `references/translationese.md`。専門用語が初出で説明されているか確認する材料には `uv run scripts/ai-smell-lint.py --terms <file>` を使う。カタカナ複合語・ASCII略語・固有名詞らしき語を初出行・出現回数・説明マーカーの有無つきで列挙する（説明済みかどうかの判断は機械ではなくAI/人間が行う）。
+用語カタログが必要なら: 禁止語 → `references/forbidden-patterns.md`、翻訳調 → `references/translationese.md`。専門用語が初出で説明されているか確認する材料には `uv run scripts/terms.py <file>` を使う。カタカナ複合語・ASCII略語・固有名詞らしき語を初出行・出現回数・説明マーカーの有無つきで列挙する（説明済みかどうかの判断は機械ではなくAI/人間が行う）。
 
 ### 構造レビュー — スケルトン通読
 
-lint は文レベルの表層しか見えない。特に箇条書き主体の議事録・スライドでは lint がほぼ素通りするため、構造レビューが主役になる。完成した本文から見出しと各段落の先頭文だけを抜き出して読み、次を確かめる（`uv run scripts/ai-smell-lint.py --outline <file>` で見出し・各段落の先頭文・箇条書きプレースホルダを行番号付きで機械抽出できる）:
+lint は文レベルの表層しか見えない。特に箇条書き主体の議事録・スライドでは lint がほぼ素通りするため、構造レビューが主役になる。完成した本文から見出しと各段落の先頭文だけを抜き出して読み、次を確かめる（`uv run scripts/outline.py <file>` で見出し・各段落の先頭文・箇条書きプレースホルダを行番号付きで機械抽出できる）:
 
 1. 論旨が通るか（スケルトンだけで話が追えるか）
 2. 各見出しがメッセージになっているか
