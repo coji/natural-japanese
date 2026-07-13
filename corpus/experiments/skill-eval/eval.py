@@ -747,7 +747,7 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     lines.append("## 実行メタ")
     lines.append("")
     lines.append(f"- run-label: `{run_label}`")
-    lines.append(f"- manifest: `{manifest_path.name}`")
+    lines.append("- manifest: (ローカル manifest。パス・名前は非公開)")
     lines.append(f"- item数: {aggregated['total_items']}")
     lines.append(
         "- doctype内訳: "
@@ -788,11 +788,48 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     # 文字（| と改行）も無害化する。表・改善提案節など全出力箇所で共用する。
     def _esc(v: str, limit: int = 60) -> str:
         v = v if isinstance(v, str) else ""
-        return v.replace("|", "\\|").replace("\n", " ")[:limit]
+        for ch, rep in (("|", "\\|"), ("\n", " "), ("\r", " "), ("`", "'")):
+            v = v.replace(ch, rep)
+        return v[:limit]
+
+    def _resolve_repo_file(v) -> Path | None:
+        """skill_cause.file がリポジトリ内の実在ファイルを指す場合のみ Path を返す。
+        接頭辞だけの検査は 'references/../../secret' 等で迂回できるため、
+        REPO_ROOT 基準で resolve し、配下かつ実在することを確認する。"""
+        if not isinstance(v, str) or not v or "\x00" in v:
+            return None
+        try:
+            resolved = (REPO_ROOT / v).resolve()
+        except (OSError, ValueError):
+            return None
+        if not resolved.is_relative_to(REPO_ROOT.resolve()) or not resolved.is_file():
+            return None
+        rel = resolved.relative_to(REPO_ROOT.resolve())
+        if rel.parts and rel.parts[0] in ("references", "assets", "scripts") or str(rel) == "SKILL.md":
+            return resolved
+        return None
 
     def safe_ref(v) -> str:
-        ok_prefix = ("references/", "SKILL.md", "assets/", "scripts/")
-        return _esc(v, 80) if isinstance(v, str) and v.startswith(ok_prefix) else "(リポジトリ外参照のため非表示)"
+        resolved = _resolve_repo_file(v)
+        if resolved is None:
+            return "(リポジトリ外参照のため非表示)"
+        return _esc(str(resolved.relative_to(REPO_ROOT.resolve())), 80)
+
+    def safe_section(file_v, section_v) -> str:
+        """section は、file が実在する場合にそのファイルの見出し行と照合し、
+        含まれる見出しだけをそのまま載せる。照合できなければ伏せる。"""
+        resolved = _resolve_repo_file(file_v)
+        if resolved is None or not isinstance(section_v, str) or not section_v.strip():
+            return "(節照合不可のため非表示)"
+        try:
+            text = resolved.read_text(encoding="utf-8")
+        except OSError:
+            return "(節照合不可のため非表示)"
+        headings = [ln.lstrip("#").strip() for ln in text.splitlines() if ln.lstrip().startswith("#")]
+        for part in re.split(r"\s*/\s*", section_v.strip()):
+            if not any(part and part in h for h in headings):
+                return "(節照合不可のため非表示)"
+        return _esc(section_v.strip())
 
     # --- クラスタ表 ---
     lines.append("## スキルレベル所見クラスタ（原因 file/section 別、頻度×severity降順）")
@@ -805,7 +842,7 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
             sev = c["smell_severity_counts"]
             sev_str = ", ".join(f"{k}={v}" for k, v in sorted(sev.items())) if sev else "-"
             lines.append(
-                f"| `{safe_ref(c['file'])}` | {_esc(c['section'])} | {c['item_count']}/{aggregated['total_items']} | "
+                f"| `{safe_ref(c['file'])}` | {safe_section(c['file'], c['section'])} | {c['item_count']}/{aggregated['total_items']} | "
                 f"{c['distortion_count']} | {sev_str} | {c['score']:.2f} |"
             )
         if include_samples:
@@ -832,7 +869,7 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     if clusters:
         for c in clusters[:3]:
             lines.append(
-                f"- `{safe_ref(c['file'])}`（{_esc(c['section'])}）: {c['item_count']}/{aggregated['total_items']} item で"
+                f"- `{safe_ref(c['file'])}`（{safe_section(c['file'], c['section'])}）: {c['item_count']}/{aggregated['total_items']} item で"
                 f"原因として挙げられた。当該節の記述が具体例・限定条件を欠いている可能性が高く、"
                 "書き手が誤って過剰一般化・テンプレ適用しないよう、適用条件や『やりすぎ』の反例を"
                 "追記することを検討する。"
