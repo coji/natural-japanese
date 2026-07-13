@@ -285,3 +285,71 @@ variants of an explicit anchor still count as anchored, not borderline).
 
 No changes were made to `SKILL.md`, `scripts/`, or `references/` in this
 pass — only `evals/evals.json` and this file.
+
+## v3 — diagnosis/scoring scope addition (書き換えを伴わない依頼)
+
+Motivation: `SKILL.md` description gained a clause covering AI-smell
+*diagnosis and scoring* requests that don't ask for a rewrite — 「この文章
+AIが書いた？」「AI臭さをスコアで出して」「どれくらいAIっぽいか判定して」
+という書き換えを伴わない依頼. This iteration only updates
+`evals/evals.json` and re-validates; `SKILL.md` was not touched here.
+
+### evals.json changes
+
+- Top-level `description` replaced with the literal current `SKILL.md`
+  description (includes the new diagnosis/scoring clause).
+- 8 new cases appended, continuing the id sequence from p42/n18:
+  - **p43–p48 (6 positive)**: diagnosis/scoring phrasings ("AIが書いたか
+    判定して", "AI臭さをスコアで出して", "どれくらいAIっぽい?", "採点して",
+    "数値化してほしい") plus one explicit new-creation-from-scratch case
+    ("ゼロから書き起こして") to test the boundary between "diagnose only"
+    and "write new".
+  - **n19–n20 (2 negative)**: adjacent out-of-scope diagnosis requests —
+    English-text AI-detection (n19) and image AI-detection (n20) — that
+    must stay out of scope since the skill is Japanese-text specific.
+- Split 3 positive / 1 negative into train (p43–p45, n19), 3 positive /
+  1 negative into test (p46–p48, n20).
+- Existing p1–p42/n1–n18 (60 cases) were not modified.
+
+### Regression check on existing 60 cases
+
+The new clause is inserted mid-sentence ("...既存文章のリライト・推敲、
+**AI臭さの診断・採点（...）**、自分の文体を学ばせたい...") without removing
+or rewording any prior anchor phrase. Re-judged all 60 existing cases
+against the new description text (role-play, same protocol): **no changes**
+— every anchor used previously (「AIっぽい」「機械っぽい」「読みにくい」
+「報告書」「議事録」「結論から」etc., and the japanese-tech-writing
+exclusion clause) is present verbatim. No regressions.
+
+### Judgment of new cases (role-play, same protocol)
+
+| id | query | expected | judged | anchor / reason |
+|----|-------|----------|--------|--------|
+| p43 | この文章AIが書いたか判定して | trigger | trigger | near-verbatim「この文章AIが書いた？」 |
+| p44 | AI臭さをスコアで出して | trigger | trigger | verbatim「AI臭さをスコアで出して」 |
+| p45 | この記事どれくらいAIっぽい? | trigger | trigger | close paraphrase of「どれくらいAIっぽいか判定して」 |
+| p46 | この文章、人が書いたように見える?採点して | trigger | trigger | 「採点」は新設カテゴリ名「診断・採点」に直接アンカー |
+| p47 | AIっぽさを数値化してほしい、直さなくていいので | trigger | trigger | 「書き換えを伴わない依頼」+ AIっぽさ言及がスコアリング文脈に一致 |
+| p48 | 在宅勤務の生産性についてゼロから書き起こして | trigger | **no-trigger (FAIL)** | 文書種別（note/ブログ/エッセイ/報告書等）が明示されず、「ゼロから書き起こす」という言い回しも本文にない。undertrigger前提・borderline→no-triggerの原則により、汎用トピックの新規執筆依頼として他スキル領域とも解釈できるため不一致と判定 |
+| n19 | この英文がAI生成か判定して | no-trigger | no-trigger | 英文（日本語文書限定という前提と矛盾） |
+| n20 | この画像AI生成か調べて | no-trigger | no-trigger | 画像であり文章ではない |
+
+**Result: 67/68 (98.5%)** — 47/48 positive, 20/20 negative. One undertrigger
+gap found: p48.
+
+### Description fix recommendation (not applied — SKILL.md left untouched)
+
+p48 fails because the description's new-creation anchor is scoped to
+「note記事やブログ記事・エッセイの新規執筆」, which requires the request to
+name one of those formats. A bare "◯◯についてゼロから書き起こして" without
+naming a covered document type falls outside every anchor. Suggested fix
+(not applied): broaden the new-creation clause to something like
+「note記事やブログ記事・エッセイ**などの新規執筆（「ゼロから書き起こして」
+を含む）**」, or add "ゼロから書く/書き起こす" as an explicit alternate
+phrasing alongside "新規執筆". This is optional — p48 is a generic writing
+request with no topic-genre signal, so the miss is a narrow edge case
+rather than a core-use-case gap; only apply if broad "write X from
+scratch" requests (regardless of genre) are meant to be in scope.
+
+No changes were made to `SKILL.md`, `scripts/`, or `references/` in this
+pass — only `evals/evals.json` and this file.

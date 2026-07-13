@@ -1,70 +1,418 @@
 {
   "skill_name": "natural-japanese",
-  "description": "仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。議事録（文字起こしからの議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・ディスカッションペーパー・企画書・提案書・報告書・メール、スライド構成案といったビジネス文書の作成・校正、「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示のいずれでも使用する。AI臭さの除去（「AIっぽい」「AI臭い」「機械翻訳っぽい」「不自然」「もっと自然な日本語に」「機械っぽい」「人間っぽくして」「単調」「〜することができる、と言えるだろう、のような言い回し」といった直接・間接・口語の指摘、AIで書いたと言われた/疑われた）、読みにくい・わかりにくい文章の改善依頼（語順がおかしい、一文が長い、何が言いたいか分からない、読点の位置がおかしい等）、note記事やブログ記事・エッセイの新規執筆、既存文章のリライト・推敲、自分の文体を学ばせたい・プロファイル化したいという要望（過去の文章を読ませて自分らしく書いてほしいという依頼も含む）にも対応する。禁止語の除去、リズムの単調さ・段落構造の均質さ・英語統語の直訳調に加え、語順・読点・一文一義・主語述語の距離といった読みやすさの原則にも対応する。技術文書の章構成やMarkdownフォーマットの整形自体（一文一行化・引用ブロック・脚注記法など）は対象外——それは別スキルの領域であり、本スキルは文章の自然さ・読みやすさ・わかりやすさに特化する。",
+  "description": "仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。議事録（文字起こしからの議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・ディスカッションペーパー・企画書・提案書・報告書・メール、スライド構成案といったビジネス文書の作成・校正、「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示のいずれでも使用する。AI臭さの除去（「AIっぽい」「AI臭い」「機械翻訳っぽい」「不自然」「もっと自然な日本語に」「機械っぽい」「人間っぽくして」「単調」「〜することができる、と言えるだろう、のような言い回し」といった直接・間接・口語の指摘、AIで書いたと言われた/疑われた）、読みにくい・わかりにくい文章の改善依頼（語順がおかしい、一文が長い、何が言いたいか分からない、読点の位置がおかしい等）、note記事やブログ記事・エッセイの新規執筆（任意のテーマをゼロから書く・書き起こす依頼を含む）、既存文章のリライト・推敲、AI臭さの診断・採点（「この文章AIが書いた？」「AI臭さをスコアで出して」「どれくらいAIっぽいか判定して」という書き換えを伴わない依頼）、自分の文体を学ばせたい・プロファイル化したいという要望（過去の文章を読ませて自分らしく書いてほしいという依頼も含む）にも対応する。禁止語の除去、リズムの単調さ・段落構造の均質さ・英語統語の直訳調に加え、語順・読点・一文一義・主語述語の距離といった読みやすさの原則にも対応する。技術文書の章構成やMarkdownフォーマットの整形自体（一文一行化・引用ブロック・脚注記法など）は対象外——それは別スキルの領域であり、本スキルは文章の自然さ・読みやすさ・わかりやすさに特化する。",
   "split": {
-    "train": "positive[1-12] + negative[1-6]",
-    "test": "positive[13-20] + negative[7-10]"
+    "train": "positive[1-12,21-25,29-36,43-45] + negative[1-6,11-12,14-16,19]",
+    "test": "positive[13-20,26-28,37-42,46-48] + negative[7-10,13,17-18,20]"
   },
   "evals": [
-    { "id": "p1", "set": "train", "should_trigger": true, "query": "この文章AIっぽいから直して" },
-    { "id": "p2", "set": "train", "should_trigger": true, "query": "noteの記事書いて" },
-    { "id": "p3", "set": "train", "should_trigger": true, "query": "もっと自然な日本語にして" },
-    { "id": "p4", "set": "train", "should_trigger": true, "query": "機械翻訳みたいと言われた" },
-    { "id": "p5", "set": "train", "should_trigger": true, "query": "ブログのリライトお願い" },
-    { "id": "p6", "set": "train", "should_trigger": true, "query": "文体を学ばせたい" },
-    { "id": "p7", "set": "train", "should_trigger": true, "query": "この原稿、なんかAI臭いんだよね" },
-    { "id": "p8", "set": "train", "should_trigger": true, "query": "エッセイの下書きを書いてほしい" },
-    { "id": "p9", "set": "train", "should_trigger": true, "query": "「〜することができる」を直したい" },
-    { "id": "p10", "set": "train", "should_trigger": true, "query": "過去記事を読ませて自分っぽく書いてほしい" },
-    { "id": "p11", "set": "train", "should_trigger": true, "query": "読み手に「これAIで書いた?」って聞かれた" },
-    { "id": "p12", "set": "train", "should_trigger": true, "query": "文章が単調で機械っぽいと指摘された" },
-    { "id": "p13", "set": "test", "should_trigger": true, "query": "この文章を人間っぽくして" },
-    { "id": "p14", "set": "test", "should_trigger": true, "query": "ブログ記事の推敲をお願いしたい" },
-    { "id": "p15", "set": "test", "should_trigger": true, "query": "禁止語チェックしてほしい" },
-    { "id": "p16", "set": "test", "should_trigger": true, "query": "段落構造が均質すぎる気がする" },
-    { "id": "p17", "set": "test", "should_trigger": true, "query": "リズムが単調な文章を直したい" },
-    { "id": "p18", "set": "test", "should_trigger": true, "query": "私の文体プロファイルを作ってほしい" },
-    { "id": "p19", "set": "test", "should_trigger": true, "query": "会社ブログの記事を書いて、機械っぽくならないように" },
-    { "id": "p20", "set": "test", "should_trigger": true, "query": "この文章、翻訳っぽい/直訳調な感じがする" },
-    { "id": "n1", "set": "train", "should_trigger": false, "query": "この英文のエッセイを書いて" },
-    { "id": "n2", "set": "train", "should_trigger": false, "query": "この日本語の文章を英語に訳して" },
-    { "id": "n3", "set": "train", "should_trigger": false, "query": "このコードにコメントを追加して" },
-    { "id": "n4", "set": "train", "should_trigger": false, "query": "技術仕様書のMarkdownフォーマットを整えて" },
-    { "id": "n5", "set": "train", "should_trigger": false, "query": "この一文の誤字を直して「今日わ晴れです」" },
-    { "id": "n6", "set": "train", "should_trigger": false, "query": "英語のビジネスメールを書いて" },
-    { "id": "n7", "set": "test", "should_trigger": false, "query": "この技術書の章を一文一行形式に整形して" },
-    { "id": "n8", "set": "test", "should_trigger": false, "query": "Pythonのdocstringを書いて" },
-    { "id": "n9", "set": "test", "should_trigger": false, "query": "この日本語を英訳してnativeっぽくして" },
-    { "id": "n10", "set": "test", "should_trigger": false, "query": "スペルミスだけ直して、内容はそのまま" },
-    { "id": "p21", "set": "train", "should_trigger": true, "query": "この文章読みにくいから直して" },
-    { "id": "p22", "set": "train", "should_trigger": true, "query": "何が言いたいのかよく分からない文章を分かりやすくしたい" },
-    { "id": "p23", "set": "train", "should_trigger": true, "query": "報告書の文章を校正してほしい" },
-    { "id": "p24", "set": "train", "should_trigger": true, "query": "取引先に送るメールの文面を見てほしい" },
-    { "id": "p25", "set": "train", "should_trigger": true, "query": "提案書の日本語をもっとわかりやすくしたい" },
-    { "id": "p26", "set": "test", "should_trigger": true, "query": "一文が長すぎて読みにくいので直して" },
-    { "id": "p27", "set": "test", "should_trigger": true, "query": "読点の位置がおかしい気がする" },
-    { "id": "p28", "set": "test", "should_trigger": true, "query": "上司から報告書がわかりにくいと言われた" },
-    { "id": "n11", "set": "train", "should_trigger": false, "query": "この報告書のグラフをExcelで作って" },
-    { "id": "n12", "set": "train", "should_trigger": false, "query": "英語のビジネス提案書をレビューして" },
-    { "id": "n13", "set": "test", "should_trigger": false, "query": "報告書のテンプレートのExcelファイルを作って" },
-    { "id": "p29", "set": "train", "should_trigger": true, "query": "この文字起こしから議事録つくって" },
-    { "id": "p30", "set": "train", "should_trigger": true, "query": "会議の議事録まとめて" },
-    { "id": "p31", "set": "train", "should_trigger": true, "query": "調査結果をレポートにまとめて" },
-    { "id": "p32", "set": "train", "should_trigger": true, "query": "分析レポート書いて" },
-    { "id": "p33", "set": "train", "should_trigger": true, "query": "社内向けの使い方ガイドを書いて" },
-    { "id": "p34", "set": "train", "should_trigger": true, "query": "業務マニュアルの作成をお願いしたい" },
-    { "id": "p35", "set": "train", "should_trigger": true, "query": "この内容をディスカッションペーパーにして" },
-    { "id": "p36", "set": "train", "should_trigger": true, "query": "リサーチメモをまとめたい" },
-    { "id": "p37", "set": "test", "should_trigger": true, "query": "プレゼンのスライド構成を考えて" },
-    { "id": "p38", "set": "test", "should_trigger": true, "query": "提案書の骨子つくって" },
-    { "id": "p39", "set": "test", "should_trigger": true, "query": "結論から書き直して" },
-    { "id": "p40", "set": "test", "should_trigger": true, "query": "論旨を明確にして" },
-    { "id": "p41", "set": "test", "should_trigger": true, "query": "専門用語をわかりやすく説明しながら書いて" },
-    { "id": "p42", "set": "test", "should_trigger": true, "query": "見出しをもっと端的にして" },
-    { "id": "n14", "set": "train", "should_trigger": false, "query": "このMarkdownを一文一行にして" },
-    { "id": "n15", "set": "train", "should_trigger": false, "query": "英語でレポート書いて" },
-    { "id": "n16", "set": "train", "should_trigger": false, "query": "パワポのデザインをきれいにして" },
-    { "id": "n17", "set": "test", "should_trigger": false, "query": "この表計算の数式なおして" },
-    { "id": "n18", "set": "test", "should_trigger": false, "query": "議事録のテンプレートをExcelで作って" }
+    {
+      "id": "p1",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この文章AIっぽいから直して"
+    },
+    {
+      "id": "p2",
+      "set": "train",
+      "should_trigger": true,
+      "query": "noteの記事書いて"
+    },
+    {
+      "id": "p3",
+      "set": "train",
+      "should_trigger": true,
+      "query": "もっと自然な日本語にして"
+    },
+    {
+      "id": "p4",
+      "set": "train",
+      "should_trigger": true,
+      "query": "機械翻訳みたいと言われた"
+    },
+    {
+      "id": "p5",
+      "set": "train",
+      "should_trigger": true,
+      "query": "ブログのリライトお願い"
+    },
+    {
+      "id": "p6",
+      "set": "train",
+      "should_trigger": true,
+      "query": "文体を学ばせたい"
+    },
+    {
+      "id": "p7",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この原稿、なんかAI臭いんだよね"
+    },
+    {
+      "id": "p8",
+      "set": "train",
+      "should_trigger": true,
+      "query": "エッセイの下書きを書いてほしい"
+    },
+    {
+      "id": "p9",
+      "set": "train",
+      "should_trigger": true,
+      "query": "「〜することができる」を直したい"
+    },
+    {
+      "id": "p10",
+      "set": "train",
+      "should_trigger": true,
+      "query": "過去記事を読ませて自分っぽく書いてほしい"
+    },
+    {
+      "id": "p11",
+      "set": "train",
+      "should_trigger": true,
+      "query": "読み手に「これAIで書いた?」って聞かれた"
+    },
+    {
+      "id": "p12",
+      "set": "train",
+      "should_trigger": true,
+      "query": "文章が単調で機械っぽいと指摘された"
+    },
+    {
+      "id": "p13",
+      "set": "test",
+      "should_trigger": true,
+      "query": "この文章を人間っぽくして"
+    },
+    {
+      "id": "p14",
+      "set": "test",
+      "should_trigger": true,
+      "query": "ブログ記事の推敲をお願いしたい"
+    },
+    {
+      "id": "p15",
+      "set": "test",
+      "should_trigger": true,
+      "query": "禁止語チェックしてほしい"
+    },
+    {
+      "id": "p16",
+      "set": "test",
+      "should_trigger": true,
+      "query": "段落構造が均質すぎる気がする"
+    },
+    {
+      "id": "p17",
+      "set": "test",
+      "should_trigger": true,
+      "query": "リズムが単調な文章を直したい"
+    },
+    {
+      "id": "p18",
+      "set": "test",
+      "should_trigger": true,
+      "query": "私の文体プロファイルを作ってほしい"
+    },
+    {
+      "id": "p19",
+      "set": "test",
+      "should_trigger": true,
+      "query": "会社ブログの記事を書いて、機械っぽくならないように"
+    },
+    {
+      "id": "p20",
+      "set": "test",
+      "should_trigger": true,
+      "query": "この文章、翻訳っぽい/直訳調な感じがする"
+    },
+    {
+      "id": "n1",
+      "set": "train",
+      "should_trigger": false,
+      "query": "この英文のエッセイを書いて"
+    },
+    {
+      "id": "n2",
+      "set": "train",
+      "should_trigger": false,
+      "query": "この日本語の文章を英語に訳して"
+    },
+    {
+      "id": "n3",
+      "set": "train",
+      "should_trigger": false,
+      "query": "このコードにコメントを追加して"
+    },
+    {
+      "id": "n4",
+      "set": "train",
+      "should_trigger": false,
+      "query": "技術仕様書のMarkdownフォーマットを整えて"
+    },
+    {
+      "id": "n5",
+      "set": "train",
+      "should_trigger": false,
+      "query": "この一文の誤字を直して「今日わ晴れです」"
+    },
+    {
+      "id": "n6",
+      "set": "train",
+      "should_trigger": false,
+      "query": "英語のビジネスメールを書いて"
+    },
+    {
+      "id": "n7",
+      "set": "test",
+      "should_trigger": false,
+      "query": "この技術書の章を一文一行形式に整形して"
+    },
+    {
+      "id": "n8",
+      "set": "test",
+      "should_trigger": false,
+      "query": "Pythonのdocstringを書いて"
+    },
+    {
+      "id": "n9",
+      "set": "test",
+      "should_trigger": false,
+      "query": "この日本語を英訳してnativeっぽくして"
+    },
+    {
+      "id": "n10",
+      "set": "test",
+      "should_trigger": false,
+      "query": "スペルミスだけ直して、内容はそのまま"
+    },
+    {
+      "id": "p21",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この文章読みにくいから直して"
+    },
+    {
+      "id": "p22",
+      "set": "train",
+      "should_trigger": true,
+      "query": "何が言いたいのかよく分からない文章を分かりやすくしたい"
+    },
+    {
+      "id": "p23",
+      "set": "train",
+      "should_trigger": true,
+      "query": "報告書の文章を校正してほしい"
+    },
+    {
+      "id": "p24",
+      "set": "train",
+      "should_trigger": true,
+      "query": "取引先に送るメールの文面を見てほしい"
+    },
+    {
+      "id": "p25",
+      "set": "train",
+      "should_trigger": true,
+      "query": "提案書の日本語をもっとわかりやすくしたい"
+    },
+    {
+      "id": "p26",
+      "set": "test",
+      "should_trigger": true,
+      "query": "一文が長すぎて読みにくいので直して"
+    },
+    {
+      "id": "p27",
+      "set": "test",
+      "should_trigger": true,
+      "query": "読点の位置がおかしい気がする"
+    },
+    {
+      "id": "p28",
+      "set": "test",
+      "should_trigger": true,
+      "query": "上司から報告書がわかりにくいと言われた"
+    },
+    {
+      "id": "n11",
+      "set": "train",
+      "should_trigger": false,
+      "query": "この報告書のグラフをExcelで作って"
+    },
+    {
+      "id": "n12",
+      "set": "train",
+      "should_trigger": false,
+      "query": "英語のビジネス提案書をレビューして"
+    },
+    {
+      "id": "n13",
+      "set": "test",
+      "should_trigger": false,
+      "query": "報告書のテンプレートのExcelファイルを作って"
+    },
+    {
+      "id": "p29",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この文字起こしから議事録つくって"
+    },
+    {
+      "id": "p30",
+      "set": "train",
+      "should_trigger": true,
+      "query": "会議の議事録まとめて"
+    },
+    {
+      "id": "p31",
+      "set": "train",
+      "should_trigger": true,
+      "query": "調査結果をレポートにまとめて"
+    },
+    {
+      "id": "p32",
+      "set": "train",
+      "should_trigger": true,
+      "query": "分析レポート書いて"
+    },
+    {
+      "id": "p33",
+      "set": "train",
+      "should_trigger": true,
+      "query": "社内向けの使い方ガイドを書いて"
+    },
+    {
+      "id": "p34",
+      "set": "train",
+      "should_trigger": true,
+      "query": "業務マニュアルの作成をお願いしたい"
+    },
+    {
+      "id": "p35",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この内容をディスカッションペーパーにして"
+    },
+    {
+      "id": "p36",
+      "set": "train",
+      "should_trigger": true,
+      "query": "リサーチメモをまとめたい"
+    },
+    {
+      "id": "p37",
+      "set": "test",
+      "should_trigger": true,
+      "query": "プレゼンのスライド構成を考えて"
+    },
+    {
+      "id": "p38",
+      "set": "test",
+      "should_trigger": true,
+      "query": "提案書の骨子つくって"
+    },
+    {
+      "id": "p39",
+      "set": "test",
+      "should_trigger": true,
+      "query": "結論から書き直して"
+    },
+    {
+      "id": "p40",
+      "set": "test",
+      "should_trigger": true,
+      "query": "論旨を明確にして"
+    },
+    {
+      "id": "p41",
+      "set": "test",
+      "should_trigger": true,
+      "query": "専門用語をわかりやすく説明しながら書いて"
+    },
+    {
+      "id": "p42",
+      "set": "test",
+      "should_trigger": true,
+      "query": "見出しをもっと端的にして"
+    },
+    {
+      "id": "n14",
+      "set": "train",
+      "should_trigger": false,
+      "query": "このMarkdownを一文一行にして"
+    },
+    {
+      "id": "n15",
+      "set": "train",
+      "should_trigger": false,
+      "query": "英語でレポート書いて"
+    },
+    {
+      "id": "n16",
+      "set": "train",
+      "should_trigger": false,
+      "query": "パワポのデザインをきれいにして"
+    },
+    {
+      "id": "n17",
+      "set": "test",
+      "should_trigger": false,
+      "query": "この表計算の数式なおして"
+    },
+    {
+      "id": "n18",
+      "set": "test",
+      "should_trigger": false,
+      "query": "議事録のテンプレートをExcelで作って"
+    },
+    {
+      "id": "p43",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この文章AIが書いたか判定して"
+    },
+    {
+      "id": "p44",
+      "set": "train",
+      "should_trigger": true,
+      "query": "AI臭さをスコアで出して"
+    },
+    {
+      "id": "p45",
+      "set": "train",
+      "should_trigger": true,
+      "query": "この記事どれくらいAIっぽい?"
+    },
+    {
+      "id": "p46",
+      "set": "test",
+      "should_trigger": true,
+      "query": "この文章、人が書いたように見える?採点して"
+    },
+    {
+      "id": "p47",
+      "set": "test",
+      "should_trigger": true,
+      "query": "AIっぽさを数値化してほしい、直さなくていいので"
+    },
+    {
+      "id": "p48",
+      "set": "test",
+      "should_trigger": true,
+      "query": "在宅勤務の生産性についてゼロから書き起こして"
+    },
+    {
+      "id": "n19",
+      "set": "train",
+      "should_trigger": false,
+      "query": "この英文がAI生成か判定して"
+    },
+    {
+      "id": "n20",
+      "set": "test",
+      "should_trigger": false,
+      "query": "この画像AI生成か調べて"
+    }
   ]
 }
