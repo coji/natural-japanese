@@ -76,7 +76,7 @@ NONINTERACTIVE_SYSTEM_PROMPT = (
 )
 
 DEFAULT_MODEL_APPLY = "claude-sonnet-5"
-DEFAULT_MODEL_CRITIC = "claude-opus-4-8"
+DEFAULT_MODEL_CRITIC = "claude-fable-5"
 
 DOCTYPES = {"minutes", "report", "guide", "memo", "slide"}
 
@@ -192,6 +192,11 @@ def run_claude_naive(prompt: str, model: str, timeout: int = 300) -> str:
     return result.stdout.strip()
 
 
+# main() が CLI 引数から設定する effort（None なら claude のデフォルト）。
+EFFORT_APPLY: str | None = None
+EFFORT_CRITIC: str | None = None
+
+
 def run_claude_tooled(
     prompt: str,
     *,
@@ -200,6 +205,7 @@ def run_claude_tooled(
     allowed_tools: str,
     disallowed_tools: str | None = None,
     timeout: int = 600,
+    effort: str | None = None,
 ) -> str:
     """リポジトリルートを cwd にして、指定した tool だけを許可して claude -p を呼ぶ。
 
@@ -222,6 +228,8 @@ def run_claude_tooled(
     ]
     if disallowed_tools:
         cmd += ["--disallowedTools", disallowed_tools]
+    if effort:
+        cmd += ["--effort", effort]
     result = subprocess.run(
         cmd,
         capture_output=True,
@@ -271,7 +279,7 @@ def call_critic_json(prompt: str, *, model: str, cwd: Path, timeout: int) -> tup
     try:
         raw1 = run_claude_tooled(
             prompt, model=model, cwd=cwd, allowed_tools="Read",
-            disallowed_tools="Bash,Edit,Write", timeout=timeout,
+            disallowed_tools="Bash,Edit,Write", timeout=timeout, effort=EFFORT_CRITIC,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
         meta["error_attempt1"] = repr(e)
@@ -286,7 +294,7 @@ def call_critic_json(prompt: str, *, model: str, cwd: Path, timeout: int) -> tup
     try:
         raw2 = run_claude_tooled(
             prompt + RETRY_JSON_SUFFIX, model=model, cwd=cwd, allowed_tools="Read",
-            disallowed_tools="Bash,Edit,Write", timeout=timeout,
+            disallowed_tools="Bash,Edit,Write", timeout=timeout, effort=EFFORT_CRITIC,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
         meta["error_attempt2"] = repr(e)
@@ -499,7 +507,7 @@ def process_item(item: dict, *, run_dir: Path, run_label: str, model_apply: str,
     try:
         apply_stdout = run_claude_tooled(
             apply_prompt, model=model_apply, cwd=REPO_ROOT,
-            allowed_tools="Read,Bash,Write", timeout=timeout_apply,
+            allowed_tools="Read,Bash,Write", timeout=timeout_apply, effort=EFFORT_APPLY,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
         result["errors"].append(f"skill_apply failed: {e!r}")
@@ -870,6 +878,8 @@ def main() -> int:
     parser.add_argument("--model-critic", default=DEFAULT_MODEL_CRITIC, help="thesis抽出・批評3種に使うモデル")
     parser.add_argument("--timeout-apply", type=int, default=600, help="skill-apply段のタイムアウト秒（既定600）")
     parser.add_argument("--timeout-critic", type=int, default=600, help="thesis抽出・批評段のタイムアウト秒（既定600）")
+    parser.add_argument("--effort-apply", default="low", help="skill-apply の effort（low/medium/high。空文字でclaudeのデフォルト）")
+    parser.add_argument("--effort-critic", default="low", help="thesis抽出・批評の effort（同上）")
     parser.add_argument(
         "--parallel", type=int, default=1,
         help="item を並列実行する数（既定1=直列）。claude CLI 待ちが支配的なのでスレッド並列。ログ行は item id 付きなので混在しても追える",
@@ -892,6 +902,10 @@ def main() -> int:
     if args.dry_run:
         print_dry_run(items, run_label=run_label, model_apply=args.model_apply, model_critic=args.model_critic)
         return 0
+
+    global EFFORT_APPLY, EFFORT_CRITIC
+    EFFORT_APPLY = args.effort_apply or None
+    EFFORT_CRITIC = args.effort_critic or None
 
     run_dir = RUNS_ROOT / run_label
     run_dir.mkdir(parents=True, exist_ok=True)
