@@ -871,6 +871,10 @@ def main() -> int:
     parser.add_argument("--timeout-apply", type=int, default=600, help="skill-apply段のタイムアウト秒（既定600）")
     parser.add_argument("--timeout-critic", type=int, default=600, help="thesis抽出・批評段のタイムアウト秒（既定600）")
     parser.add_argument(
+        "--parallel", type=int, default=1,
+        help="item を並列実行する数（既定1=直列）。claude CLI 待ちが支配的なのでスレッド並列。ログ行は item id 付きなので混在しても追える",
+    )
+    parser.add_argument(
         "--no-report",
         action="store_true",
         help="corpus/reports/skill-eval-findings.md への書き出しをスキップする（デバッグ用）",
@@ -893,10 +897,10 @@ def main() -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
 
     started_at = time.strftime("%Y-%m-%dT%H:%M:%S")
-    results: list[dict] = []
-    for item in items:
+
+    def _run_one(item: dict) -> dict:
         try:
-            r = process_item(
+            return process_item(
                 item,
                 run_dir=run_dir,
                 run_label=run_label,
@@ -908,8 +912,17 @@ def main() -> int:
         except Exception as e:  # noqa: BLE001
             # 1 item の予期しない失敗で全体を止めない。
             print(f"[{item['id']}] 予期しないエラー: {e!r}", file=sys.stderr)
-            r = {"id": item["id"], "doctype": item["doctype"], "mode": item["mode"], "errors": [f"unexpected: {e!r}"]}
-        results.append(r)
+            return {"id": item["id"], "doctype": item["doctype"], "mode": item["mode"], "errors": [f"unexpected: {e!r}"]}
+
+    # item 単位で並列実行する。各 item は自分の id を接頭辞にしたファイルだけを
+    # 書くので、ファイル競合はない。claude CLI の subprocess 待ちが支配的なため
+    # スレッドで十分（GIL の影響を受けない）。結果は manifest の順序で保持する。
+    if args.parallel > 1 and len(items) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=args.parallel) as ex:
+            results = list(ex.map(_run_one, items))
+    else:
+        results = [_run_one(item) for item in items]
 
     finished_at = time.strftime("%Y-%m-%dT%H:%M:%S")
     run_meta = {
