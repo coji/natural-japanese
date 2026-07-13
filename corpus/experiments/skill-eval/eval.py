@@ -150,8 +150,8 @@ def load_manifest(path: Path) -> list[dict]:
         mode = item.get("mode")
         if not item_id or not isinstance(item_id, str):
             raise ValueError(f"item に 'id' がありません: {item!r}")
-        if not re.fullmatch(r"[A-Za-z0-9._-]+", item_id):
-            raise ValueError(f"item id に使える文字は英数字と ._- のみ（パス区切り等は不可）: {item_id!r}")
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", item_id) or item_id in (".", ".."):
+            raise ValueError(f"item id に使える文字は英数字と ._- のみ（'.', '..', パス区切りは不可）: {item_id!r}")
         if item_id in seen_ids:
             raise ValueError(f"item id が重複しています: {item_id}")
         seen_ids.add(item_id)
@@ -225,8 +225,15 @@ def run_claude_tooled(
         model,
         "--permission-mode",
         "dontAsk",
+        # --tools は「利用可能なツールの集合」自体を限定する(allow-list)。
+        # --allowedTools(自動許可)だけでは未列挙ツールの利用を排除できない
+        # ため、両方を同じリストで渡す。--strict-mcp-config は --mcp-config を
+        # 渡していないので MCP ツールを完全に無効化する。
+        "--tools",
+        allowed_tools,
         "--allowedTools",
         allowed_tools,
+        "--strict-mcp-config",
     ]
     if disallowed_tools:
         cmd += ["--disallowedTools", disallowed_tools]
@@ -640,7 +647,9 @@ def aggregate(results: list[dict]) -> dict:
     # クラスタキー: (file, section) を正規化（前後空白除去）。
     clusters: dict[tuple[str, str], dict] = {}
 
-    def _get_cluster(file_: str, section_: str) -> dict:
+    def _get_cluster(file_, section_) -> dict:
+        file_ = file_ if isinstance(file_, str) else ""
+        section_ = section_ if isinstance(section_, str) else ""
         key = ((file_ or "(不明)").strip(), (section_ or "(未指定)").strip())
         if key not in clusters:
             clusters[key] = {
@@ -656,7 +665,7 @@ def aggregate(results: list[dict]) -> dict:
     for r in results:
         item_id = r["id"]
         tp = r.get("thesis_preservation")
-        if tp and isinstance(tp.get("distortions"), list):
+        if isinstance(tp, dict) and isinstance(tp.get("distortions"), list):
             for d in tp["distortions"]:
                 if not isinstance(d, dict):
                     continue
@@ -671,7 +680,7 @@ def aggregate(results: list[dict]) -> dict:
                     )
 
         ss = r.get("structural_smell")
-        if ss and isinstance(ss.get("findings"), list):
+        if isinstance(ss, dict) and isinstance(ss.get("findings"), list):
             for f in ss["findings"]:
                 if not isinstance(f, dict):
                     continue
@@ -773,6 +782,18 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
         lines.append("- 有効な human_ness 判定なし（全item で批評が失敗、または対象文書が無い）")
     lines.append("")
 
+    # skill_cause.file/section はLLMの自己申告。コミット版レポートには
+    # リポジトリ内のスキルファイル参照らしきものだけをそのまま載せ、それ以外
+    # （元文書のパスや固有名詞が紛れた場合）は伏せる。Markdown 表を壊す
+    # 文字（| と改行）も無害化する。表・改善提案節など全出力箇所で共用する。
+    def _esc(v: str, limit: int = 60) -> str:
+        v = v if isinstance(v, str) else ""
+        return v.replace("|", "\\|").replace("\n", " ")[:limit]
+
+    def safe_ref(v) -> str:
+        ok_prefix = ("references/", "SKILL.md", "assets/", "scripts/")
+        return _esc(v, 80) if isinstance(v, str) and v.startswith(ok_prefix) else "(リポジトリ外参照のため非表示)"
+
     # --- クラスタ表 ---
     lines.append("## スキルレベル所見クラスタ（原因 file/section 別、頻度×severity降順）")
     lines.append("")
@@ -780,18 +801,11 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     if clusters:
         lines.append("| 原因ファイル | 節 | 出現item数/総item数 | 趣旨歪み件数 | severity内訳(smell) | score |")
         lines.append("| --- | --- | --- | --- | --- | --- |")
-        def safe_ref(v: str) -> str:
-            # skill_cause.file/section はLLMの自己申告。コミット版レポートには
-            # リポジトリ内のスキルファイル参照らしきものだけをそのまま載せ、
-            # それ以外（元文書のパスや固有名詞が紛れた場合）は伏せる。
-            ok_prefix = ("references/", "SKILL.md", "assets/", "scripts/")
-            return v if isinstance(v, str) and v.startswith(ok_prefix) else "(リポジトリ外参照のため非表示)"
-
         for c in clusters:
             sev = c["smell_severity_counts"]
             sev_str = ", ".join(f"{k}={v}" for k, v in sorted(sev.items())) if sev else "-"
             lines.append(
-                f"| `{safe_ref(c['file'])}` | {c['section'][:60]} | {c['item_count']}/{aggregated['total_items']} | "
+                f"| `{safe_ref(c['file'])}` | {_esc(c['section'])} | {c['item_count']}/{aggregated['total_items']} | "
                 f"{c['distortion_count']} | {sev_str} | {c['score']:.2f} |"
             )
         if include_samples:
@@ -818,7 +832,7 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     if clusters:
         for c in clusters[:3]:
             lines.append(
-                f"- `{c['file']}`（{c['section']}）: {c['item_count']}/{aggregated['total_items']} item で"
+                f"- `{safe_ref(c['file'])}`（{_esc(c['section'])}）: {c['item_count']}/{aggregated['total_items']} item で"
                 f"原因として挙げられた。当該節の記述が具体例・限定条件を欠いている可能性が高く、"
                 "書き手が誤って過剰一般化・テンプレ適用しないよう、適用条件や『やりすぎ』の反例を"
                 "追記することを検討する。"
@@ -918,8 +932,11 @@ def main() -> int:
         print_dry_run(items, run_label=run_label, model_apply=args.model_apply, model_critic=args.model_critic)
         return 0
 
-    if not re.fullmatch(r"[A-Za-z0-9._-]+", run_label):
-        print(f"--run-label に使える文字は英数字と ._- のみ: {run_label!r}", file=sys.stderr)
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", run_label) or run_label in (".", ".."):
+        print(f"--run-label に使える文字は英数字と ._- のみ（'.', '..' は不可）: {run_label!r}", file=sys.stderr)
+        return 1
+    if not (RUNS_ROOT / run_label).resolve().is_relative_to(RUNS_ROOT.resolve()):
+        print(f"--run-label が runs/ の外を指しています: {run_label!r}", file=sys.stderr)
         return 1
     if args.parallel < 1:
         print(f"--parallel は1以上を指定してください: {args.parallel}", file=sys.stderr)
