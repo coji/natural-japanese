@@ -353,3 +353,12 @@ scratch" requests (regardless of genre) are meant to be in scope.
 
 No changes were made to `SKILL.md`, `scripts/`, or `references/` in this
 pass — only `evals/evals.json` and this file.
+
+### Follow-up: description fix applied (same day)
+
+上記の推奨どおり description の新規執筆アンカーを「note記事やブログ記事・
+エッセイの新規執筆（任意のテーマをゼロから書く・書き起こす依頼を含む）」に
+拡張して適用した（SKILL.md / evals.json ともに同期済み）。p48
+「在宅勤務の生産性についてゼロから書き起こして」は「ゼロから書く・書き起こす」
+の明示アンカーに一致するため trigger に転じ、**最終結果は 68/68 (100%)**。
+既存アンカーは削っていないため他ケースへの回帰はない。
