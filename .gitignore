@@ -20,6 +20,7 @@ corpus/reports/*
 !corpus/reports/business-calibration.md
 !corpus/reports/business-fp-check.md
 !corpus/reports/antithesis-recalibration.md
+!corpus/reports/nn-detector-sweep.md
 # skill-eval-findings.md は corpus/experiments/skill-eval/eval.py が生成する、
 # スキル適用の抽象化された所見レポート（元文書の本文・固有名詞・数値は含まない）
 !corpus/reports/skill-eval-findings.md
@@ -29,6 +30,22 @@ corpus/reports/*
 corpus/experiments/*
 !corpus/experiments/.gitkeep
 !corpus/experiments/readability-sweep.py
+# NN・係り受け実験(corpus/reports/nn-detector-sweep.md)の再現スクリプト
+!corpus/experiments/ginza/
+corpus/experiments/ginza/*
+!corpus/experiments/ginza/ginza_sweep.py
+!corpus/experiments/embedding/
+corpus/experiments/embedding/*
+!corpus/experiments/embedding/embed_corpus.py
+!corpus/experiments/embedding/sweep.py
+!corpus/experiments/classifier/
+corpus/experiments/classifier/*
+!corpus/experiments/classifier/embed_cache.py
+!corpus/experiments/classifier/classify_eval.py
+!corpus/experiments/perplexity/
+corpus/experiments/perplexity/*
+!corpus/experiments/perplexity/perplexity_sweep.py
+!corpus/experiments/perplexity/analyze.py
 
 # corpus/experiments/skill-eval: スキル評価ハーネス。ハーネス本体・サンプル
 # manifest・READMEはコミット対象。runs/（生成物・批評JSON、NDA含みうる）と
