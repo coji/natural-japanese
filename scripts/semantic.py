@@ -103,19 +103,19 @@ MIN_SENTENCES_FOR_STATS = 10
 #   間に空白域を持つため、この空白の直下（0.1581）まで閾値を上げても
 #   FP<5%を保てるという、経験的な校正結果である。
 # ---------------------------------------------------------------------------
-DEFAULT_FLATNESS_THRESHOLD = 0.1612
+DEFAULT_FLATNESS_THRESHOLD = 0.16122889518737793
 
 GENRE_PROFILES: dict[str, dict] = {
     "essay": {
-        "flatness_threshold": 0.1581,
+        "flatness_threshold": 0.15813499689102173,
         "flatness_calibration": "n(fp_base)=30, FP率=3.3%, n(ai)=84, AI検出率=95.2%",
     },
     "tech": {
-        "flatness_threshold": 0.1426,
+        "flatness_threshold": 0.14261949062347412,
         "flatness_calibration": "n(fp_base)=18, FP率=0%, n(ai)=84, AI検出率=52.4%",
     },
     "business": {
-        "flatness_threshold": 0.1556,
+        "flatness_threshold": 0.15565699338912964,
         "flatness_calibration": "n(fp_base)=29, FP率=0%, n(ai)=84, AI検出率=73.8%",
     },
 }
@@ -123,8 +123,8 @@ GENRE_PROFILES: dict[str, dict] = {
 # secondary/reference 指標（severity=info）。全ジャンル共通閾値のみ
 # （corpus/experiments/embedding/sweep-result.md の全体スイープ結果をそのまま流用。
 # ジャンル別再校正はprimary指標のみに絞り、これらは参考情報にとどめる）。
-SEMANTIC_REPETITION_MAX_THRESHOLD = 0.9322  # value<=th → FP率4.9%(n=81), AI検出率46.4%(n=405)
-TOPIC_JUMP_MIN_THRESHOLD = 0.7658  # value>=th → FP率4.9%(n=81), AI検出率62.2%(n=405)
+SEMANTIC_REPETITION_MAX_THRESHOLD = 0.9322158694267273  # value<=th → FP率4.9%(n=81), AI検出率46.4%(n=405)
+TOPIC_JUMP_MIN_THRESHOLD = 0.765757143497467  # value>=th → FP率4.9%(n=81), AI検出率62.2%(n=405)
 
 
 def doc_sentences_with_lines(raw_text: str) -> list[tuple[int, str]]:
@@ -347,7 +347,14 @@ def main() -> int:
         print(err, file=sys.stderr)
         return 1
 
-    findings, stats = run_semantic(text, genre=args.genre, model_name=args.model)
+    try:
+        findings, stats = run_semantic(text, genre=args.genre, model_name=args.model)
+    except Exception as exc:
+        print(
+            f"エラー: 意味モデルの読み込みまたは推論に失敗しました: {exc}",
+            file=sys.stderr,
+        )
+        return 1
 
     if args.json:
         output = {
