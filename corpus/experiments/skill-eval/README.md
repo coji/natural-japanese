@@ -29,7 +29,7 @@ uv run corpus/experiments/skill-eval/eval.py \
   `--run-label` で再実行すると、human_ness のA/B割当（後述）は同じになる
   （再現性のため）。
 - `--model-apply` / `--model-critic` でモデルを上書きできる（既定:
-  apply=`claude-sonnet-5`、critic=`claude-opus-4-8`）。
+  apply=`claude-sonnet-5`、critic=`claude-fable-5`。effort は既定で両方 low、`--effort-apply/--effort-critic` で変更可）。
 - 1 item あたり claude 呼び出しは最大 6 回（baseline生成 or source コピー、
   thesis抽出、skill-apply、human_ness、thesis_preservation、structural_smell。
   rewrite モードは baseline がコピーなので呼び出しが1回減る）。skill-apply は

@@ -4,7 +4,7 @@ corpus/experiments/skill-eval/eval.py が実行した結果を集約したレポ
 
 ## 実行メタ
 
-- run-label: `batch-4-rw (quantitative caps)`
+- run-label: `batch-4-rw`
 - manifest: `manifest.local.json`
 - item数: 5
 - doctype内訳: guide=1, memo=1, minutes=2, report=1
@@ -34,7 +34,7 @@ corpus/experiments/skill-eval/eval.py が実行した結果を集約したレポ
 | `references/writing-constitution.md` | 5. 「担当者」でなく実名、「一部の」でなく実数で接地する | 1/5 | 0 | high=1 | 0.60 |
 | `references/doctypes/memo.md` | 文体憲法の重点条項 — 第10条(限界・未確定は明示ラベル) | 1/5 | 0 | mid=1 | 0.40 |
 | `references/writing-constitution.md` | 11. 事実には出典を、意見には「筆者は」を添える | 1/5 | 0 | mid=1 | 0.40 |
-| `corpus/experiments/skill-eval/../../../references/doctypes/minutes.md` | 品質基準 — 議論は地の文で、決定・宿題だけが箇条書きになっている | 1/5 | 0 | mid=1 | 0.40 |
+| `(リポジトリ外参照のため非表示)` | 品質基準 — 議論は地の文で、決定・宿題だけが箇条書きになっている | 1/5 | 0 | mid=1 | 0.40 |
 | `references/doctypes/report.md` | 品質基準（誤読しやすい数字は著者が先に指差している） | 1/5 | 0 | mid=1 | 0.40 |
 | `references/doctypes/report.md` | 品質基準（数字の意味が翻訳されている） | 1/5 | 0 | mid=1 | 0.40 |
 | `references/doctypes/report.md` | 必須要素 | 1/5 | 0 | mid=1 | 0.40 |

@@ -150,6 +150,8 @@ def load_manifest(path: Path) -> list[dict]:
         mode = item.get("mode")
         if not item_id or not isinstance(item_id, str):
             raise ValueError(f"item に 'id' がありません: {item!r}")
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", item_id):
+            raise ValueError(f"item id に使える文字は英数字と ._- のみ（パス区切り等は不可）: {item_id!r}")
         if item_id in seen_ids:
             raise ValueError(f"item id が重複しています: {item_id}")
         seen_ids.add(item_id)
@@ -279,7 +281,7 @@ def call_critic_json(prompt: str, *, model: str, cwd: Path, timeout: int) -> tup
     try:
         raw1 = run_claude_tooled(
             prompt, model=model, cwd=cwd, allowed_tools="Read",
-            disallowed_tools="Bash,Edit,Write", timeout=timeout, effort=EFFORT_CRITIC,
+            disallowed_tools="Bash,Edit,Write,NotebookEdit,Task,WebFetch,WebSearch", timeout=timeout, effort=EFFORT_CRITIC,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
         meta["error_attempt1"] = repr(e)
@@ -294,7 +296,7 @@ def call_critic_json(prompt: str, *, model: str, cwd: Path, timeout: int) -> tup
     try:
         raw2 = run_claude_tooled(
             prompt + RETRY_JSON_SUFFIX, model=model, cwd=cwd, allowed_tools="Read",
-            disallowed_tools="Bash,Edit,Write", timeout=timeout, effort=EFFORT_CRITIC,
+            disallowed_tools="Bash,Edit,Write,NotebookEdit,Task,WebFetch,WebSearch", timeout=timeout, effort=EFFORT_CRITIC,
         )
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
         meta["error_attempt2"] = repr(e)
@@ -619,7 +621,7 @@ def aggregate(results: list[dict]) -> dict:
     for r in results:
         hn = r.get("human_ness")
         ab = r.get("ab_assignment")
-        if not hn or not ab:
+        if not isinstance(hn, dict) or not isinstance(ab, dict):
             continue
         verdict = hn.get("more_human")
         if verdict not in ("A", "B", "tie"):
@@ -656,7 +658,10 @@ def aggregate(results: list[dict]) -> dict:
         tp = r.get("thesis_preservation")
         if tp and isinstance(tp.get("distortions"), list):
             for d in tp["distortions"]:
-                cause = d.get("skill_cause") or {}
+                if not isinstance(d, dict):
+                    continue
+                cause = d.get("skill_cause")
+                cause = cause if isinstance(cause, dict) else {}
                 c = _get_cluster(cause.get("file", ""), cause.get("section", ""))
                 c["items"].add(item_id)
                 c["distortion_count"] += 1
@@ -668,7 +673,10 @@ def aggregate(results: list[dict]) -> dict:
         ss = r.get("structural_smell")
         if ss and isinstance(ss.get("findings"), list):
             for f in ss["findings"]:
-                cause = f.get("skill_cause") or {}
+                if not isinstance(f, dict):
+                    continue
+                cause = f.get("skill_cause")
+                cause = cause if isinstance(cause, dict) else {}
                 c = _get_cluster(cause.get("file", ""), cause.get("section", ""))
                 c["items"].add(item_id)
                 sev = f.get("severity") if f.get("severity") in SEVERITY_WEIGHT else "low"
@@ -730,7 +738,7 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     lines.append("## 実行メタ")
     lines.append("")
     lines.append(f"- run-label: `{run_label}`")
-    lines.append(f"- manifest: `{manifest_path}`")
+    lines.append(f"- manifest: `{manifest_path.name}`")
     lines.append(f"- item数: {aggregated['total_items']}")
     lines.append(
         "- doctype内訳: "
@@ -772,11 +780,18 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
     if clusters:
         lines.append("| 原因ファイル | 節 | 出現item数/総item数 | 趣旨歪み件数 | severity内訳(smell) | score |")
         lines.append("| --- | --- | --- | --- | --- | --- |")
+        def safe_ref(v: str) -> str:
+            # skill_cause.file/section はLLMの自己申告。コミット版レポートには
+            # リポジトリ内のスキルファイル参照らしきものだけをそのまま載せ、
+            # それ以外（元文書のパスや固有名詞が紛れた場合）は伏せる。
+            ok_prefix = ("references/", "SKILL.md", "assets/", "scripts/")
+            return v if isinstance(v, str) and v.startswith(ok_prefix) else "(リポジトリ外参照のため非表示)"
+
         for c in clusters:
             sev = c["smell_severity_counts"]
             sev_str = ", ".join(f"{k}={v}" for k, v in sorted(sev.items())) if sev else "-"
             lines.append(
-                f"| `{c['file']}` | {c['section']} | {c['item_count']}/{aggregated['total_items']} | "
+                f"| `{safe_ref(c['file'])}` | {c['section'][:60]} | {c['item_count']}/{aggregated['total_items']} | "
                 f"{c['distortion_count']} | {sev_str} | {c['score']:.2f} |"
             )
         if include_samples:
@@ -902,6 +917,13 @@ def main() -> int:
     if args.dry_run:
         print_dry_run(items, run_label=run_label, model_apply=args.model_apply, model_critic=args.model_critic)
         return 0
+
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", run_label):
+        print(f"--run-label に使える文字は英数字と ._- のみ: {run_label!r}", file=sys.stderr)
+        return 1
+    if args.parallel < 1:
+        print(f"--parallel は1以上を指定してください: {args.parallel}", file=sys.stderr)
+        return 1
 
     global EFFORT_APPLY, EFFORT_CRITIC
     EFFORT_APPLY = args.effort_apply or None
