@@ -73,6 +73,8 @@ uv run scripts/lint.py --json <file>
 
 収束ループ（4〜5）では、直前の `--json` 出力を `--baseline` に渡すと resolved / new / persisting を自動で仕分けてくれる。`uv` が使えない環境（Claude.ai 等）では `references/manual-checklist.md` で同じ観点を人手でなぞる。
 
+もう一つ、`scripts/semantic.py` という EXPERIMENTAL な意味的検出器がある。文埋め込みで隣接文の類似度の起伏（話題の平板さ）を測るもので、torch + sentence-transformers 依存・初回~1GBのモデルダウンロードを伴う重量級のため lint.py 本体には組み込まず、独立した opt-in エントリにしている。フル工程や環境が許すときだけ `uv run scripts/semantic.py --json <file>` を追加で回し、findings は lint と同じく判断台帳に載せて扱う。
+
 ## 4. 検査(2) — 判断台帳と二つのレビュー
 
 lint の findings は疑いの提示であり、機械的に全部直せという指示ではない。今回ヒットしたカテゴリの節を `references/revision-guide.md` で読み直し、文脈に照らして「直す/直さない」を判断する。判断は finding 一つひとつに「直した」か「残す（理由）」かを書き残しながら進める（台帳の形式は同ファイルの「判断台帳」を参照）。
