@@ -4,7 +4,8 @@
 
 - 公開日時: 2026-07-14
 - URL: https://natural-japanese-rhythm-reader-study.techtalkjp.workers.dev
-- Cloudflare Worker version: `50d90791-aed5-4ed9-902a-3bf7b7112459`
+- Cloudflare Worker version: `226cb6d9-eb03-4335-86fc-d99e3e2e7ee6`
+- 公開元コミット: `dbc034b`
 - D1: `natural-japanese-rhythm-reader-study`（APAC）
 - 状態: 人間パイロット前
 
