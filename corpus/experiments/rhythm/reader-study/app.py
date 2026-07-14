@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
 import secrets
 import threading
@@ -17,7 +18,7 @@ from urllib.parse import urlparse
 
 HERE = Path(__file__).resolve().parent
 STIMULI = HERE / "stimuli.json"
-DATA_DIR = HERE / "data"
+DATA_DIR = Path(os.environ.get("READER_STUDY_DATA_DIR", HERE / "data"))
 RESPONSES = DATA_DIR / "responses.jsonl"
 CONDITIONS = ("uniform", "varied", "control")
 WRITE_LOCK = threading.Lock()
@@ -128,6 +129,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
+        if path == "/healthz":
+            self.send_json(HTTPStatus.OK, {"ok": True})
+            return
         if path == "/":
             body = (HERE / "index.html").read_bytes()
             self.send_response(HTTPStatus.OK)

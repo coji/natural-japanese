@@ -30,6 +30,17 @@ uv run corpus/experiments/rhythm/reader-study/analyze.py \
 回答は `data/responses.jsonl` に保存される。このディレクトリはGit管理しない。解析結果は
 `results/` に生成される。生データを公開せず、匿名化された集計結果と解析コードだけをコミットする。
 
+公開環境では永続ボリュームを `/data` に割り当てる。コンテナは次のように確認できる。
+
+```bash
+docker build -t rhythm-reader-study corpus/experiments/rhythm/reader-study
+docker run --rm -p 8765:8765 -v reader-study-data:/data rhythm-reader-study
+curl http://127.0.0.1:8765/healthz
+```
+
+TLS終端はホスティング側で行う。収集終了後は `/data/responses.jsonl` を安全な場所へ一度だけ
+書き出し、公開アプリを停止する。
+
 ## 収集前チェック
 
 1. `validate_stimuli.py` と `test_app.py` を実行する。
