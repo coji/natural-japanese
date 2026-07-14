@@ -22,6 +22,7 @@
 uv run corpus/experiments/rhythm/reader-study/validate_stimuli.py
 python corpus/experiments/rhythm/reader-study/app.py --host 127.0.0.1 --port 8765
 uv run corpus/experiments/rhythm/reader-study/analyze.py --check
+uv run corpus/experiments/rhythm/reader-study/test_analyze.py
 uv run corpus/experiments/rhythm/reader-study/analyze.py \
   corpus/experiments/rhythm/reader-study/data/responses.jsonl
 ```
