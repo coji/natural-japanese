@@ -37,7 +37,7 @@ async function start() {
 function intro() {
   app.innerHTML = `<h1>日本語文章の読み方に関する調査</h1><div class="card">
     <p>12個の短い文章を読み、それぞれの印象と内容確認に答えてください。所要時間は約15分です。</p>
-    <p>参加は任意で、いつでも終了できます。氏名、メールアドレス、IPアドレスは保存しません。回答は文章研究と執筆支援ツールの改善に利用し、集計結果のみを公開します。</p>
+    <p>参加は任意で、いつでも終了できます。氏名とメールアドレスは収集せず、IPアドレスは回答データに保存しません。回答は文章研究と執筆支援ツールの改善に利用し、集計結果のみを公開します。</p>
     <label><input id="consent" type="checkbox"> 18歳以上で、説明を読み、回答の研究利用に同意します</label>
     <fieldset><legend>注意確認: この項目では「4」を選んでください</legend>${scale('attention')}</fieldset>
     <button onclick="start()">調査を始める</button></div>`;

@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "natural-japanese-rhythm-reader-study",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-07-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "rules": [
+    { "type": "Text", "globs": ["**/*.html"], "fallthrough": true }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "natural-japanese-rhythm-reader-study",
+      "database_id": "82635ae2-cb4f-4eb4-a43f-b1113daf57dd",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 }
+  }
+}

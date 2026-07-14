@@ -1,0 +1,16 @@
+{
+  "name": "natural-japanese-rhythm-reader-study",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "wrangler types --check && tsc --noEmit",
+    "deploy": "wrangler deploy --minify",
+    "dev": "wrangler dev",
+    "migrate:local": "wrangler d1 migrations apply natural-japanese-rhythm-reader-study --local",
+    "migrate:remote": "wrangler d1 migrations apply natural-japanese-rhythm-reader-study --remote"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "wrangler": "^4.110.0"
+  }
+}

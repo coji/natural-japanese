@@ -1,6 +1,7 @@
 .DS_Store
 __pycache__/
 .claude/
+/.wrangler/
 
 # corpus: 著作権のある本文・再生成可能な生成物はコミットしない
 # (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
@@ -52,7 +53,19 @@ corpus/experiments/rhythm/reader-study/*
 !corpus/experiments/rhythm/reader-study/test_analyze.py
 !corpus/experiments/rhythm/reader-study/analyze.py
 !corpus/experiments/rhythm/reader-study/semantic-review.md
+!corpus/experiments/rhythm/reader-study/collection-log.md
 !corpus/experiments/rhythm/reader-study/Dockerfile
+!corpus/experiments/rhythm/reader-study/package.json
+!corpus/experiments/rhythm/reader-study/package-lock.json
+!corpus/experiments/rhythm/reader-study/tsconfig.json
+!corpus/experiments/rhythm/reader-study/wrangler.jsonc
+!corpus/experiments/rhythm/reader-study/worker-configuration.d.ts
+!corpus/experiments/rhythm/reader-study/worker/
+!corpus/experiments/rhythm/reader-study/worker/**
+!corpus/experiments/rhythm/reader-study/migrations/
+!corpus/experiments/rhythm/reader-study/migrations/**
+corpus/experiments/rhythm/reader-study/node_modules/
+corpus/experiments/rhythm/reader-study/.wrangler/
 corpus/experiments/rhythm/reader-study/data/
 corpus/experiments/rhythm/reader-study/results/
 # NN・係り受け実験(corpus/reports/nn-detector-sweep.md)の再現スクリプト
