@@ -111,8 +111,11 @@ uv run scripts/calibrate.py report
   (ローカルのみ、再生成しない過去のスナップショット)。ドキュメント中の経緯説明コメントから
   参照されることがある(例: `deep-analysis.md`, `sweep_low_burstiness.md` 等)が、
   再生成の対象ではない。
-- **`corpus/reports/research/`**: 収集・調査メモ。非コミット。
-  `business-corpus-sources.md`, `embed-research.md` など、レポートというより作業ログに近いもの。
+- **`corpus/reports/research/`**: 収集・調査メモは原則として非コミット。
+  `business-corpus-sources.md`, `embed-research.md` などの作業ログはローカルに置く。一方、
+  公開用に出典・方法・限界を整理した文献レビューと証拠表は、`.gitignore` で個別に指定して
+  コミット対象とする。公開した調査を再現する実験スクリプトも、`corpus/experiments/` の
+  対応するサブディレクトリで個別にコミット対象へ戻す。
 
 `calibrate.py` および `corpus/experiments/readability-sweep.py` の出力先は
 `corpus/reports/` 直下のまま(サブディレクトリ化していない)。次回実行時は直下に新しい版が

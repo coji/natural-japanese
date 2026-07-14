@@ -1,6 +1,7 @@
 .DS_Store
 __pycache__/
 .claude/
+/.wrangler/
 
 # corpus: 著作権のある本文・再生成可能な生成物はコミットしない
 # (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
@@ -10,7 +11,8 @@ corpus/ai/*
 !corpus/ai/.gitkeep
 
 # corpus/reports: calibrate.py の出力（再生成可能なレポート）。archive/ (旧世代)
-# と research/ (調査メモ) は直下のサブディレクトリごと非コミット。
+# と research/ の作業メモは原則非コミット。research/ 内でも、公開用に整理した
+# 文献レビューと証拠表は個別にコミット対象へ戻す。
 # readability-sweep.md / business-calibration.md / business-fp-check.md /
 # antithesis-recalibration.md は、ドキュメントから参照される根拠レポートのため
 # 例外的にコミット対象とする（著作権のある引用は含まない）
@@ -24,12 +26,48 @@ corpus/reports/*
 # skill-eval-findings.md は corpus/experiments/skill-eval/eval.py が生成する、
 # スキル適用の抽象化された所見レポート（元文書の本文・固有名詞・数値は含まない）
 !corpus/reports/skill-eval-findings.md
+!corpus/reports/research/
+corpus/reports/research/*
+!corpus/reports/research/prose-rhythm-literature-review.md
+!corpus/reports/research/prose-rhythm-evidence-matrix.md
+!corpus/reports/research/sentence-length-analysis.md
+!corpus/reports/research/sentence-length-analysis.json
 
 # corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
 # readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象
 corpus/experiments/*
 !corpus/experiments/.gitkeep
 !corpus/experiments/readability-sweep.py
+!corpus/experiments/rhythm/
+corpus/experiments/rhythm/*
+!corpus/experiments/rhythm/sentence_length_analysis.py
+!corpus/experiments/rhythm/reader-study/
+corpus/experiments/rhythm/reader-study/*
+!corpus/experiments/rhythm/reader-study/preregistration.md
+!corpus/experiments/rhythm/reader-study/README.md
+!corpus/experiments/rhythm/reader-study/validate_stimuli.py
+!corpus/experiments/rhythm/reader-study/stimuli.json
+!corpus/experiments/rhythm/reader-study/app.py
+!corpus/experiments/rhythm/reader-study/index.html
+!corpus/experiments/rhythm/reader-study/test_app.py
+!corpus/experiments/rhythm/reader-study/test_analyze.py
+!corpus/experiments/rhythm/reader-study/analyze.py
+!corpus/experiments/rhythm/reader-study/semantic-review.md
+!corpus/experiments/rhythm/reader-study/collection-log.md
+!corpus/experiments/rhythm/reader-study/Dockerfile
+!corpus/experiments/rhythm/reader-study/package.json
+!corpus/experiments/rhythm/reader-study/package-lock.json
+!corpus/experiments/rhythm/reader-study/tsconfig.json
+!corpus/experiments/rhythm/reader-study/wrangler.jsonc
+!corpus/experiments/rhythm/reader-study/worker-configuration.d.ts
+!corpus/experiments/rhythm/reader-study/worker/
+!corpus/experiments/rhythm/reader-study/worker/**
+!corpus/experiments/rhythm/reader-study/migrations/
+!corpus/experiments/rhythm/reader-study/migrations/**
+corpus/experiments/rhythm/reader-study/node_modules/
+corpus/experiments/rhythm/reader-study/.wrangler/
+corpus/experiments/rhythm/reader-study/data/
+corpus/experiments/rhythm/reader-study/results/
 # NN・係り受け実験(corpus/reports/nn-detector-sweep.md)の再現スクリプト
 !corpus/experiments/ginza/
 corpus/experiments/ginza/*
