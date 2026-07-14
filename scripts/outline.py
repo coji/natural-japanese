@@ -10,15 +10,20 @@
 設計原則「検出は機械、判断はAI」に基づき、良し悪しの判断はせず、決定的な抽出のみを
 行う。SKILL.md §4 の構造レビュー（スケルトン通読）への入力として使う。
 
+スケルトンに加えて「見出し統計」も出力する（本数・レベル分布、見出し長の平均・
+変動係数、体言止め率、見出し間のPOSパターン一致率、テンプレ見出し語彙ヒット、
+連番/記号などの構造パターン率）。これらは severity 付きの検出結果（Finding）
+ではなく、AI臭いかどうかを読む側のAIが判断するための材料の提示に留める
+——見出し統計そのものが「AI臭い/自然」を断定することはしない。
+
 使い方:
     uv run scripts/outline.py <file.md> [--json]
 
 入力エラー（ファイル不在・ディレクトリ指定・読み取り不可等）は exit code 1、
 それ以外は exit code 0（判断は人間/AIに委ねる。他の検査層エントリと同じ方針）。
 
-sudachipy への依存はこのスクリプト自体では使わないが、textcore.py の共有基盤
-（他のエントリと共通のマスク処理・ヘルパー）を import するため PEP 723
-メタデータは textcore.py と同じ内容を宣言しておく。
+見出し統計の体言止め判定・POSシグネチャ化には sudachipy を使うため、
+textcore.py と同じ PEP 723 メタデータを宣言しておく。
 """
 
 from __future__ import annotations
@@ -30,6 +35,8 @@ import sys
 from pathlib import Path
 
 from textcore import (
+    NOUN_ENDING_POS,
+    TEMPLATE_HEADING_WORDS,
     _BLOCKQUOTE_RE,
     _CODE_FENCE_RE,
     _FRONT_MATTER_DELIM_RE,
@@ -38,8 +45,10 @@ from textcore import (
     _TABLE_DELIMITER_RE,
     _TABLE_ROW_RE,
     _heading_level_and_text,
+    get_tokenizer,
     mask_html_comments,
     read_source_file,
+    strip_trailing_symbols,
 )
 
 # ---------------------------------------------------------------------------
@@ -175,6 +184,193 @@ def build_outline(raw_text: str) -> list[dict]:
     return outline
 
 
+# ---------------------------------------------------------------------------
+# 見出し統計（--outline に付随する判断材料の提示）
+#
+# ここより下は「検出は機械、判断はAI」の"機械"側の追加ブロックである。ただし
+# lint.py の検出器群とは性質が異なり、severity 付きの Finding は一切生成しない。
+# 見出しの本数・長さ・構造パターンを集計するだけで、「これはAI臭い」という
+# 判定はしない（例えば体言止め率が高い見出しでも、技術文書では自然に高くなり
+# うる。閾値判断・良し悪しの判断は読む側のAIに委ねる）。
+#
+# 対象は build_outline() が抽出した kind="heading" のエントリのみ。h1（文書
+# タイトル）を含めるかどうかは呼び出し側次第だが、本文の構成パターンを見たい
+# という目的上、レベル別統計は「レベルごとの兄弟見出し群」を単位に集計する。
+# ---------------------------------------------------------------------------
+
+# POS シグネチャ化で使う粗い品詞カテゴリ。sudachipy の part_of_speech()[0] は
+# 「名詞」「動詞」「助詞」等の詳細分類だが、見出し全体の構造パターン（対称性）を
+# 見たいだけなので、意味のある大分類のみ抽出し、それ以外（助詞・助動詞・記号・
+# 空白等の機能語/記号）はシグネチャから除外する。除外しないと「◯◯の設計」
+# 「◯◯の実装」のような対称見出しでも助詞「の」の有無等で微妙にシグネチャが
+# ずれ、パターン一致率が実態より低く出てしまう。
+_SIGNATURE_POS = {"名詞", "動詞", "形容詞", "副詞", "接頭辞"}
+
+# テンプレ見出し語彙のマッチングは、単純な前方一致だと見出し先頭の記号・番号
+# （例:「1. はじめに」「## はじめに」）に引きずられて不一致になる。見出しテキスト
+# 側の先頭にある番号・記号を軽く剥がしてから判定する。
+_LEADING_NUMBERING_RE = re.compile(r"^[\s0-9０-９.．、,()（）【】\[\]#・-]+")
+
+# 構造的パターン検出用の正規表現。
+# 1) 連番: 「1. ◯◯」「1) ◯◯」「①◯◯」など見出しテキスト先頭の番号
+_NUMBERED_HEADING_RE = re.compile(r"^\s*([0-9０-９]+[.).、]|[①-⑳])\s*\S")
+# 2) 括弧見出し: 「【◯◯】」「［◯◯］」など全体または先頭を囲む記号
+_BRACKETED_HEADING_RE = re.compile(r"^\s*[【\[［(（].+[】\]］)）]\s*$")
+# 3) 「◯◯とは」型: 定義提示の定型
+_TOWA_HEADING_RE = re.compile(r".+とは[?？]?\s*$")
+
+
+def _heading_pos_signature(text: str) -> tuple[str, ...]:
+    """見出しテキストの粗い品詞列（機能語・記号を除く）をタプル化したもの。
+    同一シグネチャの兄弟見出しが多いほど、構造的に対称な（＝AIが書きがちな
+    テンプレ的な）見出し群である可能性が高い、という判断材料になる。
+    """
+    tokenizer = get_tokenizer()
+    sig = []
+    for m in tokenizer.tokenize(text):
+        pos = m.part_of_speech()[0]
+        if pos in _SIGNATURE_POS:
+            sig.append(pos)
+    return tuple(sig)
+
+
+def _is_nominal_ending(text: str) -> bool:
+    """見出し末尾の実質的な最終形態素が名詞かどうか（体言止め判定）。
+    lint.py の文末体言止め判定（detect_nominal_ending_and_paragraph_conjunctions）
+    と同じロジックを見出しテキストに適用する。空見出しは False 扱い。
+    """
+    tokenizer = get_tokenizer()
+    morphemes = list(tokenizer.tokenize(text))
+    effective = strip_trailing_symbols(morphemes)
+    if not effective:
+        return False
+    return effective[-1].part_of_speech()[0] in NOUN_ENDING_POS
+
+
+def _match_template_word(text: str) -> str | None:
+    """見出し先頭の番号・記号を除いたうえで、テンプレ見出し語彙カタログ
+    （TEMPLATE_HEADING_WORDS）の前方一致を判定する。ヒットした最初の語を返す。
+    """
+    stripped = _LEADING_NUMBERING_RE.sub("", text).strip().lower()
+    for word in TEMPLATE_HEADING_WORDS:
+        if stripped.startswith(word.lower()):
+            return word
+    return None
+
+
+def _match_structural_pattern(text: str) -> str | None:
+    """連番・括弧・「◯◯とは」型など、構造的な定型パターンに一致するか判定する。
+    複数該当しうるが、提示上は最初に一致したもの1つを採用する。
+    """
+    if _NUMBERED_HEADING_RE.match(text):
+        return "numbered"
+    if _BRACKETED_HEADING_RE.match(text):
+        return "bracketed"
+    if _TOWA_HEADING_RE.match(text):
+        return "towa"
+    return None
+
+
+def _summarize_heading_group(headings: list[dict]) -> dict:
+    """見出し群（同一レベルの兄弟、または文書全体）1つ分の統計をまとめる。
+    headings は build_outline() の kind="heading" エントリのリスト。
+    """
+    count = len(headings)
+    if count == 0:
+        return {
+            "count": 0,
+            "length_mean": 0.0,
+            "length_cv": 0.0,
+            "nominal_ending_ratio": 0.0,
+            "dominant_pos_signature_ratio": 0.0,
+            "template_hits": [],
+            "structural_pattern_ratio": 0.0,
+        }
+
+    lengths = [len(h["text"]) for h in headings]
+    mean_len = sum(lengths) / count
+    if mean_len > 0 and count > 1:
+        variance = sum((length - mean_len) ** 2 for length in lengths) / count
+        stdev = variance**0.5
+        cv = stdev / mean_len
+    else:
+        cv = 0.0
+
+    nominal_count = sum(1 for h in headings if _is_nominal_ending(h["text"]))
+
+    signatures = [_heading_pos_signature(h["text"]) for h in headings]
+    non_empty_signatures = [s for s in signatures if s]
+    if non_empty_signatures:
+        most_common = max(set(non_empty_signatures), key=non_empty_signatures.count)
+        dominant_ratio = non_empty_signatures.count(most_common) / count
+    else:
+        dominant_ratio = 0.0
+
+    template_hits = []
+    for h in headings:
+        word = _match_template_word(h["text"])
+        if word is not None:
+            template_hits.append({"line": h["line"], "text": h["text"], "matched": word})
+
+    structural_count = sum(1 for h in headings if _match_structural_pattern(h["text"]) is not None)
+
+    return {
+        "count": count,
+        "length_mean": round(mean_len, 2),
+        "length_cv": round(cv, 3),
+        "nominal_ending_ratio": round(nominal_count / count, 3),
+        "dominant_pos_signature_ratio": round(dominant_ratio, 3),
+        "template_hits": template_hits,
+        "structural_pattern_ratio": round(structural_count / count, 3),
+    }
+
+
+def build_heading_stats(outline: list[dict]) -> dict:
+    """スケルトンから見出しだけを取り出し、レベル別（h1〜h6）＋文書全体の
+    統計をまとめる。severity や良し悪しの判断は含めない（判断材料の提示のみ）。
+    """
+    headings = [e for e in outline if e["kind"] == "heading"]
+    by_level: dict[int, list[dict]] = {}
+    for h in headings:
+        by_level.setdefault(h["level"], []).append(h)
+
+    level_distribution = {str(level): len(hs) for level, hs in sorted(by_level.items())}
+
+    return {
+        "total_headings": len(headings),
+        "level_distribution": level_distribution,
+        "by_level": {
+            str(level): _summarize_heading_group(hs) for level, hs in sorted(by_level.items())
+        },
+        "overall": _summarize_heading_group(headings),
+    }
+
+
+def print_heading_stats_human(stats: dict) -> None:
+    print()
+    print("=== 見出し統計（判断材料。判定はAIが行う） ===")
+    print()
+    print(f"見出し総数: {stats['total_headings']}")
+    if stats["level_distribution"]:
+        dist = ", ".join(f"h{level}={n}" for level, n in stats["level_distribution"].items())
+        print(f"レベル分布: {dist}")
+
+    def print_group(label: str, g: dict) -> None:
+        if g["count"] == 0:
+            return
+        print(f"[{label}] 本数={g['count']}  平均長={g['length_mean']}字  "
+              f"長さの変動係数={g['length_cv']}  体言止め率={g['nominal_ending_ratio']:.0%}  "
+              f"品詞パターン一致率={g['dominant_pos_signature_ratio']:.0%}  "
+              f"構造パターン率={g['structural_pattern_ratio']:.0%}")
+        if g["template_hits"]:
+            hits = ", ".join(f"L{h['line']}:{h['text']}（{h['matched']}）" for h in g["template_hits"])
+            print(f"  テンプレ見出しヒット: {hits}")
+
+    for level, g in stats["by_level"].items():
+        print_group(f"h{level}", g)
+    print_group("全体", stats["overall"])
+
+
 def print_outline_human(path: Path, outline: list[dict]) -> None:
     print(f"=== outline: {path} ===")
     print()
@@ -207,10 +403,12 @@ def main() -> int:
         return 1
 
     outline = build_outline(text)
+    heading_stats = build_heading_stats(outline)
     if args.json:
-        print(json.dumps({"outline": outline}, ensure_ascii=False, indent=2))
+        print(json.dumps({"outline": outline, "heading_stats": heading_stats}, ensure_ascii=False, indent=2))
     else:
         print_outline_human(args.file, outline)
+        print_heading_stats_human(heading_stats)
     return 0
 
 

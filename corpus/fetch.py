@@ -51,15 +51,40 @@ def load_sources() -> list[dict]:
     return [s for s in data if s.get("type") == "web"]
 
 
+def unescape_entities(text: str) -> str:
+    text = text.replace("&nbsp;", " ").replace("&amp;", "&")
+    text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
+    text = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), text)
+    text = re.sub(r"&#x([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)), text)
+    return text
+
+
+def convert_headings(html: str) -> str:
+    """本文 HTML 中の <h1>〜<h6> を Markdown 見出し(`#`〜`######`)に変換する。
+
+    strip_tags でタグを剥がす前に呼ぶこと。見出しタグ内部にインライン
+    タグ(<span>/<a> 等)が含まれる場合もテキストのみを取り出す。
+    """
+
+    def repl(m: re.Match[str]) -> str:
+        level = int(m.group(1))
+        inner = re.sub(r"<[^>]+>", "", m.group(2))
+        inner = unescape_entities(inner)
+        text = " ".join(inner.split()).strip()
+        if not text:
+            return ""
+        return "\n\n" + ("#" * level) + " " + text + "\n\n"
+
+    return re.sub(r"<h([1-6])[^>]*>(.*?)</h\1>", repl, html, flags=re.S | re.I)
+
+
 def strip_tags(html: str) -> str:
     html = re.sub(r"<(script|style|noscript)[^>]*>.*?</\1>", "", html, flags=re.S | re.I)
+    html = convert_headings(html)
     html = re.sub(r"<br\s*/?>", "\n", html, flags=re.I)
     html = re.sub(r"</p>", "\n\n", html, flags=re.I)
     html = re.sub(r"<[^>]+>", "", html)
-    html = html.replace("&nbsp;", " ").replace("&amp;", "&")
-    html = html.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
-    html = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), html)
-    html = re.sub(r"&#x([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)), html)
+    html = unescape_entities(html)
     lines = [ln.strip() for ln in html.splitlines()]
     lines = [ln for ln in lines if ln]
     return "\n\n".join(lines)
