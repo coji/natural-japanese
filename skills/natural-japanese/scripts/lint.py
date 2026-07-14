@@ -41,9 +41,12 @@ from pathlib import Path
 
 from textcore import (
     Finding,
+    NOUN_ENDING_POS,
     SENTENCE_SPLIT_RE,
+    TRAILING_SYMBOL_POS,
     _HEADING_RE,
     _LIST_ITEM_RE,
+    _heading_level_and_text,
     get_tokenizer,
     iter_lines_with_no,
     iter_paragraphs_with_lines,
@@ -51,6 +54,7 @@ from textcore import (
     mask_markdown_structure,
     read_source_file,
     split_sentences_with_lines,
+    strip_trailing_symbols,
 )
 
 # ---------------------------------------------------------------------------
@@ -254,6 +258,36 @@ MTLD_THRESHOLD = 40
 # 差を示すのは文書長4000字以上のビンのみ（それ未満は human/ai とも0%で無意味）。
 LEXDIV_MIN_DOC_CHARS = 4000
 
+# heading_length_uniformity（見出し長の均質さ）検出器のパラメータ
+#
+# 設計意図: 他の検出器はすべて「デフォルト閾値があり、ジャンルによって緩める/
+# 無効化する」opt-out方式（disabled_categories）だが、この検出器は逆に
+# 「デフォルトでは無効、--genre tech のときだけ opt-in で有効になる」。
+# HEADING_LENGTH_CV_THRESHOLD をモジュール既定値では None にしておき、
+# 検出器側は None なら何もせず空リストを返す。GENRE_PROFILES["tech"] にだけ
+# 数値の閾値を設定し、そのジャンルでのみ検出器が実際に働くようにする。
+# これは、見出し長の均質さが tech ジャンル以外（business の省庁系定型見出し等）
+# では human 側の誤検知が高く、汎用の検出器として成立しないと実測されたため
+# （下記コメント参照）。
+HEADING_CV_MIN_HEADINGS = 5
+HEADING_LENGTH_CV_THRESHOLD: float | None = None
+# 2026-07 実測（corpus/reports/heading-stats-analysis.md 追記分「コーパス拡充後の
+# 再スイープと検出器化」節）: human tech 45本（2022年以前公開、拡充済みコーパスの
+# genre:tech 全件）vs AI tech 81本（7モデル、見出し0本の3件を除く）で見出し長
+# （文字数、h2以下・h1除く）の変動係数（CV = pstdev/mean、見出し5本以上の文書のみ
+# 判定対象）をスイープした。閾値0.30で human FP率4.4%（2/45: zenn-tech-
+# hideoamezawa-a4c0a5d2 CV=0.261、hatena-tech-cohalz-cache-improvement CV=0.267。
+# ともに見出し5本以上の中での最小CV）・AI検出率32.1%（26/81）。
+# 閾値0.40まで緩めるとAI検出率は55.6%まで伸びるが、human FP率も15.6%（7/45）まで
+# 悪化する（他の校正済み検出器が目安とする「human FP<5%」を大きく超える）ため、
+# 0.30を採用してFP優先で保守的に振る。
+# ジャンル横断で見ると business（省庁系白書・報告書の定型見出し。「第1章」
+# 「1. 概要」等の均質な短い見出しが正当に多い）は同じ閾値0.30で human FP率12.5%
+# （4/32、corpus/human/web/biz-*）まで悪化するため、tech ジャンル限定の opt-in
+# 検出器とする（GENRE_PROFILES["tech"]でのみ閾値0.30を設定）。体言止め率・
+# テンプレ語彙の併用も試したが human/AI を分離せず、単純なCVのみを採用した。
+GENRE_TECH_HEADING_LENGTH_CV_THRESHOLD = 0.30
+
 # ---------------------------------------------------------------------------
 # low_specificity（具体性/一般論臭）検出器のパラメータ
 #
@@ -376,6 +410,10 @@ GENRE_PROFILES: dict[str, dict] = {
         # 目標の5%を超えたため、0.045に緩める（tech human critical化率0%に低下、
         # AI側もcritical 9/84 + warn 6/84 で検出は維持）。
         "antithesis_rate_critical_above": 0.045,
+        # heading_length_uniformity は tech ジャンルのみで有効化する opt-in 検出器
+        # （モジュール定数 HEADING_LENGTH_CV_THRESHOLD のコメント・GENRE_TECH_
+        # HEADING_LENGTH_CV_THRESHOLD の実測根拠コメントを参照）。
+        "heading_length_cv_threshold": GENRE_TECH_HEADING_LENGTH_CV_THRESHOLD,
     },
     # business は 2026-07 の実地校正（corpus/reports/business-calibration.md）で
     # 実測した。人間側コーパスは corpus/human/web の biz-* 10件のみと薄いため、
@@ -458,6 +496,7 @@ _CATEGORY_ONLY_KEY_CATEGORIES = {
     "uniform_paragraph_structure",
     "low_lexical_diversity_ttr",
     "low_lexical_diversity_mtld",
+    "heading_length_uniformity",
 }
 
 
@@ -729,8 +768,66 @@ def detect_low_sentence_length_variance(
     return []
 
 
-NOUN_ENDING_POS = {"名詞"}
-TRAILING_SYMBOL_POS = {"補助記号", "空白"}
+def detect_heading_length_uniformity(
+    raw_text: str,
+    min_headings: int = HEADING_CV_MIN_HEADINGS,
+    threshold: float | None = HEADING_LENGTH_CV_THRESHOLD,
+) -> list[Finding]:
+    """見出し（h2以下）の長さ（文字数）の変動係数（CV = pstdev/mean）が閾値未満なら
+    「見出しの長さが均質すぎる = AI臭い」として info で指摘する。
+
+    h1は文書タイトルなので集計対象から除外する。lint.py のマスク処理は見出し行を
+    空にしてしまうため、マスク前の raw_text から直接見出し行を拾い、
+    textcore._heading_level_and_text で見出しテキストを取り出す。
+
+    この検出器はデフォルト（genre未指定）では無効（threshold=None）。
+    HEADING_LENGTH_CV_THRESHOLD のコメント、および GENRE_PROFILES["tech"] の
+    heading_length_cv_threshold を参照。--genre tech のときだけ数値の閾値が
+    渡され、実際に発火しうる。
+    """
+    if threshold is None:
+        return []
+
+    heading_lines: list[tuple[int, str]] = []
+    for no, line in iter_lines_with_no(raw_text):
+        m = _HEADING_RE.match(line)
+        if not m:
+            continue
+        level, text = _heading_level_and_text(line)
+        if level < 2 or not text:
+            continue
+        heading_lines.append((no, text))
+
+    if len(heading_lines) < min_headings:
+        return []
+
+    lengths = [len(text) for _, text in heading_lines]
+    mean = statistics.mean(lengths)
+    if mean == 0:
+        return []
+    stdev = statistics.pstdev(lengths)
+    cv = stdev / mean
+    if cv >= threshold:
+        return []
+
+    related = [no for no, _ in heading_lines]
+    return [
+        Finding(
+            line=related[0],
+            category="heading_length_uniformity",
+            excerpt=f"見出し数={len(heading_lines)}, 平均長={mean:.1f}字, 変動係数={cv:.3f}",
+            severity="info",
+            detail=(
+                f"見出し長の変動係数が閾値({threshold})未満。見出しの長さが均質すぎて"
+                f"AI臭い可能性。{format_related_lines(related)}"
+            ),
+            related_lines=related,
+        )
+    ]
+
+
+# NOUN_ENDING_POS / TRAILING_SYMBOL_POS は textcore.py に移設済み（outline.py の
+# 見出し統計と共有するため）。ここでは textcore からの import をそのまま使う。
 
 # 語彙多様性計測の対象とする内容語 POS
 CONTENT_WORD_POS = {"名詞", "動詞", "形容詞", "副詞"}
@@ -786,14 +883,6 @@ def tokenize_sentences(sentences: list[tuple[int, str, str]]) -> list[TokenizedS
     return result
 
 
-def _strip_trailing_symbols(morphemes: list) -> list:
-    """文末の記号（」など）を除いた実質的な最終形態素列を返す。"""
-    i = len(morphemes)
-    while i > 0 and morphemes[i - 1].part_of_speech()[0] in TRAILING_SYMBOL_POS:
-        i -= 1
-    return morphemes[:i]
-
-
 def detect_nominal_ending_and_paragraph_conjunctions(
     lines: list[tuple[int, str]],
     tokenized: list[TokenizedSentence],
@@ -827,7 +916,7 @@ def detect_nominal_ending_and_paragraph_conjunctions(
         total_sentences += 1
         total_chars += len(ts.raw_text)
         last_line = ts.line
-        effective = _strip_trailing_symbols(ts.morphemes)
+        effective = strip_trailing_symbols(ts.morphemes)
         if not effective:
             continue
         last = effective[-1]
@@ -1760,6 +1849,11 @@ def run_lint(
 
     low_spec_findings, low_spec_stats = detect_low_specificity(lines, raw_lines_by_no)
     findings += low_spec_findings
+
+    findings += detect_heading_length_uniformity(
+        raw_text,
+        threshold=profile.get("heading_length_cv_threshold", HEADING_LENGTH_CV_THRESHOLD),
+    )
 
     # EXPERIMENTAL_CATEGORIES はデフォルトでは除外する（--experimental でのみ出力）。
     if not experimental:
