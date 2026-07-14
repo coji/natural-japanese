@@ -40,6 +40,19 @@ corpus/experiments/*
 !corpus/experiments/rhythm/
 corpus/experiments/rhythm/*
 !corpus/experiments/rhythm/sentence_length_analysis.py
+!corpus/experiments/rhythm/reader-study/
+corpus/experiments/rhythm/reader-study/*
+!corpus/experiments/rhythm/reader-study/preregistration.md
+!corpus/experiments/rhythm/reader-study/README.md
+!corpus/experiments/rhythm/reader-study/validate_stimuli.py
+!corpus/experiments/rhythm/reader-study/stimuli.json
+!corpus/experiments/rhythm/reader-study/app.py
+!corpus/experiments/rhythm/reader-study/index.html
+!corpus/experiments/rhythm/reader-study/test_app.py
+!corpus/experiments/rhythm/reader-study/analyze.py
+!corpus/experiments/rhythm/reader-study/semantic-review.md
+corpus/experiments/rhythm/reader-study/data/
+corpus/experiments/rhythm/reader-study/results/
 # NN・係り受け実験(corpus/reports/nn-detector-sweep.md)の再現スクリプト
 !corpus/experiments/ginza/
 corpus/experiments/ginza/*

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>日本語文章の読み方に関する調査</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; line-height: 1.8; }
+    body { max-width: 760px; margin: 0 auto; padding: 24px; color: #202124; }
+    .card { border: 1px solid #d8dce0; border-radius: 12px; padding: 24px; margin: 20px 0; }
+    .passage { font-size: 1.08rem; line-height: 2; background: #f7f8fa; padding: 20px; border-radius: 8px; }
+    fieldset { border: 0; padding: 0; margin: 24px 0; }
+    legend { font-weight: 700; margin-bottom: 8px; }
+    label { display: block; margin: 6px 0; }
+    button { font: inherit; padding: 10px 18px; border: 0; border-radius: 8px; background: #1769e0; color: white; cursor: pointer; }
+    button:disabled { background: #9aa0a6; }
+    .scale { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; text-align: center; }
+    .scale label { border: 1px solid #ddd; border-radius: 6px; padding: 5px 0; }
+    .muted { color: #5f6368; }
+    progress { width: 100%; }
+  </style>
+</head>
+<body>
+<main id="app"><p>読み込み中です。</p></main>
+<script>
+const app = document.querySelector('#app');
+let session, index = 0, answers = [], startedAt = 0;
+const scale = (name) => `<div class="scale">${[1,2,3,4,5,6,7].map(n => `<label><input required type="radio" name="${name}" value="${n}"><br>${n}</label>`).join('')}</div><div class="muted">1 = まったくそう思わない　／　7 = とてもそう思う</div>`;
+
+async function start() {
+  const attention = Number(document.querySelector('input[name=attention]:checked')?.value);
+  if (!attention || !document.querySelector('#consent').checked) return alert('同意欄と注意確認項目を確認してください。');
+  session = await fetch('/api/session', {cache:'no-store'}).then(r => r.json());
+  session.attention_check = attention;
+  showItem();
+}
+function intro() {
+  app.innerHTML = `<h1>日本語文章の読み方に関する調査</h1><div class="card">
+    <p>12個の短い文章を読み、それぞれの印象と内容確認に答えてください。所要時間は約15分です。</p>
+    <p>参加は任意で、いつでも終了できます。氏名、メールアドレス、IPアドレスは保存しません。回答は文章研究と執筆支援ツールの改善に利用し、集計結果のみを公開します。</p>
+    <label><input id="consent" type="checkbox"> 18歳以上で、説明を読み、回答の研究利用に同意します</label>
+    <fieldset><legend>注意確認: この項目では「4」を選んでください</legend>${scale('attention')}</fieldset>
+    <button onclick="start()">調査を始める</button></div>`;
+}
+function showItem() {
+  const item = session.items[index]; startedAt = performance.now();
+  app.innerHTML = `<progress value="${index}" max="12"></progress><p>${index+1} / 12</p>
+    <article class="passage">${item.text.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</article>
+    <form id="ratings"><fieldset><legend>文の流れが単調に感じられた</legend>${scale('monotony')}</fieldset>
+    <fieldset><legend>自然な日本語だと感じた</legend>${scale('naturalness')}</fieldset>
+    <fieldset><legend>内容を無理なく読み進められた</legend>${scale('readability')}</fieldset>
+    <fieldset><legend>${item.question.prompt}</legend>${item.question.choices.map((c,i)=>`<label><input required type="radio" name="comprehension" value="${i}"> ${c}</label>`).join('')}</fieldset>
+    <button>次へ</button></form>`;
+  document.querySelector('#ratings').addEventListener('submit', record);
+  scrollTo(0,0);
+}
+function record(event) {
+  event.preventDefault(); const form = new FormData(event.target), item = session.items[index];
+  answers.push({item_id:item.id, condition:item.condition, monotony:Number(form.get('monotony')), naturalness:Number(form.get('naturalness')), readability:Number(form.get('readability')), comprehension:Number(form.get('comprehension')), elapsed_ms:Math.round(performance.now()-startedAt)});
+  index += 1; index < 12 ? showItem() : submit();
+}
+async function submit() {
+  app.innerHTML = '<p>回答を送信しています。</p>';
+  const response = await fetch('/api/submit', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({participant_id:session.participant_id, attention_check:session.attention_check, answers})});
+  if (response.ok) app.innerHTML = '<h1>回答ありがとうございました</h1><p>送信が完了しました。この画面を閉じてください。</p>';
+  else app.innerHTML = '<h1>送信できませんでした</h1><p>通信環境を確認し、ページを再読み込みしてもう一度お試しください。</p>';
+}
+intro();
+</script>
+</body>
+</html>
