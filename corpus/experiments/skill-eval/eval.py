@@ -430,7 +430,7 @@ def build_structural_smell_prompt(output_path: Path) -> str:
 # lint 連携（参考記録。判定には使わない）
 # ---------------------------------------------------------------------------
 def run_lint_json(target_path: Path, timeout: int = 120) -> dict:
-    lint_script = REPO_ROOT / "scripts" / "lint.py"
+    lint_script = REPO_ROOT / "skills" / "natural-japanese" / "scripts" / "lint.py"
     try:
         result = subprocess.run(
             ["uv", "run", str(lint_script), str(target_path), "--json"],
@@ -805,7 +805,12 @@ def render_report(*, run_label: str, manifest_path: Path, model_apply: str,
         if not resolved.is_relative_to(REPO_ROOT.resolve()) or not resolved.is_file():
             return None
         rel = resolved.relative_to(REPO_ROOT.resolve())
-        if rel.parts and rel.parts[0] in ("references", "assets", "scripts") or str(rel) == "SKILL.md":
+        skill_prefix = ("skills", "natural-japanese")
+        if (
+            rel.parts[:2] == skill_prefix
+            and len(rel.parts) > 2
+            and (rel.parts[2] in ("references", "assets", "scripts") or rel.parts[2:] == ("SKILL.md",))
+        ):
             return resolved
         return None
 

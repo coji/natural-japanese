@@ -60,7 +60,7 @@ def load_lint_module():
     （scripts/calibrate.py は自身が scripts/ 内にあるためこの追加が不要だが、
     このスクリプトは corpus/experiments/ にあるため明示的に追加する）。
     """
-    scripts_dir = REPO_ROOT / "scripts"
+    scripts_dir = REPO_ROOT / "skills" / "natural-japanese" / "scripts"
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
     lint_path = scripts_dir / "lint.py"

@@ -44,7 +44,7 @@ def load_stimuli() -> list[dict]:
 
 
 def load_lint():
-    scripts = ROOT / "scripts"
+    scripts = ROOT / "skills" / "natural-japanese" / "scripts"
     sys.path.insert(0, str(scripts))
     spec = importlib.util.spec_from_file_location("reader_study_lint", scripts / "lint.py")
     module = importlib.util.module_from_spec(spec)

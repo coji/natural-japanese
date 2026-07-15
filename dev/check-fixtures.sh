@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Fixture regression check: verify scripts/lint.py detects the expected
+# Fixture regression check: verify skills/natural-japanese/scripts/lint.py detects the expected
 # number of findings on the checked-in fixtures. Catches drift caused by
 # lint rule changes or fixture edits (e.g. a fixture edit that accidentally
 # introduces/removes a detectable pattern) before it lands in a commit or
 # release.
 #
-# NOTE: If you intentionally change scripts/lint.py, scripts/textcore.py, or
-# scripts/fixtures/, update the expected counts below to match.
+# NOTE: If you intentionally change lint.py, textcore.py, or scripts/fixtures/
+# under skills/natural-japanese/, update the expected counts below to match.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LINT="${REPO_ROOT}/scripts/lint.py"
-SMELLY_FIXTURE="${REPO_ROOT}/scripts/fixtures/ai-smelly.md"
-NATURAL_FIXTURE="${REPO_ROOT}/scripts/fixtures/natural.md"
+LINT="${REPO_ROOT}/skills/natural-japanese/scripts/lint.py"
+SMELLY_FIXTURE="${REPO_ROOT}/skills/natural-japanese/scripts/fixtures/ai-smelly.md"
+NATURAL_FIXTURE="${REPO_ROOT}/skills/natural-japanese/scripts/fixtures/natural.md"
 
 # Expected finding counts. Update these if you deliberately change the
 # fixtures or the detector rules.

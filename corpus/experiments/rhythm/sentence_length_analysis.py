@@ -19,7 +19,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.stats import mannwhitneyu, pearsonr, spearmanr, wilcoxon
 
 ROOT = Path(__file__).resolve().parents[3]
-SCRIPTS = ROOT / "scripts"
+SCRIPTS = ROOT / "skills" / "natural-japanese" / "scripts"
 CORPUS = ROOT / "corpus"
 OUT_JSON = CORPUS / "reports/research/sentence-length-analysis.json"
 OUT_MD = CORPUS / "reports/research/sentence-length-analysis.md"

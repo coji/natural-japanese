@@ -68,7 +68,7 @@ SOURCES_JSON = CORPUS_DIR / "sources.json"
 
 
 def load_textcore():
-    scripts_dir = REPO_ROOT / "scripts"
+    scripts_dir = REPO_ROOT / "skills" / "natural-japanese" / "scripts"
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
     path = scripts_dir / "textcore.py"

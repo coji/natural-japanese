@@ -52,7 +52,7 @@ DEFAULT_MODEL = "cl-nagoya/ruri-v3-310m"
 
 
 def load_textcore():
-    scripts_dir = REPO_ROOT / "scripts"
+    scripts_dir = REPO_ROOT / "skills" / "natural-japanese" / "scripts"
     if str(scripts_dir) not in sys.path:
         sys.path.insert(0, str(scripts_dir))
     spec = importlib.util.spec_from_file_location("textcore", scripts_dir / "textcore.py")

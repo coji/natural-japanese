@@ -33,7 +33,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent.parent.parent
 CORPUS_DIR = REPO_ROOT / "corpus"
 CACHE_DIR = SCRIPT_DIR / "cache"
-SCRIPTS_DIR = REPO_ROOT / "scripts"
+SCRIPTS_DIR = REPO_ROOT / "skills" / "natural-japanese" / "scripts"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
 

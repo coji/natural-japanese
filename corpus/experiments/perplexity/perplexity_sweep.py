@@ -55,7 +55,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent.parent.parent
 CORPUS_DIR = REPO_ROOT / "corpus"
-SCRIPTS_DIR = REPO_ROOT / "scripts"
+SCRIPTS_DIR = REPO_ROOT / "skills" / "natural-japanese" / "scripts"
 SOURCES_JSON = CORPUS_DIR / "sources.json"
 OUT_DIR = SCRIPT_DIR
 

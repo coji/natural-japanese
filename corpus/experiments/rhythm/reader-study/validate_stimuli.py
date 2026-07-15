@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
 HERE = Path(__file__).resolve().parent
-SCRIPTS = ROOT / "scripts"
+SCRIPTS = ROOT / "skills" / "natural-japanese" / "scripts"
 CONDITIONS = {"uniform", "varied", "control"}
 
 

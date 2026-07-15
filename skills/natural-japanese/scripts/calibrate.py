@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPT_DIR.parent
+REPO_ROOT = SCRIPT_DIR.parents[2]  # scripts/ -> natural-japanese/ -> skills/ -> repo root
 CORPUS_DIR = REPO_ROOT / "corpus"
 REPORTS_DIR = CORPUS_DIR / "reports"
 
