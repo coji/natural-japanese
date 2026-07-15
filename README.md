@@ -26,10 +26,10 @@
 Python スクリプトの実行には [uv](https://docs.astral.sh/uv/) が必要です。
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-# または
 brew install uv
 ```
+
+Homebrew を使わない場合は [uv 公式のインストールガイド](https://docs.astral.sh/uv/getting-started/installation/) を参照してください。
 
 `pip install` や venv の手動セットアップは不要です。依存関係（sudachipy, sudachidict-core）は
 検査層の3エントリスクリプト（`skills/natural-japanese/scripts/` の `lint.py` / `outline.py` / `terms.py`）
