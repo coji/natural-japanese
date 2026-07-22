@@ -8,7 +8,7 @@
       "name": "natural-japanese",
       "source": "./",
       "description": "仕事の日本語文書を読みやすくわかりやすく書く・直すためのスキル。AI臭さの除去を工程の一部として組み込む。",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "author": {
         "name": "coji"
       }
