@@ -786,6 +786,17 @@ def tokenize_sentences(sentences: list[tuple[int, str, str]]) -> list[TokenizedS
     return result
 
 
+def _strip_leading_symbols(morphemes: list) -> list:
+    """文頭の記号（Markdown の `**` `![` `*` など）を除いた実質的な先頭形態素列を返す。
+
+    sudachi はこれらをいずれも「補助記号」として切り出すため、品詞で落とせる。
+    """
+    i = 0
+    while i < len(morphemes) and morphemes[i].part_of_speech()[0] in TRAILING_SYMBOL_POS:
+        i += 1
+    return morphemes[i:]
+
+
 def _strip_trailing_symbols(morphemes: list) -> list:
     """文末の記号（」など）を除いた実質的な最終形態素列を返す。"""
     i = len(morphemes)
@@ -1110,7 +1121,13 @@ def detect_ngram_repetition(
 
     lead_bigrams = []
     for ts in tokenized:
-        lead_morphemes = ts.morphemes[:2]
+        # 文頭の補助記号を落としてから2形態素を取る。マスク処理は行単位の構造
+        # （見出し・リスト・引用・表）とインラインコード/URLしか落とさないため、
+        # インラインの強調記法（`**強調**`）や画像記法（`![alt](url)`）のマーカーが
+        # 文頭に残る。これを数えると「文頭2形態素が **」という無意味な反復が量産される。
+        # zenn-content 60本の実測で repeated_sentence_lead 236件のうち 100件（42%）が
+        # この記号由来だった（`**` 88件 / `![` 12件）。
+        lead_morphemes = _strip_leading_symbols(ts.morphemes)[:2]
         surfaces = [m.surface() for m in lead_morphemes]
         if len(surfaces) == 2:
             is_tech_lead = _is_proper_noun_or_tech_term(lead_morphemes[0])
@@ -1149,7 +1166,9 @@ def detect_ngram_repetition(
 
     lead_pos_ngrams = []
     for ts in tokenized:
-        pos_seq = tuple(m.part_of_speech()[0] for m in ts.morphemes[:4])
+        # 文頭2形態素と同じ理由で、ここでも文頭の補助記号を落としてから品詞列を取る
+        # （落とさないと「補助記号/補助記号/名詞/助詞」が量産され一致率が跳ね上がる）。
+        pos_seq = tuple(m.part_of_speech()[0] for m in _strip_leading_symbols(ts.morphemes)[:4])
         if len(pos_seq) == 4:
             lead_pos_ngrams.append((ts.line, ts.raw_text, pos_seq))
 
