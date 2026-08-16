@@ -364,6 +364,11 @@ GENRE_PROFILES: dict[str, dict] = {
         # 依然として人間の意図的反復技法との区別はつかないため、共通閾値より
         # わずかに低いだけに留める（過検出を避ける）。
         "lead_repeat_threshold": 5,
+        # 読解負荷レーン（--reading-load）の一文長の目安。readability-sweep.md の
+        # 候補1（文長）で、essay だけがジャンル別FP率6.7%と唯一5%を超えた
+        # （tech/business はいずれも0.0%）。エッセイの長い一文は書き手の呼吸で
+        # あることが多いため、共通の90字より緩める。
+        "reading_load_sentence_max_chars": 110,
     },
     "tech": {
         # tech記事は人間もAIも見出し・箇条書き構成に寄るため差が縮む。
@@ -786,6 +791,17 @@ def tokenize_sentences(sentences: list[tuple[int, str, str]]) -> list[TokenizedS
     return result
 
 
+def _strip_leading_symbols(morphemes: list) -> list:
+    """文頭の記号（Markdown の `**` `![` `*` など）を除いた実質的な先頭形態素列を返す。
+
+    sudachi はこれらをいずれも「補助記号」として切り出すため、品詞で落とせる。
+    """
+    i = 0
+    while i < len(morphemes) and morphemes[i].part_of_speech()[0] in TRAILING_SYMBOL_POS:
+        i += 1
+    return morphemes[i:]
+
+
 def _strip_trailing_symbols(morphemes: list) -> list:
     """文末の記号（」など）を除いた実質的な最終形態素列を返す。"""
     i = len(morphemes)
@@ -1110,7 +1126,13 @@ def detect_ngram_repetition(
 
     lead_bigrams = []
     for ts in tokenized:
-        lead_morphemes = ts.morphemes[:2]
+        # 文頭の補助記号を落としてから2形態素を取る。マスク処理は行単位の構造
+        # （見出し・リスト・引用・表）とインラインコード/URLしか落とさないため、
+        # インラインの強調記法（`**強調**`）や画像記法（`![alt](url)`）のマーカーが
+        # 文頭に残る。これを数えると「文頭2形態素が **」という無意味な反復が量産される。
+        # zenn-content 60本の実測で repeated_sentence_lead 236件のうち 100件（42%）が
+        # この記号由来だった（`**` 88件 / `![` 12件）。
+        lead_morphemes = _strip_leading_symbols(ts.morphemes)[:2]
         surfaces = [m.surface() for m in lead_morphemes]
         if len(surfaces) == 2:
             is_tech_lead = _is_proper_noun_or_tech_term(lead_morphemes[0])
@@ -1149,7 +1171,9 @@ def detect_ngram_repetition(
 
     lead_pos_ngrams = []
     for ts in tokenized:
-        pos_seq = tuple(m.part_of_speech()[0] for m in ts.morphemes[:4])
+        # 文頭2形態素と同じ理由で、ここでも文頭の補助記号を落としてから品詞列を取る
+        # （落とさないと「補助記号/補助記号/名詞/助詞」が量産され一致率が跳ね上がる）。
+        pos_seq = tuple(m.part_of_speech()[0] for m in _strip_leading_symbols(ts.morphemes)[:4])
         if len(pos_seq) == 4:
             lead_pos_ngrams.append((ts.line, ts.raw_text, pos_seq))
 
@@ -1669,6 +1693,388 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 
 
 # ---------------------------------------------------------------------------
+# 読解負荷レーン（推敲用の指さし）
+#
+# ここに並ぶ検出器は「AI臭さ」を測らない。自然度スコアにも、by_category 集計にも、
+# --baseline 比較にも一切入らない。目的は「読みやすい文章に直す」ことだけで、
+# 出力は「この文を見ろ」という指さしに留める（severity は常に info）。
+#
+# なぜ別レーンなのか:
+#     corpus/reports/readability-sweep.md は、ここに実装した指標のほとんど
+#     （文長・読点密度・二重否定・漢字比率）を候補として検証し、すべて NO-GO と
+#     判定している。ただしその判定基準は「AI か人間かを弁別できるか」「下手な人間の
+#     文章を当てられるか」であり、分類器としての採否基準だった。文長の AI 検出率が
+#     1.0% だったのは「長い文は AI の証拠にならない」という意味であって、
+#     「長い文は読みやすい」という意味ではない。レポート自身が結論している
+#     とおり、検証した14候補は「『AIらしさ』の代理指標であり『文章の読みにくさ』の
+#     直接的な代理指標にはなっていない」。
+#
+#     したがってこのレーンの採否基準は弁別力ではなく、「指摘に従って直した文が、
+#     原文より読みやすくなるか」に置く。その基準での校正が済むまでは opt-in
+#     （--reading-load）に留め、既存の findings / stats / baseline には混ぜない。
+#     混ぜた瞬間に「AI臭さの採点」と「読みやすさの推敲」という別目的の指標が
+#     同じスコアに乗ってしまい、どちらの判断も濁る。
+#
+# このレーンが存在する理由（検出器を足すかどうかの判断基準）:
+#     lint.py 本体が機械検出を要求するのは「AI は自分の AI 臭さを認識できない」からである。
+#     しかし読解負荷は AI に見える。142字の文は、読めば長いと分かる。
+#     ではなぜ検出器が要るのか——**網羅性**のためである。15,000字の文書を読む AI は、
+#     11本ある長文のうち何本かには気づくが、全部には気づかない。機械なら全部を決定的に拾う。
+#
+#     したがって、このレーンに検出器を足してよいのは「AI が読み流すと見落とすもの」だけ。
+#     読めば確実に気づくものに検出器を足しても、指摘が増えるだけで判断は良くならない。
+#     この基準により、接続助詞「が」の連鎖を指す doubled_conjunctive_ga は削除した
+#     （AI生成9,889文で1件・人間執筆379文で0件。見落とし以前に、そもそも起きていない）。
+#
+# 各検出器は references/readability-antipatterns.md の A〜J カタログに対応する。
+# 閾値は当面 textlint-rule-preset-ja-technical-writing の既定値に合わせた暫定値で、
+# 上記の基準で校正して調整する。
+# ---------------------------------------------------------------------------
+
+READING_LOAD_SENTENCE_MAX_CHARS = 90  # B1: これを超える文を指さす
+# F1: 読点区切りの名詞句がこの個数以上連続し、かつ文がこの長さ以上なら埋もれた列挙とみなす。
+# 当初は「読点が4個以上（B4）」で実装したが、artifactshare コーパス241本の校正で
+# 62% の文書が発火し、しかも中身はほぼ全部が同格の列挙だった（「一覧、件数、絞り込み、
+# アクセス判定では〜」など）。読点の打ち方の問題ではなく列挙の構造化の問題なので、
+# カタログ B4 ではなく F1 を指す検出器に置き換えた。
+READING_LOAD_BURIED_LIST_MIN_ITEMS = 3
+READING_LOAD_BURIED_LIST_MIN_CHARS = 50
+# 同じ校正で、項目3個の指摘は精度が落ちた（括弧の中だけの列挙や、並列の条件節を
+# 列挙と誤認する例が混ざる。4個以上はほぼ全件が真の列挙だった）。3個のときだけ
+# 対象をより長い文に絞る。短い3項目は箇条書きにするまでもないことが多い。
+READING_LOAD_BURIED_LIST_3ITEM_MIN_CHARS = 80
+READING_LOAD_KANJI_RUN_MAX = 6  # C1: 連続漢字がこれを超える（7字以上）
+READING_LOAD_NO_CHAIN_MIN = 3  # C2: 格助詞「の」がこの回数以上連鎖する
+# A1/A2: 2つの否定形態素がこの距離以内に並ぶと二重否定の候補とみなす。
+# 「招かないとは言えません」（招か/ない/と/は/言え/ませ/ん = 距離5）まで拾える値。
+READING_LOAD_NEGATION_MAX_GAP = 6
+
+READING_LOAD_CATEGORIES: set[str] = {
+    "sentence_too_long",
+    "buried_list",
+    "kanji_run",
+    "double_negative",
+    "no_chain",
+}
+
+_KANJI_RUN_RE = re.compile(rf"[一-鿿々]{{{READING_LOAD_KANJI_RUN_MAX + 1},}}")
+
+# 否定を表す形態素。sudachi は形容詞の「ない」を「無い」に、助動詞の「ん」（「言えません」の
+# 「ん」）を「ず」に正規化するため、表層ではなく正規化形で判定する。
+# 「ぬ」（「知らぬ」）も同系統だが正規化形は「ぬ」のまま出るので両方持つ。
+_NEGATION_NORMALIZED = {"ない", "無い", "ぬ", "ず"}
+_NEGATION_POS = {"助動詞", "形容詞"}
+
+
+_WHITESPACE_RUN_RE = re.compile(r"\s{2,}")
+
+
+def _reading_length(text: str) -> int:
+    """読み手が実際に読む文字数の近似を返す。
+
+    mask_markdown_structure() は Markdown リンクの URL 部分とインラインコード
+    スパンを「同じ文字数の空白」に置換して行内オフセットを保つ。その空白は
+    読み手の目には映らないので、素の len() で数えると URL の長い文ほど不当に
+    長く見積もられる（実測 50字ほどの文が 90字超と判定された）。
+    2文字以上続く空白を1文字に畳んでから数えることで、URL・コードスパンの
+    見かけの長さを取り除く。英単語のあいだの単独スペースは読む対象なので残す。
+    """
+    return len(_WHITESPACE_RUN_RE.sub(" ", text).strip())
+
+
+def _span_contains_proper_noun(morphemes: list, start: int, end: int) -> bool:
+    """文字オフセット [start, end) に重なる形態素に固有名詞が含まれるか。
+
+    sudachi の Morpheme.begin()/end() は解析対象文字列上のオフセットを返すので、
+    同じ文字列に対する正規表現マッチの位置とそのまま突き合わせられる。
+    """
+    for m in morphemes:
+        if m.end() > start and m.begin() < end and m.part_of_speech()[1] == "固有名詞":
+            return True
+    return False
+
+
+def _is_negation(morpheme) -> bool:
+    return (
+        morpheme.part_of_speech()[0] in _NEGATION_POS
+        and morpheme.normalized_form() in _NEGATION_NORMALIZED
+    )
+
+
+# 形の上では否定が二重に掛かるが、義務・必然を表す語彙化した定型で、読み手が
+# 符号の反転を計算することはない表現。実測（音楽レーベル記事の「同じ顔を保たないと
+# いけません」）で誤検知したため除外する。二重否定の litotes（「ないわけではない」
+# 「ないとは言えない」）はこれらの部分文字列を含まないので取りこぼさない。
+_OBLIGATION_SPANS = (
+    "といけ",
+    "とだめ",
+    "とダメ",
+    "ばならな",
+    "ばなりま",
+    "ばいけな",
+    "てはならな",
+    "てはなりま",
+    "てはいけな",
+    "ざるを得",
+    "ざるをえ",
+)
+
+
+def _is_obligation_form(span: str) -> bool:
+    return any(s in span for s in _OBLIGATION_SPANS)
+
+
+# 「〜ないと動かない」「〜なければ意味がない」のような、条件節の否定と帰結の否定が
+# 並ぶ形。形の上では否定が2つあるが、日本語で必要条件を述べる標準的な言い方であり、
+# 読み手が符号の反転を計算することはない。artifactshare コーパス241本の校正で、
+# double_negative の誤検知のうち最大の塊がこの形だった。
+# 「〜ないとは言えない」（真の litotes）は「と」の直後に「は」が来るので除外しない。
+_CONDITIONAL_NEGATION_RE = re.compile(r"^(?:ない|なけれ|なく)(?:と(?!は)|ば|ければ)")
+
+
+def _is_conditional_negation(span: str) -> bool:
+    return bool(_CONDITIONAL_NEGATION_RE.match(span))
+
+
+_OPEN_PARENS = ("（", "(", "「", "『", "【", "［", "[")
+_CLOSE_PARENS = ("）", ")", "」", "』", "】", "］", "]")
+
+
+def _segment_ends_with_noun(segment: list) -> bool:
+    """読点で区切られた1区画が名詞で終わる（＝述語を持たない名詞句）かを判定する。
+
+    末尾の補助記号を落とすだけでは「確認ポイント（どのアプリが前面に出るか）」のような
+    括弧付きの項目を取りこぼすため、末尾の括弧グループごと遡ってから品詞を見る。
+    """
+    i = len(segment)
+    while i > 0:
+        m = segment[i - 1]
+        if m.part_of_speech()[0] not in TRAILING_SYMBOL_POS:
+            break
+        if m.surface() in _CLOSE_PARENS:
+            depth = 1
+            j = i - 1
+            while j > 0 and depth:
+                j -= 1
+                s = segment[j].surface()
+                if s in _CLOSE_PARENS:
+                    depth += 1
+                elif s in _OPEN_PARENS:
+                    depth -= 1
+            i = j
+        else:
+            i -= 1
+    return i > 0 and segment[i - 1].part_of_speech()[0] == "名詞"
+
+
+def _longest_noun_phrase_run(morphemes: list) -> tuple[int, int, int] | None:
+    """読点区切りの区画のうち、名詞で終わる区画が連続する最長の並びを返す。
+
+    戻り値は (開始形態素index, 終了形態素index, 区画数)。
+    READING_LOAD_BURIED_LIST_MIN_ITEMS 個に満たなければ None。
+    """
+    bounds: list[tuple[int, int]] = []
+    start = 0
+    for i, m in enumerate(morphemes):
+        if m.surface() == "、":
+            bounds.append((start, i))
+            start = i + 1
+    bounds.append((start, len(morphemes)))
+
+    # 列挙の最後の項目は述語に溶けるのが普通なので（「A、B、C を行います」の C）、
+    # 裸の名詞句で終わる区画は項目数より1つ少なく数えられる。連続する名詞句区画が
+    # (MIN_ITEMS - 1) 個あり、そのあとに区画が続いていれば、その続きを最後の項目
+    # とみなして列挙と判定する。
+    need = READING_LOAD_BURIED_LIST_MIN_ITEMS - 1
+    best: tuple[int, int, int] | None = None
+    run: list[tuple[int, int]] = []
+    for idx, (s, e) in enumerate(bounds):
+        if e > s and _segment_ends_with_noun(morphemes[s:e]):
+            run.append((s, e))
+        else:
+            run = []
+        has_tail = idx + 1 < len(bounds)
+        if len(run) >= need and has_tail:
+            items = len(run) + 1
+            if best is None or items > best[2]:
+                best = (run[0][0], bounds[idx + 1][1], items)
+    return best
+
+
+def _has_punctuation_between(morphemes: list, i: int, j: int) -> bool:
+    """morphemes[i] と morphemes[j] のあいだに読点などの補助記号があるか。
+
+    「行かないし、来ない」のように、読点をまたいで別々の節がそれぞれ否定されている
+    ケースを二重否定（「〜ないわけではない」）と誤認しないためのガード。
+    """
+    return any(m.part_of_speech()[0] == "補助記号" for m in morphemes[i + 1 : j])
+
+
+def detect_reading_load(
+    tokenized: list[TokenizedSentence],
+    sentence_max_chars: int = READING_LOAD_SENTENCE_MAX_CHARS,
+) -> list[Finding]:
+    """読解負荷の高い箇所を指さす（判定もスコアも出さない）。
+
+    対応カタログは references/readability-antipatterns.md。
+    """
+    findings: list[Finding] = []
+    for ts in tokenized:
+        text = ts.text
+        excerpt = (ts.raw_text or text).strip()[:40]
+
+        # --- B1: 一文が長すぎる ---
+        reading_len = _reading_length(text)
+        if reading_len > sentence_max_chars:
+            findings.append(
+                Finding(
+                    line=ts.line,
+                    category="sentence_too_long",
+                    excerpt=excerpt,
+                    severity="info",
+                    detail=(
+                        f"一文が{reading_len}字（目安{sentence_max_chars}字）。"
+                        "カタログ B1。一文一義になっているか確認する"
+                        "（分割の結果、字数が増えるのは正しい）"
+                    ),
+                )
+            )
+
+
+        # --- C1: 連続漢字 ---
+        for m in _KANJI_RUN_RE.finditer(text):
+            # 固有名詞を含む連なりは除外する（「東京地方裁判所」「特定商取引法表示」など）。
+            # 分解できない名前であって、書き手が直せる読みにくさではない。
+            # 241本の校正では、拾いたい側（「初回課金転換率」「視覚回帰受領証」のような
+            # AI が作る圧縮漢語）はいずれも普通名詞だけで構成されていた。
+            if _span_contains_proper_noun(ts.morphemes, m.start(), m.end()):
+                continue
+            findings.append(
+                Finding(
+                    line=ts.line,
+                    category="kanji_run",
+                    excerpt=m.group(0),
+                    severity="info",
+                    detail=(
+                        f"漢字が{len(m.group(0))}字連続（目安{READING_LOAD_KANJI_RUN_MAX}字）。"
+                        "カタログ C1。語の切れ目が読み取れるか確認する"
+                    ),
+                )
+            )
+
+        morphemes = ts.morphemes
+
+        # --- F1: 埋もれた列挙 ---
+        run = _longest_noun_phrase_run(morphemes)
+        if run is not None:
+            start, end, items = run
+            min_chars = (
+                READING_LOAD_BURIED_LIST_3ITEM_MIN_CHARS
+                if items <= 3
+                else READING_LOAD_BURIED_LIST_MIN_CHARS
+            )
+        if run is not None and reading_len >= min_chars:
+            findings.append(
+                Finding(
+                    line=ts.line,
+                    category="buried_list",
+                    excerpt="".join(m.surface() for m in morphemes[start:end])[:40],
+                    severity="info",
+                    detail=(
+                        f"同格の名詞句が読点で{items}個並んでいる（一文{reading_len}字）。"
+                        "カタログ F1。箇条書きに開くと並列関係を読み手が再構成せずに済む"
+                        "（「**項目**: 説明」の定型にはしない）"
+                    ),
+                )
+            )
+
+        # --- A1/A2: 二重否定・否定の入れ子 ---
+        negation_idx = [i for i, m in enumerate(morphemes) if _is_negation(m)]
+        for a, b in zip(negation_idx, negation_idx[1:]):
+            span = "".join(m.surface() for m in morphemes[a : b + 1])
+            if (
+                b - a <= READING_LOAD_NEGATION_MAX_GAP
+                and not _has_punctuation_between(morphemes, a, b)
+                and not _is_obligation_form(span)
+                and not _is_conditional_negation(span)
+            ):
+                findings.append(
+                    Finding(
+                        line=ts.line,
+                        category="double_negative",
+                        excerpt=span,
+                        severity="info",
+                        detail=(
+                            "否定が二重に掛かっている可能性。カタログ A1/A2。"
+                            "肯定に畳むなら真偽が反転していないか必ず確認する"
+                            "（「招かないとは言えない」＝「招くことがある」）。"
+                            "控えめな肯定が本質的な箇所は触らない"
+                        ),
+                    )
+                )
+                break
+
+        # --- C2: 「の」の連鎖 ---
+        no_idx = [
+            i
+            for i, m in enumerate(morphemes)
+            if m.surface() == "の" and m.part_of_speech()[:2] == ("助詞", "格助詞")
+        ]
+        for k in range(len(no_idx) - READING_LOAD_NO_CHAIN_MIN + 1):
+            window = no_idx[k : k + READING_LOAD_NO_CHAIN_MIN]
+            gaps_ok = all(y - x <= 3 for x, y in zip(window, window[1:]))
+            if gaps_ok and not _has_punctuation_between(morphemes, window[0], window[-1]):
+                findings.append(
+                    Finding(
+                        line=ts.line,
+                        category="no_chain",
+                        excerpt="".join(m.surface() for m in morphemes[window[0] : window[-1] + 1]),
+                        severity="info",
+                        detail=(
+                            f"格助詞「の」が{READING_LOAD_NO_CHAIN_MIN}連以上。カタログ C2。"
+                            "どこかを動詞・連用に開く（「上限の設定の検討」→「上限をどう設定するか検討する」）"
+                        ),
+                    )
+                )
+                break
+
+    findings.sort(key=lambda f: f.line)
+    return findings
+
+
+def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Finding], dict]:
+    """読解負荷レーンだけを実行する。
+
+    run_lint() とは意図的に独立した関数にしてある。既存の findings / stats /
+    baseline 比較に読解負荷の finding が混入する経路を、構造として作らないため。
+    マスク・文分割・形態素解析の手順は run_lint() と同じで、Tokenizer は
+    textcore.get_tokenizer() のシングルトンを共有する。
+    """
+    profile = GENRE_PROFILES.get(genre, {})
+    text = mask_markdown_structure(raw_text)
+    lines = iter_lines_with_no(text)
+    raw_lines_by_no = dict(iter_lines_with_no(raw_text))
+    sentences = split_sentences_with_lines(lines, raw_lines_by_no)
+    tokenized = tokenize_sentences(sentences)
+
+    findings = detect_reading_load(
+        tokenized,
+        sentence_max_chars=profile.get(
+            "reading_load_sentence_max_chars", READING_LOAD_SENTENCE_MAX_CHARS
+        ),
+    )
+    stats = {
+        "total": len(findings),
+        "sentences": len(tokenized),
+        "genre": genre,
+        "by_category": {},
+    }
+    for f in findings:
+        stats["by_category"][f.category] = stats["by_category"].get(f.category, 0) + 1
+    return findings, stats
+
+
+# ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
 
@@ -1838,6 +2244,31 @@ def print_human_report(
         print()
 
 
+def print_reading_load_report(findings: list[Finding], stats: dict) -> None:
+    """読解負荷レーンを、AI臭さの検出結果とは視覚的にも分けて出力する。"""
+    print("=== 読解負荷（推敲用の指さし・自然度スコアには含まない） ===")
+    print(f"指摘件数: {stats.get('total', len(findings))}（本文 {stats.get('sentences', 0)} 文）")
+    if stats.get("by_category"):
+        print("カテゴリ別内訳:")
+        for cat, count in sorted(stats["by_category"].items(), key=lambda kv: -kv[1]):
+            print(f"  - {cat}: {count}")
+    print()
+
+    if not findings:
+        print("指摘なし。")
+        return
+
+    for f in findings:
+        print(f"[指さし] L{f.line} ({f.category})")
+        print(f"    該当箇所: {f.excerpt}")
+        if f.detail:
+            print(f"    詳細    : {f.detail}")
+        print()
+
+    print("※ これらは「直すべき欠陥」ではなく「見るべき箇所」。読んで引っかからない文はいじらない。")
+    print("※ 判断は references/readability-antipatterns.md の A〜J カタログに従う。")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="AI臭い日本語文章を決定的に検出する lint スクリプト（CI ゲートではない）。"
@@ -1872,6 +2303,15 @@ def main() -> int:
             "（EXPERIMENTAL_CATEGORIES）も出力する。デフォルトでは除外される"
         ),
     )
+    parser.add_argument(
+        "--reading-load",
+        action="store_true",
+        help=(
+            "読解負荷レーン（一文長・埋もれた列挙・連続漢字・二重否定・「の」連鎖）を"
+            "併せて出力する。AI臭さの検出とは別目的の推敲用の指さしで、"
+            "自然度スコアにも --baseline 比較にも含まれない"
+        ),
+    )
     args = parser.parse_args()
 
     # 「文章の中身に関する判断」と「そもそも実行できない入力エラー」は区別する。
@@ -1904,6 +2344,13 @@ def main() -> int:
 
     findings, stats = run_lint(text, genre=args.genre, experimental=args.experimental)
 
+    # 読解負荷レーンは完全に別扱いにする。findings にも stats にも混ぜず、
+    # --baseline 比較（compute_baseline_diff）にも渡さない。
+    reading_load_findings: list[Finding] | None = None
+    reading_load_stats: dict | None = None
+    if args.reading_load:
+        reading_load_findings, reading_load_stats = run_reading_load(text, genre=args.genre)
+
     resolved: list[dict] = []
     baseline_summary: dict[str, int] | None = None
     if baseline_data is not None:
@@ -1923,9 +2370,18 @@ def main() -> int:
                 "summary": baseline_summary,
                 "resolved": resolved,
             }
+        # --reading-load を指定したときだけ独立したセクションを追加する
+        # （指定しない場合の JSON 構造は従来と完全に同じ）。
+        if reading_load_findings is not None:
+            output["reading_load"] = {
+                "stats": reading_load_stats,
+                "findings": [f.to_dict() for f in reading_load_findings],
+            }
         print(json.dumps(output, ensure_ascii=False, indent=2))
     else:
         print_human_report(args.file, findings, stats, baseline_summary)
+        if reading_load_findings is not None:
+            print_reading_load_report(reading_load_findings, reading_load_stats or {})
 
     # lint であって CI ゲートではない。文章の検出結果は件数に関わらず常に exit 0 とし、
     # 修正するかどうかの判断は人間（または後続の AI 自己点検フロー）に委ねる。
