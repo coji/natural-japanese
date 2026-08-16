@@ -14,8 +14,8 @@ corpus/ai/*
 # と research/ の作業メモは原則非コミット。research/ 内でも、公開用に整理した
 # 文献レビューと証拠表は個別にコミット対象へ戻す。
 # readability-sweep.md / business-calibration.md / business-fp-check.md /
-# antithesis-recalibration.md は、ドキュメントから参照される根拠レポートのため
-# 例外的にコミット対象とする（著作権のある引用は含まない）
+# antithesis-recalibration.md / reading-load-calibration.md は、ドキュメントから
+# 参照される根拠レポートのため例外的にコミット対象とする（著作権のある引用は含まない）
 corpus/reports/*
 !corpus/reports/.gitkeep
 !corpus/reports/readability-sweep.md
@@ -23,6 +23,7 @@ corpus/reports/*
 !corpus/reports/business-fp-check.md
 !corpus/reports/antithesis-recalibration.md
 !corpus/reports/nn-detector-sweep.md
+!corpus/reports/reading-load-calibration.md
 # skill-eval-findings.md は corpus/experiments/skill-eval/eval.py が生成する、
 # スキル適用の抽象化された所見レポート（元文書の本文・固有名詞・数値は含まない）
 !corpus/reports/skill-eval-findings.md
