@@ -3,7 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-仕事の日本語を、読みやすくわかりやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成といった仕事の文書から、note・ブログ・エッセイまで。AIと文書を作るとき毎回プロンプトに書いている指示——結論から書いて、論旨を明確に、見出しは端的に、専門用語は文中で説明して——を、書く前の設計・書くときの制約・書いた後の検査の全工程に組み込みます。AI臭さ（AIっぽい／機械翻訳っぽい）の除去は工程の一部です。
+仕事の日本語を、読みやすくわかりやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成といった仕事の文書から、note・ブログ・エッセイまで扱います。
+
+AIと文書を作るとき、毎回プロンプトに書いている指示があるはずです。結論から書いて。論旨を明確に。見出しは端的に。専門用語は文中で説明して。このスキルは、そうした指示を「書く前の設計」「書くときの制約」「書いた後の検査」の全工程に組み込みます。AI臭さ（AIっぽい／機械翻訳っぽい）の除去も工程の一部です。
 
 > An Agent Skill for writing clear, readable Japanese work documents — designing the argument before writing, constraining generation with a 12-article style constitution, then mechanically detecting "AI-smelling" patterns via sudachipy morphological analysis and iterating until the text converges.
 
@@ -11,15 +13,17 @@
 
 軸は二つあります。
 
-第一に「検出は機械、判断は人間（またはAI）」。AI は自分自身の AI 臭さを認識しにくい、という前提に立ち、修正の前にまず `skills/natural-japanese/scripts/lint.py` が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。何をどう直すかはエージェント（あなた）の判断に委ねます。
+第一に「検出は機械、判断は人間（またはAI）」。AI は自分自身の AI 臭さを認識しにくい、という前提に立ち、修正の前にまず [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。
 
-- 禁止語・紋切り型フレーズの検出（`skills/natural-japanese/references/forbidden-patterns.md`）
-- 文リズムの単調さ、段落構造の均質さの検出
-- 英語統語の直訳調（無生物主語+他動詞、連体修飾の入れ子など）の検出
+- 禁止語・紋切り型フレーズ（[`forbidden-patterns.md`](./skills/natural-japanese/references/forbidden-patterns.md)）
+- 文リズムの単調さ、段落構造の均質さ
+- 英語統語の直訳調（無生物主語+他動詞、連体修飾の入れ子など）
 
-第二に「事後修正より生成時制約」。書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しスケルトン）と書くときの制約（`skills/natural-japanese/references/writing-constitution.md` の文体憲法12箇条）で発生自体を防ぐほうが効きます。文書タイプ別の型——議事録・調査レポート・社内ガイド・リサーチメモ/ディスカッションペーパー・スライド構成——は `skills/natural-japanese/references/doctypes/` にまとめてあります。
+何をどう直すかはエージェント（あなた）の判断に委ねます。
 
-一方で、語順・読点の位置・一文一義・主語述語の距離といった「そもそも読みにくい」領域は、コーパス検証の結果、機械的な閾値化ができない判断領域だと判明しています（`corpus/reports/readability-sweep.md`）。この領域は検出器を増やすのではなく、`skills/natural-japanese/references/readability-principles.md`（ジャンル横断の一般原則）と `skills/natural-japanese/references/readability-antipatterns.md`（悪文パターンカタログ）を参照しながら、AI自身が周回ごとに目視でレビューする設計にしています。ジャンル（tech/business/essay/公用文）ごとの判断の重みづけの違いは `skills/natural-japanese/references/genre-notes.md` にまとめてあります。
+第二に「事後修正より生成時制約」。AI臭は個々の語句だけでなく、段落の均質さや論旨の運びといった構造にも染み込むため、書き上がってから消そうとすると書き直しに近い作業になります。だから書く前に読者・主メッセージ・見出しスケルトンを決め、書くときは文体憲法12箇条（[`writing-constitution.md`](./skills/natural-japanese/references/writing-constitution.md)）を制約として、発生自体を防ぎます。文書タイプ別の型は [`doctypes/`](./skills/natural-japanese/references/doctypes/) にまとめてあります。
+
+一方で、語順・読点の位置・一文一義・主語述語の距離といった「そもそも読みにくい」領域は、コーパス検証の結果、機械的な閾値化ができない判断領域だと判明しています（[`readability-sweep.md`](./corpus/reports/readability-sweep.md)）。この領域で機械に持たせないのは判定です。ジャンル横断の一般原則（[`readability-principles.md`](./skills/natural-japanese/references/readability-principles.md)）と悪文パターンカタログ（[`readability-antipatterns.md`](./skills/natural-japanese/references/readability-antipatterns.md)）を参照しながら、AI自身が周回ごとに目視でレビューします。ただし「ここを見てください」という指し示しだけなら機械にもできるため、v1.4.0 で読解負荷レーン（`lint.py --reading-load`、opt-in）を追加しました。一文の長さや埋もれた列挙など5つの検出器が severity info のみで指し、自然度スコアにも `--baseline` 差分にも混ぜません。判断の重みづけがジャンルごとにどう違うかは [`genre-notes.md`](./skills/natural-japanese/references/genre-notes.md) にまとめてあります。
 
 ## 前提条件
 
@@ -31,16 +35,13 @@ brew install uv
 
 Homebrew を使わない場合は [uv 公式のインストールガイド](https://docs.astral.sh/uv/getting-started/installation/) を参照してください。
 
-`pip install` や venv の手動セットアップは不要です。依存関係（sudachipy, sudachidict-core）は
-検査層の3エントリスクリプト（`skills/natural-japanese/scripts/` の `lint.py` / `outline.py` / `terms.py`）
-それぞれの冒頭にある PEP 723 インラインメタデータで宣言されており、`uv run` が実行時に自動解決します
-（共有基盤の `textcore.py` はエントリポイントではないため、このメタデータを持ちません）。
+`pip install` や venv の手動セットアップは不要です。依存関係（sudachipy, sudachidict-core）は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されており、`uv run` が実行時に自動解決します。
 
 ## インストール
 
 このスキルは4つのチャネルで配布しています。
 
-### 1. `npx skills add`（推奨・シンプル）
+### 1. `npx skills add`（推奨）
 
 ```bash
 npx skills add coji/natural-japanese
@@ -64,7 +65,7 @@ npx openskills sync
 /plugin install natural-japanese@natural-japanese
 ```
 
-`.claude-plugin/marketplace.json` と `.claude-plugin/plugin.json` を使い、`skills/natural-japanese/` をプラグインとして配布します。
+`.claude-plugin/` のマニフェストを使い、`skills/natural-japanese/` をプラグインとして配布します。
 
 ### 4. GitHub Releases の `.skill`(zip)をダウンロード
 
@@ -74,21 +75,21 @@ npx openskills sync
 
 スキルをインストールした状態で、以下のような場面で自動的に発動します。
 
-- 議事録の作成（文字起こしからの議事録化を含む）、調査レポート・分析レポート、社内ガイド・マニュアル、リサーチメモ・ディスカッションペーパー・企画書、スライド構成案といった仕事の文書の作成・校正（ビジネス文書なら `--genre business` を使う）
+- 議事録やレポート、企画書といった仕事の文書の作成・校正（文字起こしからの議事録化も含む）
 - 「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示
-- 「AIっぽい」「AI臭い」「機械翻訳っぽい」「不自然」といった指摘への修正、AI臭さの診断・採点（`/natural-japanese score <ファイル>` — 書き換えずに自然度スコア(0〜100、高いほど自然)と理由を返す）
+- 「AIっぽい」「機械翻訳っぽい」「不自然」といった指摘への修正
+- AI臭さの診断・採点。`/natural-japanese score <ファイル>` で、書き換えずに自然度スコア（0〜100、高いほど自然）と理由を返します
 - 「読みにくい」「何が言いたいか分からない」「一文が長い」「読点の位置がおかしい」といった読みやすさの改善依頼
-- 新規記事の執筆・下書き（note・ブログ・エッセイ）、既存文章のリライト・推敲
+- note やブログ、エッセイの新規執筆・下書き、既存文章のリライト・推敲
 - 文体プロファイル（`style-profile.md`）のセットアップ
 
-フローは一回検出して終わりではありません。lint の指摘を「直した / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで**収束するまでループ**します。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
+フローは一回検出して終わりではありません。lint の指摘を「直した / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで——つまり収束するまで——ループします。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
 
 詳しいフローは [`SKILL.md`](./skills/natural-japanese/SKILL.md) を参照してください。
 
 ## 検査スクリプト単体の使い方
 
-スキル経由ではなく、検査層の3スクリプトだけを直接使うこともできます。役割ごとに分かれています
-（共有基盤 `skills/natural-japanese/scripts/textcore.py` は3スクリプトが内部で使うのみで、直接実行するものではありません）。
+検査層の3スクリプトは、スキルを介さず単体でも使えます。役割ごとに分かれています。共有基盤の `textcore.py` は3スクリプトが内部で使うだけで、直接実行するものではありません。
 
 ### `lint.py` — 疑いの検出
 
@@ -97,18 +98,28 @@ uv run skills/natural-japanese/scripts/lint.py path/to/draft.md
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --json
 ```
 
-CI ゲートではなく lint であるため、検出件数に関わらず exit code は `0` です。検出結果をどう直すかは
-書き手（またはAI）の判断に委ねます。ファイル不在・ディレクトリ指定・読み取り不可などの入力エラーのときだけ exit code `1` になります。
+ジャンルが明確なら `--genre tech|business|essay` を指定してください。コーパス校正済みの閾値プロファイルに切り替わり、誤検知が減ります。
+
+読みやすさの推敲には `--reading-load` を追加します（opt-in）。一文が長すぎる・埋もれた列挙・二重否定・漢字の連続・「の」の連鎖の5つを、severity info のみで指し示します。指定しない限り出力は従来と変わらず、AI臭さの findings や `--baseline` 差分にも混ざりません。
+
+CI ゲートではなく lint なので、検出件数に関わらず exit code は `0` です。検出結果をどう直すかは書き手（またはAI）の判断に委ねます。exit code が `1` になるのは、ファイル不在・ディレクトリ指定・読み取り不可といった入力エラーのときだけです。
 
 ### `outline.py` / `terms.py` — 判断ではなく素材の抽出
 
-findings の代わりに構造・用語の「素材」だけを機械的に抽出するスクリプトもあります（どちらも判断はせず抽出のみ。exit code の方針は `lint.py` と同じ）。
+findings の代わりに、構造・用語の「素材」だけを機械的に抽出します。どちらも判断はせず抽出のみで、exit code の方針は `lint.py` と同じです。
 
 ```bash
 uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # 見出し・各段落の先頭文・箇条書きプレースホルダを行番号付きで抽出
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # カタカナ複合語/ASCII略語/固有名詞らしき語を初出順に抽出（説明マーカーの有無つき）
-uv run skills/natural-japanese/scripts/semantic.py path/to/draft.md  # [EXPERIMENTAL・opt-in] 文埋め込みによる話題平板性の検出。torch+sentence-transformers依存、初回~1GBダウンロード。lint.pyには非組み込み
 ```
+
+### `semantic.py` — 話題平板性の検出（EXPERIMENTAL・opt-in）
+
+```bash
+uv run skills/natural-japanese/scripts/semantic.py path/to/draft.md
+```
+
+文埋め込みで、隣接する文の類似度に起伏がない状態（話題の平板さ）を検出します。torch + sentence-transformers に依存し、初回に約1GBのモデルダウンロードを伴う重量級です。そのため `lint.py` には組み込まず、独立の opt-in エントリにしています。
 
 ## リポジトリ構成
 
@@ -124,8 +135,7 @@ dev/check-fixtures.sh  # fixture 回帰チェック（開発用）
 .githooks/pre-commit   # lint/fixtures 変更時に fixture 回帰チェックを実行
 ```
 
-スキル本体は `skills/natural-japanese/` の1か所だけにあります（かつてはルートに正本、`skills/` にコピーという二重管理でしたが、
-`npx skills add` がルートの `SKILL.md` を単一ファイルスキルとして拾ってしまい `scripts/` が配布されない問題があったため一本化しました）。
+スキル本体は `skills/natural-japanese/` の1か所だけにあります。かつてはルートに正本、`skills/` にコピーという二重管理でしたが、`npx skills add` がルートの `SKILL.md` を単一ファイルスキルとして拾い `scripts/` が配布されない問題があったため、一本化しました。
 
 ### 開発者向け: pre-commit hook の有効化
 
@@ -133,9 +143,7 @@ dev/check-fixtures.sh  # fixture 回帰チェック（開発用）
 git config core.hooksPath .githooks
 ```
 
-`skills/natural-japanese/scripts/` の `lint.py` / `textcore.py` や `fixtures/` を変更した場合は `./dev/check-fixtures.sh` で
-期待検出件数（fixture 回帰）を確認してください。同条件で変更が staged されていれば pre-commit hook が
-自動実行し、リリース時は `.github/workflows/release.yml` でも実行されます。
+`skills/natural-japanese/scripts/` の `lint.py` / `textcore.py` や `fixtures/` を変更した場合は、`./dev/check-fixtures.sh` で期待検出件数（fixture 回帰）を確認してください。該当ファイルが staged されていれば pre-commit hook が自動で実行します。リリース時は `.github/workflows/release.yml` でも実行されます。
 
 ## 参考にした資料
 
