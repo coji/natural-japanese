@@ -7,13 +7,13 @@
 
 AIと文書を作るとき、毎回プロンプトに書いている指示があるはずです。結論から書いて。論旨を明確に。見出しは端的に。専門用語は文中で説明して。このスキルは、そうした指示を「書く前の設計」「書くときの制約」「書いた後の検査」の全工程に組み込みます。AI臭さ（AIっぽい／機械翻訳っぽい）の除去も工程の一部です。
 
-> An Agent Skill for writing clear, readable Japanese work documents — designing the argument before writing, constraining generation with a 12-article style constitution, then mechanically detecting "AI-smelling" patterns via sudachipy morphological analysis and iterating until the text converges.
+> **English summary:** An Agent Skill for writing clear, readable Japanese work documents — designing the argument before writing, constraining generation with a 12-article style constitution, then mechanically detecting "AI-smelling" patterns via sudachipy morphological analysis and iterating until the text converges.
 
 ## 設計思想
 
 軸は二つあります。
 
-第一に「検出は機械、判断は人間（またはAI）」。AI は自分自身の AI 臭さを認識しにくい、という前提に立ち、修正の前にまず [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。
+第一に「検出は機械、判断は人間（またはAI）」。AI は自分自身の AI 臭さを認識しにくい、という前提に立つ設計です。修正の前に、まず [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）で決定的に検出します。
 
 - 禁止語・紋切り型フレーズ（[`forbidden-patterns.md`](./skills/natural-japanese/references/forbidden-patterns.md)）
 - 文リズムの単調さ、段落構造の均質さ
@@ -21,9 +21,11 @@ AIと文書を作るとき、毎回プロンプトに書いている指示があ
 
 何をどう直すかはエージェント（あなた）の判断に委ねます。
 
-第二に「事後修正より生成時制約」。AI臭は個々の語句だけでなく、段落の均質さや論旨の運びといった構造にも染み込むため、書き上がってから消そうとすると書き直しに近い作業になります。だから書く前に読者・主メッセージ・見出しスケルトンを決め、書くときは文体憲法12箇条（[`writing-constitution.md`](./skills/natural-japanese/references/writing-constitution.md)）を制約として、発生自体を防ぎます。文書タイプ別の型は [`doctypes/`](./skills/natural-japanese/references/doctypes/) にまとめてあります。
+第二に「事後修正より生成時制約」。AI臭は個々の語句だけでなく、段落の均質さや論旨の運びといった構造にも染み込むため、書き上がってから消そうとすると書き直しに近い作業になります。だから書く前に読者・主メッセージ・見出しスケルトンを決めます。書くときは「結論から書く」「見出しはメッセージにする」「同じ鋳型を3回繰り返さない」など12箇条の文体憲法（[`writing-constitution.md`](./skills/natural-japanese/references/writing-constitution.md)）を制約として、発生自体を防ぎます。文書タイプ別の型は [`doctypes/`](./skills/natural-japanese/references/doctypes/) にまとめてあります。
 
-一方で、語順・読点の位置・一文一義・主語述語の距離といった「そもそも読みにくい」領域は、コーパス検証の結果、機械的な閾値化ができない判断領域だと判明しています（[`readability-sweep.md`](./corpus/reports/readability-sweep.md)）。この領域で機械に持たせないのは判定です。ジャンル横断の一般原則（[`readability-principles.md`](./skills/natural-japanese/references/readability-principles.md)）と悪文パターンカタログ（[`readability-antipatterns.md`](./skills/natural-japanese/references/readability-antipatterns.md)）を参照しながら、AI自身が周回ごとに目視でレビューします。ただし「ここを見てください」という指し示しだけなら機械にもできるため、v1.4.0 で読解負荷レーン（`lint.py --reading-load`、opt-in）を追加しました。一文の長さや埋もれた列挙など5つの検出器が severity info のみで指し、自然度スコアにも `--baseline` 差分にも混ぜません。判断の重みづけがジャンルごとにどう違うかは [`genre-notes.md`](./skills/natural-japanese/references/genre-notes.md) にまとめてあります。
+一方で、語順・読点の位置・一文一義・主語述語の距離といった「そもそも読みにくい」領域では、機械的な閾値化ができないことがコーパス検証でわかっています（[`readability-sweep.md`](./corpus/reports/readability-sweep.md)）。ここは機械に任せず、AI 自身が周回ごとに目視でレビューします。参照するのは一般原則（[`readability-principles.md`](./skills/natural-japanese/references/readability-principles.md)）と悪文パターンカタログ（[`readability-antipatterns.md`](./skills/natural-japanese/references/readability-antipatterns.md)）で、判断の重みづけがジャンルごとにどう違うかは [`genre-notes.md`](./skills/natural-japanese/references/genre-notes.md) にまとめてあります。
+
+ただし、判定はできなくても「ここを見てください」という指し示しは機械にもできます。それが v1.4.0 で追加した読解負荷レーン（`lint.py --reading-load`）で、使い方は後述します。
 
 ## 前提条件
 
@@ -35,11 +37,11 @@ brew install uv
 
 Homebrew を使わない場合は [uv 公式のインストールガイド](https://docs.astral.sh/uv/getting-started/installation/) を参照してください。
 
-`pip install` や venv の手動セットアップは不要です。依存関係（sudachipy, sudachidict-core）は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されており、`uv run` が実行時に自動解決します。
+`pip install` や venv の手動セットアップは不要です。依存関係はスクリプト自身に書いてあり、`uv run` が実行時に自動で取ってきます（PEP 723 インラインメタデータ）。
 
 ## インストール
 
-このスキルは4つのチャネルで配布しています。
+4つの方法がありますが、どれで入れても中身は同じです。ふだんの Claude Code なら 1 が最も簡単です。`/plugin` コマンドで更新まで管理したい場合は 3 を選んでください。
 
 ### 1. `npx skills add`（推奨）
 
@@ -69,21 +71,33 @@ npx openskills sync
 
 ### 4. GitHub Releases の `.skill`(zip)をダウンロード
 
-[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードして展開し、任意のエージェントのスキルディレクトリに配置してください。タグ `v*` を push すると GitHub Actions（`.github/workflows/release.yml`）が自動でビルド・添付します。
+[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードして展開し、任意のエージェントのスキルディレクトリに配置してください。
 
 ## 使い方
+
+一例から。AIがよく書くこんな文があるとします。
+
+> リモートワークの普及は、働き方に大きな変化をもたらした。重要なのは、通勤時間の削減による生活の質の向上だ。また、オフィスコストの削減という企業側のメリットも見逃せない。このように、リモートワークは労働者と企業の双方にとって恩恵のある働き方だと言えるだろう。
+
+`lint.py` が `重要なのは` `このように` `と言えるだろう` の3語を検出し、AIが文脈で判断して直すと、こうなります。
+
+> リモートワークが広まってから、通勤で潰れていた1時間が自分の時間に戻ってきた人は多いはずだ。企業側もオフィスの家賃を削れる。誰も損をしていないように見える働き方だが、実際にそう言い切れるのかは、もう少し先まで見ないと分からない。
+
+定型句を外すだけでなく、結論を押し付ける構えを、留保を残す言い方に変えるところまでが仕事です。ほかの事例は [`examples.md`](./skills/natural-japanese/references/examples.md) にあります。
 
 スキルをインストールした状態で、以下のような場面で自動的に発動します。
 
 - 議事録やレポート、企画書といった仕事の文書の作成・校正（文字起こしからの議事録化も含む）
 - 「結論から書いて」「論旨を明確に」「見出しを端的に」「専門用語をわかりやすく説明して」といった指示
 - 「AIっぽい」「機械翻訳っぽい」「不自然」といった指摘への修正
-- AI臭さの診断・採点。`/natural-japanese score <ファイル>` で、書き換えずに自然度スコア（0〜100、高いほど自然）と理由を返します
+- AI臭さの診断・採点（書き換えずにスコアと理由だけ欲しいとき）
 - 「読みにくい」「何が言いたいか分からない」「一文が長い」「読点の位置がおかしい」といった読みやすさの改善依頼
 - note やブログ、エッセイの新規執筆・下書き、既存文章のリライト・推敲
 - 文体プロファイル（`style-profile.md`）のセットアップ
 
-フローは一回検出して終わりではありません。lint の指摘を「直した / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで——つまり収束するまで——ループします。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
+診断は `/natural-japanese score <ファイル>` で呼び出せます。自然度スコアは0〜100で、高いほど自然です。
+
+フローは一回検出して終わりではありません。lint の指摘を「直す / 理由を付けて残す」に仕分けし、修正が新しい指摘を生まなくなるまで——つまり収束するまで——ループします。周回ごとの差分は lint の `--baseline` オプションで機械的に追跡できます（解消・新規・継続の分類）。作業中の中間ファイルは完了時にすべて削除され、残るのは完成した文書だけです。
 
 詳しいフローは [`SKILL.md`](./skills/natural-japanese/SKILL.md) を参照してください。
 
@@ -100,7 +114,7 @@ uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --json
 
 ジャンルが明確なら `--genre tech|business|essay` を指定してください。コーパス校正済みの閾値プロファイルに切り替わり、誤検知が減ります。
 
-読みやすさの推敲には `--reading-load` を追加します（opt-in）。一文が長すぎる・埋もれた列挙・二重否定・漢字の連続・「の」の連鎖の5つを、severity info のみで指し示します。指定しない限り出力は従来と変わらず、AI臭さの findings や `--baseline` 差分にも混ざりません。
+読みやすさの推敲には `--reading-load` を追加します（opt-in）。一文が長すぎる・埋もれた列挙・二重否定・漢字の連続・「の」の連鎖——この5つを severity info のみで指し示します。指定しない限り出力は従来と変わらず、AI臭さの findings や `--baseline` 差分にも混ざりません。
 
 CI ゲートではなく lint なので、検出件数に関わらず exit code は `0` です。検出結果をどう直すかは書き手（またはAI）の判断に委ねます。exit code が `1` になるのは、ファイル不在・ディレクトリ指定・読み取り不可といった入力エラーのときだけです。
 
@@ -135,7 +149,7 @@ dev/check-fixtures.sh  # fixture 回帰チェック（開発用）
 .githooks/pre-commit   # lint/fixtures 変更時に fixture 回帰チェックを実行
 ```
 
-スキル本体は `skills/natural-japanese/` の1か所だけにあります。かつてはルートに正本、`skills/` にコピーという二重管理でしたが、`npx skills add` がルートの `SKILL.md` を単一ファイルスキルとして拾い `scripts/` が配布されない問題があったため、一本化しました。
+スキル本体は `skills/natural-japanese/` の1か所だけにあります。
 
 ### 開発者向け: pre-commit hook の有効化
 
@@ -143,14 +157,15 @@ dev/check-fixtures.sh  # fixture 回帰チェック（開発用）
 git config core.hooksPath .githooks
 ```
 
-`skills/natural-japanese/scripts/` の `lint.py` / `textcore.py` や `fixtures/` を変更した場合は、`./dev/check-fixtures.sh` で期待検出件数（fixture 回帰）を確認してください。該当ファイルが staged されていれば pre-commit hook が自動で実行します。リリース時は `.github/workflows/release.yml` でも実行されます。
+`skills/natural-japanese/scripts/` の `lint.py` / `textcore.py` や `fixtures/` を変更した場合は、`./dev/check-fixtures.sh` で期待検出件数（fixture 回帰）を確認してください。該当ファイルが staged されていれば pre-commit hook が自動で実行します。タグ `v*` を push すると GitHub Actions（`.github/workflows/release.yml`）が同じチェックを実行し、`.skill` をビルドして Release に添付します。
 
 ## 参考にした資料
 
-このスキルの設計は、次の2つの公開資料に大きく影響を受けています。感謝します。
+このスキルの設計は、次の公開資料に大きく影響を受けています。感謝します。
 
-- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、判断だけを委ねる」という本スキルの核となる考え方、濃淡設計（旧称: 揺らぎ設計）、自己点検ループの元になった記事
+- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 「AIは自分のAI臭さを認識できない → 機械検出で突きつけ、判断だけを委ねる」という本スキルの核となる考え方、濃淡設計、自己点検ループの元になった記事
 - [日本語技術文書の文章規範（k16shikano）](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) — 禁止語カタログのうち「LLMっぽい空句」のカテゴリ群（正面から系・空虚な形容・空虚な動詞）の出典
+- [meiseki（bamboo-nova）](https://github.com/bamboo-nova/meiseki) — textlint の決定論的検出と LLM の文脈判断を組み合わせる、近い設計思想の日本語明晰化プラグイン。悪文カタログを読解負荷の大きい順に並べる構成の参考。v1.4.0 の読解負荷レーン（`--reading-load`）を作るきっかけにもなった
 
 ## ライセンス
 
