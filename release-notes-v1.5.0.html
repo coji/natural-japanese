@@ -48,71 +48,105 @@
       border-left-color: #e11d48;
       background-color: #f4f4f5;
     }
+    .mobile-chip.active {
+      color: #ffffff;
+      background-color: #18181b;
+      font-weight: 700;
+      border-color: #18181b;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
-<body class="bg-[#fafafa] text-zinc-900 antialiased selection:bg-zinc-900 selection:text-zinc-50">
+<body class="bg-[#fafafa] text-zinc-900 antialiased selection:bg-zinc-900 selection:text-zinc-50 overflow-x-hidden">
 
   <!-- Header -->
   <header class="border-b border-zinc-200/80 bg-white/90 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <span class="font-bold text-base tracking-tight text-zinc-950">natural-japanese</span>
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <span class="font-bold text-sm sm:text-base tracking-tight text-zinc-950">natural-japanese</span>
         <span class="text-zinc-300">/</span>
-        <span class="font-mono text-sm text-zinc-500">v1.5.0</span>
+        <span class="font-mono text-xs sm:text-sm text-zinc-500">v1.5.0</span>
       </div>
-      <div class="flex items-center gap-5">
-        <a href="#quick-start" class="text-sm font-bold bg-accent hover:bg-accent-hover text-white px-3.5 py-1.5 rounded-md transition shadow-sm">
+      <div class="flex items-center gap-3 sm:gap-5">
+        <a href="#quick-start" class="text-xs sm:text-sm font-bold bg-accent hover:bg-accent-hover text-white px-3 sm:px-3.5 py-1.5 rounded-md transition shadow-sm">
           導入する
         </a>
-        <a href="https://github.com/coji/natural-japanese" target="_blank" class="text-sm font-medium text-zinc-600 hover:text-zinc-950 transition flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        <a href="https://github.com/coji/natural-japanese" target="_blank" class="text-xs sm:text-sm font-medium text-zinc-600 hover:text-zinc-950 transition flex items-center gap-1 sm:gap-1.5">
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
           GitHub
         </a>
       </div>
     </div>
   </header>
 
-  <div class="max-w-6xl mx-auto px-6 py-14 flex gap-14 items-start">
+  <!-- Mobile Horizontal Quick Navigation Bar (Sticky under header) -->
+  <div class="lg:hidden sticky top-14 z-40 bg-white/95 backdrop-blur border-b border-zinc-200/90 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+    <div class="px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
+      <a href="#about" class="mobile-chip shrink-0 px-2.5 py-1 rounded-full border border-zinc-200 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 transition whitespace-nowrap">
+        概要
+      </a>
+      <a href="#cases" class="mobile-chip shrink-0 px-2.5 py-1 rounded-full border border-zinc-200 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 transition whitespace-nowrap">
+        Before / After
+      </a>
+      <a href="#evolution" class="mobile-chip shrink-0 px-2.5 py-1 rounded-full border border-zinc-200 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 transition whitespace-nowrap">
+        v1.5.0の進化
+      </a>
+      <a href="#rubrics" class="mobile-chip shrink-0 px-2.5 py-1 rounded-full border border-zinc-200 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 transition whitespace-nowrap">
+        6軸評価基準
+      </a>
+      <a href="#quick-start" class="mobile-chip shrink-0 px-2.5 py-1 rounded-full border border-zinc-200 text-zinc-600 bg-zinc-50 hover:bg-zinc-100 transition whitespace-nowrap">
+        導入方法
+      </a>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-14 flex gap-14 items-start">
 
     <!-- Main Content -->
-    <main class="flex-1 min-w-0 space-y-24">
+    <main class="flex-1 min-w-0 space-y-16 sm:space-y-24">
 
       <!-- Section: About natural-japanese (Clear Definition for First-time Visitors) -->
-      <section id="about" class="space-y-8 scroll-mt-24">
+      <section id="about" class="space-y-6 sm:space-y-8 scroll-mt-28 sm:scroll-mt-24">
         
-        <div class="space-y-4">
-          <div class="inline-flex items-center gap-2 font-mono text-xs tracking-wider uppercase text-zinc-500 border-b border-zinc-200 pb-1">
+        <div class="space-y-3 sm:space-y-4">
+          <div class="inline-flex items-center gap-2 font-mono text-[11px] sm:text-xs tracking-wider uppercase text-zinc-500 border-b border-zinc-200 pb-1">
             Agent Skill for Natural Japanese Documents
           </div>
-          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-950 leading-[1.3]">
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-zinc-950 leading-[1.35] sm:leading-[1.3]">
             AIが書く仕事の日本語から、<br class="hidden sm:inline">
             特有の<span class="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">手癖</span>と<span class="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">薄さ</span>を根絶する。
           </h1>
-          <p class="text-base sm:text-lg text-zinc-600 leading-relaxed max-w-3xl font-normal">
+          <p class="text-sm sm:text-lg text-zinc-600 leading-relaxed max-w-3xl font-normal">
             <strong class="text-zinc-950 font-bold">natural-japanese</strong> は、Claude Code や Cursor、ChatGPT で動く <a href="https://docs.claude.com/en/docs/claude-code/skills" target="_blank" class="underline underline-offset-4 decoration-zinc-300 hover:decoration-zinc-900 transition font-medium">Agent Skill</a> です。AI が書く日本語特有の「手癖」と「薄さ」を取り除き、読みやすく簡潔な仕事の文書に仕上げます。
           </p>
         </div>
 
         <!-- 3-Pillars Card for Newcomers -->
-        <div class="p-6 sm:p-7 bg-white border border-zinc-200 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-zinc-100">
+        <div class="p-4 sm:p-7 bg-white border border-zinc-200 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-5 sm:space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 sm:pb-5 border-b border-zinc-100">
             <div>
-              <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">What is natural-japanese?</span>
-              <div class="text-base font-bold text-zinc-950 mt-0.5">なぜ「プロンプトで自然にして」と頼むだけでは直らないのか？</div>
+              <span class="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">What is natural-japanese?</span>
+              <div class="text-sm sm:text-base font-bold text-zinc-950 mt-0.5">なぜ「プロンプトで自然にして」と頼むだけでは直らないのか？</div>
             </div>
-            <span class="text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-full shrink-0">
+            <span class="text-[11px] sm:text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded-full shrink-0 w-fit">
               対象: 議事録・調査レポート・社内ガイド・技術記事・企画書
             </span>
           </div>
 
-          <p class="text-sm text-zinc-600 leading-relaxed">
+          <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
             AIに「もっと自然にして」と頼んでも、自分自身の学習手癖を客観的に認識できないため、別の紋切り型フレーズに置き換わるだけになりがちです。書き上がった文章からAI臭を抜くのは、料理のあとから塩を抜くような難しさがあります。<br>
             だからこそ、<strong class="text-zinc-950">「書く前・書いた直後・推敲ループ」の3重防御</strong>で防ぎます。
           </p>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 pt-1">
             <div class="p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/80 space-y-1.5">
-              <div class="text-xs font-mono font-bold text-zinc-400 uppercase">Layer 01</div>
+              <div class="text-[11px] sm:text-xs font-mono font-bold text-zinc-400 uppercase">Layer 01</div>
               <div class="text-sm font-bold text-zinc-950">書く前の制約</div>
               <p class="text-xs text-zinc-500 leading-relaxed">
                 12箇条の「文体憲法」と見出し骨格で縛り、最初から歪みやダラダラ説明の発生を防ぐ。
@@ -120,7 +154,7 @@
             </div>
 
             <div class="p-4 bg-zinc-50/60 rounded-xl border border-zinc-200/80 space-y-1.5">
-              <div class="text-xs font-mono font-bold text-zinc-400 uppercase">Layer 02</div>
+              <div class="text-[11px] sm:text-xs font-mono font-bold text-zinc-400 uppercase">Layer 02</div>
               <div class="text-sm font-bold text-zinc-950">形態素解析 lint</div>
               <p class="text-xs text-zinc-500 leading-relaxed">
                 sudachipy（形態素解析）による <code>lint.py</code> が、禁止フレーズや翻訳調を決定論的に検出。
@@ -128,7 +162,7 @@
             </div>
 
             <div class="p-4 bg-zinc-900 text-white rounded-xl border-2 border-accent/60 space-y-1.5 relative shadow-sm">
-              <div class="flex items-center justify-between text-xs font-mono font-bold text-zinc-400 uppercase">
+              <div class="flex items-center justify-between text-[11px] sm:text-xs font-mono font-bold text-zinc-400 uppercase">
                 <span>Layer 03</span>
                 <span class="text-[10px] font-sans font-bold bg-accent text-white px-2 py-0.5 rounded">v1.5.0 新機能</span>
               </div>
@@ -143,11 +177,11 @@
           </div>
 
           <!-- Quick Command Bar -->
-          <div class="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs border-t border-zinc-100">
-            <span class="text-zinc-500">Claude Code のターミナルで実行するだけで今すぐ使えます:</span>
-            <div class="inline-flex items-center gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-900 font-mono text-xs font-medium">
-              <span>npx skills add coji/natural-japanese</span>
-              <button type="button" class="copy-btn p-1 rounded hover:bg-zinc-200/60 text-zinc-400 hover:text-zinc-900 transition flex items-center justify-center" data-clipboard="npx skills add coji/natural-japanese" title="コマンドをコピー">
+          <div class="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-3 text-xs border-t border-zinc-100">
+            <span class="text-zinc-500 text-[11px] sm:text-xs">Claude Code のターミナルで実行するだけで今すぐ使えます:</span>
+            <div class="w-full sm:w-auto inline-flex items-center justify-between gap-2 bg-zinc-50 px-3 py-1.5 rounded-lg border border-zinc-300 text-zinc-900 font-mono text-[11px] sm:text-xs font-medium">
+              <span class="truncate">npx skills add coji/natural-japanese</span>
+              <button type="button" class="copy-btn shrink-0 p-1 rounded hover:bg-zinc-200/60 text-zinc-400 hover:text-zinc-900 transition flex items-center justify-center" data-clipboard="npx skills add coji/natural-japanese" title="コマンドをコピー">
                 <svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                 <svg class="check-icon w-3.5 h-3.5 hidden text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
               </button>
@@ -169,12 +203,12 @@
 
           <!-- Case 1: Density -->
           <div class="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div class="px-6 py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex items-center justify-between text-sm">
-              <span class="font-bold text-zinc-950">① 前提講釈のダラダラ引き伸ばしを排除する</span>
-              <span class="font-mono text-xs text-zinc-500">軸: 情報密度・簡潔さ</span>
+            <div class="px-4 sm:px-6 py-3 sm:py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm">
+              <span class="font-bold text-zinc-950 text-sm sm:text-base">① 前提講釈のダラダラ引き伸ばしを排除する</span>
+              <span class="font-mono text-[11px] sm:text-xs text-zinc-500">軸: 情報密度・簡潔さ</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200">
-              <div class="p-6 space-y-3">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3">
                 <span class="text-xs font-mono text-zinc-400 block font-bold uppercase tracking-wider">Before (lint 0件だが読む気を削ぐ)</span>
                 <p class="text-sm sm:text-[15px] text-zinc-500 leading-relaxed">
                   近年、働き方改革やリモートワークの重要性がますます高まっています。組織におけるコミュニケーションの円滑化は、チームの成果を左右する極めて本質的な課題であると言えます。本節では、非同期コミュニケーションを定着させるための具体的な手法について詳しく見ていくことにしましょう。
@@ -183,7 +217,7 @@
                   ✕ 誰もが知る前提を長々と語り、本題に入る前の助走で読者が離脱する。
                 </div>
               </div>
-              <div class="p-6 space-y-3 bg-zinc-50/40">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/40">
                 <span class="text-xs font-mono text-zinc-950 block font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
                   After (v1.5.0 ハーネス適用)
@@ -200,12 +234,12 @@
 
           <!-- Case 2: Humanity / Why -->
           <div class="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div class="px-6 py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex items-center justify-between text-sm">
-              <span class="font-bold text-zinc-950">② 無菌室病から、生々しい動機（Why）の接地へ</span>
-              <span class="font-mono text-xs text-zinc-500">軸: 人間味・誠実さ（体温）</span>
+            <div class="px-4 sm:px-6 py-3 sm:py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm">
+              <span class="font-bold text-zinc-950 text-sm sm:text-base">② 無菌室病から、生々しい動機（Why）の接地へ</span>
+              <span class="font-mono text-[11px] sm:text-xs text-zinc-500">軸: 人間味・誠実さ（体温）</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200">
-              <div class="p-6 space-y-3">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3">
                 <span class="text-xs font-mono text-zinc-400 block font-bold uppercase tracking-wider">Before (綺麗だが体温ゼロ)</span>
                 <p class="text-sm sm:text-[15px] text-zinc-500 leading-relaxed">
                   本ツールは、仕事の日本語を読みやすく書くための Agent Skill です。書く前の設計、書くときの制約、書いた後の検査の全工程に組み込まれます。禁止語の除去だけでなく、読解負荷の改善までを総合的に支援します。
@@ -214,7 +248,7 @@
                   ✕ 減点を恐れるあまり、誰の実感もこもらないカタログスペックの羅列に。
                 </div>
               </div>
-              <div class="p-6 space-y-3 bg-zinc-50/40">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/40">
                 <span class="text-xs font-mono text-zinc-950 block font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
                   After (新 README 冒頭)
@@ -231,12 +265,12 @@
 
           <!-- Case 3: Structure -->
           <div class="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <div class="px-6 py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex items-center justify-between text-sm">
-              <span class="font-bold text-zinc-950">③ プレゼン的数宣言・翻訳調ダッシュの排除</span>
-              <span class="font-mono text-xs text-zinc-500">軸: 脱AI臭・文体の自然さ</span>
+            <div class="px-4 sm:px-6 py-3 sm:py-3.5 border-b border-zinc-100 bg-zinc-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm">
+              <span class="font-bold text-zinc-950 text-sm sm:text-base">③ プレゼン的数宣言・翻訳調ダッシュの排除</span>
+              <span class="font-mono text-[11px] sm:text-xs text-zinc-500">軸: 脱AI臭・文体の自然さ</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200">
-              <div class="p-6 space-y-3">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3">
                 <span class="text-xs font-mono text-zinc-400 block font-bold uppercase tracking-wider">Before (教科書的ナンバリングとem-dash)</span>
                 <p class="text-sm sm:text-[15px] text-zinc-500 leading-relaxed">
                   アプローチの柱は2つあります。第一に、あとから直すより書く前に防ぐこと。第二に、検出は機械が行い判断は人間が行うことです。修正が新しい指摘を生まなくなるまで——つまり収束するまで——ループします。
@@ -245,7 +279,7 @@
                   ✕ 「柱は2つあります」の宣言と、英語の em-dash 直訳が文章のリズムを寸断。
                 </div>
               </div>
-              <div class="p-6 space-y-3 bg-zinc-50/40">
+              <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/40">
                 <span class="text-xs font-mono text-zinc-950 block font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
                   After (v1.5.0 ハーネス適用)
@@ -262,33 +296,33 @@
 
           <!-- Long-form Accordion Example 1: Business -->
           <details class="group bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <summary class="px-6 py-4 cursor-pointer flex items-center justify-between select-none hover:bg-zinc-50/80 transition list-none">
-              <div class="flex items-center gap-3 min-w-0 pr-4">
-                <span class="font-mono text-xs font-bold bg-accent text-white px-2 py-0.5 rounded shadow-sm shrink-0">実機検証 ①</span>
-                <span class="font-bold text-sm sm:text-base text-zinc-950">【ビジネス・業務改善】定例会議（18人）を廃止しSlack非同期共有へ移行する提案</span>
+            <summary class="px-4 sm:px-6 py-3.5 sm:py-4 cursor-pointer flex items-center justify-between select-none hover:bg-zinc-50/80 transition list-none">
+              <div class="flex items-center gap-2 sm:gap-3 min-w-0 pr-2 sm:pr-4">
+                <span class="font-mono text-[10px] sm:text-xs font-bold bg-accent text-white px-2 py-0.5 rounded shadow-sm shrink-0">実機検証 ①</span>
+                <span class="font-bold text-xs sm:text-base text-zinc-950 leading-snug">【ビジネス・業務改善】定例会議（18人）を廃止しSlack非同期共有へ移行する提案</span>
               </div>
-              <div class="flex items-center gap-1.5 text-xs text-zinc-400 font-medium shrink-0">
-                <span class="inline-block w-10 text-right group-open:hidden">開く</span>
-                <span class="inline-block w-10 text-right hidden group-open:inline">閉じる</span>
-                <svg class="w-4 h-4 text-zinc-500 transform transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              <div class="flex items-center gap-1 text-xs text-zinc-400 font-medium shrink-0 ml-1 sm:ml-2">
+                <span class="inline-block w-8 sm:w-10 text-right group-open:hidden">開く</span>
+                <span class="inline-block w-8 sm:w-10 text-right hidden group-open:inline">閉じる</span>
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-500 transform transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </div>
             </summary>
 
             <div class="border-t border-zinc-200 space-y-0 bg-[#fafafa]/30">
               
               <!-- Prompt Bar -->
-              <div class="p-5 bg-zinc-50/70 border-b border-zinc-200 space-y-1.5">
+              <div class="p-3.5 sm:p-5 bg-zinc-50/70 border-b border-zinc-200 space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">使用したプロンプト（Codex GPT-5.6 に実際に投入）</span>
-                  <span class="text-xs text-zinc-400 font-medium">※左右の対応するセクションが並んでいます</span>
+                  <span class="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">使用したプロンプト（Codex GPT-5.6 に実際に投入）</span>
+                  <span class="hidden sm:inline text-xs text-zinc-400 font-medium">※左右の対応するセクションが並んでいます</span>
                 </div>
-                <div class="p-3 bg-white rounded-lg border border-zinc-200/90 font-mono text-xs sm:text-[13px] text-zinc-800 leading-relaxed shadow-sm">
+                <div class="p-2.5 sm:p-3 bg-white rounded-lg border border-zinc-200/90 font-mono text-[11px] sm:text-[13px] text-zinc-800 leading-relaxed shadow-sm">
                   社内向けに、毎週開催されている『月曜午前の週次全体定例会議』を廃止し、Slackでの非同期報告へ移行することを提案する業務改善メモ（ディスカッションペーパー）を日本語で書いてください。背景、現状の課題、移行のメリット、懸念点と対策、今後の進め方を含めてください。
                 </div>
               </div>
 
-              <!-- Column Header Bar -->
-              <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white font-mono text-xs font-bold">
+              <!-- Column Header Bar (Desktop & Mobile) -->
+              <div class="hidden md:grid grid-cols-2 divide-x divide-zinc-200 border-b border-zinc-200 bg-white font-mono text-xs font-bold">
                 <div class="p-4 flex items-center justify-between text-zinc-500">
                   <span>Before: 素の Codex (GPT-5.6) 出力</span>
                   <span class="text-[11px] font-normal text-zinc-400">約1,500字（教科書的・長文助走）</span>
@@ -301,26 +335,40 @@
                   <span class="text-[11px] font-normal text-zinc-700">約980字（高密度・実数値・体温）</span>
                 </div>
               </div>
+              <div class="md:hidden px-3.5 py-2 bg-zinc-100/70 border-b border-zinc-200 text-center font-mono text-[11px] text-zinc-500 font-medium">
+                ※ 段落ごとに [Before] と [After] を交互に対比して表示しています
+              </div>
 
               <!-- Row 1: Title -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-2">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">タイトル</span>
-                  <h4 class="text-base font-bold text-zinc-700">月曜午前の週次全体定例会議の見直しについて</h4>
+                <div class="p-4 sm:p-6 space-y-2 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">タイトル</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <h4 class="text-sm sm:text-base font-bold text-zinc-700">月曜午前の週次全体定例会議の見直しについて</h4>
                   <p class="text-xs text-zinc-400">✕ 「見直しについて」と何をするのか結論を言わない抽象タイトル。</p>
                 </div>
-                <div class="p-5 sm:p-6 space-y-2 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">タイトル</span>
-                  <h4 class="text-base font-extrabold text-zinc-950">月曜午前の全体定例（18人）を廃止し、Slack非同期報告へ移行する提案</h4>
+                <div class="p-4 sm:p-6 space-y-2 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">タイトル</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <h4 class="text-sm sm:text-base font-extrabold text-zinc-950">月曜午前の全体定例（18人）を廃止し、Slack非同期報告へ移行する提案</h4>
                   <p class="text-xs text-zinc-700 font-medium">✓ 人数・廃止・Slack非同期移行という核心がタイトルだけで伝わる。</p>
                 </div>
               </div>
 
               <!-- Row 2: Background & Problem -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">1. 提案の概要 / 2. 背景 / 3. 現状の課題</h5>
                     <p>毎週月曜午前に開催している全体定例会議を廃止し、Slackを使った非同期報告へ移行することを提案します。定例会議の目的である「各チームの状況共有」と「全社的な課題の把握」は維持します。一方、情報を一斉に読み上げるための会議はなくし、議論や意思決定が必要な案件に限って、関係者で個別に打ち合わせを設定します。</p>
                     <p>主な課題は次のとおりです。</p>
@@ -330,21 +378,26 @@
                       <li>月曜午前の集中時間が分断され、業務の立ち上がりが遅れる</li>
                     </ul>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ 参加人数も無駄な時間も数値化されず、誰の痛みもこもらない一般的な講釈。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">参加18人のうち発言者は3人。月72時間の拘束が形骸化しています</h5>
                     <p>毎週月曜10時からの全体定例会議には、現在18名が参加しています。</p>
                     <p>直近1ヶ月の録画を見返したところ、実質的に発言していたのは各事業部長と司会の3〜4名だけでした。残る14名は、画面の向こうで別の作業をしながら自チームの番を待つ状態が常態化しています。正直、大きな無駄が生じていると感じています。</p>
                     <p class="font-medium text-zinc-950">1時間の会議に18名が参加すると、会社全体で毎週18時間、月間72時間もの工数が拘束されます。人件費換算では月間約30万円、年間360万円にのぼる計算です。</p>
                     <p>何より問題なのは、一週間のスタートダッシュを切るべき月曜の集中作業時間が、受動的な聞き役に回ることで削がれてしまっている点です。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 「参加18人で発言3人」「月72時間・年360万」「14名は別作業で待機」と現場の実態と数値を率直に提示。
                   </div>
                 </div>
@@ -352,22 +405,30 @@
 
               <!-- Row 3: Solution & Slack Workflow -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 2: 解決策と運用</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 2: 解決策と運用</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">4. 移行によって期待できる効果</h5>
                     <p><strong>時間を有効に使える:</strong> 各自が必要な報告だけを確認できるようになります。全員が同じ時間帯に集まる必要もなくなり、月曜午前を計画作成や集中作業に充てられます。</p>
                     <p><strong>情報が記録として残る:</strong> Slackへの投稿であれば、内容を検索・参照できます。欠席や休暇という概念もなくなり、時差勤務やリモート勤務のメンバーも同じ情報にアクセスできます。</p>
                     <p><strong>報告の質をそろえやすい:</strong> 投稿形式を統一することで、進捗、今週の予定、課題、支援依頼を簡潔に把握できます。</p>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ 「時間を有効に使える」「記録に残る」と当たり前のメリットを教科書的に講釈。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 2: 解決策と運用</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 2: 解決策と運用</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">月曜正午までの「Slack定型スレッド報告」に一本化します</h5>
                     <p>全員を一箇所に集めてスライドを読み上げる運用をやめ、Slackの専用チャンネル（`#all-weekly-updates`）への非同期報告に切り替えたいと考えています。</p>
                     <p>各チームのリードは、月曜正午までに以下の3点だけをスレッドに投稿します。</p>
@@ -378,7 +439,7 @@
                     </ul>
                     <p>各自は昼休憩や午後の始動時にこれを流し読み、疑問や相談があればスレッド上でやり取りします。全体の状況把握にかかる時間は各自10分程度に縮まります。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 抽象的な講釈を削り、「月曜正午」「3項目」「各自10分」という現場の運用手順を具体化。
                   </div>
                 </div>
@@ -386,28 +447,36 @@
 
               <!-- Row 4: Concerns & Discussion Separation -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 3: 懸念への対策</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 3: 懸念への対策</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">5. 懸念点と対策</h5>
                     <p><strong>投稿が読まれなくなる:</strong> 未読のまま情報が流れる可能性があります。専用チャンネルを設け、投稿日時と書式を統一します。</p>
                     <p><strong>チーム間の接点が減る:</strong> 交流や横断的な相談については、別の機会を意図的に用意します。</p>
                     <p><strong>緊急の課題への対応が遅れる:</strong> Slack投稿だけで完結させず、緊急案件については担当者への直接連絡や短時間の打ち合わせを併用します。</p>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ 懸念を均等に並べるだけで、会議と非同期の役割分担の本質が見えない。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 3: 懸念への対策</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 3: 懸念への対策</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">議論が必要な案件だけを「3人・15分」で即座に設定します</h5>
                     <p>「会議をなくすとチーム間の接点が減るのではないか」「緊急の課題が見落とされるのではないか」という懸念はもっともです。</p>
                     <p>ただ、18名が集まる場で突っ込んだ議論や意思決定を行うのは困難です。情報共有のための「報告」と、意思決定のための「議論」を明確に切り分けます。</p>
                     <p>全社的な相談や急ぎのトラブルは、Slackの報告を見てから関係者3〜4名だけを招集し、15分のスポット打ち合わせで即決します。大人数で時間を浪費するより、必要なメンバーだけで素早く動くほうがスピードも上がります。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 懸念を受け止めたうえで、報告（Slack）と議論（3人15分）の役割分担を明確に提示。
                   </div>
                 </div>
@@ -415,21 +484,29 @@
 
               <!-- Row 5: Pilot & Decision -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 4: 進め方と合意</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 4: 進め方と合意</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">6. 今後の進め方 / 7. 議論したい事項</h5>
                     <p>まずは4週間、試行期間を設けることを提案します。週次報告専用のSlackチャンネルを用意し、各チームが月曜正午までに報告を投稿します。試行終了時に、削減できた時間や情報共有の不足を確認し、正式移行を判断します。</p>
                     <p>会議を廃止すること自体が目的ではありません。情報共有の質を保ちながら、全社で使う時間を減らし、必要な議論に集中できる運用へ切り替えることが本提案の狙いです。</p>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ 最後に「会議廃止が目的ではありません」と自己陶酔する典型的なAIの締め文句。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 4: 進め方と合意</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 4: 進め方と合意</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">来週から3週間のパイロット運用をご提案します</h5>
                     <p>いきなり全面廃止するのではなく、まずは来週から3週間、定例会議を休止してSlack運用を試験したいと考えています。3週間後の金曜日に全社アンケートを実施し、以下の基準で本移行を判断します。</p>
                     <ol class="list-decimal list-inside space-y-1 text-zinc-800 pl-1 font-medium">
@@ -438,7 +515,7 @@
                     </ol>
                     <p>大きな支障が生じた場合は、即座に従来の会議体へ戻します。まずは来週月曜からの試行をご承認いただけますでしょうか。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 自己満足の総括を排除。「3週間」「満足度80%」の定量基準を示し、意思決定（試行の承認）を仰ぐ。
                   </div>
                 </div>
@@ -449,33 +526,33 @@
 
           <!-- Long-form Accordion Example 2: Tech -->
           <details class="group bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-            <summary class="px-6 py-4 cursor-pointer flex items-center justify-between select-none hover:bg-zinc-50/80 transition list-none">
-              <div class="flex items-center gap-3 min-w-0 pr-4">
-                <span class="font-mono text-xs font-bold bg-accent text-white px-2 py-0.5 rounded shadow-sm shrink-0">実機検証 ②</span>
-                <span class="font-bold text-sm sm:text-base text-zinc-950">【技術・インフラ刷新】セッション管理をRedisからCloudflare KVへ移行する提案</span>
+            <summary class="px-4 sm:px-6 py-3.5 sm:py-4 cursor-pointer flex items-center justify-between select-none hover:bg-zinc-50/80 transition list-none">
+              <div class="flex items-center gap-2 sm:gap-3 min-w-0 pr-2 sm:pr-4">
+                <span class="font-mono text-[10px] sm:text-xs font-bold bg-accent text-white px-2 py-0.5 rounded shadow-sm shrink-0">実機検証 ②</span>
+                <span class="font-bold text-xs sm:text-base text-zinc-950 leading-snug">【技術・インフラ刷新】セッション管理をRedisからCloudflare KVへ移行する提案</span>
               </div>
-              <div class="flex items-center gap-1.5 text-xs text-zinc-400 font-medium shrink-0">
-                <span class="inline-block w-10 text-right group-open:hidden">開く</span>
-                <span class="inline-block w-10 text-right hidden group-open:inline">閉じる</span>
-                <svg class="w-4 h-4 text-zinc-500 transform transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              <div class="flex items-center gap-1 text-xs text-zinc-400 font-medium shrink-0 ml-1 sm:ml-2">
+                <span class="inline-block w-8 sm:w-10 text-right group-open:hidden">開く</span>
+                <span class="inline-block w-8 sm:w-10 text-right hidden group-open:inline">閉じる</span>
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-500 transform transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
               </div>
             </summary>
 
             <div class="border-t border-zinc-200 space-y-0 bg-[#fafafa]/30">
               
               <!-- Prompt Bar -->
-              <div class="p-5 bg-zinc-50/70 border-b border-zinc-200 space-y-1.5">
+              <div class="p-3.5 sm:p-5 bg-zinc-50/70 border-b border-zinc-200 space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">使用したプロンプト（Codex GPT-5.6 に実際に投入）</span>
-                  <span class="text-xs text-zinc-400 font-medium">※左右の対応するセクションが並んでいます</span>
+                  <span class="text-[11px] sm:text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">使用したプロンプト（Codex GPT-5.6 に実際に投入）</span>
+                  <span class="hidden sm:inline text-xs text-zinc-400 font-medium">※左右の対応するセクションが並んでいます</span>
                 </div>
-                <div class="p-3 bg-white rounded-lg border border-zinc-200/90 font-mono text-xs sm:text-[13px] text-zinc-800 leading-relaxed shadow-sm">
+                <div class="p-2.5 sm:p-3 bg-white rounded-lg border border-zinc-200/90 font-mono text-[11px] sm:text-[13px] text-zinc-800 leading-relaxed shadow-sm">
                   社内向けに、セッションストレージをRedisからCloudflare KVへ移行する提案メモ（ディスカッションペーパー）を日本語で書いてください。背景、課題、移行理由、今後の進め方を含めてください。
                 </div>
               </div>
 
-              <!-- Column Header Bar -->
-              <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white font-mono text-xs font-bold">
+              <!-- Column Header Bar (Desktop & Mobile) -->
+              <div class="hidden md:grid grid-cols-2 divide-x divide-zinc-200 border-b border-zinc-200 bg-white font-mono text-xs font-bold">
                 <div class="p-4 flex items-center justify-between text-zinc-500">
                   <span>Before: 素の Codex (GPT-5.6) 出力</span>
                   <span class="text-[11px] font-normal text-zinc-400">約1,400字（教科書的・一般論）</span>
@@ -488,26 +565,40 @@
                   <span class="text-[11px] font-normal text-zinc-700">約1,100字（高密度・実測データ・体温）</span>
                 </div>
               </div>
+              <div class="md:hidden px-3.5 py-2 bg-zinc-100/70 border-b border-zinc-200 text-center font-mono text-[11px] text-zinc-500 font-medium">
+                ※ 段落ごとに [Before] と [After] を交互に対比して表示しています
+              </div>
 
               <!-- Row 1: Title -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-2">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">タイトル</span>
-                  <h4 class="text-base font-bold text-zinc-700">セッションストレージのRedisからCloudflare KVへの移行検討</h4>
+                <div class="p-4 sm:p-6 space-y-2 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">タイトル</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <h4 class="text-sm sm:text-base font-bold text-zinc-700">セッションストレージのRedisからCloudflare KVへの移行検討</h4>
                   <p class="text-xs text-zinc-400">✕ 「移行検討」と当たり障りのない安全なタイトル。</p>
                 </div>
-                <div class="p-5 sm:p-6 space-y-2 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">タイトル</span>
-                  <h4 class="text-base font-extrabold text-zinc-950">Redisのセッション管理をCloudflare KVへ段階移行する提案</h4>
+                <div class="p-4 sm:p-6 space-y-2 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">タイトル</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <h4 class="text-sm sm:text-base font-extrabold text-zinc-950">Redisのセッション管理をCloudflare KVへ段階移行する提案</h4>
                   <p class="text-xs text-zinc-700 font-medium">✓ 「段階移行」とアプローチを明快に宣言。</p>
                 </div>
               </div>
 
               <!-- Row 2: Background & Pain -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">1. 背景 / 2. 現状の課題</h5>
                     <p>現在、ユーザーのログイン状態や一時的なセッション情報をRedisで管理している。Redisは高速で整合性にも優れる一方、インフラの運用、障害対応、容量設計、リージョン間通信などに継続的な負担がかかっている。</p>
                     <p>主な課題は次のとおりである。</p>
@@ -517,21 +608,26 @@
                       <li>接続数やコネクションプールを考慮した設計が必要になる</li>
                     </ul>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ どこで誰が困っているのかの具体性がなく、教科書の目次を読まされている感覚に。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 1: 背景と課題</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">先月の障害で見えた、中央集権Redisの限界</h5>
                     <p>先月14日、東京リージョンのネットワーク瞬断が起きた。このとき、セッション確認のリクエストがRedisの前段に一斉に滞留し、結果としてサービス全体の全API応答が20分以上にわたって深刻に遅延した。</p>
                     <p class="font-medium text-zinc-950">痛かった。復旧対応のあいだ、障害通知のアラートが鳴り止まなかった。</p>
                     <p>現在、月間8,000万件にのぼるAPIリクエストをCloudflare Workersで受けている。だが、セッション参照のためだけに東京のRedisクラスタへ都度問い合わせているのが現状だ。エッジでいくら素早くリクエストを拾っても、東京との往復で30〜50msのレイテンシが必ず挟まる。遅い。</p>
                     <p>加えて、3ノード構成のRedisクラスタに月額約22万円を支払っている。運用負担も重い。実態を調べたところ、書き込みは全体の4%未満だった。残る96%は、単純なユーザーIDと有効期限の照合にすぎない。中央集権的なインメモリDBを抱え続けるコストが、提供価値に見合わなくなってきた。限界だ。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 「先月14日の障害で20分遅延」「痛かった。アラートが鳴り止まなかった」「月22万・書き込み4%」と生々しい実話で説得。
                   </div>
                 </div>
@@ -539,9 +635,12 @@
 
               <!-- Row 3: Reason & Cost -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 2: 移行理由と効果</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 2: 移行理由と効果</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">3. Cloudflare KVへ移行する理由</h5>
                     <p>Cloudflare KVは、世界各地から読み出されるデータを扱うことに適した分散型のキーバリューストアである。セッション情報をKVに配置することで、次の効果が期待できる。</p>
                     <ul class="list-disc list-inside space-y-1 text-zinc-500 pl-1">
@@ -551,20 +650,25 @@
                       <li>アクセス量の増減に合わせてスケールしやすい</li>
                     </ul>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ クラウドベンダーの製品カタログの箇条書きをそのまま貼ったような文体。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 2: 移行理由と効果</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 2: 移行理由と効果</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">読み取りの96%をエッジで完結させ、レイテンシと費用を削る</h5>
                     <p>読み取りが大半を占めるセッションデータは、世界各地のエッジに自動分散されるCloudflare KVと極めて相性が良い。</p>
                     <p>セッション参照をWorkersと同じ基盤のKVへ移せば、参照レイテンシは数ミリ秒台に縮む。東京への拠点間通信も消える。接続数の上限やコネクションプールの設計に悩む必要もない。</p>
                     <p>費用差は圧倒的だ。現行のアクセス量なら、KVの利用料は月額2,000円前後に収まる。管理画面や決済など即時性が必須の操作を除き、一般ユーザーの参照系をKVへ逃がすだけで、インフラ費用を月額約20万円削減できる計算になる。大きい。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ カタログ説明を捨て、「レイテンシ数ミリ秒化」「月2,000円で月20万円削減」と具体的なインパクトを明示。
                   </div>
                 </div>
@@ -572,9 +676,12 @@
 
               <!-- Row 4: Bottleneck & Architecture -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border-b border-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 3: 最大の課題と対策</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 3: 最大の課題と対策</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">4. 移行にあたっての課題 / 5. 移行方針案</h5>
                     <p>Cloudflare KVはRedisの直接的な代替ではない。特に、KVは結果整合性を前提とするため、更新内容がすべての拠点へ即座に反映されるとは限らない。この違いはセッション管理の安全性に影響する。</p>
                     <p>想定される論点は次のとおりである。</p>
@@ -584,14 +691,19 @@
                       <li>障害時にRedisへ戻すための切り戻し手順が必要になる</li>
                     </ul>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ 「想定される論点は次のとおり」と予告してから並べるだけで、具体的にどう組むかの設計解がない。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 3: 最大の課題と対策</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 3: 最大の課題と対策</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">最大の壁は「結果整合性」によるログアウト遅延</h5>
                     <p>ただし、RedisをそのままKVへ置き換えるわけにはいかない。KVは結果整合性を前提としている。書き込んだ内容が全世界のエッジへ行き渡るまでに、最大60秒の伝播遅延が生じる。</p>
                     <p>急所はログアウトだ。ユーザーがログアウト操作を行っても、別地域のエッジでは最大1分間、古いセッションが有効に見え続けてしまう。権限剥奪やアカウント停止でも同じことが起きる。危険だ。</p>
@@ -603,7 +715,7 @@
                     </ul>
                     <p>すべてをひとつのDBでまかなう必要はない。大半の参照はKVで高速に捌き、重要な失効判定だけを強整合性の仕組みでガードする。このハイブリッド構成が最も現実的だ。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ ログアウト遅延の危険性を直言し、Durable Objectsとのハイブリッド構成という具体的な設計回答を提示。
                   </div>
                 </div>
@@ -611,9 +723,12 @@
 
               <!-- Row 5: Action Plan -->
               <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-zinc-200 bg-white">
-                <div class="p-5 sm:p-6 space-y-3">
-                  <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 4: 進め方と決定</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-white">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider font-bold">セクション 4: 進め方と決定</span>
+                    <span class="md:hidden inline-flex items-center font-mono text-[10px] font-bold text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">BEFORE (素のAI)</span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-600 leading-relaxed">
                     <h5 class="font-bold text-zinc-800 text-sm">6. 今後の進め方 / 7. 提案</h5>
                     <p>次の順序で検証を進めたい。</p>
                     <ol class="list-decimal list-inside space-y-1 text-zinc-500 pl-1">
@@ -624,14 +739,19 @@
                     </ol>
                     <p>Cloudflare KVへの移行検討は進める。ただし、RedisをそのままKVへ置き換えるのではなく、セッションの読み取り特性と整合性要件を確認したうえで対象を限定する。まずは小規模な検証を行い、性能、コスト、安全性を評価する。その結果を基に適切かを判断したい。</p>
                   </div>
-                  <div class="text-xs text-zinc-400 pt-2 border-t border-zinc-100">
+                  <div class="text-[11px] sm:text-xs text-zinc-400 pt-2 border-t border-zinc-100">
                     ✕ どこまでが合意事項で、来週何をすればいいのか分からない優等生的なお茶濁し。
                   </div>
                 </div>
 
-                <div class="p-5 sm:p-6 space-y-3 bg-zinc-50/20">
-                  <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 4: 進め方と決定</span>
-                  <div class="space-y-2.5 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
+                <div class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-zinc-50/30 border-l-2 md:border-l-0 border-accent">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-zinc-950 uppercase tracking-wider font-bold">セクション 4: 進め方と決定</span>
+                    <span class="md:hidden inline-flex items-center gap-1 font-mono text-[10px] font-bold text-accent bg-accent-light border border-accent-border px-2 py-0.5 rounded">
+                      <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>AFTER (推敲後)
+                    </span>
+                  </div>
+                  <div class="space-y-2 text-xs sm:text-[13px] text-zinc-900 leading-relaxed">
                     <h5 class="font-bold text-zinc-950 text-sm">4週間の二重書き込み検証から始める</h5>
                     <p>安全を最優先にし、まずは本番影響のない低リスクなAPIから、4週間の概念実証（PoC）を進めたい。</p>
                     <ol class="list-decimal list-inside space-y-1 text-zinc-800 pl-1 font-medium">
@@ -641,7 +761,7 @@
                     </ol>
                     <p>PoC期間中の実測値をもとに、ログアウト遅延の許容度とコスト削減効果を再評価し、本番全面移行の可否を判断したい。来週の定例で方針合意を取り、検証実装に着手したいと考えている。</p>
                   </div>
-                  <div class="text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
+                  <div class="text-[11px] sm:text-xs text-zinc-900 pt-2 border-t border-zinc-200 font-bold">
                     ✓ 「二重書き込み」「即時ロールバックフラグ」の安全策を示し、来週の定例で求める合意を明確に要求。
                   </div>
                 </div>
@@ -654,44 +774,44 @@
       </section>
 
       <!-- Section: Evolution in v1.5.0 (Why & Mechanism) -->
-      <section id="evolution" class="space-y-6 scroll-mt-24">
+      <section id="evolution" class="space-y-5 sm:space-y-6 scroll-mt-28 sm:scroll-mt-24">
         <div class="space-y-1.5">
           <div class="font-mono text-xs uppercase tracking-wider text-zinc-400 font-semibold">02 / EVOLUTION</div>
-          <h2 class="text-2xl font-bold tracking-tight text-zinc-950">v1.5.0 の進化: 「2段階ゲート」の搭載</h2>
-          <p class="text-sm text-zinc-500">表層の静的チェック（lint）だけでは絶対に届かない領域を、客観ルーブリックで解決する。</p>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950">v1.5.0 の進化: 「2段階ゲート」の搭載</h2>
+          <p class="text-xs sm:text-sm text-zinc-500">表層の静的チェック（lint）だけでは絶対に届かない領域を、客観ルーブリックで解決する。</p>
         </div>
 
-        <div class="border border-zinc-200 rounded-xl bg-white overflow-hidden p-6 sm:p-8 space-y-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="border border-zinc-200 rounded-xl bg-white overflow-hidden p-4 sm:p-8 space-y-6 sm:space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             
-            <div class="space-y-3.5">
+            <div class="space-y-3 sm:space-y-3.5">
               <div class="flex items-center justify-between pb-2 border-b border-zinc-100">
-                <span class="text-sm font-bold text-zinc-500 uppercase tracking-wider font-mono">Phase 1: 機械検出（従来）</span>
-                <span class="text-xs font-mono text-zinc-400">静的チェック</span>
+                <span class="text-xs sm:text-sm font-bold text-zinc-500 uppercase tracking-wider font-mono">Phase 1: 機械検出（従来）</span>
+                <span class="text-[11px] sm:text-xs font-mono text-zinc-400">静的チェック</span>
               </div>
-              <p class="text-sm sm:text-[15px] text-zinc-600 leading-relaxed">
+              <p class="text-xs sm:text-[15px] text-zinc-600 leading-relaxed">
                 形態素解析（sudachipy）による <code>lint.py</code> が、禁止語・翻訳調・構文の単調さを決定論的に検出します。
               </p>
-              <div class="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-sm font-mono text-zinc-700">
+              <div class="p-3 sm:p-3.5 bg-zinc-50 rounded-lg border border-zinc-200 text-xs sm:text-sm font-mono text-zinc-700">
                 役割: <strong>地雷を踏んでいないかの足切り</strong>
               </div>
-              <p class="text-xs sm:text-[13px] text-zinc-400 leading-relaxed">
+              <p class="text-[11px] sm:text-[13px] text-zinc-400 leading-relaxed">
                 ※ ただし、lint が 0 件になっても「ダラダラ長い文」や「誰の実感もない冷たい文」は普通に残ります。
               </p>
             </div>
 
-            <div class="space-y-3.5 md:border-l md:border-zinc-200 md:pl-8">
+            <div class="space-y-3 sm:space-y-3.5 border-t border-zinc-200 pt-6 md:border-t-0 md:pt-0 md:border-l md:pl-8">
               <div class="flex items-center justify-between pb-2 border-b border-zinc-900">
-                <span class="text-sm font-bold text-zinc-950 uppercase tracking-wider font-mono">Phase 2: 自律推敲ハーネス</span>
-                <span class="text-xs font-mono font-medium text-zinc-950">v1.5.0 新機構</span>
+                <span class="text-xs sm:text-sm font-bold text-zinc-950 uppercase tracking-wider font-mono">Phase 2: 自律推敲ハーネス</span>
+                <span class="text-[11px] sm:text-xs font-mono font-medium text-zinc-950">v1.5.0 新機構</span>
               </div>
-              <p class="text-sm sm:text-[15px] text-zinc-600 leading-relaxed">
+              <p class="text-xs sm:text-[15px] text-zinc-600 leading-relaxed">
                 Phase 1 を通過した文章を、6軸の客観ルーブリックで自己採点。合格ライン（全軸90点以上）に届くまで自ら改稿を繰り返します。
               </p>
-              <div class="p-3.5 bg-zinc-900 rounded-lg border border-zinc-900 text-sm font-mono text-zinc-100">
+              <div class="p-3 sm:p-3.5 bg-zinc-900 rounded-lg border border-zinc-900 text-xs sm:text-sm font-mono text-zinc-100">
                 役割: <strong>引き算による高密度化 ＋ 体温の注入</strong>
               </div>
-              <p class="text-xs sm:text-[13px] text-zinc-600 font-medium leading-relaxed">
+              <p class="text-[11px] sm:text-[13px] text-zinc-600 font-medium leading-relaxed">
                 ※ 「前置きの削り」「生々しい実話の接地」を自律的に行い、収束させます。
               </p>
             </div>
@@ -701,65 +821,65 @@
       </section>
 
       <!-- Section: Rubrics -->
-      <section id="rubrics" class="space-y-6 scroll-mt-24">
+      <section id="rubrics" class="space-y-5 sm:space-y-6 scroll-mt-28 sm:scroll-mt-24">
         <div class="space-y-1.5">
           <div class="font-mono text-xs uppercase tracking-wider text-zinc-400 font-semibold">03 / CRITERIA</div>
-          <h2 class="text-2xl font-bold tracking-tight text-zinc-950">判定に使われる6つの評価軸</h2>
-          <p class="text-sm text-zinc-500">合格条件: 全軸 90 点以上、かつ総合平均 92 点以上</p>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950">判定に使われる6つの評価軸</h2>
+          <p class="text-xs sm:text-sm text-zinc-500">合格条件: 全軸 90 点以上、かつ総合平均 92 点以上</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
           
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5">
-            <div class="font-mono text-xs font-semibold text-zinc-400">01 / STYLE</div>
-            <h3 class="font-bold text-base text-zinc-900">脱AI臭・文体の自然さ</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2 sm:space-y-2.5">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-400">01 / STYLE</div>
+            <h3 class="font-bold text-sm sm:text-base text-zinc-900">脱AI臭・文体の自然さ</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               プレゼン的数宣言（「軸は2つあります」）、翻訳調ダッシュ（「——つまり〜——」）、自己啓発的決め文の根絶。
             </p>
           </div>
 
-          <div class="p-6 bg-white border-2 border-accent/60 rounded-xl space-y-2.5 relative shadow-sm">
-            <div class="font-mono text-xs font-semibold text-zinc-900 flex justify-between">
+          <div class="p-4 sm:p-6 bg-white border-2 border-accent/60 rounded-xl space-y-2 sm:space-y-2.5 relative shadow-sm">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-900 flex justify-between">
               <span>02 / DENSITY</span>
-              <span class="text-xs font-sans font-bold bg-accent text-white px-2 py-0.5 rounded">新設</span>
+              <span class="text-[10px] sm:text-xs font-sans font-bold bg-accent text-white px-2 py-0.5 rounded">新設</span>
             </div>
-            <h3 class="font-bold text-base text-zinc-950">情報密度・簡潔さ</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-950">情報密度・簡潔さ</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               読者の時間を奪うダラダラとした前置き、誰もが知る前提の講釈、言い換えによる文字数水増しをバッサリ削る。
             </p>
           </div>
 
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5">
-            <div class="font-mono text-xs font-semibold text-zinc-400">03 / SCAN</div>
-            <h3 class="font-bold text-base text-zinc-900">機能性・走査性</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2 sm:space-y-2.5">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-400">03 / SCAN</div>
+            <h3 class="font-bold text-sm sm:text-base text-zinc-900">機能性・走査性</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               見出しを読めば結論が分かり、コピーしたいコードやコマンドに迷わず最短で辿り着けるか。
             </p>
           </div>
 
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5">
-            <div class="font-mono text-xs font-semibold text-zinc-400">04 / LOGIC</div>
-            <h3 class="font-bold text-base text-zinc-900">論理の明晰性と納得感</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2 sm:space-y-2.5">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-400">04 / LOGIC</div>
+            <h3 class="font-bold text-sm sm:text-base text-zinc-900">論理の明晰性と納得感</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               「なぜそうなのか」の因果関係が腑に落ちるか。抽象論だけでなく、実測データや具体例で接地しているか。
             </p>
           </div>
 
-          <div class="p-6 bg-white border-2 border-accent/60 rounded-xl space-y-2.5 relative shadow-sm">
-            <div class="font-mono text-xs font-semibold text-zinc-900 flex justify-between">
+          <div class="p-4 sm:p-6 bg-white border-2 border-accent/60 rounded-xl space-y-2 sm:space-y-2.5 relative shadow-sm">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-900 flex justify-between">
               <span>05 / HUMANITY</span>
-              <span class="text-xs font-sans font-bold bg-accent text-white px-2 py-0.5 rounded">最重要</span>
+              <span class="text-[10px] sm:text-xs font-sans font-bold bg-accent text-white px-2 py-0.5 rounded">最重要</span>
             </div>
-            <h3 class="font-bold text-base text-zinc-950">人間味・誠実さ（体温）</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+            <h3 class="font-bold text-sm sm:text-base text-zinc-950">人間味・誠実さ（体温）</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               無菌室病の防止。「何にうんざりして作ったのか」「どこで実際に困ったのか」という書き手の生々しい実感（Why）を宿らせる。
             </p>
           </div>
 
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5">
-            <div class="font-mono text-xs font-semibold text-zinc-400">06 / TRUST</div>
-            <h3 class="font-bold text-base text-zinc-900">自己証明力</h3>
-            <p class="text-sm text-zinc-600 leading-relaxed">
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2 sm:space-y-2.5">
+            <div class="font-mono text-[11px] sm:text-xs font-semibold text-zinc-400">06 / TRUST</div>
+            <h3 class="font-bold text-sm sm:text-base text-zinc-900">自己証明力</h3>
+            <p class="text-xs sm:text-sm text-zinc-600 leading-relaxed">
               その文書そのものが、掲げている主張（自然さ、明晰さ）の最高のお手本になっており、看板に偽りがないか。
             </p>
           </div>
@@ -768,73 +888,75 @@
       </section>
 
       <!-- Section: Quick Start -->
-      <section id="quick-start" class="space-y-6 scroll-mt-24">
+      <section id="quick-start" class="space-y-5 sm:space-y-6 scroll-mt-28 sm:scroll-mt-24">
         <div class="space-y-1.5">
           <div class="font-mono text-xs uppercase tracking-wider text-zinc-400 font-semibold">04 / GET STARTED</div>
-          <h2 class="text-2xl font-bold tracking-tight text-zinc-950">導入と使い方</h2>
-          <p class="text-sm text-zinc-500">Claude Code, Cursor, ChatGPT, Codex など主要エージェントに対応。</p>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950">導入と使い方</h2>
+          <p class="text-xs sm:text-sm text-zinc-500">Claude Code, Cursor, ChatGPT, Codex など主要エージェントに対応。</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5">
           
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-3">
-            <div class="text-sm font-bold text-zinc-950">Claude Code の場合</div>
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5 sm:space-y-3">
+            <div class="text-xs sm:text-sm font-bold text-zinc-950">Claude Code の場合</div>
             <div class="relative">
-              <pre class="bg-zinc-950 text-zinc-100 p-3.5 pr-20 rounded-lg font-mono text-xs sm:text-sm overflow-x-auto"><code>npx skills add coji/natural-japanese</code></pre>
-              <button type="button" class="copy-btn absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition border border-zinc-700/60" data-clipboard="npx skills add coji/natural-japanese" title="コマンドをコピー">
-                <svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <svg class="check-icon w-3.5 h-3.5 hidden text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <pre class="bg-zinc-950 text-zinc-100 p-3 sm:p-3.5 pr-16 sm:pr-20 rounded-lg font-mono text-[11px] sm:text-sm overflow-x-auto"><code>npx skills add coji/natural-japanese</code></pre>
+              <button type="button" class="copy-btn absolute top-2 right-2 sm:top-2.5 sm:right-2.5 px-2 sm:px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] sm:text-xs font-mono flex items-center gap-1 sm:gap-1.5 transition border border-zinc-700/60" data-clipboard="npx skills add coji/natural-japanese" title="コマンドをコピー">
+                <svg class="copy-icon w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <svg class="check-icon w-3 h-3 sm:w-3.5 sm:h-3.5 hidden text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 <span class="btn-text">Copy</span>
               </button>
             </div>
-            <p class="text-xs text-zinc-500">エージェントの設定ディレクトリへ自動インストール。</p>
+            <p class="text-[11px] sm:text-xs text-zinc-500">エージェントの設定ディレクトリへ自動インストール。</p>
           </div>
 
-          <div class="p-6 bg-white border border-zinc-200 rounded-xl space-y-3">
-            <div class="text-sm font-bold text-zinc-950">Cursor / ChatGPT / Codex などの場合</div>
+          <div class="p-4 sm:p-6 bg-white border border-zinc-200 rounded-xl space-y-2.5 sm:space-y-3">
+            <div class="text-xs sm:text-sm font-bold text-zinc-950">Cursor / ChatGPT / Codex などの場合</div>
             <div class="relative">
-              <pre class="bg-zinc-950 text-zinc-100 p-3.5 pr-20 rounded-lg font-mono text-xs sm:text-sm overflow-x-auto"><code>npx openskills install coji/natural-japanese
+              <pre class="bg-zinc-950 text-zinc-100 p-3 sm:p-3.5 pr-16 sm:pr-20 rounded-lg font-mono text-[11px] sm:text-sm overflow-x-auto"><code>npx openskills install coji/natural-japanese
 npx openskills sync</code></pre>
-              <button type="button" class="copy-btn absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition border border-zinc-700/60" data-clipboard="npx openskills install coji/natural-japanese && npx openskills sync" title="コマンドをコピー">
-                <svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <svg class="check-icon w-3.5 h-3.5 hidden text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <button type="button" class="copy-btn absolute top-2 right-2 sm:top-2.5 sm:right-2.5 px-2 sm:px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] sm:text-xs font-mono flex items-center gap-1 sm:gap-1.5 transition border border-zinc-700/60" data-clipboard="npx openskills install coji/natural-japanese && npx openskills sync" title="コマンドをコピー">
+                <svg class="copy-icon w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <svg class="check-icon w-3 h-3 sm:w-3.5 sm:h-3.5 hidden text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 <span class="btn-text">Copy</span>
               </button>
             </div>
-            <p class="text-xs text-zinc-500"><code>AGENTS.md</code> を介してあらゆるエージェントで利用可能。</p>
+            <p class="text-[11px] sm:text-xs text-zinc-500"><code>AGENTS.md</code> を介してあらゆるエージェントで利用可能。</p>
           </div>
 
         </div>
 
-        <div class="p-6 sm:p-7 bg-white border border-zinc-200 rounded-xl space-y-4">
-          <div class="text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">Usage</div>
-          <p class="text-sm sm:text-[15px] text-zinc-700 leading-relaxed font-normal">
+        <div class="p-4 sm:p-7 bg-white border border-zinc-200 rounded-xl space-y-3.5 sm:space-y-4">
+          <div class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">Usage</div>
+          <p class="text-xs sm:text-[15px] text-zinc-700 leading-relaxed font-normal">
             導入後は特別なコマンドを意識する必要はありません。普段通りエージェントに指示を出すだけで、新ハーネスが自動起動します。
           </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm pt-1">
-            <div class="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200/80 font-mono text-zinc-800">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm pt-1">
+            <div class="p-3 sm:p-3.5 bg-zinc-50 rounded-lg border border-zinc-200/80 font-mono text-zinc-800">
               「この議事録を読みやすくまとめて」
             </div>
-            <div class="p-3.5 bg-zinc-50 rounded-lg border border-zinc-200/80 font-mono text-zinc-800">
+            <div class="p-3 sm:p-3.5 bg-zinc-50 rounded-lg border border-zinc-200/80 font-mono text-zinc-800">
               「AI臭いから自然な日本語に直して」
             </div>
           </div>
-          <div class="text-xs sm:text-sm text-zinc-500 pt-1 flex flex-wrap items-center gap-2">
-            <span class="font-mono bg-zinc-100 px-2 py-0.5 rounded text-zinc-700 font-medium">診断のみ:</span>
-            <span>書き換えずにスコアだけ測る場合は</span>
-            <span class="inline-flex items-center gap-1.5 font-mono bg-zinc-100 px-2 py-0.5 rounded text-zinc-800 text-xs">
-              <code>/natural-japanese score document.md</code>
-              <button type="button" class="copy-btn text-zinc-400 hover:text-zinc-900 transition flex items-center" data-clipboard="/natural-japanese score document.md" title="コマンドをコピー">
-                <svg class="copy-icon w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                <svg class="check-icon w-3 h-3 hidden text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          <div class="text-xs sm:text-sm text-zinc-500 pt-1 flex flex-col sm:flex-row sm:items-center gap-2">
+            <div class="flex items-center gap-2">
+              <span class="font-mono bg-zinc-100 px-2 py-0.5 rounded text-zinc-700 font-medium text-[11px] sm:text-xs shrink-0">診断のみ:</span>
+              <span class="text-xs sm:text-sm">書き換えずにスコアだけ測る場合:</span>
+            </div>
+            <div class="w-full sm:w-auto inline-flex items-center justify-between gap-1.5 font-mono bg-zinc-100 px-2.5 py-1 rounded text-zinc-800 text-[11px] sm:text-xs">
+              <code class="truncate">/natural-japanese score document.md</code>
+              <button type="button" class="copy-btn shrink-0 text-zinc-400 hover:text-zinc-950 transition p-1" data-clipboard="/natural-japanese score document.md" title="コマンドをコピー">
+                <svg class="copy-icon w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <svg class="check-icon w-3.5 h-3.5 hidden text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
               </button>
-            </span>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- Footer -->
-      <footer class="pt-12 pb-16 border-t border-zinc-200 text-xs sm:text-sm text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
+      <footer class="pt-8 sm:pt-12 pb-12 sm:pb-16 border-t border-zinc-200 text-xs sm:text-sm text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 font-mono text-center sm:text-left">
         <div>natural-japanese v1.5.0 · MIT License</div>
         <div class="flex items-center gap-4">
           <a href="https://github.com/coji/natural-japanese" class="text-zinc-600 hover:text-zinc-950 transition">GitHub</a>
@@ -876,13 +998,14 @@ npx openskills sync</code></pre>
       // ScrollSpy
       const sections = document.querySelectorAll('section[id]');
       const navLinks = document.querySelectorAll('#toc .toc-link');
+      const mobileChips = document.querySelectorAll('.mobile-chip');
 
       function updateActiveToc() {
         const scrollY = window.scrollY;
         let currentSectionId = '';
 
         sections.forEach(section => {
-          const sectionTop = section.offsetTop - 120;
+          const sectionTop = section.offsetTop - 140;
           const sectionHeight = section.offsetHeight;
           if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
             currentSectionId = section.getAttribute('id');
@@ -894,6 +1017,17 @@ npx openskills sync</code></pre>
             link.classList.add('active');
           } else {
             link.classList.remove('active');
+          }
+        });
+
+        mobileChips.forEach(chip => {
+          if (chip.getAttribute('href') === `#${currentSectionId}`) {
+            if (!chip.classList.contains('active')) {
+              chip.classList.add('active');
+              chip.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+            }
+          } else {
+            chip.classList.remove('active');
           }
         });
       }
