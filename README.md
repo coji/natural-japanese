@@ -9,6 +9,8 @@
 
 `natural-japanese` は、仕事の日本語を読みやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・企画書・ブログ記事などを対象に、論旨がすっきり通る自然な文章への執筆や推敲を支援します。
 
+長文のBefore/After実機比較や新機能の解説は、[v1.5.0 ビジュアルリリースノート（Web）](https://artifactshare.com/a/x3a7rghxqv) をご覧ください。
+
 > **English summary:** An Agent Skill for writing clear, readable Japanese work documents. It prevents "AI-smelling" patterns using a style constitution and mechanically detects issues with sudachipy-based linting.
 
 ## 設計の考え方
@@ -37,7 +39,9 @@
 **After**
 > リモートワークが広まってから、通勤で潰れていた1時間が自分の時間に戻ってきた人は多いはずだ。企業側もオフィスの家賃を削れる。誰も損をしていないように見える働き方だが、実際にそう言い切れるのかは、もう少し先まで見ないと分からない。
 
-`重要なのは` `このように` `と言えるだろう` といった手癖の定型句を外し、結論を急いで押し付ける構えを、実感と留保のある表現に変えています。その他の例は [`examples.md`](./skills/natural-japanese/references/examples.md) を参照してください。
+`重要なのは` `このように` `と言えるだろう` といった手癖の定型句を外し、結論を急いで押し付ける構えを、実感と留保のある表現に変えています。
+
+長文の実機検証（定例会議廃止メモ、Redis→KV移行メモ）の段落ごとの対比は [v1.5.0 ビジュアルリリースノート](https://artifactshare.com/a/x3a7rghxqv) で確認できます。その他の例は [`examples.md`](./skills/natural-japanese/references/examples.md) を参照してください。
 
 ## インストール
 
@@ -49,7 +53,7 @@ npx skills add coji/natural-japanese
 
 Claude Code などのエージェント設定ディレクトリにインストールします。
 
-### 2. `npx openskills install`（Cursor / Windsurf / Codex など）
+### 2. `npx openskills install`（Cursor / ChatGPT / Codex など）
 
 ```bash
 npx openskills install coji/natural-japanese

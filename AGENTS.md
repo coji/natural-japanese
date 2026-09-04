@@ -22,7 +22,7 @@ npx openskills sync
 ```
 
 `npx openskills sync` がこの AGENTS.md 配下に `<available_skills>` ブロックを生成し、
-Claude Code 以外のエージェント（Cursor, Windsurf, Aider, Codex 等）からもこのスキルを利用できるようにします。
+Claude Code 以外のエージェント（Cursor, ChatGPT, Codex 等）からもこのスキルを利用できるようにします。
 
 ## 検査スクリプトの実行
 
