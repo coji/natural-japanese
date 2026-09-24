@@ -426,6 +426,6 @@ def read_source_file(path: Path) -> tuple[str | None, str | None]:
     if path.is_dir():
         return None, f"エラー: ディレクトリが指定されました（ファイルを指定してください）: {path}"
     try:
-        return path.read_text(encoding="utf-8"), None
+        return path.read_text(encoding="utf-8-sig"), None
     except (OSError, UnicodeDecodeError) as exc:
         return None, f"エラー: ファイルを読み込めません: {path} ({exc})"
