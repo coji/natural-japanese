@@ -47,11 +47,23 @@
 
 ### 1. `npx skills add`（推奨）
 
+Node.js 22.20以降がインストールされている电脑上、次のコマンドを一度実行すると、Codex・Claude Code・OpenCodeのすべてで `natural-japanese` を利用できます。
+
 ```bash
-npx skills add coji/natural-japanese
+npx skills add coji/natural-japanese --global --agent codex opencode claude-code --yes
 ```
 
-Claude Code などのエージェント設定ディレクトリにインストールします。
+`--global` はユーザー単位でインストールします。`--agent` は対象エージェントを明示するため、対話式の選択を省略できます。
+
+CodexとOpenCodeは `~/.agents/skills/natural-japanese` を共用し、Claude Codeは同じ場所へのリンクから参照します。WindowsではJunction（ディレクトリ接続）を使います。Skillの本体を1か所に置くため、更新時のコピーが個別にずれることはありません。
+
+インストール後は、各エージェントを再起動して変更を反映してください。導入済みのSkillは次のコマンドで確認できます。
+
+```bash
+npx skills list --global --json
+```
+
+`-y` または `--yes` を付けない場合は、途中でエージェントを選ぶ対話形式になります。
 
 ### 2. `npx openskills install`（Cursor / ChatGPT / Codex など）
 
