@@ -1,0 +1,22 @@
+{
+  "year": 2022,
+  "month": 8,
+  "days": [
+    1,
+    31
+  ],
+  "collected_at": "2026-10-02T22:34:14",
+  "criteria": {
+    "cutoff_for_pre_ai_updates": "2022-11-30",
+    "min_prose_chars": 300,
+    "min_kana_ratio": 0.1
+  },
+  "fetched": 7102,
+  "kept": 4172,
+  "excluded": {
+    "short_prose": 2022,
+    "updated_after_cutoff": 854,
+    "slide": 10,
+    "non_japanese": 44
+  }
+}

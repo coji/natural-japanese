@@ -21,12 +21,16 @@ corpus/
 ├── README.md            このファイル
 ├── sources.json          人間コーパス(web/aozora)のソース定義
 ├── fetch.py               sources.json の type=web を取得して corpus/human/web/ に保存
-├── generate.py            AI コーパスを claude/codex CLI 経由で生成し corpus/ai/ に保存
+├── generate.py            AI コーパスを claude/codex/agy CLI 経由で生成し corpus/ai/ に保存
 ├── generate-all.sh        全モデル × 全ジャンルを一括生成するランナー(generate.py のループ)
 ├── human/
 │   ├── aozora/             青空文庫の随筆(パブリックドメイン、コミット対象)
 │   └── web/                note/Zenn/官公庁 等の記事本文(著作権あり、非コミット、.gitkeep のみ)
 ├── ai/                     AI生成記事(非コミット、.gitkeep のみ。再生成可能なため)
+├── ai-legacy/              個人設定の隔離前に生成した旧 AI 記事(非コミット、比較用に退避)
+├── paired/                 対コーパス: human 記事1本ごとに各モデルの記事を対で生成(本文は非コミット)
+├── timeslice/              時系列コーパス: Qiita の各年8月の記事(本文は非コミット)
+├── ROADMAP.md              コーパス・検証手法の洗い出しロードマップ(改版しながら運用)
 ├── experiments/            検出器候補の使い捨て検証スクリプト・生データ(非コミット、一部例外あり)
 └── reports/                calibrate.py 等の出力レポート(下記「reports の構成」参照)
 ```
@@ -68,14 +72,34 @@ corpus/
 ## 収録状況
 
 - `corpus/human/aozora/`: 寺田寅彦・中島敦・坂口安吾・岸田國士の随筆 12本(実収録・コミット済み)
-- `corpus/human/web/`: `sources.json` に基づき `fetch.py` で取得した記事本文 125本
-  (note エッセイ 38 + Zenn 技術記事 43 + 官公庁系ビジネス文書 32 + スライド系資料 12)
-- `corpus/sources.json`: 上記 web エントリ 137件のソース定義(ジャンル別内訳: essay 50 / tech 43 / business 32 / slide 12。
-  一部エントリは genre ラベルと human/web/ 上のファイル接頭辞(note-/zenn-/biz-/slide-)が対応する)
-- `corpus/ai/`: 7モデル × 58本(essay/tech/blog 各10 + business 12 + slide 12) = 406本
-  (`generate.py` / `generate-all.sh` で全モデル・全ジャンル生成済み)
-  - Claude 系: `claude-haiku-4-5` / `claude-sonnet-5` / `claude-opus-4-8` / `claude-fable-5`
-  - Codex 系: `gpt-5.6-sol` / `gpt-5.6-terra` / `gpt-5.6-luna`
+- `corpus/human/web/`: `sources.json` に基づき `fetch.py` で取得した記事本文 93本
+  (ジャンル別: business 28 / essay 8 / slide 12 / tech 45)。
+  コミット `9a8f46d` で、生成AI以前(2022年以前)の記事に絞って137件から減らした
+- `corpus/sources.json`: 上記 web エントリと aozora エントリ、計 105件のソース定義
+- `corpus/ai/`: 再生成待ち(空)。旧7モデル × 58本 = 406本は `corpus/ai-legacy/` に退避した。
+  旧コーパスは生成時に実行者個人の設定(Claude Code の出力スタイル、`~/.agents/skills` の
+  推敲スキル、codex の AGENTS.md 等)が混入していたため、新しいコーパスとは混ぜない。
+  - 新しい生成対象(全モデル effort low): `claude-fable-5-1` / `claude-opus-5-5` / `claude-sonnet-5-5`
+    (claude -p)、`gpt-6-astra` / `gpt-6.1-sol` / `gpt-6-luna`(codex exec)、`gemini-3.8-flash`(agy -p)
+  - 各 CLI の標準のシステムプロンプトは残し、個人設定だけを外す(普通の利用者が使う状態で観測する)。
+    隔離の方法は `generate.py` 冒頭のコメントを参照。agy は `corpus/.env` の `GEMINI_API_KEY` を使う
+- `corpus/paired/`: 対コーパス。`collect_qiita.py` で生成AI以前の Qiita 記事を集め、
+  `generate_paired.py` で記事ごとに各モデルの記事を生成し、`evaluate_pairs.py` / `analyze_detectors.py` で比べる。
+  セットごとの役割(開発用・検証用)は `ROADMAP.md` 5章を参照。本文(human、各条件の生成記事)はコミットしない。
+  推敲条件(`ai-polish/`)の出力は human 記事の二次的著作物なので、human 本文と同じ扱いにする
+- `corpus/llmjp/`: LLM-jp コーパス v4 から選んだ、生成AI以前の説明的・実務的な Web 文章の一覧と抽出スクリプト(本文は非コミット)
+- `corpus/mlm/`: 同じ BERT を AI 以前の人間の文書と生成AIの文章で別々に追加学習し、語を伏せて当てさせた差で
+  AI 時代の言い回しを見つける実験(ROADMAP F40〜F47)。データとモデルは別のリポジトリで公開した:
+  [coji/ja-ai-style-corpus](https://github.com/coji/ja-ai-style-corpus)(データとスクリプト。Hugging Face にも同名のデータセット)、
+  [coji/ja-ai-style-bert](https://huggingface.co/coji/ja-ai-style-bert)(モデル)
+- `corpus/selfcorpus/`・`corpus/collocation/`・`corpus/bench/`: 作者の文書へのスキルの適用、語の組み合わせによる判定、モデル評価ベンチ
+- `corpus/timeslice/`: 時系列コーパス。`collect_qiita_timeslice.py` で Qiita の2019〜2026年の各8月の記事を集め、
+  `features.py` で特徴量を出し、`replicate.py` / `lexicon.py` / `structure.py` / `embed_eval.py` で集計する。
+  Qiita API のトークンは `corpus/.env` の `QIITA_TOKEN`
+
+`corpus/` の報告のうち lint を使った数値の一部は、`main` に入っていない版の `lint.py` で出した
+(URL だけの行の除外、「〜することができる」の扱いの変更、比喩の語の検出)。いまの `main` の `lint.py` で出し直すと、
+数値が少し変わることがある。
 
 ## 再現手順
 

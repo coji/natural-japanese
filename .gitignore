@@ -3,12 +3,22 @@ __pycache__/
 .claude/
 /.wrangler/
 
+# corpus 生成用の API キー
+corpus/.env
+
 # corpus: 著作権のある本文・再生成可能な生成物はコミットしない
 # (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
 corpus/human/web/*
 !corpus/human/web/.gitkeep
 corpus/ai/*
 !corpus/ai/.gitkeep
+corpus/ai-legacy/
+# 対コーパス: 本文(human は著作権あり、ai は再生成可能、ai-polish は human 記事の二次的著作物)はコミットしない。
+# 収集・生成スクリプトと manifest.json(記事 ID と条件)だけをコミットする
+corpus/paired/*/human/
+corpus/paired/*/ai/
+corpus/paired/*/ai-*/
+corpus/paired/*/logs/
 
 # corpus/reports: calibrate.py の出力（再生成可能なレポート）。archive/ (旧世代)
 # と research/ の作業メモは原則非コミット。research/ 内でも、公開用に整理した
@@ -23,6 +33,8 @@ corpus/reports/*
 !corpus/reports/business-fp-check.md
 !corpus/reports/antithesis-recalibration.md
 !corpus/reports/nn-detector-sweep.md
+!corpus/reports/genre-feasibility.md
+!corpus/reports/next-version-candidates.md
 !corpus/reports/reading-load-calibration.md
 # skill-eval-findings.md は corpus/experiments/skill-eval/eval.py が生成する、
 # スキル適用の抽象化された所見レポート（元文書の本文・固有名詞・数値は含まない）
@@ -33,6 +45,9 @@ corpus/reports/research/*
 !corpus/reports/research/prose-rhythm-evidence-matrix.md
 !corpus/reports/research/sentence-length-analysis.md
 !corpus/reports/research/sentence-length-analysis.json
+!corpus/reports/research/reading-environment-2026.md
+!corpus/reports/research/exemplar-sources.md
+!corpus/reports/research/llm-jp-corpus.md
 
 # corpus/experiments: 検出器候補の使い捨て検証スクリプト・生データ（再生成可能）
 # readability-sweep.py はコミット済みレポートの再現手段のため例外的にコミット対象
@@ -96,3 +111,12 @@ corpus/experiments/skill-eval/*
 !corpus/experiments/skill-eval/eval.py
 !corpus/experiments/skill-eval/manifest.example.json
 !corpus/experiments/skill-eval/README.md
+
+# 時系列コーパスの本文(著作権あり)。manifest と集計結果だけをコミットする
+corpus/timeslice/*/data/
+
+# 本人の文書(顧客情報を含む)。手元の分析だけに使い、コミットしない
+corpus/private/
+
+# LLM-jp 由来のファイルごとの一覧(再生成できる)。公開用の一覧 explanatory-*.jsonl だけをコミットする
+corpus/llmjp/manifest/level0-*

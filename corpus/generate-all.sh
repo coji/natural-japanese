@@ -20,8 +20,9 @@ set -uo pipefail
 
 cd "$(dirname "$0")"
 
-CLAUDE_MODELS="claude-haiku-4-5 claude-sonnet-5 claude-opus-4-8 claude-fable-5"
-CODEX_MODELS="gpt-5.6-sol gpt-5.6-terra gpt-5.6-luna"
+CLAUDE_MODELS="claude-fable-5-1 claude-opus-5-5 claude-sonnet-5-5"
+CODEX_MODELS="gpt-6-astra gpt-6.1-sol gpt-6-luna"
+AGY_MODELS="gemini-3.8-flash"
 GENRES="blog essay tech business slide"
 
 MAX_PARALLEL=2
@@ -46,6 +47,7 @@ run_jobs() {
 
 run_jobs claude "$CLAUDE_MODELS"
 run_jobs codex "$CODEX_MODELS"
+run_jobs agy "$AGY_MODELS"
 
 wait
 

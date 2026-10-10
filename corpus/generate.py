@@ -5,8 +5,8 @@
 """corpus/generate.py — AI コーパス生成。
 
 corpus/human/ と同じジャンル(essay / tech / blog)のトピックリストを内蔵し、
-claude CLI または codex CLI に「素の状態」(AI臭除去の指示なし)でブログ記事
-を書かせ、corpus/ai/{model}/{topic-id}.md に保存する。
+claude / codex / agy の各 CLI に「素の状態」(AI臭除去の指示なし)で
+ブログ記事を書かせ、corpus/ai/{model}/{topic-id}.md に保存する。
 
 設計方針:
     - プロンプトは意図的に素っ気なくする。「〜についてブログ記事を書いて」
@@ -16,14 +16,22 @@ claude CLI または codex CLI に「素の状態」(AI臭除去の指示なし)
     - 生成メタデータ(モデル・エンジン・日時・プロンプト)を各ファイルの
       frontmatter に記録する。再現性と検証可能性のため。
     - --engine claude では `claude -p "<prompt>" --model <model>` を、
-      --engine codex では `codex exec "<prompt>"` を呼ぶ。
+      --engine codex では `codex exec "<prompt>"` を、
+      --engine agy では Antigravity CLI の `agy -p "<prompt>"` を呼ぶ。
+    - 各 CLI の標準のシステムプロンプトは残す(普通の利用者が使う状態で観測する)。
+      一方、実行者個人の設定(出力スタイル・ルール・hook・~/.agents/skills 等の
+      ユーザースキル)は隔離して外す。natural-japanese 自身などの推敲スキルが
+      発動すると、素の出力にならないため。隔離の実体は corpus/.isolation/ 配下の
+      空の HOME / CODEX_HOME / 作業ディレクトリ(非コミット)。
+    - 推論の強さは --effort(既定 low)で全エンジン揃える。
     - このスクリプトは Phase 2 の後半で本格実行する想定。今回は動作確認
       として --limit 1 で1本だけ生成して確認するにとどめる(本格生成は
       次フェーズ)。
 
 使い方:
     uv run corpus/generate.py --engine claude --model claude-sonnet-5 --limit 1
-    uv run corpus/generate.py --engine codex --limit 1
+    uv run corpus/generate.py --engine codex --model gpt-6-luna --limit 1
+    uv run corpus/generate.py --engine agy --model gemini-3.8-flash --limit 1
     uv run corpus/generate.py --engine claude --model claude-sonnet-5  # 全トピック生成(本格実行)
 """
 
@@ -32,13 +40,28 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 CORPUS_DIR = Path(__file__).parent
 AI_DIR = CORPUS_DIR / "ai"
-NEUTRAL_CWD = "/tmp"
+ENV_FILE = CORPUS_DIR / ".env"  # GEMINI_API_KEY を置く(非コミット)
+
+# 実行者個人の設定を外すための隔離ディレクトリ。ホームディレクトリとこの
+# リポジトリの外に置く必要がある: 各 CLI は作業ディレクトリから親をたどって
+# CLAUDE.md / AGENTS.md(git ルート)などを読むため、リポジトリ内やホーム配下では
+# 隔離にならない。
+# - NEUTRAL_CWD: 空の作業ディレクトリ
+# - ISOLATED_HOME: codex / agy に渡す空の HOME。~/.agents/skills、
+#   ~/.codex/AGENTS.md・hook、~/.gemini/GEMINI.md・ユーザースキルを読ませない
+# - CODEX_HOME: auth.json だけを置いた codex の設定ディレクトリ
+ISOLATION_DIR = Path("/tmp/corpus-gen-isolation")
+NEUTRAL_CWD = ISOLATION_DIR / "cwd"
+ISOLATED_HOME = ISOLATION_DIR / "home"
+CODEX_HOME = ISOLATION_DIR / "codex-home"
 
 # ---------------------------------------------------------------------------
 # トピックリスト(人間コーパスと同ジャンル)。各ジャンル 10本以上、合計 30本以上。
@@ -151,10 +174,42 @@ NONINTERACTIVE_SYSTEM_PROMPT = (
 )
 
 
-def run_claude(prompt: str, model: str) -> str:
-    # cwd をリポジトリ外(素の状態)にする: このリポジトリの CLAUDE.md や
-    # スキルのメモリが自動読み込みされると、Claude が「素っ気ないプロンプト」を
-    # 対話的な確認質問として扱ってしまい、記事本文が生成されないため。
+def prepare_isolation() -> None:
+    for d in (NEUTRAL_CWD, ISOLATED_HOME, CODEX_HOME):
+        d.mkdir(parents=True, exist_ok=True)
+    # 認証情報だけは毎回実環境からコピーする(トークン更新に追従するため)
+    auth = Path.home() / ".codex" / "auth.json"
+    if auth.exists():
+        shutil.copy2(auth, CODEX_HOME / "auth.json")
+    # agy は API キー認証にする(普段のログインは macOS キーチェーンにあり、
+    # HOME を差し替えると参照できず、キーチェーンのダイアログが出るため)
+    agy_dir = ISOLATED_HOME / ".gemini" / "antigravity-cli"
+    agy_dir.mkdir(parents=True, exist_ok=True)
+    (agy_dir / "settings.json").write_text('{ "modelProvider": "gemini" }\n', encoding="utf-8")
+
+
+def isolated_env(**extra: str) -> dict[str, str]:
+    env = dict(os.environ)
+    env["HOME"] = str(ISOLATED_HOME)
+    env.update(extra)
+    return env
+
+
+def load_env_value(name: str) -> str:
+    value = os.environ.get(name)
+    if not value and ENV_FILE.exists():
+        for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            if line.startswith(f"{name}="):
+                value = line.split("=", 1)[1].strip()
+    if not value:
+        raise RuntimeError(f"{name} が見つからない({ENV_FILE} に置く)")
+    return value
+
+
+def run_claude(prompt: str, model: str, effort: str) -> str:
+    # --setting-sources project: ユーザー設定(出力スタイル・ルール・プラグイン・
+    # hook)を読まない。作業ディレクトリは空なので project 設定も実質なし。
+    # Claude Code 標準のシステムプロンプトと組み込みスキルは残る。
     result = subprocess.run(
         [
             "claude",
@@ -162,6 +217,10 @@ def run_claude(prompt: str, model: str) -> str:
             prompt,
             "--model",
             model,
+            "--effort",
+            effort,
+            "--setting-sources",
+            "project",
             # ツール(Write/Bash等)を一切使わせず、応答テキストだけを本文として
             # 得る。ツールがあると「ファイルに保存しました」等の要約だけを
             # 返したり、確認や許可を求めたりして本文が得られないことがある。
@@ -172,21 +231,37 @@ def run_claude(prompt: str, model: str) -> str:
         ],
         capture_output=True,
         text=True,
-        timeout=300,
+        # 標準入力は閉じる。codex exec は標準入力が開いていると追加入力を待ち、
+        # バックグラウンド実行でパイプが閉じないとタイムアウトまで止まる
+        stdin=subprocess.DEVNULL,
+        timeout=600,
         check=True,
         cwd=NEUTRAL_CWD,
     )
     return result.stdout.strip()
 
 
-def run_codex(prompt: str, model: str | None = None) -> str:
+def run_codex(prompt: str, model: str | None, effort: str, codex_home: Path | None = None) -> str:
     # codex exec には claude -p の --append-system-prompt に相当するフラグが
     # ないため、非対話バッチ実行である旨の指示をプロンプト本文に前置する。
     # これがないと、business ジャンルの「報告書/メールを書いて」のような
     # 実務寄りのプロンプトに対して、codex が本文を書かず「情報を送って
     # ください」という確認質問だけを返し、コーパスとして機能しないことがある。
     full_prompt = f"{NONINTERACTIVE_SYSTEM_PROMPT}\n\n{prompt}"
-    cmd = ["codex", "exec", "--skip-git-repo-check"]
+    cmd = [
+        "codex",
+        "exec",
+        "--skip-git-repo-check",
+        "--sandbox",
+        "read-only",
+        "-c",
+        f"model_reasoning_effort={effort}",
+        # Web 検索を止める。対コーパスでは元記事を検索して写せてしまい、
+        # 「モデル自身の文体」が観測できなくなるため(claude はツール全禁止、
+        # agy は -p で検索しないことを会話ログで確認済み)
+        "-c",
+        'web_search="disabled"',
+    ]
     if model:
         cmd += ["-m", model]
     cmd.append(full_prompt)
@@ -194,9 +269,61 @@ def run_codex(prompt: str, model: str | None = None) -> str:
         cmd,
         capture_output=True,
         text=True,
-        timeout=300,
+        # 標準入力は閉じる。codex exec は標準入力が開いていると追加入力を待ち、
+        # バックグラウンド実行でパイプが閉じないとタイムアウトまで止まる
+        stdin=subprocess.DEVNULL,
+        timeout=600,
         check=True,
         cwd=NEUTRAL_CWD,
+        env=isolated_env(CODEX_HOME=str(codex_home or CODEX_HOME)),
+    )
+    return result.stdout.strip()
+
+
+def agy_binary() -> str:
+    # mise の shim は HOME を差し替えると解決できないため、実体のパスを使う
+    try:
+        return subprocess.run(
+            ["mise", "which", "agy"], capture_output=True, text=True, check=True
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        path = shutil.which("agy")
+        if not path:
+            raise RuntimeError("agy が見つからない(mise use -g agy で入れる)")
+        return path
+
+
+def run_agy(prompt: str, model: str, effort: str) -> str:
+    # agy も追加のシステムプロンプトを渡せないため、非対話の指示をプロンプトに
+    # 前置する。effort はモデル ID の接尾辞で指定する(例: gemini-3.8-flash-low)。
+    # SSH_* は agy に SSH 接続中と判定させ、OS キーチェーンを使わせないための
+    # 指定(キーチェーンに触れると HOME 差し替えでダイアログが出る)。
+    full_prompt = f"{NONINTERACTIVE_SYSTEM_PROMPT}\n\n{prompt}"
+    result = subprocess.run(
+        [
+            agy_binary(),
+            "-p",
+            full_prompt,
+            "--model",
+            f"{model}-{effort}",
+            "--disable-slash-commands",
+            "--print-timeout",
+            "580s",
+        ],
+        capture_output=True,
+        text=True,
+        # 標準入力は閉じる。codex exec は標準入力が開いていると追加入力を待ち、
+        # バックグラウンド実行でパイプが閉じないとタイムアウトまで止まる
+        stdin=subprocess.DEVNULL,
+        timeout=600,
+        check=True,
+        cwd=NEUTRAL_CWD,
+        env=isolated_env(
+            GEMINI_API_KEY=load_env_value("GEMINI_API_KEY"),
+            SSH_CONNECTION="127.0.0.1 1 127.0.0.1 22",
+            SSH_CLIENT="127.0.0.1 1 22",
+            SSH_TTY="/dev/null",
+        ),
     )
     return result.stdout.strip()
 
@@ -206,6 +333,7 @@ def generate_one(
     engine: str,
     model: str,
     *,
+    effort: str = "low",
     model_explicit: bool = True,
     retries: int = 1,
     force: bool = False,
@@ -228,11 +356,16 @@ def generate_one(
     for attempt in range(retries + 1):
         try:
             if engine == "claude":
-                body = run_claude(prompt, model)
+                body = run_claude(prompt, model, effort)
             elif engine == "codex":
-                body = run_codex(prompt, codex_model)
+                body = run_codex(prompt, codex_model, effort)
+            elif engine == "agy":
+                body = run_agy(prompt, model, effort)
             else:
                 raise ValueError(f"unknown engine: {engine}")
+            if not body:
+                # agy はまれに本文なしで終わることがあるため、再試行の対象にする
+                raise RuntimeError("empty response")
             last_error = None
             break
         except Exception as e:  # noqa: BLE001
@@ -253,6 +386,8 @@ def generate_one(
         f"genre: {topic['genre']}\n"
         f"engine: {engine}\n"
         f"model: {out_model}\n"
+        f"effort: {effort}\n"
+        "isolated: true\n"
         f"generated_at: {generated_at}\n"
         f"prompt: {json.dumps(prompt, ensure_ascii=False)}\n"
         "---\n\n"
@@ -265,6 +400,7 @@ def generate_one(
         "genre": topic["genre"],
         "engine": engine,
         "model": out_model,
+        "effort": effort,
         "chars": len(body),
         "generated_at": generated_at,
         "path": str(out_path.relative_to(CORPUS_DIR)),
@@ -272,13 +408,20 @@ def generate_one(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="AI コーパス生成(claude/codex CLI 経由)")
+    parser = argparse.ArgumentParser(description="AI コーパス生成(claude/codex/agy CLI 経由)")
     DEFAULT_MODEL = "claude-sonnet-5"
-    parser.add_argument("--engine", choices=["claude", "codex"], default="claude")
+    parser.add_argument("--engine", choices=["claude", "codex", "agy"], default="claude")
     parser.add_argument(
         "--model",
         default=DEFAULT_MODEL,
-        help="claude -p --model / codex exec -m に渡すモデル名(--engine codex でも有効)",
+        help="claude -p --model / codex exec -m / agy --model に渡すモデル名"
+        "(agy では effort 接尾辞を除いた ID。例: gemini-3.8-flash)",
+    )
+    parser.add_argument(
+        "--effort",
+        choices=["low", "medium", "high"],
+        default="low",
+        help="推論の強さ(全エンジン共通。既定 low)",
     )
     parser.add_argument("--limit", type=int, help="先頭 N トピックだけ生成する(動作確認用)")
     parser.add_argument("--genre", choices=["essay", "tech", "blog", "business", "slide"], help="このジャンルだけ生成する")
@@ -293,12 +436,14 @@ def main() -> None:
         topics = topics[: args.limit]
 
     model_explicit = args.model != DEFAULT_MODEL
+    prepare_isolation()
     for topic in topics:
         try:
             generate_one(
                 topic,
                 args.engine,
                 args.model,
+                effort=args.effort,
                 model_explicit=model_explicit,
                 retries=args.retries,
                 force=args.force,
