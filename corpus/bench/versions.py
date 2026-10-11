@@ -301,14 +301,96 @@ def report() -> None:
     print("\n".join(out))
 
 
+PAIRS = [("old", "new"), ("new", "before"), ("old", "before")]
+
+
+def judge_one(prompt: str, who: str, slot: int) -> dict | None:
+    if who == "luna":
+        return luna(prompt, slot)
+    for _ in range(3):
+        try:
+            res = g.run_claude(prompt, "claude-sonnet-5-5", "low")
+            mm = re.search(r"\{.*\}", res, re.S)
+            if mm:
+                return json.loads(mm.group(0))
+        except Exception as e:  # noqa: BLE001
+            print(f"  ERR: {e}", file=sys.stderr)
+    return None
+
+
+def judge_read(who: str, parallel: int) -> None:
+    """読みやすさの対比較を、判定役 who(luna / sonnet)で3組について行う。キーは read-{who}-{x}-{y}-{r}。r=0 で X=x。"""
+    g.prepare_isolation()
+    jobs = []
+    for doc in sorted(OUT.iterdir()):
+        if not (doc / "before.md").exists():
+            continue
+        path = doc / "judge.json"
+        j = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        for x, y in PAIRS:
+            if not ((doc / f"{x}.md").exists() and (doc / f"{y}.md").exists()):
+                continue
+            tx, ty = (doc / f"{x}.md").read_text(encoding="utf-8"), (doc / f"{y}.md").read_text(encoding="utf-8")
+            for r, (a, b) in enumerate(((tx, ty), (ty, tx))):
+                key = f"read-{who}-{x}-{y}-{r}"
+                if key not in j:
+                    jobs.append((doc, key, JUDGE_READ.format(x=a, y=b)))
+    print(len(jobs), "jobs", flush=True)
+
+    def work(job):
+        i, (doc, key, prompt) = job
+        return doc, key, judge_one(prompt, who, i)
+
+    with ThreadPoolExecutor(parallel) as ex:
+        for doc, key, res in ex.map(work, enumerate(jobs)):
+            if res is None:
+                print(f"FAIL {doc.name} {key}", flush=True)
+                continue
+            path = doc / "judge.json"
+            j = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+            j[key] = res
+            path.write_text(json.dumps(j, ensure_ascii=False, indent=1), encoding="utf-8")
+            print(f"ok {doc.name} {key}", flush=True)
+
+
+def report_read() -> None:
+    names = {"old": "旧版", "new": "新版", "before": "元"}
+    out = ["# 読みやすさの対比較を判定役で比べる", "",
+           "同じ組を gpt-6-luna と claude-sonnet-5-5(どちらも effort low)に判定させた。左右を入れ替えて2回。"
+           "推敲したのは claude-opus-5-5 なので、sonnet は元の文書に不利な可能性がある。新版は2つめの草稿。", ""]
+    for x, y in PAIRS:
+        out += [f"## {names[x]} 対 {names[y]}", "",
+                f"| 束 | 判定役 | 本数 | {names[x]}が2回とも上 | {names[y]}が2回とも上 | 割れた・同じ |", "|---|---|---|---|---|---|"]
+        for b, lab in BUNDLE.items():
+            for who in ("luna", "sonnet"):
+                res = []
+                for doc in sorted(OUT.glob(f"{b}-*")):
+                    if not (doc / "judge.json").exists():
+                        continue
+                    j = json.loads((doc / "judge.json").read_text(encoding="utf-8"))
+                    k0, k1 = f"read-{who}-{x}-{y}-0", f"read-{who}-{x}-{y}-1"
+                    if k0 in j and k1 in j:
+                        w0 = {"X": x, "Y": y}.get(j[k0].get("better"), "tie")
+                        w1 = {"X": y, "Y": x}.get(j[k1].get("better"), "tie")
+                        res.append(w0 if w0 == w1 else "tie")
+                if res:
+                    nx, ny = res.count(x), res.count(y)
+                    out.append(f"| {lab} | {who} | {len(res)} | {nx} | {ny} | {len(res) - nx - ny} |")
+        out.append("")
+    (HERE / "versions-read.md").write_text("\n".join(out), encoding="utf-8")
+    print("\n".join(out))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["prepare", "apply", "measure", "judge", "report"])
+    ap.add_argument("cmd", choices=["prepare", "apply", "measure", "judge", "report", "judge-read", "report-read"])
     ap.add_argument("--versions", nargs="+", default=["old", "new"])
     ap.add_argument("--parallel", type=int, default=3)
+    ap.add_argument("--judge", choices=["luna", "sonnet"], default="sonnet")
     a = ap.parse_args()
     {"prepare": prepare, "apply": lambda: apply(a.versions, a.parallel), "measure": measure,
-     "judge": judge, "report": report}[a.cmd]()
+     "judge": judge, "report": report, "judge-read": lambda: judge_read(a.judge, a.parallel),
+     "report-read": report_read}[a.cmd]()
 
 
 if __name__ == "__main__":
