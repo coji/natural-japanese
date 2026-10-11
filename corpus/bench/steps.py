@@ -272,6 +272,48 @@ def report(x: str, y: str, note: str) -> None:
     print(sec)
 
 
+def versus(y: str, bases: list[str], note: str) -> None:
+    """y を段階0の複数回(bases)の全部と比べる。読みやすさは文書ごとに勝ち負けを足し合わせ、
+    ほかの指標は bases の平均と比べる。どちらも全47本の符号検定。steps.md に1段落足す。"""
+    def read(j, x):
+        a = j.get(f"read-sonnet-{x}-{y}-0", {}).get("better")
+        b = j.get(f"read-sonnet-{x}-{y}-1", {}).get("better")
+        if a is None or b is None:
+            return 0
+        return (a == "Y") - (a == "X") + (b == "X") - (b == "Y")
+
+    def content(j, v):
+        xs = [sum(len(j[f"content-sonnet-{v}-{r}"].get(k) or []) for k in ("changed", "lost", "added"))
+              for r in (0, 1) if f"content-sonnet-{v}-{r}" in j]
+        return sum(xs) / len(xs) if xs else None
+
+    cnt = {k: [0, 0, 0] for k in ("読みやすさ", "中身の変化", "持ち込み", "密度", "書き換えの割合")}
+    for doc in docs():
+        m = json.loads((doc / "metrics.json").read_text(encoding="utf-8"))
+        j = json.loads((doc / "judge.json").read_text(encoding="utf-8"))
+        if y not in m or any(b not in m for b in bases):
+            continue
+        t = sum(read(j, b) for b in bases)
+        cnt["読みやすさ"][0 if t > 0 else 1 if t < 0 else 2] += 1  # 0 = y がよい
+        vals = {"中身の変化": [content(j, v) for v in [y, *bases]],
+                "持ち込み": [len(m[v]["introduced"]) for v in [y, *bases]],
+                "密度": [m[v]["density"] for v in [y, *bases]],
+                "書き換えの割合": [m[v]["edit"] for v in [y, *bases]]}
+        for k, xs in vals.items():
+            if None in xs:
+                continue
+            base = sum(xs[1:]) / len(bases)
+            cnt[k][0 if xs[0] < base else 1 if xs[0] > base else 2] += 1  # 0 = y が少ない
+    lines = [f"\n## {y}(比較の相手: {'・'.join(bases)} の全部)", "", note, "",
+             f"| 指標 | {y}がよい/少ない | {y}が悪い/多い | 同じ | p(符号検定) |", "|---|---|---|---|---|"]
+    for k, (a, b, c) in cnt.items():
+        lines.append(f"| {k} | {a} | {b} | {c} | {sign_p(a, b):.3f} |")
+    sec = "\n".join(lines) + "\n"
+    path = HERE / "steps.md"
+    path.write_text(path.read_text(encoding="utf-8") + sec, encoding="utf-8")
+    print(sec)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -289,6 +331,10 @@ def main() -> None:
     p.add_argument("x")
     p.add_argument("y")
     p.add_argument("note")
+    p = sub.add_parser("versus")
+    p.add_argument("y")
+    p.add_argument("note")
+    p.add_argument("--base", nargs="+", default=["s0a", "s0b", "s0c"])
     a = ap.parse_args()
     if a.cmd == "apply":
         apply(a.label, a.ref, a.parallel)
@@ -296,6 +342,8 @@ def main() -> None:
         measure(a.label)
     elif a.cmd == "judge":
         judge(a.x, a.y, a.parallel)
+    elif a.cmd == "versus":
+        versus(a.y, a.base, a.note)
     else:
         report(a.x, a.y, a.note)
 
