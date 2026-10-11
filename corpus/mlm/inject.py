@@ -40,7 +40,33 @@ PROMPT = {
 
 {{text}}
 """,
+    "split": """次の文章のうち、長い文をちょうど5つ選び、それぞれを2つの文に分けてください。分けるときに必要な最小限の語(接続詞・主語など)だけを足し、
+ほかの語は変えないでください。文の運びを派手にしたり、言い切りの決め文にしたりしないでください。
+書き換えた全文だけを出力してください。説明は書かないでください。
+
+{text}
+""",
+    "plain": f"""次の文章のうち、ちょうど5か所だけ、語句を同じ意味の別の平易な言い方に言い換えてください。
+2010年ごろの新聞や役所の文書で普通に使われていた、飾らない言い方を選んでください。比喩や、生成AIの文章によくある言い回しは使わないでください。
+次の語は使わないでください: {METAPHOR}。文の区切り・語順は変えないでください。
+言い換えた全文だけを出力してください。説明は書かないでください。
+
+{{text}}
+""",
 }
+
+
+def join5(text: str) -> str:
+    """段落の中の「。」を5か所だけ「、」にして、隣の文とつなぐ(機械的に作る、AI らしくない劣化)。"""
+    import random
+    import re
+    rng = random.Random(len(text))
+    lines = text.split("\n")
+    cands = [(i, m.start()) for i, l in enumerate(lines) if l.strip() and not re.match(r"\s*(#|\||>|[-*+] |\d+\. )", l)
+             for m in re.finditer(r"。(?=[^\s」』）)])", l)]
+    for i, pos in sorted(rng.sample(cands, min(5, len(cands))), key=lambda x: (x[0], -x[1])):
+        lines[i] = lines[i][:pos] + "、" + lines[i][pos + 1:]
+    return "\n".join(lines)
 
 
 def excerpt(text: str, n: int = 2500) -> str:
@@ -74,6 +100,8 @@ def main() -> None:
         orig = OUT / f"{r['id']}-orig.md"
         if not orig.exists():
             orig.write_text(excerpt(r["text"]), encoding="utf-8")
+        if not (OUT / f"{r['id']}-join.md").exists():
+            (OUT / f"{r['id']}-join.md").write_text(join5(orig.read_text(encoding="utf-8")), encoding="utf-8")
         for kind in PROMPT:
             if not (OUT / f"{r['id']}-{kind}.md").exists():
                 jobs.append((r["id"], kind, PROMPT[kind].format(text=orig.read_text(encoding="utf-8"))))

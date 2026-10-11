@@ -148,7 +148,7 @@ def report_inject() -> None:
         ai = [metrics(r)[m] for r in base if r["set"] == "generated_holdout" and r["split"] == "dev"]
         hu = [metrics(r)[m] for r in base if r["set"] in ("qiita2022", "llmjp") and r["split"] == "dev"]
         gap = sum(ai) / len(ai) - sum(hu) / len(hu)
-        for kind in ("word", "rhet"):
+        for kind in ("word", "rhet", "split", "plain", "join"):
             ds = []
             for k, r in rows.items():
                 if k.endswith(f"-{kind}") and k.replace(f"-{kind}", "-orig") in rows:
