@@ -19,7 +19,10 @@ F48 で、差 > 3 の語を含む文をそのまま書き手に見せると誤�
 モデル: 公開した coji/ja-ai-style-bert(公開用リポジトリの scripts/mlm.py の Pair。JA_AI_STYLE_SCRIPTS で場所を変えられる)
 出力: corpus/private/mlm/rewrite-gate.jsonl、corpus/mlm/rewrite-gate.md(数値のみ。コミットする)
 
-使い方: uv run corpus/mlm/rewrite_gate.py [--n 80]
+--top1: 1文につき、差がいちばん大きい語だけを【】で囲む(複数の語を囲むと、LLM が別の語を直して肝心の語を残すことがあったため)。
+        同じ文で回し、rewrite-gate-top1.jsonl・rewrite-gate-top1.md に書く
+
+使い方: uv run corpus/mlm/rewrite_gate.py [--n 80] [--top1]
 """
 from __future__ import annotations
 
@@ -45,6 +48,8 @@ GROUPS = {"pre": ("qiita2022", "llmjp"), "gen": ("generated_holdout",), "self": 
 LABEL = {"pre": "AI 以前の人間の文", "gen": "生成記事(学習外)", "self": "作者の文書"}
 T = 3.0
 BATCH = 10
+TAG = ""  # --top1 のとき "-top1"
+_SCORES: dict[str, list[dict]] = {}
 PROPOSE = """次の各文で【】に入った語は、AI 以前の日本語の書き手なら別の言い方を選んだかもしれない語です。
 【】の周りだけを書き換えた文を、3つまで出してください。
 
@@ -71,6 +76,14 @@ JUDGE = """次の各組で、書き換えた文(B)は元の文(A)と比べて意
 
 def ok(w) -> bool:
     return not re.fullmatch(r"[ァ-ヶー・]+", w["w"]) and "-" not in w["lemma"] and not re.search(r"[A-Za-z]", w["w"])
+
+
+def top_word(it: dict) -> str:
+    """その文で差がいちばん大きい内容語(カタカナ語・英字の語を除く)。"""
+    if it["set"] not in _SCORES:
+        _SCORES[it["set"]] = [json.loads(l) for l in open(PRIV / f"scores-m3-{it['set']}.jsonl", encoding="utf-8")]
+    ws = [w for w in _SCORES[it["set"]][it["sid"]]["words"] if ok(w) and w["w"] in it["s"]]
+    return max(ws, key=lambda w: w["d"])["w"]
 
 
 def collect(n: int) -> list[dict]:
@@ -133,15 +146,29 @@ def run_llm(items: list[dict], key: str, kind: str, template: str, fmt) -> None:
 
 
 def save(items: list[dict]) -> None:
-    (PRIV / "rewrite-gate.jsonl").write_text("".join(json.dumps(it, ensure_ascii=False) + "\n" for it in items), encoding="utf-8")
+    (PRIV / f"rewrite-gate{TAG}.jsonl").write_text("".join(json.dumps(it, ensure_ascii=False) + "\n" for it in items), encoding="utf-8")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=80)
+    ap.add_argument("--top1", action="store_true")
     a = ap.parse_args()
-    path = PRIV / "rewrite-gate.jsonl"
-    items = [json.loads(l) for l in open(path, encoding="utf-8")] if path.exists() else collect(a.n)
+    global TAG
+    TAG = "-top1" if a.top1 else ""
+    path = PRIV / f"rewrite-gate{TAG}.jsonl"
+    if path.exists():
+        items = [json.loads(l) for l in open(path, encoding="utf-8")]
+    elif a.top1:
+        # 元の試しと同じ文で、差がいちばん大きい語だけを囲む
+        items = []
+        for l in open(PRIV / "rewrite-gate.jsonl", encoding="utf-8"):
+            it = {k: v for k, v in json.loads(l).items() if k in ("group", "set", "sid", "s", "words", "id")}
+            w = top_word(it)
+            it["marked"] = it["s"].replace(w, "【" + w + "】", 1)
+            items.append(it)
+    else:
+        items = collect(a.n)
     save(items)
     print(Counter(it["group"] for it in items), flush=True)
     g.prepare_isolation()
@@ -171,12 +198,13 @@ def main() -> None:
 
 
 def report(items: list[dict]) -> None:
-    out = ["# 言い換えをモデルで並べ、原文が最も自然なら黙る段", "",
+    out = ["# 言い換えをモデルで並べ、原文が最も自然なら黙る段" + ("(1文に1語)" if TAG else ""), "",
+           *(["差がいちばん大きい語だけを【】で囲んだ。", ""] if TAG else []),
            f"差 > {T} の語を含む文に、claude-opus-5-5(effort low)が【】の周りだけを書き換えた候補を3つまで出し、"
            "公開したモデル(coji/ja-ai-style-bert)で dA − max(d, 0) の最大の候補を選んだ。0 以下なら原文のまま(黙る)。"
            "意味の保持は gpt-6-luna(effort low)が判定した。", "",
-           "| 文 | 件数 | LLM が「変えなくてよい」 | モデルが黙る | 書き換えを出す(LLM も変える側) | 意味が同じ | 少し変わる | 変わる | 事実の追加 | 選んだ候補の d の平均 |",
-           "|---|---|---|---|---|---|---|---|---|---|"]
+           "| 文 | 件数 | LLM が「変えなくてよい」 | モデルが黙る | 書き換えを出す(LLM も変える側) | 意味が同じ | 少し変わる | 変わる | 事実の追加 | 選んだ候補の d の平均 | 書き換えで差が最大の語が消えた |",
+           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for grp in GROUPS:
         xs = [it for it in items if it["group"] == grp and "ranked" in it]
         if not xs:
@@ -191,7 +219,8 @@ def report(items: list[dict]) -> None:
         dd = [it["ranked"][0]["d"] for it in xs if it["chosen"]]
         out.append(f"| {LABEL[grp]} | {n} | {keep / n:.0%} | {silent / n:.0%} | {len(shown) / n:.0%} | "
                    f"{mc['同じ'] / max(len(ch), 1):.0%} | {mc['少し変わる'] / max(len(ch), 1):.0%} | {mc['変わる'] / max(len(ch), 1):.0%} | "
-                   f"{add / max(len(ch), 1):.0%} | {sum(dd) / max(len(dd), 1):.2f} |")
+                   f"{add / max(len(ch), 1):.0%} | {sum(dd) / max(len(dd), 1):.2f} | "
+                   f"{sum(top_word(it) not in it['chosen'] for it in shown) / max(len(shown), 1):.0%} |")
     out += ["", "意味の判定は、モデルが原文以外を選んだ文(LLM が keep としたものも含む)だけ。"]
     for grp in ("pre", "gen"):
         xs = [it for it in items if it["group"] == grp and "ranked" in it]
@@ -199,7 +228,7 @@ def report(items: list[dict]) -> None:
         shown_words = Counter(w for it in xs if it["chosen"] for w in it["words"])
         out += ["", f"{LABEL[grp]}: 黙った文の語 " + "、".join(f"{w} {c}" for w, c in silent_words.most_common(15)),
                 f"{LABEL[grp]}: 書き換えた文の語 " + "、".join(f"{w} {c}" for w, c in shown_words.most_common(15))]
-    (HERE / "rewrite-gate.md").write_text("\n".join(out) + "\n", encoding="utf-8")
+    (HERE / f"rewrite-gate{TAG}.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("\n".join(out))
 
 
