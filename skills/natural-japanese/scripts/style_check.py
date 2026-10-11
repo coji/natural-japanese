@@ -25,7 +25,7 @@
 カタカナ語・英字の語・固有名詞・数詞は対象にしない(新しい技術用語は、AI 以前のモデルが知らないだけなので)。
 示すのは疑いで、直すかどうかは文脈で決める。語ごとの言い換えはこのスクリプトでは出さない。
 
-使い方:
+使い方(--models・--threshold はサブコマンドの前に書く):
     uv run scripts/style_check.py flag draft.md [--json]
     uv run scripts/style_check.py rank items.json        # [{"id": "...", "sentence": "...", "candidates": ["...", ...]}]
     uv run scripts/style_check.py compare original.md revised.md [--json]
@@ -75,6 +75,7 @@ def sentences(text: str) -> list[tuple[int, str]]:
             continue
         body = _MARKER_RE.sub("", _blank_inline_code_spans(line))
         body = _URL_RE.sub(" ", _HTML_RE.sub(" ", body))
+        body = re.sub(r"\*\*|__|(?<![\w*])\*(?=\S)|(?<=\S)\*(?![\w*])", "", body)  # 強調の記号
         for s in _SPLIT_RE.split(body):
             s = re.sub(r"\s+", " ", s).strip(" *_")
             if re.search(r"[ぁ-んァ-ヶ一-龠]", s):
