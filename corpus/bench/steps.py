@@ -170,6 +170,48 @@ def judge(x: str, y: str, parallel: int) -> None:
             print(f"ok {doc.name} {key}", flush=True)
 
 
+def sign_p(a: int, b: int) -> float:
+    """両側の符号検定。a 対 b(引き分けは除く)。"""
+    from math import comb
+    n = a + b
+    if n == 0:
+        return 1.0
+    return min(1.0, 2 * sum(comb(n, i) for i in range(min(a, b) + 1)) / 2 ** n)
+
+
+def paired(x: str, y: str) -> list[str]:
+    """文書ごとに x と y を比べ、y のほうが少ない本数・多い本数と符号検定の p を出す(全47本)。"""
+    def content(m, j, v):
+        if v == "before":
+            return 0.0
+        xs = [sum(len(j[f"content-sonnet-{v}-{r}"].get(k) or []) for k in ("changed", "lost", "added"))
+              for r in (0, 1) if f"content-sonnet-{v}-{r}" in j]
+        return sum(xs) / len(xs) if xs else None
+
+    def intro(m, j, v):
+        return 0 if v == "before" else len(m[v]["introduced"])
+
+    def density(m, j, v):
+        return m[v]["density"]
+
+    out = ["", "| 指標(文書ごとの対比較) | " + f"{y}が少ない | {y}が多い | 同じ | p(符号検定) |", "|---|---|---|---|---|"]
+    for name, f in (("中身の変化", content), ("持ち込み", intro), ("密度", density)):
+        lo = hi = eq = 0
+        for doc in docs():
+            if not (doc / "metrics.json").exists():
+                continue
+            m = json.loads((doc / "metrics.json").read_text(encoding="utf-8"))
+            j = json.loads((doc / "judge.json").read_text(encoding="utf-8")) if (doc / "judge.json").exists() else {}
+            if not ((x in m or x == "before") and y in m):
+                continue
+            a, b = f(m, j, x), f(m, j, y)
+            if a is None or b is None:
+                continue
+            lo, hi, eq = lo + (b < a), hi + (b > a), eq + (b == a)
+        out.append(f"| {name} | {lo} | {hi} | {eq} | {sign_p(lo, hi):.3f} |")
+    return out
+
+
 def summary(x: str, y: str) -> list[str]:
     def avg(xs):
         xs = [v for v in xs if v is not None]
@@ -216,8 +258,8 @@ def summary(x: str, y: str) -> list[str]:
         tot.update({x: nx, y: ny, "n": len(res)})
         out.append(f"| {lab} | {len(rows)} | {met(x, 'density'):.2f} | {met(y, 'density'):.2f} | {intro(x):.1f} | {intro(y):.1f} | "
                    f"{met(x, 'edit'):.0%} | {met(y, 'edit'):.0%} | {content(x):.1f} | {content(y):.1f} | {nx} | {ny} | {len(res) - nx - ny} |")
-    out.append(f"\n読みやすさの合計: {x} {tot[x]}・{y} {tot[y]}・割れた・同じ {tot['n'] - tot[x] - tot[y]}(計 {tot['n']} 本)")
-    return out
+    out.append(f"\n読みやすさの合計: {x} {tot[x]}・{y} {tot[y]}・割れた・同じ {tot['n'] - tot[x] - tot[y]}(計 {tot['n']} 本、p = {sign_p(tot[x], tot[y]):.3f})")
+    return out + paired(x, y)
 
 
 def report(x: str, y: str, note: str) -> None:
