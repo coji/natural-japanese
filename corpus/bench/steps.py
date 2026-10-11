@@ -65,7 +65,8 @@ def apply_one(doc: Path, label: str, wt: Path) -> str:
         if f.is_file():
             f.unlink()
     (work / "input.md").write_text((doc / "before.md").read_text(encoding="utf-8"), encoding="utf-8")
-    cmd = ["claude", "-p", PROMPT, "--model", "claude-opus-5-5", "--effort", "low",
+    # 途中のツール呼び出しも残す(どの手順を実際に踏んだかを後から見るため)
+    cmd = ["claude", "-p", PROMPT, "--model", "claude-opus-5-5", "--effort", "low", "--output-format", "stream-json", "--verbose",
            "--setting-sources", "project", "--plugin-dir", str(wt), "--add-dir", "/tmp",
            "--allowedTools", "Skill", "Read", "Write", "Edit", "Glob", "Grep",
            "Bash(uv run:*)", "Bash(python3:*)", "Bash(cat:*)", "Bash(wc:*)", "Bash(cp:*)", "Bash(mkdir:*)"]
@@ -74,7 +75,7 @@ def apply_one(doc: Path, label: str, wt: Path) -> str:
         log = r.stdout + "\n--- stderr ---\n" + r.stderr
     except subprocess.TimeoutExpired:
         log = "TIMEOUT"
-    (doc / f"log-{label}.txt").write_text(log, encoding="utf-8")
+    (doc / f"log-{label}.jsonl").write_text(log, encoding="utf-8")
     out = work / "output.md"
     if out.exists():
         (doc / f"{label}.md").write_text(out.read_text(encoding="utf-8"), encoding="utf-8")
