@@ -39,4 +39,4 @@ uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # 専門用
 ```
 
 依存関係は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されているため、`uv run` が自動的に解決します。
-`style_check.py` は torch と transformers を使い、初回に Hugging Face からモデル(約420MB)をダウンロードします。Linux では torch の CPU 版を使います。共有基盤は `skills/natural-japanese/scripts/textcore.py` にまとまっています。
+`style_check.py` は onnxruntime で動き(torch は使いません)、初回に Hugging Face からモデル(約450MB)をダウンロードします。共有基盤は `skills/natural-japanese/scripts/textcore.py` にまとまっています。

@@ -1,18 +1,11 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["torch", "transformers>=4.44", "fugashi", "unidic-lite", "huggingface_hub"]
-#
-# [[tool.uv.index]]
-# name = "pytorch-cpu"
-# url = "https://download.pytorch.org/whl/cpu"
-# explicit = true
-#
-# [tool.uv.sources]
-# torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+# dependencies = ["onnxruntime", "numpy", "fugashi", "unidic-lite", "huggingface_hub"]
 # ///
 """style_check.py — 生成AI時代に増えた言い回しを、AI 以前の書き手を基準にして調べる。
 
-2つの BERT を使う(Hugging Face の coji/ja-ai-style-bert。初回に約420MB をダウンロードする)。
+2つの BERT を使う(Hugging Face の coji/ja-ai-style-bert の onnx/。初回に約450MB をダウンロードする)。
+torch は使わず、onnxruntime で動かす(重みは fp16。torch 版と同じ差が出ることを確かめてある)。
     A(pre-ai)   AI 以前の人間の文書で追加学習
     B(ai-era)   同じ話題で生成AIに書かせた文章で追加学習
     差 d        log P_B(語) − log P_A(語)。語を伏せて当てさせたとき、B だけがそこにその語を置くほど大きい
@@ -42,7 +35,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from textcore import _blank_inline_code_spans, read_source_file  # noqa: E402
 
-BASE = "tohoku-nlp/bert-base-japanese-v3"
 MODEL_REPO = "coji/ja-ai-style-bert"
 SEQ = 256
 CONTENT = {"動詞", "形容詞", "副詞", "名詞", "形状詞"}
@@ -90,21 +82,23 @@ def ok_word(w: dict) -> bool:
 class Pair:
     def __init__(self, models: str | None = None):
         import fugashi
-        import torch
+        import numpy as np
+        import onnxruntime as ort
         os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
-        from transformers import AutoModelForMaskedLM, AutoTokenizer, logging
-        logging.set_verbosity_error()
-        logging.disable_progress_bar()
-        self.torch = torch
-        if models and Path(models).exists():
+        if models:
             root = Path(models)
         else:
             from huggingface_hub import snapshot_download
-            root = Path(snapshot_download(models or MODEL_REPO))
-        self.tok = AutoTokenizer.from_pretrained(BASE)
-        # 公開したモデルは fp16 で保存してある。CPU で動くよう fp32 で読む(MPS は読み込みが遅いので使わない)
-        self.A = AutoModelForMaskedLM.from_pretrained(root / "pre-ai", dtype=torch.float32).eval()
-        self.B = AutoModelForMaskedLM.from_pretrained(root / "ai-era", dtype=torch.float32).eval()
+            root = Path(snapshot_download(MODEL_REPO, allow_patterns=["onnx/*"])) / "onnx"
+        self.np = np
+        with open(root / "vocab.txt", encoding="utf-8") as f:
+            self.vocab = {line.rstrip("\n"): i for i, line in enumerate(f)}
+        self.cls, self.sep, self.mask, self.unk = (self.vocab[t] for t in ("[CLS]", "[SEP]", "[MASK]", "[UNK]"))
+        so = ort.SessionOptions()
+        so.log_severity_level = 3
+        # 重みは fp16、入出力は fp32。伏せた位置の log 確率だけを返す(corpus/mlm/onnx_pair.py export-skill で作る)
+        self.A = ort.InferenceSession(str(root / "pre-ai.onnx"), so, providers=["CPUExecutionProvider"])
+        self.B = ort.InferenceSession(str(root / "ai-era.onnx"), so, providers=["CPUExecutionProvider"])
         self.tagger = fugashi.Tagger()
 
     def words(self, s: str):
@@ -113,18 +107,48 @@ class Pair:
     def lemmas(self, text: str) -> set[str]:
         return {lem for _, s in sentences(text) for _, _, _, lem in self.words(s)}
 
+    def subwords(self, word: str) -> list[int]:
+        """WordPiece(最長一致)。tohoku-nlp/bert-base-japanese-v3 の subword_tokenizer と同じ分け方をする。"""
+        out = []
+        for tok in word.split():
+            if len(tok) > 100:
+                out.append(self.unk)
+                continue
+            start, sub = 0, []
+            while start < len(tok):
+                end = len(tok)
+                while start < end:
+                    piece = ("##" if start else "") + tok[start:end]
+                    if piece in self.vocab:
+                        sub.append(self.vocab[piece])
+                        break
+                    end -= 1
+                else:
+                    sub = [self.unk]
+                    break
+                start = end
+            out += sub
+        return out
+
     def ids(self, ws):
-        ids, spans = [self.tok.cls_token_id], []
+        ids, spans = [self.cls], []
         for surf, *_ in ws:
-            sub = self.tok.convert_tokens_to_ids(self.tok.subword_tokenizer.tokenize(surf)) if surf.strip() else []
+            sub = self.subwords(surf) if surf.strip() else []
             spans.append((len(ids), len(ids) + len(sub)))
             ids += sub
-        ids.append(self.tok.sep_token_id)
+        ids.append(self.sep)
         return ids, spans
+
+    def _logp(self, x, pos: list[int], target: list[int]):
+        """x の行ごとに伏せた位置 pos(行 × 長さで平らにした番号)での target の log 確率を、A と B で返す。"""
+        np = self.np
+        feed = {"input_ids": x, "attention_mask": np.ones_like(x),
+                "pos": np.array(pos, dtype=np.int64), "target": np.array(target, dtype=np.int64)}
+        return self.A.run(["logp"], feed)[0], self.B.run(["logp"], feed)[0]
 
     def score(self, s: str, batch: int = 48) -> list[dict]:
         """文の内容語を1語ずつ伏せ(語の全トークンを同時に)、A と B での log 確率の差を返す。"""
-        torch = self.torch
+        np = self.np
         ws = self.words(s)
         ids, spans = self.ids(ws)
         if len(ids) > SEQ:
@@ -132,40 +156,38 @@ class Pair:
         targets = [i for i, (surf, p1, p2, _) in enumerate(ws)
                    if p1 in CONTENT and p2 not in {"固有名詞", "数詞", "非自立可能"} and spans[i][1] > spans[i][0]
                    and re.search(r"[ぁ-んァ-ヶ一-龠]", surf)]
-        out = []
+        n, out = len(ids), []
         for k in range(0, len(targets), batch):
             tb = targets[k:k + batch]
-            x = torch.tensor([ids] * len(tb))
+            x = np.array([ids] * len(tb), dtype=np.int64)
+            pos, tgt = [], []
             for r, i in enumerate(tb):
                 a, b = spans[i]
-                x[r, a:b] = self.tok.mask_token_id
-            with torch.no_grad():
-                la = torch.log_softmax(self.A(x).logits, -1)
-                lb = torch.log_softmax(self.B(x).logits, -1)
-            for r, i in enumerate(tb):
+                x[r, a:b] = self.mask
+                pos += [r * n + t for t in range(a, b)]
+                tgt += ids[a:b]
+            la, lb = self._logp(x, pos, tgt)
+            j = 0
+            for i in tb:
                 a, b = spans[i]
-                pa = sum(la[r, a + j, t].item() for j, t in enumerate(ids[a:b]))
-                pb = sum(lb[r, a + j, t].item() for j, t in enumerate(ids[a:b]))
+                pa, pb = float(la[j:j + b - a].sum()), float(lb[j:j + b - a].sum())
+                j += b - a
                 surf, p1, _, lem = ws[i]
                 out.append({"w": surf, "lemma": lem, "d": round(pb - pa, 2)})
         return out
 
     def pll(self, s: str) -> tuple[float, float]:
         """文全体の擬似対数尤度(各トークンを1つずつ伏せて当てた log 確率の合計)を A と B で返す。"""
-        torch = self.torch
+        np = self.np
         ids, _ = self.ids(self.words(s))
         n = len(ids) - 2
         if n <= 0 or len(ids) > SEQ:
             return 0.0, 0.0
-        x = torch.tensor([ids] * n)
+        x = np.array([ids] * n, dtype=np.int64)
         for r in range(n):
-            x[r, r + 1] = self.tok.mask_token_id
-        res = []
-        with torch.no_grad():
-            for m in (self.A, self.B):
-                lp = torch.log_softmax(m(x).logits, -1)
-                res.append(sum(lp[r, r + 1, ids[r + 1]].item() for r in range(n)))
-        return res[0], res[1]
+            x[r, r + 1] = self.mask
+        la, lb = self._logp(x, [r * len(ids) + r + 1 for r in range(n)], ids[1:-1])
+        return float(la.sum()), float(lb.sum())
 
     def flagged(self, text: str, threshold: float) -> tuple[list[dict], int]:
         rows, chars = [], 0
@@ -241,7 +263,7 @@ def cmd_compare(a) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--models", help="手元のモデルのディレクトリ(pre-ai/ と ai-era/ を置く)。既定は Hugging Face から取得")
+    ap.add_argument("--models", help="手元のモデルのディレクトリ(pre-ai.onnx・ai-era.onnx・vocab.txt を置く)。既定は Hugging Face から取得")
     ap.add_argument("--threshold", type=float, default=THRESHOLD)
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("flag")
