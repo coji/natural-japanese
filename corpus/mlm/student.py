@@ -31,6 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "skills/natural-japanese/scripts"))
+sys.path.insert(0, str(ROOT / "corpus/mlm"))
 SCORES = ROOT / "corpus/private/mlm/lexicon-scores.jsonl"
 OUT = ROOT / "corpus/private/mlm/student"
 BASE = "sbintuitions/modernbert-ja-30m"
@@ -47,7 +48,7 @@ def label(n_docs: int) -> None:
     tests.json の文書(検査用)は除く。途中から再開できる。"""
     import gzip
     import torch
-    from style_check import CONTENT, SEQ, Pair, sentences
+    from style_check_torch import CONTENT, SEQ, Pair, sentences
     tests = json.loads((ROOT / "corpus/private/mlm/tests.json").read_text(encoding="utf-8"))
     used = {x.strip() for v in tests.values() for x in v}
     docs = []
@@ -103,7 +104,7 @@ def label(n_docs: int) -> None:
 
 
 def ok(w: str, lem: str) -> bool:
-    from style_check import ok_word
+    from style_check_torch import ok_word
     return ok_word({"w": w, "lemma": lem})
 
 
@@ -308,7 +309,7 @@ def evaluate(onnx: str | None = None) -> None:
 def introduced(pr) -> None:
     """47本の推敲結果(s0a)で、原文になかった差 > 3 の語の一覧を生徒で出し、先生(metrics.json)と比べる。"""
     import fugashi
-    from style_check import CONTENT, sentences
+    from style_check_torch import CONTENT, sentences
     tagger = fugashi.Tagger()
     agree = tp = fp = fn = 0
     docs = sorted(p.parent for p in (ROOT / "corpus/private/versions").glob("*/metrics.json"))

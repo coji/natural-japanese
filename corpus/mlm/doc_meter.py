@@ -28,6 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "skills/natural-japanese/scripts"))
+sys.path.insert(0, str(ROOT / "corpus/mlm"))
 OUT = ROOT / "corpus/private/mlm/doc-meter.jsonl"
 CHARS = 2000
 N_PER = {"generated_holdout": 79, "qiita2022": 40, "llmjp": 40, "qiita2026": 40, "self": 16}
@@ -68,7 +69,7 @@ def token_diffs(pair, s: str) -> list[float]:
 
 
 def score(rows: list[dict] | None = None, out: Path = OUT) -> None:
-    from style_check import Pair, ok_word, sentences  # noqa: E402
+    from style_check_torch import Pair, ok_word, sentences  # noqa: E402
     done = {json.loads(l)["id"] for l in out.read_text(encoding="utf-8").splitlines()} if out.exists() else set()
     pair = Pair()
     with out.open("a", encoding="utf-8") as f:

@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "skills/natural-japanese/scripts"))
 sys.path.insert(0, str(ROOT / "corpus/mlm"))
+sys.path.insert(0, str(ROOT / "corpus/mlm"))
 from doc_meter import body, load  # noqa: E402
 
 OUT = ROOT / "corpus/private/mlm/lexicon-scores.jsonl"
@@ -50,7 +51,7 @@ def rows() -> list[dict]:
 
 
 def score() -> None:
-    from style_check import Pair, sentences  # noqa: E402
+    from style_check_torch import Pair, sentences  # noqa: E402
     done = {json.loads(l)["id"] for l in OUT.read_text(encoding="utf-8").splitlines()} if OUT.exists() else set()
     pair = Pair()
     with OUT.open("a", encoding="utf-8") as f:
@@ -70,7 +71,7 @@ def score() -> None:
 
 
 def profile() -> None:
-    from style_check import ok_word  # noqa: E402
+    from style_check_torch import ok_word  # noqa: E402
     docs = [json.loads(l) for l in OUT.read_text(encoding="utf-8").splitlines()]
     # 生成AIの文書は全部 doc_meter.py で使った(hold)ので、この記述的な集計では hold も含めて全部を使う
     build = docs

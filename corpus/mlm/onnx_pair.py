@@ -12,6 +12,7 @@
 
     uv run corpus/mlm/onnx_pair.py export
     uv run corpus/mlm/onnx_pair.py check
+    uv run corpus/mlm/onnx_pair.py export-skill   # スキルで配る版(corpus/private/mlm/onnx-skill/)
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "skills/natural-japanese/scripts"))
+sys.path.insert(0, str(ROOT / "corpus/mlm"))
 OUT = ROOT / "corpus/private/mlm/onnx"
 SCORES = ROOT / "corpus/private/mlm/lexicon-scores.jsonl"
 T = 3.0
@@ -43,13 +45,112 @@ def Body(m):
     return _Body()
 
 
+SKILL_OUT = ROOT / "corpus/private/mlm/onnx-skill"
+
+
+def LogpAt(m):
+    """伏せた位置(平らにした番号 pos)だけで語彙へ射影し、目標のトークン target の log 確率を返すグラフ。
+    語彙への射影の重みは埋め込みと共有なので、ファイルには1つしか入らない。"""
+    import torch
+
+    class _L(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.bert, self.pred = m.bert, m.cls.predictions
+
+        def forward(self, input_ids, attention_mask, pos, target):
+            h = self.pred.transform(self.bert(input_ids=input_ids, attention_mask=attention_mask)[0])
+            h = h.reshape(-1, h.shape[-1]).index_select(0, pos)
+            lp = torch.log_softmax(self.pred.decoder(h), -1)
+            return lp.gather(1, target.unsqueeze(1)).squeeze(1)
+    return _L()
+
+
+def export_skill() -> None:
+    """スキルで配る版: 伏せた位置の log 確率だけを出すグラフを、重み fp16(LogSoftmax は fp32)で書き出す。"""
+    import onnx
+    import torch
+    from huggingface_hub import snapshot_download
+    from onnxconverter_common import float16
+    from transformers import AutoModelForMaskedLM
+    from style_check_torch import MODEL_REPO
+    root = Path(snapshot_download(MODEL_REPO))
+    SKILL_OUT.mkdir(parents=True, exist_ok=True)
+    for name in ("pre-ai", "ai-era"):
+        m = AutoModelForMaskedLM.from_pretrained(root / name, dtype=torch.float32).eval()
+        g = LogpAt(m).eval()
+        x = torch.ones(2, 16, dtype=torch.long)
+        pos, tgt = torch.tensor([3, 20]), torch.tensor([5, 7])
+        tmp = SKILL_OUT / f"{name}.f32.onnx"
+        torch.onnx.export(g, (x, torch.ones_like(x), pos, tgt), tmp,
+                          input_names=["input_ids", "attention_mask", "pos", "target"], output_names=["logp"],
+                          dynamic_axes={"input_ids": {0: "b", 1: "s"}, "attention_mask": {0: "b", 1: "s"}, "pos": {0: "n"},
+                                        "target": {0: "n"}, "logp": {0: "n"}}, opset_version=17, dynamo=False)
+        m16 = float16.convert_float_to_float16(onnx.load(tmp), keep_io_types=True,
+                                               op_block_list=list(float16.DEFAULT_OP_BLOCK_LIST) + ["LogSoftmax"])
+        onnx.save(m16, SKILL_OUT / f"{name}.onnx")
+        tmp.unlink()
+        print(name, f"{(SKILL_OUT / f'{name}.onnx').stat().st_size / 1e6:.0f}MB")
+
+
+def check_skill() -> None:
+    """スキルの style_check.py(ONNX 版、SKILL_OUT のモデル)と torch の基準版を比べる。
+    60本の文で、トークン列・内容語の d・文の擬似対数尤度(rank が使う)が一致するか、
+    47本の推敲結果(s0a)で compare の原文になかった語の一覧が一致するかを出す。"""
+    import importlib.util
+    import numpy as np
+    from style_check_torch import Pair as TorchPair
+    spec = importlib.util.spec_from_file_location("style_check_onnx", ROOT / "skills/natural-japanese/scripts/style_check.py")
+    sc = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sc)
+    t, o = TorchPair(), sc.Pair(str(SKILL_OUT))
+    docs = [json.loads(l) for l in SCORES.read_text(encoding="utf-8").splitlines()]
+    rng = random.Random(0)
+    by = {}
+    for d in docs:
+        by.setdefault(d["set"], []).append(d)
+    sents = [s["s"] for k in by for d in rng.sample(by[k], min(15, len(by[k]))) for s in d["sents"]]
+    same_ids = 0
+    ref, got, pa, pb = [], [], [], []
+    t0 = time.time()
+    for s in sents:
+        ws = t.words(s)
+        same_ids += t.ids(ws) == o.ids(ws)
+        a, b = t.score(s), o.score(s)
+        if [x["w"] for x in a] == [x["w"] for x in b]:
+            ref += [x["d"] for x in a]
+            got += [x["d"] for x in b]
+    for s in sents[:300]:
+        pa.append(t.pll(s))
+        pb.append(o.pll(s))
+    ref, got = np.array(ref), np.array(got)
+    tp = ((ref > T) & (got > T)).sum()
+    dp = np.abs(np.array(pa) - np.array(pb))
+    print(f"文 {len(sents)}: トークン列の一致 {same_ids / len(sents):.2%}、語 {len(ref)}、d の差の最大 {np.abs(ref - got).max():.2f}・平均 {np.abs(ref - got).mean():.4f}、"
+          f"差>3 の一致 適合 {tp / max((got > T).sum(), 1):.1%}・再現 {tp / max((ref > T).sum(), 1):.1%}")
+    print(f"擬似対数尤度(300文): A の差の最大 {dp[:, 0].max():.2f}、B の差の最大 {dp[:, 1].max():.2f}(文の合計値で)")
+    same = n = 0
+    for doc in sorted(p.parent for p in (ROOT / "corpus/private/versions").glob("*/s0a.md")):
+        before, after = (doc / "before.md").read_text(encoding="utf-8"), (doc / "s0a.md").read_text(encoding="utf-8")
+        res = []
+        for pair in (t, o):
+            orig = pair.lemmas(before)
+            rows, _ = pair.flagged(after, T)
+            res.append(sorted(w["lemma"] for r in rows for w in r["words"] if w["lemma"] not in orig))
+        n += 1
+        same += res[0] == res[1]
+        if res[0] != res[1]:
+            print("  違い", doc.name, res[0], res[1])
+    print(f"compare(47本の s0a): 原文になかった語の一覧が一致 {same}/{n}")
+
+
 def export() -> None:
     import numpy as np
     import torch
     from huggingface_hub import snapshot_download
     from onnxruntime.quantization import QuantType, quantize_dynamic
     from transformers import AutoModelForMaskedLM
-    from style_check import MODEL_REPO
+    from style_check_torch import MODEL_REPO
     root = Path(snapshot_download(MODEL_REPO))
     OUT.mkdir(parents=True, exist_ok=True)
     for name in ("pre-ai", "ai-era"):
@@ -89,7 +190,7 @@ class OnnxPair:
         import numpy as np
         import onnxruntime as ort
         from transformers import AutoTokenizer
-        from style_check import BASE
+        from style_check_torch import BASE
         self.np = np
         self.tok = AutoTokenizer.from_pretrained(BASE)
         so = ort.SessionOptions()
@@ -101,7 +202,7 @@ class OnnxPair:
                          id(self.B): (np.load(OUT / "ai-era.head-w.npy").astype(np.float32), np.load(OUT / "ai-era.head-b.npy"))}
         self.tagger = fugashi.Tagger()
 
-    from style_check import Pair as _P
+    from style_check_torch import Pair as _P
     words = _P.words
     ids = _P.ids
     del _P
@@ -114,7 +215,7 @@ class OnnxPair:
 
     def score(self, s: str, batch: int = 48) -> list[dict]:
         import re
-        from style_check import CONTENT, SEQ
+        from style_check_torch import CONTENT, SEQ
         np = self.np
         ws = self.words(s)
         ids, spans = self.ids(ws)
@@ -159,7 +260,7 @@ class OnnxPair:
 
 
 def check(n_docs: int) -> None:
-    from style_check import ok_word
+    from style_check_torch import ok_word
     docs = [json.loads(l) for l in SCORES.read_text(encoding="utf-8").splitlines()]
     rng = random.Random(0)
     by = {}
@@ -207,10 +308,10 @@ def check(n_docs: int) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["export", "check"])
+    ap.add_argument("cmd", choices=["export", "check", "export-skill", "check-skill"])
     ap.add_argument("--docs", type=int, default=20, help="check で使う文書の数(束ごと)")
     a = ap.parse_args()
-    export() if a.cmd == "export" else check(a.docs)
+    {"export": export, "export-skill": export_skill, "check": lambda: check(a.docs), "check-skill": check_skill}[a.cmd]()
 
 
 if __name__ == "__main__":
