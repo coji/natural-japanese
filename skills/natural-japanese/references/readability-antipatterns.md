@@ -231,7 +231,7 @@
 
 ## G. 定型句
 
-LLM 常套句・空虚な強調・予告と総括は `forbidden-patterns.md` が扱う。検出は `forbidden_phrase` / `low_specificity`、英語統語の直訳調は `translationese.md` と `translationese_morph` / `english_syntax_*` / `inanimate_subject_morph`。このカタログでは重複して扱わない。
+LLM 常套句・空虚な強調・予告と総括は `forbidden-patterns.md` が扱う。検出は `forbidden_phrase` / `low_specificity`、英語統語の直訳調は `translationese.md` と `translationese` / `english_syntax_*` / `inanimate_subject_morph`。「〜することができる」は生成AI以前の人間の文書でも多く、AI臭さではなく冗長さとして、読解負荷レーンの `translationese_morph` で指す(F の婉曲・クッション語)。このカタログでは重複して扱わない。
 
 ---
 

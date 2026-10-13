@@ -146,9 +146,10 @@ FORBIDDEN_PHRASES_WEAK_SIGNAL: set[str] = {
 # ---------------------------------------------------------------------------
 # 辞書: 翻訳調パターン（英語直訳っぽい構文）
 # ---------------------------------------------------------------------------
+# 「することができる」「することが可能」は、2026-10 の測定で生成AI以前の人間の文書(Qiita 2022・llm-jp)の
+# ほうが生成AIの文書より多く使っており、生成AIらしさの印にならない。冗長さの指摘として
+# 読解負荷レーンの translationese_morph(品詞列で「〜ことができる」を拾う)だけで扱う。
 TRANSLATIONESE_PATTERNS: list[str] = [
-    r"することができ(る|ます|た)",
-    r"することが可能(です|だ|になる)",
     r"と言えるだろう",
     r"という点で",
     r"という観点(から|で)",
@@ -234,7 +235,11 @@ BURSTINESS_MIN_TOKENIZED = 6
 # -0.24で human FP率2.4%・AI検出率100.0%と、他の統計系検出器の中では唯一
 # 弁別力を示したため、この値を採用する。ただしAI標本はn=3と極めて小さく、
 # コーパス拡充後に再sweepして確定させる必要がある暫定値。
-BURSTINESS_THRESHOLD = -0.24
+# 2026-10 再校正: 画像・URL・HTML タグ・かな漢字を含まない行を本文から外す前処理に変えたため、
+# 人間の文書の文長のばらつきが小さく出るようになった(英文や URL の行が長短の幅を作っていた)。
+# 生成AI以前の人間の文書400本(Qiita 2022・llm-jp)と生成AIの文書100本で走査し、
+# -0.30 で人間 21%・17%、生成AI 63%(旧前処理・旧閾値 -0.24 では 17%・28%、67%)。
+BURSTINESS_THRESHOLD = -0.30
 AUTOCORR_MIN_XS = 4
 AUTOCORR_THRESHOLD = 0.6
 # 2026-07 コーパス校正で閾値を大幅に引き上げ、severityも格下げ（deep-analysis.md
@@ -586,6 +591,25 @@ def _raw_or_masked(raw_lines_by_no: dict[int, str] | None, no: int, fallback: st
     return raw_lines_by_no.get(no, fallback)
 
 
+_KATAKANA_RE = re.compile(r"[ァ-ヶー]")
+_KANJI_RE = re.compile(r"[一-龠々]")
+
+
+def _phrase_positions(line: str, phrase: str) -> list[int]:
+    """phrase が語として現れる位置をすべて返す。カタカナで始まる語の直前がカタカナ、
+    漢字で始まる語の直前が漢字のときは、別の語の一部(「エンドポイントは」の「ポイントは」、
+    「包括的経済連携協定」の前に漢字が続く「日英包括的」など)とみなして数えない。"""
+    out = []
+    head = phrase[0]
+    for m in re.finditer(re.escape(phrase), line):
+        prev = line[m.start() - 1] if m.start() > 0 else ""
+        if prev and ((_KATAKANA_RE.match(head) and _KATAKANA_RE.match(prev))
+                     or (_KANJI_RE.match(head) and _KANJI_RE.match(prev))):
+            continue
+        out.append(m.start())
+    return out
+
+
 def detect_forbidden_phrases(
     lines: list[tuple[int, str]], raw_lines_by_no: dict[int, str] | None = None
 ) -> list[Finding]:
@@ -596,8 +620,7 @@ def detect_forbidden_phrases(
     for no, line in lines:
         raw_line = _raw_or_masked(raw_lines_by_no, no, line)
         for phrase in FORBIDDEN_PHRASES:
-            idx = line.find(phrase)
-            if idx != -1:
+            for idx in _phrase_positions(line, phrase):
                 start = max(0, idx - 10)
                 end = idx + len(phrase) + 10
                 excerpt = raw_line[start:end] if len(raw_line) >= end else line[start:end]
@@ -1135,39 +1158,35 @@ def detect_ngram_repetition(
         lead_morphemes = _strip_leading_symbols(ts.morphemes)[:2]
         surfaces = [m.surface() for m in lead_morphemes]
         if len(surfaces) == 2:
-            is_tech_lead = _is_proper_noun_or_tech_term(lead_morphemes[0])
-            lead_bigrams.append((ts.line, ts.raw_text, "".join(surfaces), is_tech_lead))
+            # 文頭が固有名詞・英字の技術用語・数(「2019年」「日本・」「Amazon」「Python」など)の
+            # 反復は、記事の主題や日付を並べた自然な書き方で、人間の文書でも同じだけ出る
+            # (2026-10 の測定で、人間の文書と生成AIの文書で件数に差がなかった)。数えない。
+            first = lead_morphemes[0]
+            if _is_proper_noun_or_tech_term(first) or first.part_of_speech()[1] == "数詞" or re.match(r"[0-9０-９]", first.surface()):
+                continue
+            lead_bigrams.append((ts.line, ts.raw_text, "".join(surfaces), False))
 
     bigram_counter = Counter(text for _, _, text, _ in lead_bigrams)
     for bigram, count in bigram_counter.items():
         if count >= lead_repeat_threshold:
             bigram_lines = [no for no, _, text, _ in lead_bigrams if text == bigram]
             related = format_related_lines(bigram_lines)
-            for no, sent, text, is_tech_lead in lead_bigrams:
-                if text == bigram:
-                    # コーパス校正により、人間の意図的な反復と区別できないため
-                    # severity は常に info（判断材料の提示にとどめる。detail 参照）。
-                    severity = "info"
-                    if is_tech_lead:
-                        detail = (
-                            f"文頭2形態素「{bigram}」が{count}回反復（閾値{lead_repeat_threshold}回以上）。"
-                            f"固有名詞/技術用語由来の可能性が高い。{related}"
-                        )
-                    else:
-                        detail = (
-                            f"文頭2形態素「{bigram}」が{count}回反復（閾値{lead_repeat_threshold}回以上）。"
-                            f"人間の意図的な反復技法との区別がつかないため参考情報として提示。{related}"
-                        )
-                    findings.append(
-                        Finding(
-                            line=no,
-                            category="repeated_sentence_lead",
-                            excerpt=sent[:20],
-                            severity=severity,
-                            detail=detail,
-                            related_lines=bigram_lines,
-                        )
-                    )
+            # 同じ書き出しの反復は、反復ごとに1件にまとめる(出現ごとに数えると件数が膨らみ、
+            # 指摘の大半を占めてしまう)。severity は常に info(人間の意図的な反復と区別できない)。
+            no, sent, _, _ = next(x for x in lead_bigrams if x[2] == bigram)
+            findings.append(
+                Finding(
+                    line=no,
+                    category="repeated_sentence_lead",
+                    excerpt=sent[:20],
+                    severity="info",
+                    detail=(
+                        f"文頭2形態素「{bigram}」が{count}回反復（閾値{lead_repeat_threshold}回以上）。"
+                        f"人間の意図的な反復技法との区別がつかないため参考情報として提示。{related}"
+                    ),
+                    related_lines=bigram_lines,
+                )
+            )
 
     lead_pos_ngrams = []
     for ts in tokenized:
@@ -1302,6 +1321,10 @@ def detect_lexical_diversity(
     return findings, stats
 
 
+_URL_IN_TEXT_RE = re.compile(r"https?://\S+")
+_IDENTIFIER_RE = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9_.\-]*[A-Za-z0-9](?![A-Za-z0-9_])")
+
+
 def detect_low_specificity(
     lines: list[tuple[int, str]],
     raw_lines_by_no: dict[int, str] | None = None,
@@ -1358,6 +1381,17 @@ def detect_low_specificity(
         proper_noun_count = sum(
             1 for m in content_words if m.part_of_speech()[0] == "名詞" and m.part_of_speech()[1] == "固有名詞"
         )
+        # 英字の識別子(React、useState、`config.yaml` など)も、段落を具体的にする名前として数える。
+        # インラインコードは解析用テキストでは空白にしてあるので、原文の行から数える。
+        # sudachipy が英字の語を固有名詞と判定した分と二重に数えないよう、多いほうを採る。
+        raw_para = "\n".join(_raw_or_masked(raw_lines_by_no, no, t) for no, t in para_lines)
+        raw_para = _URL_IN_TEXT_RE.sub(" ", raw_para)
+        identifier_count = len(_IDENTIFIER_RE.findall(raw_para))
+        latin_proper = sum(
+            1 for m in content_words
+            if m.part_of_speech()[1] == "固有名詞" and re.fullmatch(r"[A-Za-z][\w.\-]*", m.surface())
+        )
+        proper_noun_count += max(0, identifier_count - latin_proper)
         abstract_noun_count = sum(
             1
             for m in content_words
@@ -2063,6 +2097,8 @@ def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Find
             "reading_load_sentence_max_chars", READING_LOAD_SENTENCE_MAX_CHARS
         ),
     )
+    # 「〜ことができる」は生成AIらしさではなく冗長さの指摘として、このレーンで出す。
+    findings += detect_translationese_morph(tokenized)
     stats = {
         "total": len(findings),
         "sentences": len(tokenized),
@@ -2148,7 +2184,6 @@ def run_lint(
         nominal_min_chars=profile.get("nominal_min_chars", NOMINAL_ENDING_MIN_CHARS),
     )
     findings += nominal_and_conj_findings
-    findings += detect_translationese_morph(tokenized)
     findings += detect_inanimate_subject_morph(tokenized)
     # nested_attributive はコーパス校正で削除済み（上のコメント参照）。
 
