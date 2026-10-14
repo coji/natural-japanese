@@ -10,7 +10,7 @@
 設計は二軸です。
 
 - **検出は機械、判断はAI**: 疑いの検出は `skills/natural-japanese/scripts/lint.py`（sudachipy による形態素解析）が決定的に行い、どう直すかはAIが文脈で判断する
-- **事後修正より書くときの制約**: 書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しの骨組み）と書くときの制約（`skills/natural-japanese/references/writing-principles.md` の12の書き方の原則）で発生自体を防ぐ
+- **事後修正より書くときの制約**: 書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しの骨組み）と書くときの制約（`skills/natural-japanese/references/writing-principles.md` の12の原則）で発生自体を防ぐ
 
 文書タイプ別の型は `skills/natural-japanese/references/doctypes/`、詳しい工程は [`SKILL.md`](./skills/natural-japanese/SKILL.md) を参照してください。
 
