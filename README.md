@@ -3,45 +3,43 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-仕事でAIに文章を書かせると、どこか独特の「匂い」が残ります。
+`natural-japanese` は、仕事の日本語文書を、自然で読みやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録、調査レポート、社内ガイド、技術記事、PR の説明文、ブログ記事などの執筆と推敲に使います。
 
-見出しは中身を言わず、どの段落も同じような長さで均等に並び、当たり障りのない結論で安全にまとめられる。あとから手作業で直そうとしても、骨組み全体に手癖が染み込んでいて、結局ゼロから書き直したほうが早いと感じることも少なくありません。
+> **English summary:** An Agent Skill for writing and revising Japanese work documents so they read naturally and clearly. A sudachipy-based linter flags AI-like phrasing and suggests a fix for each finding; the agent decides what to change, and never adds facts, opinions, or certainty that the original did not have.
 
-`natural-japanese` は、仕事の日本語を読みやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・企画書・ブログ記事などを対象に、論旨がすっきり通る自然な文章への執筆や推敲を支援します。
+## このスキルがすること
 
-長文のBefore/After実機比較や新機能の解説は、[v1.5.0 ビジュアルリリースノート（Web）](https://artifactshare.com/a/x3a7rghxqv) をご覧ください。
+AI に書かせた文章には、決まった言い回し、どの段落も同じ長さで並ぶ構成、結論を最後まで言わない書き方のような癖が残りがちです。AI に「もっと自然にして」と頼んでも、自分の癖には気づきにくいので、別の決まった言い回しに置き換わるだけになることがよくあります。このスキルは、次の3つでこれに対処します。
 
-> **English summary:** An Agent Skill for writing clear, readable Japanese work documents. It prevents "AI-smelling" patterns using a style constitution and mechanically detects issues with sudachipy-based linting.
+- 書く前に、読み手、主メッセージ、見出しを決める
+- 書くときに、結論を先に書く、因果は地の文で書く、同じ型を続けない、といった12の原則に沿う
+- 書いたあとで、[`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析([sudachipy](https://github.com/WorksApplications/sudachi.rs))で疑わしい箇所を検出する。指摘ごとに直し方が付いていて、直すか残すかはエージェントが文脈を見て決める
 
-## 設計の考え方
+### 元にない内容は足さない
 
-書き上がった文章からAI臭を抜くのは、料理のあとから塩を抜くような難しさがあります。AI自身に「もっと自然にして」と頼んでも、自分の手癖を認識できないため、別の定型句に置き換わるだけになりがちです。
+既存の文書を直すとき、元の文書にない事実・数値・意見・方針は足しません。確信の度合いも変えません。「次回また相談する」を「合意した」に変えたり、書き手が言っていない経験を書き足したりすると、直した文書は書き手が言っていないことを書き手の言葉として伝えてしまうからです。仕上げに、直した文書を元の文書と並べ、元にない内容が入っていないかを確かめます。
 
-そのため、このスキルでは設計を根本から分けています。
+## 直す例
 
-### あとから直すより、書く前に防ぐ
+元の文:
 
-書く前に見出しの骨組みを固め、[書き方の原則](./skills/natural-japanese/references/writing-principles.md)の12の原則を制約として適用します。「結論から書く」「同じ型を繰り返さない」といったルールで縛り、最初から歪みの少ない文章を出力させます。
+> このツールを使用することで、作業効率を大幅に向上させることができると言えるでしょう。
 
-### 検出は機械、判断は人間（またはエージェント）
+直した文:
 
-それでも混ざる手癖は、形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）を使ったスクリプト [`lint.py`](./skills/natural-japanese/scripts/lint.py) で機械的に洗い出します。紋切り型のフレーズ、単調な文リズム、英語の直訳調をルールベースで突きつけます。
+> このツールを使うと、作業の効率は大きく上がるはずだ。
 
-ただし、指摘を機械的に全置換すると文章のニュアンスが失われます。何を直し、文脈上あえて何を残すかは人間やエージェント自身が判断します。
+「〜することで」「〜することができる」「と言えるでしょう」を外し、言い回しだけを変えています。「と言えるでしょう」の推量は「はずだ」で残し、断定には変えていません。
 
-なお、語順や読点の位置といった「そもそも読みにくい」領域は、機械的な判定が難しいことがコーパス検証（180本超の比較分析）で分かっています。こうした箇所はルールカタログに基づく目視レビューや、補助的な読みやすさの検査（`--reading-load`）を組み合わせて丁寧に推敲します。
+元の文:
 
-## 変換の例
+> 田中さんから在庫アラートについて説明があり、現行のしきい値だと誤検知が多いという話になった。佐藤さんはそれに対して在庫回転率を使う案を出し、鈴木さんも賛成した。最終的にどう決まったかは次回また相談することになった。
 
-**Before**
-> リモートワークの普及は、働き方に大きな変化をもたらした。重要なのは、通勤時間の削減による生活の質の向上だ。また、オフィスコストの削減という企業側のメリットも見逃せない。このように、リモートワークは労働者と企業の双方にとって恩恵のある働き方だと言えるだろう。
+直した文:
 
-**After**
-> リモートワークが広まってから、通勤で潰れていた1時間が自分の時間に戻ってきた人は多いはずだ。企業側もオフィスの家賃を削れる。誰も損をしていないように見える働き方だが、実際にそう言い切れるのかは、もう少し先まで見ないと分からない。
+> 在庫アラートのしきい値の決め方は結論が出ず、次回に持ち越した。現行のしきい値では誤検知が多いと田中さんが説明し、佐藤さんが在庫回転率を使う案を出して、鈴木さんも賛成した。
 
-`重要なのは` `このように` `と言えるだろう` といった手癖の定型句を外し、結論を急いで押し付ける構えを、実感と留保のある表現に変えています。
-
-長文の実機検証（定例会議廃止メモ、Redis→KV移行メモ）の段落ごとの対比は [v1.5.0 ビジュアルリリースノート](https://artifactshare.com/a/x3a7rghxqv) で確認できます。その他の例は [`examples.md`](./skills/natural-japanese/references/examples.md) を参照してください。
+議事録の例です。結論(持ち越し)を先頭に置き、経緯をその後ろに回しています。決まっていないことを「合意した」とは書かず、元にない担当者や期日も足していません。
 
 ## インストール
 
@@ -75,45 +73,45 @@ npx openskills sync
 
 ## 使い方
 
-スキルを導入すると、エージェントへの日常的な依頼の中で自動的に呼び出されます。
+スキルを入れておくと、文章についての依頼で自動的に呼び出されます。
 
-- 議事録・レポート・社内ガイド・企画書などの作成や校正
-- 「読みやすくして」「結論から書いて」「不自然な表現を直して」といった指示
-- AIが書いた下書きの推敲や、AI臭さの診断（スコア測定）
-- ブログやエッセイの下書き作成、既存記事のリライト
+- 議事録・レポート・社内ガイド・企画書・技術記事・PR の説明文などの作成や推敲
+- 「読みやすくして」「自然な日本語にして」「結論から書いて」「AI っぽいのを直して」といった依頼
+- AI が書いた下書きの推敲や、AI らしさの診断
+- ブログやエッセイの執筆、既存の記事のリライト
 
-指摘を一括置換するのではなく、エージェントが指摘を仕分けし、さらに「6軸推敲ルーブリック（脱AI臭・情報密度・体温など）」で合格基準に達するまで自律的に推敲ループを回します。
+lint の指摘を一律に直すのではなく、エージェントが一つずつ直すか残すかを決め、残すときは理由を記録します。
 
 ### 診断コマンド
 
-文書を書き換えずに自然度（0〜100）を測定したい場合は、診断コマンドを実行できます。
+文書を書き換えずに、自然度(0〜100)と理由だけを知りたいときは、診断コマンドを使います。
 
 ```
 /natural-japanese score path/to/document.md
 ```
 
-## 検査スクリプト単体での利用
+## 検査スクリプトだけを使う
 
-各スクリプトはスキルを介さず単体でも実行できます。実行には [uv](https://docs.astral.sh/uv/) が必要です。依存関係はスクリプト自身に記述されており、`uv run` が実行時に自動で解決します。
+各スクリプトは、スキルを通さずに単体でも実行できます。実行には [uv](https://docs.astral.sh/uv/) が必要です。依存関係はスクリプト自身に書かれていて、`uv run` が実行時に解決します。
 
 ```bash
 brew install uv
 ```
 
 ```bash
-# 疑いのある表現の検出
+# 疑わしい表現の検出(指摘ごとに直し方が付く)
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md
 
-# ジャンル指定（誤検知の抑制）
+# ジャンルを指定して誤検出を減らす
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --genre tech
 
-# 読解負荷（一文の長さや読点の偏りなど）のチェック
+# 読みにくい箇所(長すぎる文、続きすぎる漢字、二重否定など)の検出
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --reading-load
 
-# 構成（見出し・段落先頭文）の抽出
+# 見出しと各段落の先頭文の抽出
 uv run skills/natural-japanese/scripts/outline.py path/to/draft.md
 
-# 専門用語と初出説明の確認
+# 専門用語の初出と説明の有無の一覧
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md
 ```
 
@@ -121,10 +119,11 @@ uv run skills/natural-japanese/scripts/terms.py path/to/draft.md
 
 ```
 skills/natural-japanese/            # スキル本体
-  SKILL.md                          # スキル定義
-  references/                       # 書き方の原則・禁止パターン・6軸ルーブリックなど
-  references/doctypes/              # 文書タイプ別の型（議事録・レポート・ガイドなど）
-  scripts/                          # 検査スクリプト（lint.py, outline.py, terms.py など）
+  SKILL.md                          # 規則と工程のすべて
+  references/doctypes/              # 文書タイプ別の型(議事録・レポート・ガイド・メモ・スライド)
+  references/diagnose.md            # 診断モードの採点方法
+  references/manual-checklist.md    # lint が使えない環境向けの手順
+  scripts/                          # 検査スクリプト(lint.py, outline.py, terms.py など)
   assets/                           # テンプレート
 ```
 
@@ -139,15 +138,11 @@ git config core.hooksPath .githooks
 
 ## 参考にした資料
 
-このスキルの設計にあたり、以下の公開資料やプロジェクトを参考にしています。感謝します。
+このスキルの設計にあたり、以下の公開資料やプロジェクトを参考にしています。
 
-- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 機械検出と文脈判断の分離、濃淡設計、自己点検ループの着想元
-- [日本語技術文書の文章規範（k16shikano）](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) — LLM特有の空虚な言い回し（空句）の分類基準
-- [meiseki（bamboo-nova）](https://github.com/bamboo-nova/meiseki) — 機械検出とLLM推敲を組み合わせるアプローチや、読解負荷の観点整理
-
-## クレジット
-
-本 README の執筆・推敲: Cursor Agent (Gemini 3.8 Flash High)
+- [AI臭さを消した日本語執筆エージェントの設計(なつ「いとおり」)](https://note.com/art_reflection/n/n7ffd5ce3320c):機械による検出と文脈による判断を分ける考え方、濃淡の設計
+- [日本語技術文書の文章規範(k16shikano)](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d):LLM に特有の空虚な言い回しの分類
+- [meiseki(bamboo-nova)](https://github.com/bamboo-nova/meiseki):機械検出と LLM による推敲を組み合わせる方法、読みにくさの観点の整理
 
 ## ライセンス
 
