@@ -1,6 +1,6 @@
 # 手動チェックリスト（スクリプト不可環境向け）
 
-`uv` が使えず `scripts/lint.py` を実行できない環境（Claude.ai など）では、このチェックリストを目視で当てる。`lint.py` の各検出器を、判断の手順に置き換えたものなので、対応関係は `references/revision-guide.md` の対応表と同じカテゴリ名で読める。
+`uv` が使えず `scripts/lint.py` を実行できない環境（Claude.ai など）では、このチェックリストを目視で当てる。`lint.py` の各検出器を、判断の手順に置き換えたもの。各検出器の意味と直し方は `references/revision-guide.md` の対応表にある。
 
 ## 1. 禁止語・LLM常套句
 
