@@ -3,6 +3,13 @@ __pycache__/
 .claude/
 /.wrangler/
 
+# 研究用の手元のファイル(API キー、著作権のある本文、本人の文書)。研究の記録は coji/ja-ai-style-corpus にある
+corpus/.env
+corpus/private/
+corpus/ai-legacy/
+corpus/paired/
+corpus/timeslice/
+
 # corpus: 著作権のある本文・再生成可能な生成物はコミットしない
 # (青空文庫のパブリックドメイン本文 corpus/human/aozora/ はコミット対象)
 corpus/human/web/*
