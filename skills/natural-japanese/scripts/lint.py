@@ -626,9 +626,9 @@ def detect_forbidden_phrases(
                 excerpt = raw_line[start:end] if len(raw_line) >= end else line[start:end]
                 is_weak_signal = phrase in FORBIDDEN_PHRASES_WEAK_SIGNAL
                 severity = "info" if is_weak_signal else "warn"
-                detail = f"禁止語/LLM常套句ヒット: 「{phrase}」"
+                detail = f"AI の書いた文章によく出る言い回し「{phrase}」"
                 if is_weak_signal:
-                    detail += "（コーパス校正で人間側にも一定数出現する弱いシグナルと判定、severity低下）"
+                    detail += "（人間の文書にもよく出る語なので、弱い疑い）"
                 findings.append(
                     Finding(
                         line=no,
@@ -658,7 +658,7 @@ def detect_translationese(
                         category="translationese",
                         excerpt=excerpt.strip(),
                         severity="info",
-                        detail=f"翻訳調パターン: /{pat}/ に一致",
+                        detail="英語の構文をなぞった翻訳調の言い回しの疑い",
                     )
                 )
     return findings
@@ -751,7 +751,7 @@ def detect_low_sentence_length_variance(
                 category="low_sentence_variance",
                 excerpt=f"文数={len(lengths)}, 平均文長={mean:.1f}字, 変動係数={cv:.3f}",
                 severity="warn",
-                detail=f"文長の変動係数が閾値({threshold})未満。リズムが均質でAI臭い可能性",
+                detail=f"文の長さのばらつきが小さい（変動係数が閾値{threshold}未満）。文の長さがそろいすぎている疑い",
             )
         ]
     return []
@@ -892,10 +892,8 @@ def detect_nominal_ending_and_paragraph_conjunctions(
                 excerpt=f"体言止め0件（全{total_sentences}文、約{total_chars}字）",
                 severity="info",
                 detail=(
-                    "この文書には体言止めが1つもない。ある程度の長さの文書で"
-                    "この修辞技法が皆無なのはAI文章に特徴的（コーパス実測: "
-                    "essayジャンルで人間60% vs AI 0%が体言止めを使用）。"
-                    "人間的な修辞の欠如の疑い"
+                    "この文書には体言止めが1つもない。ある程度の長さの文書で一度も使わないのは、"
+                    "AI の書いた文章によく見られる特徴"
                 ),
             )
         )
@@ -1011,7 +1009,7 @@ def detect_translationese_morph(tokenized: list[TokenizedSentence]) -> list[Find
                                 category="translationese_morph",
                                 excerpt=excerpt,
                                 severity="info",
-                                detail="品詞列マッチ: 名詞/動詞+こと+が/は+できる型の翻訳調構文",
+                                detail="「〜することができる」型の言い回し",
                             )
                         )
     return findings
@@ -1084,7 +1082,7 @@ def detect_rhythm_statistics(
                 category="low_burstiness",
                 excerpt=f"burstiness={burstiness:.3f} (モーラ近似長 平均={mean:.1f}, 標準偏差={std:.1f})",
                 severity="warn",
-                detail=f"burstiness が閾値({burstiness_threshold})未満。文の長短のメリハリが乏しく機械的なリズムの疑い",
+                detail=f"文の長短の差が小さい（burstiness が閾値{burstiness_threshold}未満）。文の長さがそろいすぎている疑い",
             )
         )
 
@@ -1182,7 +1180,7 @@ def detect_ngram_repetition(
                     severity="info",
                     detail=(
                         f"文頭2形態素「{bigram}」が{count}回反復（閾値{lead_repeat_threshold}回以上）。"
-                        f"人間の意図的な反復技法との区別がつかないため参考情報として提示。{related}"
+                        f"人間が意図して繰り返す場合と区別がつかないため、参考情報。{related}"
                     ),
                     related_lines=bigram_lines,
                 )
@@ -1346,7 +1344,7 @@ def detect_low_specificity(
     これは文体（言い回し）の問題ではなく、段落を支える固有名詞・数値・一次情報
     そのものが足りていない「素材不足」のサインであるため、detail では
     書き直しではなく情報収集を検討するよう促す
-    （references/revision-guide.md の「素材不足の分岐」参照）。
+    （SKILL.md §1「素材」と §3 を参照）。
     """
     tokenizer = get_tokenizer()
     from sudachipy import SplitMode
@@ -1426,8 +1424,7 @@ def detect_low_specificity(
                         f"固有名詞密度={proper_noun_density:.3f}, 数値密度={numeric_density:.3f}, "
                         f"抽象名詞率={abstract_noun_ratio:.3f}, 例示マーカー={'あり' if has_example_marker else 'なし'}。"
                         "固有名詞・数値・実例が乏しく一般論に留まっている疑い。"
-                        "素材不足のサインであり、文体の修正でなく情報収集を検討する"
-                        "（revision-guide.md の素材不足の分岐を参照）"
+                        "素材が足りていないサイン"
                     ),
                 )
             )
@@ -1445,7 +1442,7 @@ def detect_low_specificity(
 # deep-analysis.md でも essay同ジャンルで人間100% vs AI 92〜100%とほぼ差がない
 # 「全発火・弁別力なし」と判定された。閾値調整では救えないノイズだったため、
 # 検出器そのものと専用ヘルパー（旧 build_line_to_paragraph_map）を削除している。
-# 経緯は references/translationese.md の該当節にも記載。
+# 経緯は corpus/reports/archive/sweep_nested_attributive.md に記載。
 
 # ---------------------------------------------------------------------------
 # 英語統語の検出（挑戦枠）
@@ -1482,7 +1479,7 @@ def detect_english_syntax_smell(
                         category="english_syntax_inanimate_subject",
                         excerpt=excerpt,
                         severity="info",
-                        detail="無生物主語+他動詞的述語（表層パターン、英語統語の直訳調の可能性、要人間判断）",
+                        detail="もの・ことを主語にして他動詞で受ける、英語の構文の直訳の疑い",
                     )
                 )
 
@@ -1760,7 +1757,7 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 #     この基準により、接続助詞「が」の連鎖を指す doubled_conjunctive_ga は削除した
 #     （AI生成9,889文で1件・人間執筆379文で0件。見落とし以前に、そもそも起きていない）。
 #
-# 各検出器は references/readability-antipatterns.md の A〜J カタログに対応する。
+# 各検出器の直し方は SKILL.md §5「読みやすさの点検」と HINTS に書いてある。
 # 閾値は当面 textlint-rule-preset-ja-technical-writing の既定値に合わせた暫定値で、
 # 上記の基準で校正して調整する。
 # ---------------------------------------------------------------------------
@@ -1950,7 +1947,7 @@ def detect_reading_load(
 ) -> list[Finding]:
     """読解負荷の高い箇所を指さす（判定もスコアも出さない）。
 
-    対応カタログは references/readability-antipatterns.md。
+    直し方は SKILL.md §5「読みやすさの点検」と HINTS。
     """
     findings: list[Finding] = []
     for ts in tokenized:
@@ -1968,8 +1965,7 @@ def detect_reading_load(
                     severity="info",
                     detail=(
                         f"一文が{reading_len}字（目安{sentence_max_chars}字）。"
-                        "カタログ B1。一文一義になっているか確認する"
-                        "（分割の結果、字数が増えるのは正しい）"
+                        "一文に主張が二つ以上入っていないかを確かめる"
                     ),
                 )
             )
@@ -1991,7 +1987,7 @@ def detect_reading_load(
                     severity="info",
                     detail=(
                         f"漢字が{len(m.group(0))}字連続（目安{READING_LOAD_KANJI_RUN_MAX}字）。"
-                        "カタログ C1。語の切れ目が読み取れるか確認する"
+                        "語の切れ目が読み取りにくい疑い"
                     ),
                 )
             )
@@ -2016,8 +2012,7 @@ def detect_reading_load(
                     severity="info",
                     detail=(
                         f"同格の名詞句が読点で{items}個並んでいる（一文{reading_len}字）。"
-                        "カタログ F1。箇条書きに開くと並列関係を読み手が再構成せずに済む"
-                        "（「**項目**: 説明」の定型にはしない）"
+                        "並んだ項目を読み手が頭の中で組み立て直すことになる"
                     ),
                 )
             )
@@ -2039,10 +2034,7 @@ def detect_reading_load(
                         excerpt=span,
                         severity="info",
                         detail=(
-                            "否定が二重に掛かっている可能性。カタログ A1/A2。"
-                            "肯定に畳むなら真偽が反転していないか必ず確認する"
-                            "（「招かないとは言えない」＝「招くことがある」）。"
-                            "控えめな肯定が本質的な箇所は触らない"
+                            "否定が二重に掛かっている疑い"
                         ),
                     )
                 )
@@ -2065,14 +2057,14 @@ def detect_reading_load(
                         excerpt="".join(m.surface() for m in morphemes[window[0] : window[-1] + 1]),
                         severity="info",
                         detail=(
-                            f"格助詞「の」が{READING_LOAD_NO_CHAIN_MIN}連以上。カタログ C2。"
-                            "どこかを動詞・連用に開く（「上限の設定の検討」→「上限をどう設定するか検討する」）"
+                            f"格助詞「の」が{READING_LOAD_NO_CHAIN_MIN}つ以上続いている。係り受けが分かりにくい疑い"
                         ),
                     )
                 )
                 break
 
     findings.sort(key=lambda f: f.line)
+    attach_hints(findings)
     return findings
 
 
@@ -2099,6 +2091,7 @@ def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Find
     )
     # 「〜ことができる」は生成AIらしさではなく冗長さの指摘として、このレーンで出す。
     findings += detect_translationese_morph(tokenized)
+    attach_hints(findings)
     stats = {
         "total": len(findings),
         "sentences": len(tokenized),
@@ -2132,6 +2125,49 @@ EXPERIMENTAL_CATEGORIES: set[str] = {
     "numbered_phase_structure",
     "high_emoji_symbol_density",
 }
+
+
+# ---------------------------------------------------------------------------
+# 指摘ごとの直し方。SKILL.md §4 は「各指摘の説明に、何を疑っているかと直し方が書いてある」
+# と前提にしているので、カテゴリを足したらここにも足す。直し方は短く、何をすればよいかを書く。
+# ---------------------------------------------------------------------------
+HINTS = {
+    "forbidden_phrase": "多くは削っても意味が変わらない。削ると前後がつながらないときだけ、元の文書の内容で言い換える。固有名詞や引用の一部なら残す",
+    "translationese": "日本語でふつうに言う形にする（「〜という点で」→「〜では」、「〜を持つ」→「〜がある」）",
+    "translationese_morph": "「〜することができる」は「〜できる」か、動詞の可能形にする",
+    "antithesis_repetition": "読み手の誤解を正している対比だけを残し、ほかは肯定文に直す。対比の後半だけで意味が通らないものは言い換えにすぎない",
+    "low_sentence_variance": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
+    "low_burstiness": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
+    "high_length_autocorrelation": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
+    "nominal_ending": "参考情報。体言止めを無理に足さなくてよい。ほかの指摘と合わせて判断する",
+    "paragraph_lead_conjunction": "前の段落と内容でつながるなら接続詞を外す。論理の関係を示すのに必要なら残す",
+    "uniform_paragraph_structure": "段落の長さを内容の重さに合わせる。重要な段落は長く、軽い段落は短くてよい",
+    "repeated_sentence_lead": "参考情報。同じ書き出しが続くところは、文の順序や主語を入れ替えるか、2文を1文にまとめる",
+    "repeated_syntax_template": "同じ組み立ての文が続くところは、文の順序や主語を入れ替えるか、2文を1文にまとめる",
+    "low_lexical_diversity_ttr": "参考情報。語を言い換えて散らすのではなく、抽象的な語を具体的な語にできないかを見る。用語は同じ語にそろえたままでよい",
+    "low_lexical_diversity_mtld": "参考情報。語を言い換えて散らすのではなく、抽象的な語を具体的な語にできないかを見る。用語は同じ語にそろえたままでよい",
+    "low_specificity": "新しく書くときは素材を集め直す。既存の文書を直すときは、自分で具体例や数値を足さず、どんな素材があれば具体的にできるかをユーザーに伝える",
+    "english_syntax_inanimate_subject": "人や状況を主語にするか、「〜から分かる」「〜を見ると」のように言い換える",
+    "inanimate_subject_morph": "人や状況を主語にするか、「〜から分かる」「〜を見ると」のように言い換える",
+    "english_syntax_cleft_because": "理由を先に書くか、「〜だからだ」で一文にまとめる",
+    "high_bold_density": "太字は、文書全体で本当に目立たせたい箇所だけに残す",
+    "high_bullet_ratio": "因果や経緯のある箇条書きは地の文に戻す。宿題の一覧のように本当に独立した項目は残す",
+    "boilerplate_heading": "「まとめ」「おわりに」のような見出しをやめ、結論そのものを見出しにするか、見出しなしで締める",
+    "numbered_phase_structure": "内容がもともと段階を持つときだけ番号を付ける",
+    "high_emoji_symbol_density": "絵文字や装飾記号を外す。区分のラベルとして働いているものだけ残す",
+    "sentence_too_long": "主張が二つ以上あれば文を分ける。分けて字数が増えるのはかまわない",
+    "kanji_run": "ひらがなを交えて開く（「再送抑制機能」→「再送を止める機能」）。固有名詞はそのままでよい",
+    "buried_list": "箇条書きに開く。各項目を「太字: 説明」の形にはしない",
+    "double_negative": "肯定に畳むなら、真偽が反転していないかを必ず確かめる（「招かないとは言えない」は「招くことがある」）。控えめに言うことが意図なら触らない",
+    "no_chain": "どこかを動詞に開く（「上限の設定の検討」→「上限をどう設定するか検討する」）",
+}
+
+
+def attach_hints(findings: list[Finding]) -> list[Finding]:
+    for f in findings:
+        if not f.hint:
+            f.hint = HINTS.get(f.category, "")
+    return findings
 
 
 def run_lint(
@@ -2214,6 +2250,7 @@ def run_lint(
         findings = [f for f in findings if f.category not in disabled_categories]
 
     findings.sort(key=lambda f: f.line)
+    attach_hints(findings)
 
     stats = {
         "total_findings": len(findings),
@@ -2276,6 +2313,8 @@ def print_human_report(
             # 「対応箇所: L12, L34, ...」（related_lines）は detail 文字列に既に
             # 含めているため、人間可読レポートでは detail をそのまま表示すれば十分。
             print(f"    詳細    : {f.detail}")
+        if f.hint:
+            print(f"    直し方  : {f.hint}")
         print()
 
 
@@ -2298,10 +2337,12 @@ def print_reading_load_report(findings: list[Finding], stats: dict) -> None:
         print(f"    該当箇所: {f.excerpt}")
         if f.detail:
             print(f"    詳細    : {f.detail}")
+        if f.hint:
+            print(f"    直し方  : {f.hint}")
         print()
 
     print("※ これらは「直すべき欠陥」ではなく「見るべき箇所」。読んで引っかからない文はいじらない。")
-    print("※ 判断は references/readability-antipatterns.md の A〜J カタログに従う。")
+    print("※ 直し方は SKILL.md §5「読みやすさの点検」に従う。")
 
 
 def main() -> int:

@@ -39,6 +39,8 @@ class Finding:
     # --baseline 比較を行ったときだけ "new" | "persisting" にセットされる
     # （比較しない通常実行では None のまま。to_dict() で省く）。
     status: str | None = None
+    # どう直すかの短い手引き。lint.py がカテゴリごとに付ける（SKILL.md §4 が参照する）。
+    hint: str = ""
 
     def __post_init__(self) -> None:
         # JSON 出力でも detail 表記と同じく重複除去・昇順に正規化する
@@ -52,6 +54,8 @@ class Finding:
         # （--baseline なしの挙動は完全に不変、という要件のため）。
         if d.get("status") is None:
             d.pop("status", None)
+        if not d.get("hint"):
+            d.pop("hint", None)
         return d
 
 
