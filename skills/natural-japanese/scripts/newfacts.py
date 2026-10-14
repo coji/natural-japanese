@@ -19,6 +19,7 @@
 
 使い方:
     uv run scripts/newfacts.py <元の文書> <直した文書> [--json]
+    uv run scripts/newfacts.py --git <直した文書> [--json]   # git の直前のコミットの内容を元の文書として比べる
 
 入力エラーは exit code 1、それ以外は exit code 0(判断は AI に委ねる。ほかの検査と同じ方針)。
 """
@@ -28,6 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 import unicodedata
 from pathlib import Path
@@ -84,18 +86,36 @@ def locate(revised: str, word: str) -> list[tuple[int, str]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="直した文書にだけある数値・固有名詞・英字の語を一覧にする")
-    ap.add_argument("original", type=Path, help="元の文書")
-    ap.add_argument("revised", type=Path, help="直した文書")
+    ap.add_argument("files", type=Path, nargs="+", help="元の文書と直した文書。--git のときは直した文書だけ")
+    ap.add_argument("--git", action="store_true", help="git の直前のコミット(HEAD)の内容を元の文書として比べる")
     ap.add_argument("--json", action="store_true", help="JSON で出力する")
     a = ap.parse_args()
-    texts = []
-    for p in (a.original, a.revised):
-        text, err = read_source_file(p)
+    if a.git:
+        if len(a.files) != 1:
+            print("エラー: --git のときは、直した文書を1つだけ指定してください", file=sys.stderr)
+            return 1
+        revised, err = read_source_file(a.files[0])
         if err:
             print(err, file=sys.stderr)
             return 1
-        texts.append(text)
-    original, revised = texts
+        path = a.files[0].resolve()
+        r = subprocess.run(["git", "show", f"HEAD:./{path.name}"], cwd=path.parent, capture_output=True, text=True)
+        if r.returncode != 0:
+            print(f"エラー: git の直前のコミットに {a.files[0]} が見つかりません(git で管理していないか、まだコミットしていない)", file=sys.stderr)
+            return 1
+        original = r.stdout
+    else:
+        if len(a.files) != 2:
+            print("エラー: 元の文書と直した文書の2つを指定してください(git で管理しているなら --git を使える)", file=sys.stderr)
+            return 1
+        texts = []
+        for p in a.files:
+            text, err = read_source_file(p)
+            if err:
+                print(err, file=sys.stderr)
+                return 1
+            texts.append(text)
+        original, revised = texts
     found = [{"word": w, "lines": [{"line": n, "text": t} for n, t in locate(revised, w)]} for w in new_items(original, revised)]
     if a.json:
         print(json.dumps({"new_items": found}, ensure_ascii=False, indent=2))
