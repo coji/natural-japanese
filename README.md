@@ -113,6 +113,9 @@ uv run skills/natural-japanese/scripts/outline.py path/to/draft.md
 
 # 専門用語の初出と説明の有無の一覧
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md
+
+# 直した文書にだけある数値・固有名詞・英字の語の一覧(元にない内容を足していないかの確認)
+uv run skills/natural-japanese/scripts/newfacts.py path/to/original.md path/to/revised.md
 ```
 
 ## リポジトリ構成
@@ -123,7 +126,7 @@ skills/natural-japanese/            # スキル本体
   references/doctypes/              # 文書タイプ別の型(議事録・レポート・ガイド・メモ・スライド)
   references/diagnose.md            # 診断モードの採点方法
   references/manual-checklist.md    # lint が使えない環境向けの手順
-  scripts/                          # 検査スクリプト(lint.py, outline.py, terms.py など)
+  scripts/                          # 検査スクリプト(lint.py, outline.py, terms.py, newfacts.py など)
   assets/                           # テンプレート
 ```
 
