@@ -10,7 +10,7 @@
 設計は二軸です。
 
 - **検出は機械、判断はAI**: 疑いの検出は `skills/natural-japanese/scripts/lint.py`（sudachipy による形態素解析）が決定的に行い、どう直すかはAIが文脈で判断する
-- **事後修正より生成時制約**: 書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しスケルトン）と書くときの制約（`skills/natural-japanese/references/writing-constitution.md` の文体憲法12箇条）で発生自体を防ぐ
+- **事後修正より書くときの制約**: 書いた後にAI臭を消すより、書く前の設計（読者・主メッセージ・見出しの骨組み）と書くときの制約（`skills/natural-japanese/references/writing-principles.md` の12の書き方の原則）で発生自体を防ぐ
 
 文書タイプ別の型は `skills/natural-japanese/references/doctypes/`、詳しい工程は [`SKILL.md`](./skills/natural-japanese/SKILL.md) を参照してください。
 
@@ -30,7 +30,7 @@ Python の実行は [uv](https://docs.astral.sh/uv/) を前提にしています
 
 ```bash
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md      # 疑いの検出（--json / --genre / --baseline）
-uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # スケルトン抽出（構造レビューの入力）
+uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # 骨組みの抽出（構造レビューの入力）
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # 専門用語の初出・説明有無の一覧
 ```
 
