@@ -726,6 +726,38 @@ def detect_antithesis_repetition(
 
 
 
+# 文末を打ち消しで終える文(「〜ではない。」「〜わけではない。」)の多用。GPT 系の文書に特に多い。
+# 2026-10 の測定(corpus/private/mlm/tests.json):文書内に4回以上あったのは、生成AI以前の人間の文書
+# 400本で0本、Claude・Gemini の文書65本で0本、GPT 系の文書35本で22本。「〜ではないでしょうか」
+# 「〜ではないか」のような問いかけ・推量は数えない(人間の文書に多く、打ち消しではないため)。
+NEGATION_END_RE = re.compile(r"(?:ではない|ではありません|じゃない|わけではない|わけではありません|わけじゃない)(?:のです|んです|のだ)?$")
+NEGATION_REPETITION_THRESHOLD = 4
+
+
+def detect_negation_repetition(
+    lines: list[tuple[int, str]],
+    raw_lines_by_no: dict[int, str] | None = None,
+    threshold: int = NEGATION_REPETITION_THRESHOLD,
+) -> list[Finding]:
+    """文末を打ち消しで終える文を文書全体で数え、threshold 回以上なら多用として検出する。"""
+    hits = []
+    for no, sent, raw in split_sentences_with_lines(lines, raw_lines_by_no):
+        body = sent.strip().rstrip("。．")
+        if NEGATION_END_RE.search(body):
+            hits.append((no, (raw or sent).strip()))
+    findings = []
+    if len(hits) >= threshold:
+        all_lines = [no for no, _ in hits]
+        related = format_related_lines(all_lines)
+        for no, text in hits:
+            findings.append(Finding(
+                line=no, category="negation_repetition", excerpt=text[:60], severity="warn",
+                detail=f"文末を打ち消しで終える文が文書内で{len(hits)}回(閾値{threshold}回以上)。{related}",
+                related_lines=all_lines,
+            ))
+    return findings
+
+
 def detect_low_sentence_length_variance(
     sentences: list[tuple[int, str, str]],
     threshold: float = SENTENCE_VARIANCE_CV_THRESHOLD,
@@ -2136,6 +2168,7 @@ HINTS = {
     "translationese": "日本語でふつうに言う形にする（「〜という点で」→「〜では」、「〜を持つ」→「〜がある」）",
     "translationese_morph": "「〜することができる」は「〜できる」か、動詞の可能形にする",
     "antithesis_repetition": "読み手の誤解を正している対比だけを残し、ほかは肯定文に直す。対比の後半だけで意味が通らないものは言い換えにすぎない",
+    "negation_repetition": "事実や注意としての打ち消し(「必須ではありません」「預金保険の対象ではありません」)は残す。誰も言っていない思い込みを先回りして打ち消す文(「〜するだけで自動的に〜わけではない」)は、文ごと削り、次の文の中身を残す。「AはBではない。Cだ。」は、打ち消しを削り、主語を肯定の文につなぐ(「AはCだ。」)。新しい言葉は足さない",
     "low_sentence_variance": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
     "low_burstiness": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
     "high_length_autocorrelation": "内容のまとまりに合わせて、文を分けたりつないだりする。リズムのためだけに短い文を差し込まない",
@@ -2209,6 +2242,7 @@ def run_lint(
         raw_lines_by_no,
         rate_critical_above=profile.get("antithesis_rate_critical_above", ANTITHESIS_RATE_CRITICAL_ABOVE),
     )
+    findings += detect_negation_repetition(lines, raw_lines_by_no)
     findings += detect_low_sentence_length_variance(sentences)
     findings += detect_english_syntax_smell(lines, raw_lines_by_no)
 
