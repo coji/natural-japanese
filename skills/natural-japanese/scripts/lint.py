@@ -413,7 +413,6 @@ GENRE_PROFILES: dict[str, dict] = {
         "lead_repeat_threshold": 7,
         "disabled_categories": {
             "high_bullet_ratio",
-            "high_bold_density",
             "boilerplate_heading",
             "numbered_phase_structure",
         },
@@ -1610,9 +1609,14 @@ def detect_inanimate_subject_morph(tokenized: list[TokenizedSentence]) -> list[F
 # 注意: この一群はまだ deep-analysis.md の定量コーパス計測を経ておらず、
 # 5文書の質的観察のみが根拠（暫定閾値）。EXPERIMENTAL_CATEGORIES に含めて
 # デフォルト無効化し、--experimental フラグを付けたときだけ有効にする。
+# ただし太字の多用(high_bold_density)だけは 2026-10 に測って既定で有効にした。
+# 1000字あたり5回以上(かつ3か所以上)を超えるのは、生成AI以前の Qiita 2022 で3%、LLM-jp 由来で0%、
+# 生成記事で7%、Qiita 2026 で13%。作者の文書を推敲した版で太字が「ノイズで読みづらい」と言われた
+# (corpus/reports/readability-ooda.md の11周目)。仕事の文書でも多すぎる太字は読みにくいので、
+# business ジャンルでも無効にしない。
 # ---------------------------------------------------------------------------
 BOLD_SPAN_RE = re.compile(r"\*\*[^*\n]+\*\*")
-BOLD_DENSITY_PER_1000_THRESHOLD = 3.0
+BOLD_DENSITY_PER_1000_THRESHOLD = 5.0
 BULLET_LINE_RATIO_THRESHOLD = 0.35
 BULLET_LINE_MIN_LINES = 10
 # 「まとめ」「おわりに」等の定型見出し（本文の中身ではなく予告的な構成の型を示す）
@@ -2151,7 +2155,6 @@ EXPERIMENTAL_CATEGORIES: set[str] = {
     "paragraph_lead_conjunction",
     "repeated_syntax_template",
     "english_syntax_cleft_because",
-    "high_bold_density",
     "high_bullet_ratio",
     "boilerplate_heading",
     "numbered_phase_structure",
