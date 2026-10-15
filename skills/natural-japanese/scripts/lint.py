@@ -1610,13 +1610,16 @@ def detect_inanimate_subject_morph(tokenized: list[TokenizedSentence]) -> list[F
 # 5文書の質的観察のみが根拠（暫定閾値）。EXPERIMENTAL_CATEGORIES に含めて
 # デフォルト無効化し、--experimental フラグを付けたときだけ有効にする。
 # ただし太字の多用(high_bold_density)だけは 2026-10 に測って既定で有効にした。
-# 1000字あたり5回以上(かつ3か所以上)を超えるのは、生成AI以前の Qiita 2022 で3%、LLM-jp 由来で0%、
-# 生成記事で7%、Qiita 2026 で13%。作者の文書を推敲した版で太字が「ノイズで読みづらい」と言われた
+# 行頭の「**ラベル**:」を除いた文中の太字が1000字あたり3回以上(かつ3か所以上)になるのは、生成AI以前の Qiita 2022 で6%、
+# LLM-jp 由来で0%、生成記事で6%、Qiita 2026 で22%。ラベルの太字は、作者の読み比べで残したほうが読みやすく探しやすかった。
+# 作者の文書を推敲した版で、文中の太字が「ノイズで読みづらい」と言われた
 # (corpus/reports/readability-ooda.md の11周目)。仕事の文書でも多すぎる太字は読みにくいので、
 # business ジャンルでも無効にしない。
 # ---------------------------------------------------------------------------
 BOLD_SPAN_RE = re.compile(r"\*\*[^*\n]+\*\*")
-BOLD_DENSITY_PER_1000_THRESHOLD = 5.0
+# 行頭(箇条の頭を含む)の「**ラベル**:」は項目を探す目印なので数えない
+BOLD_LABEL_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])?\s*\*\*[^*\n]+\*\*\s*[:：]", re.M)
+BOLD_DENSITY_PER_1000_THRESHOLD = 3.0
 BULLET_LINE_RATIO_THRESHOLD = 0.35
 BULLET_LINE_MIN_LINES = 10
 # 「まとめ」「おわりに」等の定型見出し（本文の中身ではなく予告的な構成の型を示す）
@@ -1649,7 +1652,9 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
     total_chars = len(raw_text) or 1
 
     # 1) 太字密度
-    bold_hits = list(BOLD_SPAN_RE.finditer(raw_text))
+    label_starts = {m.end() - len(m.group(0).lstrip()) for m in BOLD_LABEL_RE.finditer(raw_text)}
+    bold_hits = [m for m in BOLD_SPAN_RE.finditer(raw_text)
+                 if not any(st <= m.start() <= st + 4 for st in label_starts)]
     bold_per_1000 = len(bold_hits) / total_chars * 1000
     if bold_per_1000 >= BOLD_DENSITY_PER_1000_THRESHOLD and len(bold_hits) >= 3:
         first_line = raw_text[: bold_hits[0].start()].count("\n") + 1
@@ -1657,11 +1662,11 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
             Finding(
                 line=first_line,
                 category="high_bold_density",
-                excerpt=f"太字スパン{len(bold_hits)}箇所（1000字あたり{bold_per_1000:.2f}）",
+                excerpt=f"文中の太字{len(bold_hits)}箇所（1000字あたり{bold_per_1000:.2f}）",
                 severity="info",
                 detail=(
-                    f"太字（**...**）の使用密度が閾値（1000字あたり{BOLD_DENSITY_PER_1000_THRESHOLD}）"
-                    "以上。強調の多用は教科書的なAI生成文に見られる傾向（実験的検出器、閾値は暫定）"
+                    f"文中の強調の太字（**...**）が閾値（1000字あたり{BOLD_DENSITY_PER_1000_THRESHOLD}）"
+                    "以上。行頭の「**ラベル**:」は数えていない"
                 ),
             )
         )
@@ -2186,7 +2191,7 @@ HINTS = {
     "english_syntax_inanimate_subject": "人や状況を主語にするか、「〜から分かる」「〜を見ると」のように言い換える",
     "inanimate_subject_morph": "人や状況を主語にするか、「〜から分かる」「〜を見ると」のように言い換える",
     "english_syntax_cleft_because": "理由を先に書くか、「〜だからだ」で一文にまとめる",
-    "high_bold_density": "太字は、文書全体で本当に目立たせたい箇所だけに残す",
+    "high_bold_density": "文中の強調の太字は、文書全体で本当に目立たせたい数か所だけに残す。箇条や行の頭の「**ラベル**:」は、項目を探す目印なので残してよい",
     "high_bullet_ratio": "因果や経緯のある箇条書きは地の文に戻す。宿題の一覧のように本当に独立した項目は残す",
     "boilerplate_heading": "「まとめ」「おわりに」のような見出しをやめ、結論そのものを見出しにするか、見出しなしで締める",
     "numbered_phase_structure": "内容がもともと段階を持つときだけ番号を付ける",
