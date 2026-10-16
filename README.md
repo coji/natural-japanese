@@ -3,150 +3,103 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-`natural-japanese` は、仕事の日本語文書を、自然で読みやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録、調査レポート、社内ガイド、技術記事、PR の説明文、ブログ記事などの執筆と推敲に使います。
+AI に書かせた仕事の日本語を、読みやすく直す [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録、レポート、技術記事、PR の説明文などを、新しく書くときにも使えます。
 
-> **English summary:** An Agent Skill for writing and revising Japanese work documents so they read naturally and clearly. A sudachipy-based linter flags AI-like phrasing and suggests a fix for each finding; the agent decides what to change, and never adds facts, opinions, or certainty that the original did not have.
+> **English summary:** An Agent Skill that makes AI-written Japanese work documents read naturally. It never adds facts, opinions, or certainty that the original did not have.
 
-## このスキルがすること
+## 直すとこうなる
 
-AI に書かせた文章には、決まった言い回し、どの段落も同じ長さで並ぶ構成、結論を最後まで言わない書き方のような癖が残りがちです。AI に「もっと自然にして」と頼んでも、自分の癖には気づきにくいので、別の決まった言い回しに置き換わるだけになることがよくあります。このスキルは、次の3つでこれに対処します。
+### 何のことか分からない言い回しを、ふだんの言葉に
 
-- 書く前に、読み手、主メッセージ、見出しを決める
-- 書くときに、結論を先に書く、因果は地の文で書く、同じ型を続けない、といった12の原則に沿う
-- 書いたあとで、[`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析([sudachipy](https://github.com/WorksApplications/sudachi.rs))で疑わしい箇所を検出する。指摘ごとに直し方が付いていて、直すか残すかはエージェントが文脈を見て決める
+| 元の文 | 直した文 |
+|---|---|
+| ジョブが見たいのは「まだ決着していない行」だけ | ジョブが見たいのは、チェックインも取り消しもされていない行だけ |
+| リマインドの失敗は握りつぶしていません。 | リマインドの Slack 送信が1件でも失敗すると、同じ回の取り消しが実行されません。 |
 
-### 元にない内容は足さない
+AI が書いた技術記事と PR の説明文を「読みやすくして」と直させた実際の出力から、うまく直った例を選んでいます。2行目の元の文は、失敗をきちんと扱っているように読めます。その文書の本文に書いてあったのは、1件の失敗で取り消しまで止まるという不具合でした。
 
-既存の文書を直すとき、元の文書にない事実・数値・意見・方針は足しません。確信の度合いも変えません。「次回また相談する」を「合意した」に変えたり、書き手が言っていない経験を書き足したりすると、直した文書は書き手が言っていないことを書き手の言葉として伝えてしまうからです。仕上げに、直した文書を元の文書と並べ、元にない内容が入っていないかを確かめます。数値・固有名詞・英字の語は、[`newfacts.py`](./skills/natural-japanese/scripts/newfacts.py) で機械的にも洗い出します。
+### 元にないことは足さない。確信の度合いも変えない
 
-## 直す例
+調査レポートを、同じメモから Claude Opus 5.5 に書かせた例です。メモには、解約が増えた理由について未検証の見立てが2つ書いてありました。
 
-元の文:
+| | 書いた文 |
+|---|---|
+| スキルなし | 3月に始めたライトの初月無料キャンペーンとの関係が強く疑われますが、まだ確かめられていません。 |
+| スキルあり | チームからは、次の二つの見立てが出ている。どちらも未検証である。 |
 
-> このツールを使用することで、作業効率を大幅に向上させることができると言えるでしょう。
+スキルなしは、2つの見立てに触れながらも、結論ではキャンペーンとの関係を「強く疑われます」と書いています。スキルありは、メモのとおり2つを並べ、どちらも未検証と書いています。
 
-直した文:
+### 太字を重ねない
 
-> このツールを使うと、作業の効率は大きく上がるだろう。
+5種類の文書について、種類ごとに同じ素材を5つのモデルに渡して書かせました。太字は、スキルなしの25本で551か所、スキルありの25本で13か所でした。
 
-「〜することで」「〜することができる」「と言えるでしょう」を外し、言い回しだけを変えています。「と言えるでしょう」の控えめな推量は「だろう」で残し、断定にも、強い見込み(「はずだ」)にも変えていません。
-
-元の文:
-
-> 田中さんから在庫アラートについて説明があり、現行のしきい値だと誤検知が多いという話になった。佐藤さんはそれに対して在庫回転率を使う案を出し、鈴木さんも賛成した。最終的にどう決まったかは次回また相談することになった。
-
-直した文:
-
-> 在庫アラートの件は結論が出ず、次回また相談することになった。田中さんから在庫アラートの説明があり、現行のしきい値では誤検知が多いという話になった。佐藤さんが在庫回転率を使う案を出し、鈴木さんも賛成した。
-
-議事録の例です。結論(持ち越し)を先頭に置き、経緯をその後ろに回しています。決まっていないことを「合意した」とは書かず、元にない担当者や期日も足していません。誰が何を言ったかも元の文のとおりです。
-
-## インストール
-
-### 1. `npx skills add`(推奨)
+## 使い方
 
 ```bash
 npx skills add coji/natural-japanese
 ```
 
-Claude Code などのエージェント設定ディレクトリにインストールします。
+あとは、エージェントに「読みやすくして」「議事録にして」「AI っぽいところを直して」のように頼むだけです。書き換えずに自然さの点数(0〜100)と理由だけを知りたいときは、`/natural-japanese score <ファイル>` を使います。
 
-### 2. `npx openskills install`(Cursor / ChatGPT / Codex など)
+<details>
+<summary>ほかの入れ方(Cursor・ChatGPT・Codex、Claude Code プラグイン、手動)</summary>
+
+Cursor・ChatGPT・Codex など(`AGENTS.md` を経由して使う):
 
 ```bash
 npx openskills install coji/natural-japanese
 npx openskills sync
 ```
 
-`AGENTS.md` を経由して各エージェントから利用できるようになります。
-
-### 3. Claude Code プラグイン
+Claude Code プラグイン:
 
 ```
 /plugin marketplace add coji/natural-japanese
 /plugin install natural-japanese@natural-japanese
 ```
 
-### 4. 手動配置
+手動で入れる場合は、[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードし、エージェントのスキルディレクトリに展開してください。
 
-[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードし、エージェントのスキルディレクトリに展開して配置してください。
+</details>
 
-## 使い方
+## 直すときに守ること
 
-スキルを入れておくと、文章についての依頼で自動的に呼び出されます。
+元の文書にない事実・数値・意見・方針は足しません。確信の度合いも変えません。「次回また相談する」を「合意した」にすると、書き手が言っていないことを書き手の言葉として伝えてしまうからです。直したあとは元の文書と並べて、足した内容がないかを確かめます。
 
-- 議事録・レポート・社内ガイド・企画書・技術記事・PR の説明文などの作成や推敲
-- 「読みやすくして」「自然な日本語にして」「結論から書いて」「AI っぽいのを直して」といった依頼
-- AI が書いた下書きの推敲や、AI らしさの診断
-- ブログやエッセイの執筆、既存の記事のリライト
+## 苦手なこと
 
-lint の指摘を一律に直すのではなく、エージェントが一つずつ直すか残すかを決め、残すときは理由を記録します。
+- 英語の言い方を1語ずつ訳した熟語や、動作を名詞にまとめた言い回しは、半分ほど見逃します。書いたモデルにも直すモデルにも、自然に見えるためです
+- effort(モデルが推論にかける量の設定)を下げると、手順の一部を省いて見逃しが増えます。選べる環境では high を使ってください
 
-### 診断コマンド
+## 仕組み
 
-文書を書き換えずに、自然度(0〜100)と理由だけを知りたいときは、診断コマンドを使います。
+疑わしい箇所は [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析([sudachipy](https://github.com/WorksApplications/sudachi.rs))で検出し、直すかどうかはエージェントが文脈を見て決めます。AI は自分の書き癖に気づきにくいので、検出を機械に任せています。規則と手順はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。
 
-```
-/natural-japanese score path/to/document.md
-```
+<details>
+<summary>検査スクリプトを単体で使う</summary>
 
-## 検査スクリプトだけを使う
-
-各スクリプトは、スキルを通さずに単体でも実行できます。実行には [uv](https://docs.astral.sh/uv/) が必要です。依存関係はスクリプト自身に書かれていて、`uv run` が実行時に解決します。
+[uv](https://docs.astral.sh/uv/) があれば、スキルを通さずに実行できます。
 
 ```bash
-brew install uv
+uv run skills/natural-japanese/scripts/lint.py draft.md                  # 疑わしい表現と直し方
+uv run skills/natural-japanese/scripts/lint.py draft.md --genre tech     # 技術文書向けの基準で
+uv run skills/natural-japanese/scripts/lint.py draft.md --reading-load   # 長すぎる文、続きすぎる漢字など
+uv run skills/natural-japanese/scripts/outline.py draft.md               # 見出しと各段落の先頭文
+uv run skills/natural-japanese/scripts/terms.py draft.md                 # 専門用語の初出と説明の有無
+uv run skills/natural-japanese/scripts/paragraphs.py draft.md            # 段落ごとの確認用の一覧
+uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞
 ```
 
-```bash
-# 疑わしい表現の検出(指摘ごとに直し方が付く)
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md
+スクリプトを変えたときは、`./dev/check-fixtures.sh` で回帰テストを実行してください(`git config core.hooksPath .githooks` を設定すると、コミット時にも実行されます)。
 
-# ジャンルを指定して誤検出を減らす
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --genre tech
-
-# 読みにくい箇所(長すぎる文、続きすぎる漢字、二重否定など)の検出
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --reading-load
-
-# 見出しと各段落の先頭文の抽出
-uv run skills/natural-japanese/scripts/outline.py path/to/draft.md
-
-# 専門用語の初出と説明の有無の一覧
-uv run skills/natural-japanese/scripts/terms.py path/to/draft.md
-
-# 直した文書にだけある数値・固有名詞・英字の語の一覧(元にない内容を足していないかの確認)
-uv run skills/natural-japanese/scripts/newfacts.py path/to/original.md path/to/revised.md
-```
-
-## リポジトリ構成
-
-```
-skills/natural-japanese/            # スキル本体
-  SKILL.md                          # 規則と工程のすべて
-  references/doctypes/              # 文書タイプ別の型(議事録・レポート・ガイド・メモ・スライド)
-  references/diagnose.md            # 診断モードの採点方法
-  references/manual-checklist.md    # lint が使えない環境向けの手順
-  scripts/                          # 検査スクリプト(lint.py, outline.py, terms.py, newfacts.py など)
-  assets/                           # テンプレート
-```
-
-### 開発者向け
-
-スクリプトや fixture を変更した際は、fixture 回帰チェックを実行してください。
-
-```bash
-git config core.hooksPath .githooks
-./dev/check-fixtures.sh
-```
+</details>
 
 ## 参考にした資料
 
-このスキルの設計にあたり、以下の公開資料やプロジェクトを参考にしています。
-
-- [AI臭さを消した日本語執筆エージェントの設計(なつ「いとおり」)](https://note.com/art_reflection/n/n7ffd5ce3320c):機械による検出と文脈による判断を分ける考え方、濃淡の設計
+- [AI臭さを消した日本語執筆エージェントの設計(なつ「いとおり」)](https://note.com/art_reflection/n/n7ffd5ce3320c):機械による検出と文脈による判断を分ける考え方
 - [日本語技術文書の文章規範(k16shikano)](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d):LLM に特有の空虚な言い回しの分類
-- [meiseki(bamboo-nova)](https://github.com/bamboo-nova/meiseki):機械検出と LLM による推敲を組み合わせる方法、読みにくさの観点の整理
+- [meiseki(bamboo-nova)](https://github.com/bamboo-nova/meiseki):機械検出と LLM による推敲の組み合わせ方
 
 ## ライセンス
 
-MIT. See [LICENSE](./LICENSE).
+MIT ライセンスです。詳しくは [LICENSE](./LICENSE) を見てください。
