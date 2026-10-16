@@ -3,152 +3,103 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-仕事でAIに文章を書かせると、どこか独特の「匂い」が残ります。
+AI に書かせた仕事の日本語を、読みやすく直す [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録、レポート、技術記事、PR の説明文などを、新しく書くときにも使えます。
 
-見出しは中身を言わず、どの段落も同じような長さで均等に並び、当たり障りのない結論で安全にまとめられる。あとから手作業で直そうとしても、骨組み全体に手癖が染み込んでいて、結局ゼロから書き直したほうが早いと感じることも少なくありません。
+> **English summary:** An Agent Skill that makes AI-written Japanese work documents read naturally. It never adds facts, opinions, or certainty that the original did not have.
 
-`natural-japanese` は、仕事の日本語を読みやすく書く・直すための [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録・調査レポート・社内ガイド・企画書・ブログ記事などを対象に、論旨がすっきり通る自然な文章への執筆や推敲を支援します。
+## 直すとこうなる
 
-長文のBefore/After実機比較や新機能の解説は、[v1.5.0 ビジュアルリリースノート（Web）](https://artifactshare.com/a/x3a7rghxqv) をご覧ください。
+### 何のことか分からない言い回しを、ふだんの言葉に
 
-> **English summary:** An Agent Skill for writing clear, readable Japanese work documents. It prevents "AI-smelling" patterns using a style constitution and mechanically detects issues with sudachipy-based linting.
+| 元の文 | 直した文 |
+|---|---|
+| ジョブが見たいのは「まだ決着していない行」だけ | ジョブが見たいのは、チェックインも取り消しもされていない行だけ |
+| リマインドの失敗は握りつぶしていません。 | リマインドの Slack 送信が1件でも失敗すると、同じ回の取り消しが実行されません。 |
 
-## 設計の考え方
+AI が書いた技術記事と PR の説明文を「読みやすくして」と直させた実際の出力から、うまく直った例を選んでいます。2行目の元の文は、失敗をきちんと扱っているように読めます。その文書の本文に書いてあったのは、1件の失敗で取り消しまで止まるという不具合でした。
 
-書き上がった文章からAI臭を抜くのは、料理のあとから塩を抜くような難しさがあります。AI自身に「もっと自然にして」と頼んでも、自分の手癖を認識できないため、別の定型句に置き換わるだけになりがちです。
+### 元にないことは足さない。確信の度合いも変えない
 
-そのため、このスキルでは設計を根本から分けています。
+調査レポートを、同じメモから Claude Opus 5.5 に書かせた例です。メモには、解約が増えた理由について未検証の見立てが2つ書いてありました。
 
-### あとから直すより、書く前に防ぐ
+| | 書いた文 |
+|---|---|
+| スキルなし | 3月に始めたライトの初月無料キャンペーンとの関係が強く疑われますが、まだ確かめられていません。 |
+| スキルあり | チームからは、次の二つの見立てが出ている。どちらも未検証である。 |
 
-書く前に見出しの骨組みを固め、[書き方の原則](./skills/natural-japanese/references/writing-principles.md)の12の原則を制約として適用します。「結論から書く」「同じ型を繰り返さない」といったルールで縛り、最初から歪みの少ない文章を出力させます。
+スキルなしは、2つの見立てに触れながらも、結論ではキャンペーンとの関係を「強く疑われます」と書いています。スキルありは、メモのとおり2つを並べ、どちらも未検証と書いています。
 
-### 検出は機械、判断は人間（またはエージェント）
+### 太字を重ねない
 
-それでも混ざる手癖は、形態素解析（[sudachipy](https://github.com/WorksApplications/sudachi.rs)）を使ったスクリプト [`lint.py`](./skills/natural-japanese/scripts/lint.py) で機械的に洗い出します。紋切り型のフレーズ、単調な文リズム、英語の直訳調をルールベースで突きつけます。
+5種類の文書について、種類ごとに同じ素材を5つのモデルに渡して書かせました。太字は、スキルなしの25本で551か所、スキルありの25本で13か所でした。
 
-ただし、指摘を機械的に全置換すると文章のニュアンスが失われます。何を直し、文脈上あえて何を残すかは人間やエージェント自身が判断します。
-
-なお、語順や読点の位置といった「そもそも読みにくい」領域は、機械的な判定が難しいことがコーパス検証（180本超の比較分析）で分かっています。こうした箇所はルールカタログに基づく目視レビューや、補助的な読みやすさの検査（`--reading-load`）を組み合わせて丁寧に推敲します。
-
-## 変換の例
-
-**Before**
-> リモートワークの普及は、働き方に大きな変化をもたらした。重要なのは、通勤時間の削減による生活の質の向上だ。また、オフィスコストの削減という企業側のメリットも見逃せない。このように、リモートワークは労働者と企業の双方にとって恩恵のある働き方だと言えるだろう。
-
-**After**
-> リモートワークが広まってから、通勤で潰れていた1時間が自分の時間に戻ってきた人は多いはずだ。企業側もオフィスの家賃を削れる。誰も損をしていないように見える働き方だが、実際にそう言い切れるのかは、もう少し先まで見ないと分からない。
-
-`重要なのは` `このように` `と言えるだろう` といった手癖の定型句を外し、結論を急いで押し付ける構えを、実感と留保のある表現に変えています。
-
-長文の実機検証（定例会議廃止メモ、Redis→KV移行メモ）の段落ごとの対比は [v1.5.0 ビジュアルリリースノート](https://artifactshare.com/a/x3a7rghxqv) で確認できます。その他の例は [`examples.md`](./skills/natural-japanese/references/examples.md) を参照してください。
-
-## インストール
-
-### 1. `npx skills add`（推奨）
+## 使い方
 
 ```bash
 npx skills add coji/natural-japanese
 ```
 
-Claude Code などのエージェント設定ディレクトリにインストールします。
+あとは、エージェントに「読みやすくして」「議事録にして」「AI っぽいところを直して」のように頼むだけです。書き換えずに自然さの点数(0〜100)と理由だけを知りたいときは、`/natural-japanese score <ファイル>` を使います。
 
-### 2. `npx openskills install`（Cursor / ChatGPT / Codex など）
+<details>
+<summary>ほかの入れ方(Cursor・ChatGPT・Codex、Claude Code プラグイン、手動)</summary>
+
+Cursor・ChatGPT・Codex など(`AGENTS.md` を経由して使う):
 
 ```bash
 npx openskills install coji/natural-japanese
 npx openskills sync
 ```
 
-`AGENTS.md` を経由して各エージェントから利用できるようになります。
-
-### 3. Claude Code プラグイン
+Claude Code プラグイン:
 
 ```
 /plugin marketplace add coji/natural-japanese
 /plugin install natural-japanese@natural-japanese
 ```
 
-### 4. 手動配置
+手動で入れる場合は、[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードし、エージェントのスキルディレクトリに展開してください。
 
-[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードし、エージェントのスキルディレクトリに展開して配置してください。
+</details>
 
-## 使い方
+## 直すときに守ること
 
-スキルを導入すると、エージェントへの日常的な依頼の中で自動的に呼び出されます。
+元の文書にない事実・数値・意見・方針は足しません。確信の度合いも変えません。「次回また相談する」を「合意した」にすると、書き手が言っていないことを書き手の言葉として伝えてしまうからです。直したあとは元の文書と並べて、足した内容がないかを確かめます。
 
-- 議事録・レポート・社内ガイド・企画書などの作成や校正
-- 「読みやすくして」「結論から書いて」「不自然な表現を直して」といった指示
-- AIが書いた下書きの推敲や、AI臭さの診断（スコア測定）
-- ブログやエッセイの下書き作成、既存記事のリライト
+## 苦手なこと
 
-指摘を一括置換するのではなく、エージェントが指摘を仕分けし、さらに「6軸推敲ルーブリック（脱AI臭・情報密度・体温など）」で合格基準に達するまで自律的に推敲ループを回します。
+- 英語の言い方を1語ずつ訳した熟語や、動作を名詞にまとめた言い回しは、半分ほど見逃します。書いたモデルにも直すモデルにも、自然に見えるためです
+- effort(モデルが推論にかける量の設定)を下げると、手順の一部を省いて見逃しが増えます。選べる環境では high を使ってください
 
-### 診断コマンド
+## 仕組み
 
-文書を書き換えずに自然度（0〜100）を測定したい場合は、診断コマンドを実行できます。
+疑わしい箇所は [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析([sudachipy](https://github.com/WorksApplications/sudachi.rs))で検出し、直すかどうかはエージェントが文脈を見て決めます。AI は自分の書き癖に気づきにくいので、検出を機械に任せています。規則と手順はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。
 
-```
-/natural-japanese score path/to/document.md
-```
+<details>
+<summary>検査スクリプトを単体で使う</summary>
 
-## 検査スクリプト単体での利用
-
-各スクリプトはスキルを介さず単体でも実行できます。実行には [uv](https://docs.astral.sh/uv/) が必要です。依存関係はスクリプト自身に記述されており、`uv run` が実行時に自動で解決します。
+[uv](https://docs.astral.sh/uv/) があれば、スキルを通さずに実行できます。
 
 ```bash
-brew install uv
+uv run skills/natural-japanese/scripts/lint.py draft.md                  # 疑わしい表現と直し方
+uv run skills/natural-japanese/scripts/lint.py draft.md --genre tech     # 技術文書向けの基準で
+uv run skills/natural-japanese/scripts/lint.py draft.md --reading-load   # 長すぎる文、続きすぎる漢字など
+uv run skills/natural-japanese/scripts/outline.py draft.md               # 見出しと各段落の先頭文
+uv run skills/natural-japanese/scripts/terms.py draft.md                 # 専門用語の初出と説明の有無
+uv run skills/natural-japanese/scripts/paragraphs.py draft.md            # 段落ごとの確認用の一覧
+uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞
 ```
 
-```bash
-# 疑いのある表現の検出
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md
+スクリプトを変えたときは、`./dev/check-fixtures.sh` で回帰テストを実行してください(`git config core.hooksPath .githooks` を設定すると、コミット時にも実行されます)。
 
-# ジャンル指定（誤検知の抑制）
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --genre tech
-
-# 読解負荷（一文の長さや読点の偏りなど）のチェック
-uv run skills/natural-japanese/scripts/lint.py path/to/draft.md --reading-load
-
-# 構成（見出し・段落先頭文）の抽出
-uv run skills/natural-japanese/scripts/outline.py path/to/draft.md
-
-# 専門用語と初出説明の確認
-uv run skills/natural-japanese/scripts/terms.py path/to/draft.md
-```
-
-## リポジトリ構成
-
-```
-skills/natural-japanese/            # スキル本体
-  SKILL.md                          # スキル定義
-  references/                       # 書き方の原則・禁止パターン・6軸ルーブリックなど
-  references/doctypes/              # 文書タイプ別の型（議事録・レポート・ガイドなど）
-  scripts/                          # 検査スクリプト（lint.py, outline.py, terms.py など）
-  assets/                           # テンプレート
-```
-
-### 開発者向け
-
-スクリプトや fixture を変更した際は、fixture 回帰チェックを実行してください。
-
-```bash
-git config core.hooksPath .githooks
-./dev/check-fixtures.sh
-```
+</details>
 
 ## 参考にした資料
 
-このスキルの設計にあたり、以下の公開資料やプロジェクトを参考にしています。感謝します。
-
-- [AI臭さを消した日本語執筆エージェントの設計（なつ「いとおり」）](https://note.com/art_reflection/n/n7ffd5ce3320c) — 機械検出と文脈判断の分離、濃淡設計、自己点検ループの着想元
-- [日本語技術文書の文章規範（k16shikano）](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d) — LLM特有の空虚な言い回し（空句）の分類基準
-- [meiseki（bamboo-nova）](https://github.com/bamboo-nova/meiseki) — 機械検出とLLM推敲を組み合わせるアプローチや、読解負荷の観点整理
-
-## クレジット
-
-本 README の執筆・推敲: Cursor Agent (Gemini 3.8 Flash High)
+- [AI臭さを消した日本語執筆エージェントの設計(なつ「いとおり」)](https://note.com/art_reflection/n/n7ffd5ce3320c):機械による検出と文脈による判断を分ける考え方
+- [日本語技術文書の文章規範(k16shikano)](https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d):LLM に特有の空虚な言い回しの分類
+- [meiseki(bamboo-nova)](https://github.com/bamboo-nova/meiseki):機械検出と LLM による推敲の組み合わせ方
 
 ## ライセンス
 
-MIT. See [LICENSE](./LICENSE).
+MIT ライセンスです。詳しくは [LICENSE](./LICENSE) を見てください。
