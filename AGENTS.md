@@ -27,13 +27,14 @@ Claude Code 以外のエージェント(Cursor, ChatGPT, Codex など)からも�
 
 ## 検査スクリプトの実行
 
-Python の実行は [uv](https://docs.astral.sh/uv/) を前提にしています。`pip install` や仮想環境の手動作成は不要です。主な検査スクリプトは4つあります。
+Python の実行は [uv](https://docs.astral.sh/uv/) を前提にしています。`pip install` や仮想環境の手動作成は不要です。主な検査スクリプトは5つあります。
 
 ```bash
 uv run skills/natural-japanese/scripts/lint.py path/to/draft.md      # 疑わしい表現の検出。指摘ごとに直し方が付く(--json / --genre / --baseline)
 uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # 見出しと各段落の先頭文の抽出(構造の点検に使う)
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # 専門用語の初出・説明有無の一覧
 uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞・英字の語
+uv run skills/natural-japanese/scripts/paragraphs.py path/to/draft.md   # 段落ごとの確かめ用の表(取れない言い回しを段落ごとに書き出す)
 ```
 
 依存関係(sudachipy, sudachidict-core)は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されているため、

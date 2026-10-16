@@ -2387,6 +2387,26 @@ def print_reading_load_report(findings: list[Finding], stats: dict) -> None:
     print("※ 直し方は SKILL.md §5「読みやすさの点検」に従う。")
 
 
+def print_paragraph_sheet(text: str) -> None:
+    """段落ごとの確かめ(SKILL.md §3)の一覧を出す。判断はしない。
+
+    文書を通して読むだけだと、モデルは「もう読みやすい」と判断して段落ごとの確かめを
+    飛ばす。別のコマンドにすると実行を省かれるので、毎回実行される lint の出力に含める。
+    """
+    from paragraphs import split_units
+
+    units = split_units(text)
+    print(f"=== 段落ごとの確かめ(全 {len(units)} 段落。既存の文書を直すときは必須。SKILL.md §3) ===")
+    print("1段落ずつ、動詞と名詞をすべて見て、§3「読み手が何のことか取れない言い回し」の型に当たるものを")
+    print("「番号: 言い回し → 指しているもの(元の文書やコードにある事実・名前)」の形で書き出す。")
+    print("当たらない段落は「番号: なし」と書く。最後の段落まで書き出してから直す。途中で省かない。")
+    print()
+    for u in units:
+        body = u["text"].replace("\n", " / ")
+        print(f"[{u['no']}] L{u['line']} {u['kind']}: {body}")
+    print()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="AI臭い日本語文章を決定的に検出する lint スクリプト（CI ゲートではない）。"
@@ -2495,11 +2515,15 @@ def main() -> int:
                 "stats": reading_load_stats,
                 "findings": [f.to_dict() for f in reading_load_findings],
             }
+        from paragraphs import split_units
+
+        output["paragraphs"] = split_units(text)
         print(json.dumps(output, ensure_ascii=False, indent=2))
     else:
         print_human_report(args.file, findings, stats, baseline_summary)
         if reading_load_findings is not None:
             print_reading_load_report(reading_load_findings, reading_load_stats or {})
+        print_paragraph_sheet(text)
 
     # lint であって CI ゲートではない。文章の検出結果は件数に関わらず常に exit 0 とし、
     # 修正するかどうかの判断は人間（または後続の AI 自己点検フロー）に委ねる。
