@@ -103,7 +103,8 @@
   }
   .flow .sheet::after { content: ""; position: absolute; right: -3px; top: -3px; width: 18px; height: 18px;
     border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); background: var(--paper); }
-  .flow .sheet p { margin: 18px 0 14px; font-size: 14.5px; line-height: 1.75; letter-spacing: -0.02em; }
+  .flow .sheet p { margin: 18px 0 14px; font-size: 14.5px; line-height: 1.75; letter-spacing: -0.04em; word-break: auto-phrase; }
+  .flow .nw { white-space: nowrap; }
   .flow mark { background: var(--shu-wash); color: var(--shu); font-weight: 700; border-radius: 3px; padding: 0 1px; }
   .flow .bar { display: block; height: 5px; border-radius: 3px; background: #d6d6d6; margin-top: 10px; }
   .flow .bar.short { width: 70%; }
@@ -264,12 +265,12 @@
       <svg viewBox="0 0 44 26" aria-hidden="true"><path pathLength="1" d="M2 8.5h31M2 17.5h31M27 2l13 11-13 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
       <span class="xref-word">公開エンドポイント</span>
     </p>
-    <figure class="flow" aria-label="修正前の文で「入口」と「要求」を赤で示し、修正後の文では公開エンドポイントとリクエストに直る流れ">
+    <figure class="flow" aria-label="AI が書いた「公開の入口で、外からの要求を受けます」の「入口」と「要求」を、natural-japanese が「公開エンドポイント」と「リクエスト」に直す流れ">
       <div class="doc before">
         <figcaption class="cap">AI</figcaption>
         <div class="sheet">
           <i class="bar"></i>
-          <p>公開エンドポイントの<br><mark>入口</mark>に対して、<br>リクエスト<mark>(要求)</mark>を<br>送ります。</p>
+          <p>公開の<mark>入口</mark>で、外からの<mark>要求</mark>を受けます。</p>
           <i class="bar"></i><i class="bar short"></i>
         </div>
       </div>
@@ -283,7 +284,7 @@
         <span class="cap">修正後</span>
         <div class="sheet">
           <i class="bar"></i>
-          <p>公開エンドポイントに<br>対して、リクエストを<br>送ります。</p>
+          <p>公開<span class="nw">エンドポイント</span>で、外からの<span class="nw">リクエスト</span>を受けます。</p>
           <i class="bar"></i><i class="bar"></i><i class="bar short"></i>
         </div>
       </div>
