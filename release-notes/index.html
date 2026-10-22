@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>natural-japanese v1.6.1</title>
+<meta name="description" content="AI の書く文章から、何を指すのか分からない言葉が減りました。">
+<style>
+@font-face { font-family: "Seed"; src: url("fonts/seed-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Seed"; src: url("fonts/seed-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Seed"; src: url("fonts/seed-800.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+@font-face { font-family: "Mono"; src: url("fonts/mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+
+:root {
+  --ink: #141414;
+  --ground: #ffffff;
+  --line: #009e8f;
+  --line-ink: #00756a;
+  --caution: #f2c400;
+  --rail: 6px;
+  --dot: 26px;
+  --gutter: clamp(16px, 5vw, 64px);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 17px/1.85 "Seed", "Hiragino Sans", sans-serif;
+  font-feature-settings: "palt" 1;
+  line-break: strict;
+  word-break: auto-phrase;
+  text-autospace: normal;
+  -webkit-text-size-adjust: 100%;
+}
+::selection { background: var(--line); color: #fff; }
+a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 4px; text-decoration-color: var(--line); }
+a:hover { text-decoration-color: var(--ink); }
+:focus-visible { outline: 3px solid var(--caution); outline-offset: 3px; }
+p { margin: 0; }
+
+/* 駅名標の帯 */
+.band {
+  background: var(--ink);
+  color: #fff;
+  border-bottom: 14px solid var(--line);
+}
+.band-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.code {
+  flex: none;
+  width: 64px; height: 64px;
+  border: 7px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  display: grid; place-items: center;
+  font: 800 20px/1 "Seed", sans-serif;
+  letter-spacing: -.02em;
+}
+.name { font: 800 clamp(24px, 3vw, 34px)/1.15 "Seed", sans-serif; }
+.name span { display: block; font: 400 14px/1.5 "Seed", sans-serif; letter-spacing: .08em; margin-top: 4px; }
+.band nav { margin-left: auto; display: flex; gap: 6px 22px; flex-wrap: wrap; font-size: 15px; }
+.band nav a { color: #fff; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+.band nav a:hover, .band nav a[aria-current="true"] { border-bottom-color: var(--line); }
+
+/* 最初の画面 */
+.lead-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 80px) var(--gutter) 0;
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: clamp(32px, 5vw, 72px);
+}
+.ver {
+  font: 800 clamp(76px, 10.5vw, 148px)/.86 "Seed", sans-serif;
+  letter-spacing: -.035em;
+  margin: 0;
+}
+.ver-meta { margin-top: 18px; font-size: 15px; line-height: 1.7; }
+.hl { color: inherit; background: linear-gradient(transparent 58%, var(--caution) 58%); padding: 0 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.hl.ok { background: linear-gradient(transparent 58%, #8ed5cc 58%); }
+.lead { font: 700 clamp(22px, 2.3vw, 30px)/1.55 "Seed", sans-serif; max-width: 26em; margin: 0; }
+.sub { margin-top: 16px; max-width: 38em; }
+
+/* 前後の文 */
+.pairs { margin-top: 36px; border-top: 3px solid var(--ink); }
+.pair-head, .pair {
+  display: grid;
+  grid-template-columns: 12em 1fr 1fr;
+  border-bottom: 1px solid var(--ink);
+}
+.pair-head > div { padding: 12px 18px; font-weight: 700; font-size: 15px; }
+.pair > div { padding: 18px; }
+.pair-head > div:first-child, .pair > div:first-child { padding-left: 0; }
+.pair .k { font-size: 15px; line-height: 1.7; }
+.pair .k strong { display: block; font: 800 18px/1.4 "Seed", sans-serif; margin-bottom: 4px; }
+.tag { display: inline-flex; align-items: center; gap: 8px; }
+.mark {
+  flex: none;
+  display: inline-block;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 4px solid var(--ink);
+  vertical-align: -3px;
+}
+.mark.new { border-color: var(--line); background: var(--line); }
+.pair .old em, .pair .new em { font-style: normal; text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px; text-decoration-skip-ink: none; }
+.pair .old em { text-decoration-color: var(--caution); }
+.pair .new em { text-decoration-color: var(--line); }
+.pair .cell-tag { display: none; }
+.pairs-note { margin-top: 14px; font-size: 15px; line-height: 1.75; max-width: 46em; }
+
+/* 路線図の線と駅 */
+.route {
+  max-width: 1280px;
+  margin: clamp(56px, 8vw, 104px) auto 0;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: clamp(32px, 5vw, 72px);
+}
+.route > .stations {
+  grid-column: 2;
+  position: relative;
+  padding-left: 44px;
+}
+.stations section > * { max-width: 40em; }
+.stations::before {
+  content: "";
+  position: absolute;
+  left: calc((var(--dot) - var(--rail)) / 2);
+  top: 12px; bottom: 0;
+  width: var(--rail);
+  background: var(--line);
+}
+section { position: relative; padding-bottom: clamp(48px, 6vw, 72px); }
+section::before {
+  content: "";
+  position: absolute;
+  left: -44px; top: 6px;
+  width: var(--dot); height: var(--dot);
+  border-radius: 50%;
+  background: #fff;
+  border: 6px solid var(--line);
+  box-sizing: border-box;
+  transition: background-color .4s cubic-bezier(.16, 1, .3, 1), transform .4s cubic-bezier(.16, 1, .3, 1);
+}
+section.here::before { background: var(--ink); border-color: var(--ink); transform: scale(1.15); }
+h2 { font: 800 clamp(24px, 2.4vw, 30px)/1.3 "Seed", sans-serif; margin: 0 0 20px; letter-spacing: .01em; }
+section h3 { font: 800 19px/1.4 "Seed", sans-serif; margin: 40px 0 12px; }
+section p + p, section p + ul, section ul + p, section .table-wrap + p, section p + .table-wrap, section .cmd + p { margin-top: 16px; }
+ul { margin: 0; padding-left: 1.2em; }
+li + li { margin-top: 10px; }
+li::marker { color: var(--line); }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 16px; line-height: 1.6; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--ink); vertical-align: baseline; }
+thead th { border-bottom: 3px solid var(--ink); font-weight: 700; font-size: 15px; }
+th:first-child, td:first-child { padding-left: 0; }
+td.n { white-space: nowrap; }
+td.n b { font: 800 26px/1 "Seed", sans-serif; margin-right: 2px; }
+td.n small { font-size: 14px; }
+.notes { font-size: 15px; line-height: 1.8; }
+
+.lead-wrap > div, .route > .stations, .cmd code { min-width: 0; }
+
+/* スクロールに合わせて今の節を示す目次 */
+.toc { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 32px; }
+.toc p { font-weight: 700; font-size: 14px; letter-spacing: .08em; margin-bottom: 12px; }
+.toc ol { list-style: none; margin: 0; padding: 0; border-left: 3px solid var(--ink); }
+.toc li + li { margin-top: 0; }
+.toc a {
+  display: block;
+  padding: 8px 0 8px 16px;
+  margin-left: -3px;
+  border-left: 6px solid transparent;
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1.5;
+  transition: border-color .3s cubic-bezier(.16, 1, .3, 1);
+}
+.toc a:hover { border-left-color: var(--ink); }
+.toc a[aria-current="true"] { border-left-color: var(--line); font-weight: 700; }
+
+/* 表から開く相談文 */
+th .open {
+  font: inherit; font-weight: 700; color: inherit; background: none; border: 0; padding: 4px 0; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 2px; text-underline-offset: 6px;
+}
+th .open:hover { text-decoration-color: var(--ink); }
+th .open[aria-expanded="true"] { background: var(--ink); color: #fff; padding: 4px 10px; margin-left: -10px; text-decoration: none; }
+.hint { font-size: 15px; }
+.doc-sum { padding: 14px 16px; border-bottom: 1px solid var(--ink); font-size: 15px; font-weight: 700; }
+.viewer { margin-top: 24px; border: 3px solid var(--ink); max-width: none !important; }
+.viewer[hidden] { display: none; }
+.viewer-head { display: flex; align-items: center; gap: 16px; background: var(--ink); color: #fff; padding: 12px 16px; }
+.viewer-head h3 { margin: 0; font: 700 17px/1.4 "Seed", sans-serif; flex: 1; }
+.viewer-close { font: 700 14px/1 "Seed", sans-serif; color: #fff; background: none; border: 2px solid #fff; padding: 8px 12px; cursor: pointer; }
+.viewer-close:hover { background: #fff; color: var(--ink); }
+.flags { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.7; }
+.flags th, .flags td { padding: 12px 14px; border-bottom: 1px solid var(--ink); vertical-align: top; text-align: left; }
+.flags thead th { font-size: 13px; border-bottom-width: 2px; background: none; }
+.flags td:first-child { width: 26%; font-weight: 700; }
+.flags td:first-child span { display: block; font-weight: 400; font-size: 12.5px; }
+.st { display: inline-block; font: 700 12px/1.6 "Seed", sans-serif; padding: 0 7px; margin-right: 6px; border: 2px solid var(--ink); }
+.st.fixed { background: var(--line-ink); border-color: var(--line-ink); color: #fff; }
+.st.kept { background: var(--caution); border-color: var(--caution); }
+.st.removed { border-style: dashed; }
+.diff-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 16px; border-bottom: 1px solid var(--ink); }
+.diff-head p { font-size: 14px; flex: 1 1 18em; }
+.seg { display: flex; border: 2px solid var(--ink); }
+.seg button { font: 700 14px/1 "Seed", sans-serif; padding: 9px 12px; background: none; border: 0; cursor: pointer; color: var(--ink); }
+.seg button + button { border-left: 2px solid var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.doc { max-height: 70vh; overflow: auto; font-size: 14.5px; line-height: 1.8; padding: 12px 18px 24px; }
+.doc > * { margin: 0 0 10px; max-width: none; }
+.doc h1, .doc h2, .doc h3 { font: 800 16px/1.5 "Seed", sans-serif; margin: 18px 0 8px; }
+.doc h1 { font-size: 18px; margin-top: 4px; }
+.doc ul.md, .doc ol.md { padding-left: 1.4em; }
+.doc .md li + li { margin-top: 4px; }
+.doc table { font-size: 13.5px; line-height: 1.6; margin: 4px 0 14px; }
+.doc th, .doc td { padding: 6px 8px; border-bottom: 1px solid var(--ink); }
+.doc thead th { border-bottom-width: 2px; }
+.doc th:first-child, .doc td:first-child { padding-left: 0; }
+.doc pre { font: 400 12.5px/1.6 "Mono", ui-monospace, monospace; background: #f4f4f4; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.doc pre::before { content: "図(mermaid)"; display: block; font: 700 12px/1.6 "Seed", sans-serif; margin-bottom: 4px; }
+.doc code { font: 400 .92em "Mono", ui-monospace, monospace; background: #f4f4f4; padding: 0 3px; }
+.doc ins { text-decoration: none; background: #c9ece8; }
+.doc del { text-decoration: line-through; text-decoration-thickness: 2px; color: #6b1d1d; background: #fbe3e3; }
+.doc p.gone-line { margin: 0 0 10px; }
+@media (max-width: 860px) {
+  .flags thead { display: none; }
+  .flags tr { display: block; border-bottom: 1px solid var(--ink); padding: 10px 0; }
+  .flags td { display: block; border: 0; padding: 4px 14px; width: auto !important; }
+  .flags td[data-v]::before { content: attr(data-v); display: block; font-size: 12px; font-weight: 700; }
+}
+
+/* コマンド */
+.cmd {
+  display: flex;
+  align-items: stretch;
+  margin-top: 4px;
+  background: var(--ink);
+  color: #fff;
+  max-width: 34em;
+}
+.cmd code { flex: 1; padding: 16px 20px; font: 400 16px/1.5 "Mono", ui-monospace, monospace; overflow-x: auto; white-space: nowrap; }
+.cmd button {
+  flex: none;
+  border: 0;
+  border-left: 1px solid #fff;
+  background: var(--line-ink);
+  color: #fff;
+  font: 700 15px/1 "Seed", sans-serif;
+  padding: 0 20px;
+  cursor: pointer;
+  min-width: 7.5em;
+}
+.cmd button:hover { background: #005a52; }
+
+footer {
+  margin-top: 24px;
+  background: var(--ink);
+  color: #fff;
+  border-top: 14px solid var(--line);
+}
+.foot-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px var(--gutter) 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  font-size: 15px;
+}
+footer a { color: #fff; }
+.foot-inner p:first-child { flex-basis: 100%; }
+
+@media (max-width: 860px) {
+  .lead-wrap, .route { grid-template-columns: 1fr; }
+  .route > .stations { grid-column: 1; }
+  .toc {
+    top: 0; z-index: 2;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0 var(--gutter);
+    background: var(--ground);
+    border-bottom: 3px solid var(--ink);
+    overflow-x: auto;
+  }
+  .toc p { display: none; }
+  .toc ol { display: flex; gap: 20px; border-left: 0; white-space: nowrap; }
+  .toc a { padding: 12px 0 9px; margin: 0; border-left: 0; border-bottom: 4px solid transparent; }
+  .toc a:hover { border-bottom-color: var(--ink); }
+  .toc a[aria-current="true"] { border-bottom-color: var(--line); }
+  .ver-meta { margin-top: 10px; }
+  .band nav { margin-left: 0; flex-basis: 100%; }
+  .pair-head { display: none; }
+  .pair { grid-template-columns: 1fr; padding: 16px 0; }
+  .pair > div { padding: 6px 0; }
+  .pair .cell-tag { display: inline-flex; font-weight: 700; font-size: 14px; margin-right: 6px; }
+}
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .code { width: 52px; height: 52px; border-width: 6px; font-size: 17px; }
+  .route > .stations { padding-left: 36px; }
+  section::before { left: -36px; }
+  :root { --dot: 22px; --rail: 5px; }
+  th, td { padding: 10px 10px; }
+  td.n b { font-size: 22px; }
+  .cmd { flex-direction: column; }
+  .cmd code { font-size: 13.5px; padding: 14px 16px; }
+  .cmd button { border-left: 0; border-top: 1px solid #fff; padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="band-inner">
+    <div class="code" aria-hidden="true">NJ</div>
+    <div class="name">natural-japanese<span>仕事の日本語を読みやすく書く・直す Agent Skill</span></div>
+    <nav aria-label="このページの節">
+      <a href="#changes">何が変わったか</a>
+      <a href="#checked">確かめたこと</a>
+      <a href="#limits">苦手なこと</a>
+      <a href="#install">インストール</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="lead-wrap">
+    <div>
+      <h1 class="ver" aria-label="v1.6.1">1.6.1</h1>
+      <p class="ver-meta">2026年10月<br>ひとつ前は <a href="https://6c8j7oke3x.artifactshare.link/">v1.6.0</a></p>
+    </div>
+    <div>
+      <p class="lead">AI の書く文章から、<mark class="hl">何を指すのか分からない言葉</mark>が減りました。</p>
+      <p class="sub">AI は、何が起きるのかを「<mark class="hl">効く</mark>」「<mark class="hl">届く</mark>」「<mark class="hl">動く</mark>」のような抽象的な短い言葉で済ませて書きがちです。たとえば「Figma の値がボタンに<mark class="hl">届く</mark>まで」と書かれても、デザイナーには、値がどうなるのかが分かりません。書いた AI には意味が分かっていても、読む人は中身を推測しなければなりません。v1.6.1 のスキルを使うと、AI が「<mark class="hl">届く</mark>」を「<mark class="hl ok">反映される</mark>」に変えるなど、何が起きるのかが分かる言い方に直すことが増えました。</p>
+      <p class="sub">AI がスキルなしで書いた、ほかの部署の担当者に宛てた相談文を、<span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0</span> と <span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1</span> のスキルで、それぞれ「読みやすくして」と頼んで直させました。同じ箇所を並べると、v1.6.0 はどれも元の文のまま残していました。</p>
+
+      <div class="pairs" role="table" aria-label="v1.6.0 と v1.6.1 で直した文の比較">
+        <div class="pair-head" role="row">
+          <div role="columnheader">宛先と、直す前の言葉</div>
+          <div role="columnheader"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0 で直した後</span></div>
+          <div role="columnheader"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1 で直した後</span></div>
+        </div>
+        <div class="pair" role="row">
+          <div class="k" role="rowheader"><strong>入れません</strong>インフラ担当者宛て。インフラ担当者は「アクセスできない」と言う</div>
+          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>ただ、ベルトは社内 VPN からしか<em>入れません</em>。</div>
+          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>ただ、ベルトには社内 VPN からしか<em>アクセスできません</em>。</div>
+        </div>
+        <div class="pair" role="row">
+          <div class="k" role="rowheader"><strong>受ける・売上にする</strong>経理担当者宛て。経理担当者は「計上する」と言う</div>
+          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>年額で前払いされた分は、経理では前受金として<em>受けて</em>、毎月12分の1ずつ<em>売上にする</em>と聞いています。</div>
+          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>年額で前払いされた分は、経理では前受金として<em>計上し</em>、毎月12分の1ずつ<em>売上に計上する</em>と聞いています。</div>
+        </div>
+        <div class="pair" role="row">
+          <div class="k" role="rowheader"><strong>届く</strong>デザイナー宛て。デザイナーは「反映される」と言う</div>
+          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>Figma の値がボタンに<em>届く</em>まで</div>
+          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>Figma の値がボタンに<em>反映される</em>まで</div>
+        </div>
+      </div>
+      <p class="pairs-note">どれも、直した後の文書から、文をそのまま写しています。</p>
+    </div>
+  </div>
+
+  <div class="route">
+    <nav class="toc" aria-label="目次">
+      <p>目次</p>
+      <ol>
+        <li><a href="#changes">何が変わったか</a></li>
+        <li><a href="#checked">確かめたこと</a></li>
+        <li><a href="#limits">苦手なこと</a></li>
+        <li><a href="#install">インストール</a></li>
+      </ol>
+    </nav>
+    <div class="stations">
+
+      <section id="changes">
+        <h2>何が変わったか</h2>
+        <p>v1.6.1 は、Claude Opus 5.5 で使うことに絞って調整しました。いまいちばん使い勝手がよく、使っている人も多いモデルだと考えたためです。規則を足すかどうかも、Opus 5.5 に書かせたり直させたりした結果で決めています。</p>
+        <p>何が起きるのかを短い言葉で済ませず、言い方が長くなっても具体的に書くよう AI に求める規則を、スキルの本体である SKILL.md に足しました。</p>
+        <p>AI が書き終えたら、スキルに付いている検査スクリプトが、「効く」「届く」のように何が起きるのかをぼかす言葉の候補を一覧にします。そのうえで、AI が文脈を見て直すかどうかを決めます。</p>
+        <p>AI に渡したメモに出てくる、ブランチ名や実験の条件名のような作業用の名前をそのまま出さないことと、文書の中で呼び名を作って読み手に覚えさせないことも、同じ規則に足しました。</p>
+        <p>SKILL.md と、検査スクリプトが出す指摘の文も、何を指すのかが分かる言い方に書き直しました。</p>
+      </section>
+
+      <section id="checked">
+        <h2>確かめたこと</h2>
+        <p>Claude Opus 5.5 に、スキルなしで相談文を9本書かせました。宛先は経理・インフラ・デザイナーの担当者で、3本ずつです。この9本を、同じ Claude Opus 5.5 に、v1.6.0 と v1.6.1 のスキルでそれぞれ直させました。</p>
+        <p>直す前の9本は、別の AI である Claude Fable 5.1 に読ませ、宛先の人には何を指すのか分からない言葉を探させました。見つかったのは、9本で44か所です。そのうえで、直した後の文書でそれぞれが直っているかを、どちらのバージョンで直したかを伏せて Fable 5.1 に判定させました。言い方を少し変えただけで、問題の部分が残っているものは、残ったと数えています。「本番」を「本番環境」にしたものなどです。何を指すのか分からない言葉44か所のうち、v1.6.0 が直したのは1か所、v1.6.1 は23か所でした。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">宛先</th><th scope="col"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0 が直した</span></th><th scope="col"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1 が直した</span></th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><button type="button" class="open" data-topic="finance" aria-controls="viewer">経理</button></th><td class="n"><small>15か所のうち</small> <b>1</b>か所</td><td class="n"><small>15か所のうち</small> <b>7</b>か所</td></tr>
+              <tr><th scope="row"><button type="button" class="open" data-topic="infra" aria-controls="viewer">インフラ</button></th><td class="n"><small>15か所のうち</small> <b>0</b>か所</td><td class="n"><small>15か所のうち</small> <b>10</b>か所</td></tr>
+              <tr><th scope="row"><button type="button" class="open" data-topic="design" aria-controls="viewer">デザイナー</button></th><td class="n"><small>14か所のうち</small> <b>0</b>か所</td><td class="n"><small>14か所のうち</small> <b>6</b>か所</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">宛先を押すと、3本のうち1本について、分からない言葉ごとに直したか残ったかと、直した後の全文が見られます。</p>
+        <div class="viewer" id="viewer" hidden>
+          <div class="viewer-head">
+            <h3 id="viewer-title"></h3>
+            <button type="button" class="viewer-close">閉じる</button>
+          </div>
+          <div class="viewer-body"></div>
+        </div>
+        <ul class="notes">
+          <li>1本を直す時間は、v1.6.0 より宛先によって2〜15秒延びました。宛先ごとの中央値で、v1.6.0 は55〜74秒、v1.6.1 は57〜81秒です。</li>
+        </ul>
+        <h3>余計なところまで変えていないか</h3>
+        <p>新しい規則のせいで、直さなくてよいところまで書き換えていないかも確かめました。前のバージョンのときから同じ条件で続けているチェックです。AI が書いた技術記事と PR の説明文10本に、作者が直すべき箇所と、手を入れてはいけない箇所の印をあらかじめ付けておき、Claude Sonnet 5.5 に2回ずつ直させました。数字は1回目・2回目の順に並べています。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col"></th><th scope="col"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0</span></th><th scope="col"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1</span></th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">直すべき23か所のうち、直した</th><td class="n"><b>11</b>・<b>13</b>か所</td><td class="n"><b>16</b>・<b>18</b>か所</td></tr>
+              <tr><th scope="row">手を入れてはいけない40か所のうち、手を入れた</th><td class="n"><b>7</b>・<b>7</b>か所</td><td class="n"><b>11</b>・<b>8</b>か所</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="notes">直すべき箇所を直した数は増えました。手を入れてはいけない箇所に手を入れた数も、2回とも v1.6.0 より多くなりました。</p>
+      </section>
+
+      <section id="limits">
+        <h2>苦手なこと</h2>
+        <ul>
+          <li>開発の人どうしではふつうに通じる言葉は、ほかの職種の人に宛てた文書でも残りました。経理宛ての「本番には出していません」「動きます」、デザイナー宛ての「Figma に定義がない」「主ボタン」です。どれも開発の現場では正しい用語なので、AI が言い換える必要に気づかないのではないかと考えています。元のメモにその言葉があったことも、残った理由の一つかもしれません。</li>
+          <li>「影響」のように、言葉そのものはふつうでも、文脈によって何を指すのか分からなくなる言葉は、検査スクリプトでは見つけられません。</li>
+        </ul>
+      </section>
+
+      <section id="install">
+        <h2>インストール</h2>
+        <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
+        <p>インストール済みの人も、同じコマンドをもう一度実行すると v1.6.1 になります。あとは、エージェントに「読みやすくして」のように頼みます。ほかのインストール方法は <a href="https://github.com/coji/natural-japanese#使い方">README</a> にあります。</p>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <p>このページも natural-japanese の規則で書いています。</p>
+    <p>これまでのリリースノート <a href="https://6c8j7oke3x.artifactshare.link/">v1.6.0</a>・<a href="https://7ttv0opj3s.artifactshare.link/">v1.5.2</a>・<a href="https://x3a7rghxqv.artifactshare.link/">v1.5.0</a>・<a href="https://2aretj5195.artifactshare.link/">v1.4.0</a></p>
+    <p><a href="https://github.com/coji/natural-japanese/pull/19">変更の詳細を書いた GitHub の PR #19</a>・<a href="https://github.com/coji/natural-japanese/releases">GitHub の Releases</a></p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  for (const btn of document.querySelectorAll("[data-copy]")) {
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById(btn.dataset.copy).textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = "コピーしました";
+      } catch {
+        btn.textContent = "選んでコピーしてください";
+      }
+      setTimeout(() => { btn.textContent = "コピー"; }, 2000);
+    });
+  }
+
+  // 表の宛先から、代表の1本について、分からない言葉ごとの判定と全文の差分を開く
+  const viewer = document.getElementById("viewer");
+  const title = document.getElementById("viewer-title");
+  const body = viewer.querySelector(".viewer-body");
+  const VERS = ["v1.6.0", "v1.6.1"];
+  const LABEL = { fixed: "直した", kept: "残った", removed: "消えた" };
+  let docs = null;
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+  // 2つの列の最長共通部分から、同じ・消した・足したの並びを作る
+  function lcs(a, b) {
+    const n = a.length, m = b.length, t = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) t[i][j] = a[i] === b[j] ? t[i + 1][j + 1] + 1 : Math.max(t[i + 1][j], t[i][j + 1]);
+    const ops = []; let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) { ops.push(["eq", a[i]]); i++; j++; }
+      else if (t[i + 1][j] >= t[i][j + 1]) ops.push(["del", a[i++]]);
+      else ops.push(["ins", b[j++]]);
+    }
+    while (i < n) ops.push(["del", a[i++]]);
+    while (j < m) ops.push(["ins", b[j++]]);
+    return ops;
+  }
+  // 文字単位の差分を、同じ種類どうしでまとめる
+  function chars(a, b) {
+    const out = [];
+    for (const [op, c] of lcs([...a], [...b])) {
+      const last = out[out.length - 1];
+      if (last && last[0] === op) last[1] += c; else out.push([op, c]);
+    }
+    return out;
+  }
+  // 行の差分。消えた行と足した行が続くところは、順に組にして「変わった行」にする
+  function lines(a, b) {
+    const ops = lcs(a, b), out = [];
+    for (let k = 0; k < ops.length;) {
+      if (ops[k][0] === "eq") { out.push({ kind: "eq", text: ops[k][1] }); k++; continue; }
+      const dels = [], inss = [];
+      while (k < ops.length && ops[k][0] !== "eq") (ops[k][0] === "del" ? dels : inss).push(ops[k++][1]);
+      const n = Math.min(dels.length, inss.length);
+      for (let x = 0; x < n; x++) out.push({ kind: "chg", text: inss[x], orig: dels[x] });
+      for (const t of dels.slice(n)) out.push({ kind: "del", text: t });
+      for (const t of inss.slice(n)) out.push({ kind: "ins", text: t });
+    }
+    return out;
+  }
+  const clean = t => t.replace(/\*\*|`/g, "");
+  function plain(t) {
+    const f = document.createDocumentFragment();
+    for (const part of t.split(/(`[^`]+`|\*\*[^*]+\*\*)/)) {
+      if (!part) continue;
+      if (part.startsWith("`")) f.append(el("code", null, part.slice(1, -1)));
+      else if (part.startsWith("**")) f.append(el("strong", null, part.slice(2, -2)));
+      else f.append(part);
+    }
+    return f;
+  }
+  // 1行(または表の1マス)を、元の文との差分つきで組む
+  function inline(text, orig, kind) {
+    if (kind === "eq" || orig == null && kind !== "ins") return plain(text);
+    if (kind === "ins") { const f = document.createDocumentFragment(); f.append(el("ins", null, clean(text))); return f; }
+    const f = document.createDocumentFragment(), segs = chars(clean(orig), clean(text));
+    const same = segs.filter(x => x[0] === "eq").reduce((n, x) => n + x[1].length, 0);
+    // 半分近く書き換えた行は、細切れにせず、消した文と足した文を続けて見せる
+    if (same < 0.6 * Math.max(orig.length, text.length)) {
+      if (clean(orig).trim()) f.append(el("del", null, clean(orig)), " ");
+      f.append(el("ins", null, clean(text)));
+      return f;
+    }
+    for (const [op, t] of segs) f.append(op === "eq" ? t : el(op === "ins" ? "ins" : "del", null, t));
+    return f;
+  }
+  // 判定役が写した文が表の行なら、マスの区切りを「/」にして読める形にする
+  // 図(mermaid)の行なら、矢印と枠の記号を外して、枠の中の文だけにする
+  const sentence = t => {
+    t = isRow(t) ? cells(t).map(c => c.trim()).filter(Boolean).join(" / ") : t;
+    const m = t.match(/^\s*\w+\s*(?:--?>|-- .*? -->|-\.->)\s*\|?[^|]*\|?\s*\w+\s*[\[({]+"?(.*?)"?[\])}]+\s*$/);
+    if (m) t = m[1];
+    return t.replace(/<br\s*\/?>/g, " ").replace(/^\s*#+\s+/, "").replace(/^\s*([-*]|\d+\.)\s+/, "").replace(/\*\*|`/g, "");
+  };
+  const cells = t => t.trim().replace(/^\||\|$/g, "").split("|");
+  const isRow = t => t.trim().startsWith("|");
+  const isRule = t => /^\s*\|[\s:|-]+\|\s*$/.test(t);
+  const item = /^\s*([-*]|\d+\.)\s+/;
+
+  // 直した後の文書を、Markdown の見出し・箇条書き・表・図として組み、直す前からの差分を付ける
+  function renderDiff(box, before, after) {
+    box.replaceChildren();
+    const L = lines(before.replace(/\n$/, "").split("\n"), after.replace(/\n$/, "").split("\n"));
+    let i = 0;
+    while (i < L.length) {
+      const it = L[i], t = it.text;
+      if (it.kind === "del") { if (t.trim()) { const p = el("p", "gone-line"); p.append(el("del", null, clean(t))); box.append(p); } i++; continue; }
+      if (!t.trim()) { i++; continue; }
+      if (t.startsWith("```")) {
+        const pre = el("pre"); const buf = [];
+        for (i++; i < L.length && !L[i].text.startsWith("```"); i++) if (L[i].kind !== "del") buf.push(L[i]);
+        buf.forEach((x, j) => { pre.append(inline(x.text, x.orig, x.kind)); if (j < buf.length - 1) pre.append("\n"); });
+        box.append(pre); i++; continue;
+      }
+      if (isRow(t)) {
+        const table = el("table"), thead = el("thead"), tbody = el("tbody"); let first = true;
+        for (; i < L.length && isRow(L[i].text); i++) {
+          const x = L[i];
+          if (isRule(x.text) || x.kind === "del") continue;
+          const tr = el("tr"), oc = x.orig != null ? cells(x.orig) : [];
+          cells(x.text).forEach((c, k) => {
+            const td = el(first ? "th" : "td");
+            td.append(inline(c.trim(), x.kind === "chg" ? (oc[k] ?? "").trim() : null, x.kind === "chg" && oc[k] == null ? "ins" : x.kind));
+            tr.append(td);
+          });
+          (first ? thead : tbody).append(tr); first = false;
+        }
+        table.append(thead, tbody); box.append(table); continue;
+      }
+      const h = t.match(/^(#{1,3})\s+(.*)/);
+      if (h) {
+        const e = el("h" + h[1].length), o = it.orig?.match(/^(#{1,3})\s+(.*)/);
+        e.append(inline(h[2], o ? o[2] : it.orig, it.kind)); box.append(e); i++; continue;
+      }
+      if (item.test(t)) {
+        const list = el(/^\s*\d+\./.test(t) ? "ol" : "ul", "md");
+        for (; i < L.length && item.test(L[i].text); i++) {
+          const x = L[i]; if (x.kind === "del") continue;
+          const li = el("li");
+          li.append(inline(x.text.replace(item, ""), x.orig?.replace(item, ""), x.kind));
+          list.append(li);
+        }
+        box.append(list); continue;
+      }
+      const para = el("p"); para.append(inline(t, it.orig, it.kind)); box.append(para); i++;
+    }
+    box.scrollTop = 0;
+  }
+
+  function showDoc(d) {
+    const wrap = el("div");
+    const table = el("table", "flags");
+    const head = el("thead"), hr = el("tr");
+    hr.append(el("th", null, "直す前の言葉"), el("th", null, "v1.6.0 で直した後"), el("th", null, "v1.6.1 で直した後"));
+    head.append(hr);
+    const tb = el("tbody");
+    for (const f of d.flags) {
+      const tr = el("tr"), w = el("td", null, f.word);
+      w.append(el("span", null, `直す前の${f.line}行目`));
+      tr.append(w);
+      for (const v of VERS) {
+        const td = el("td"); td.dataset.v = v;
+        td.append(el("span", "st " + f.status[v], LABEL[f.status[v]]));
+        if (f.text[v]) td.append(sentence(f.text[v]));
+        tr.append(td);
+      }
+      tb.append(tr);
+    }
+    table.append(head, tb);
+    const dh = el("div", "diff-head");
+    dh.append(el("p", null, "直す前の文書から、どこをどう変えたかの全文です。消した文字に取り消し線、足した文字に色を付けています。"));
+    const seg = el("div", "seg"), doc = el("div", "doc"); doc.tabIndex = 0;
+    for (const v of VERS) {
+      const b = el("button", null, `${v} の直し`); b.type = "button";
+      b.addEventListener("click", () => {
+        seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+        renderDiff(doc, d.original, d.out[v]);
+      });
+      seg.append(b);
+    }
+    dh.append(seg);
+    wrap.append(table, dh, doc);
+    seg.lastChild.click();
+    return wrap;
+  }
+
+  async function open(btn) {
+    if (!docs) {
+      try { docs = await (await fetch("data/docs.json")).json(); }
+      catch { viewer.hidden = false; title.textContent = "文書を読み込めませんでした。ページを開き直してください。"; return; }
+    }
+    const topic = docs.find(t => t.key === btn.dataset.topic);
+    document.querySelectorAll("th .open").forEach(b => b.setAttribute("aria-expanded", b === btn ? "true" : "false"));
+    const d = topic.docs[topic.rep];
+    const fixed = v => d.flags.filter(f => f.status[v] === "fixed").length;
+    title.textContent = `${topic.reader}宛ての相談文、3本のうちの1本`;
+    const sum = el("p", "doc-sum", `この1本では、分からない言葉${d.flags.length}か所のうち、v1.6.0 が${fixed("v1.6.0")}か所、v1.6.1 が${fixed("v1.6.1")}か所を直しました。`);
+    body.replaceChildren(sum, showDoc(d));
+    viewer.hidden = false;
+    viewer.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+  document.querySelectorAll("th .open").forEach(b => b.addEventListener("click", () => open(b)));
+  viewer.querySelector(".viewer-close").addEventListener("click", () => {
+    viewer.hidden = true;
+    const b = document.querySelector('th .open[aria-expanded="true"]');
+    document.querySelectorAll("th .open").forEach(x => x.setAttribute("aria-expanded", "false"));
+    b?.focus();
+  });
+
+  // いま読んでいる節を、路線図の駅のように塗る
+  const sections = [...document.querySelectorAll(".stations section")];
+  const links = [...document.querySelectorAll(".band nav a, .toc a")];
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      for (const s of sections) {
+        const on = s === e.target;
+        s.classList.toggle("here", on);
+        for (const a of links) if (a.hash === "#" + s.id) a.setAttribute("aria-current", on ? "true" : "false");
+        const t = on && document.querySelector(`.toc a[href="#${s.id}"]`);
+        if (t) t.closest(".toc").scrollLeft = t.offsetLeft - 16;
+      }
+    }
+  }, { rootMargin: "-35% 0px -55% 0px" });
+  sections.forEach(s => io.observe(s));
+})();
+</script>
+</body>
+</html>
