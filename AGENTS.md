@@ -35,7 +35,7 @@ uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # 見出し
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # 専門用語の初出・説明有無の一覧
 uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞・英字の語
 uv run skills/natural-japanese/scripts/paragraphs.py path/to/draft.md   # 段落ごとの確かめ用の表(取れない言い回しを段落ごとに書き出す)
-uv run skills/natural-japanese/scripts/calques.py path/to/draft.md     # 英語の言い方を1語に置いたような動詞・名詞の候補(入口・効く・拾う など)
+uv run skills/natural-japanese/scripts/calques.py path/to/draft.md     # 仕組みを場所にたとえた名詞と、機械の処理に当てた動詞の候補(入口・効く・拾う など)
 ```
 
 依存関係(sudachipy, sudachidict-core)は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されているため、
