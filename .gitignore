@@ -103,3 +103,6 @@ corpus/experiments/skill-eval/*
 !corpus/experiments/skill-eval/eval.py
 !corpus/experiments/skill-eval/manifest.example.json
 !corpus/experiments/skill-eval/README.md
+
+# impeccable の作業状態(見本画像・確認用のスクリーンショット)
+.impeccable/
