@@ -85,6 +85,8 @@
   .senses li { display: grid; grid-template-columns: 38px 1fr; font-size: 24px; line-height: 1.5; margin-bottom: 14px; }
   .senses .n { font-family: var(--mincho); }
   .senses .ex { display: block; color: var(--ink-3); font-size: 22px; margin-top: 2px; }
+  .usage { margin: 0 0 14px 38px; font-family: var(--mincho); font-size: 19px; line-height: 1.6; }
+  .usage-mark { display: inline-block; margin-right: 0.6em; padding: 0 0.4em; border: 1.5px solid var(--shu); border-radius: 3px; color: var(--shu); font-family: var(--gothic); font-weight: 700; font-size: 0.8em; line-height: 1.5; vertical-align: 0.1em; }
   .xref {
     display: flex; align-items: center; gap: 22px; margin: 2px 0 0 0; padding-bottom: 14px;
     border-bottom: 1.5px solid var(--ink-2); color: var(--shu); font-weight: 700; font-size: 32px;
@@ -118,6 +120,7 @@
   .column section + section { margin-top: clamp(18px, 1.6vw, 26px); }
   .column ul { margin: 0; padding-left: 1.4em; font-size: clamp(15.5px, 1.17vw, 18px); line-height: 1.6; max-width: 52em; letter-spacing: -0.01em; }
   .column p { font-size: clamp(15.5px, 1.17vw, 18px); margin: 0 0 12px; color: #2b2b2b; letter-spacing: -0.01em; }
+  .column ul + p { margin-top: 12px; }
   .table-title { font-weight: 700; font-size: 19px; margin: 0 0 8px; }
   code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.9em; padding: 0 0.25em; background: #ececec; border-radius: 3px; }
   table { width: calc(100% - 2px); border-collapse: collapse; font-size: 18px; font-variant-numeric: tabular-nums; }
@@ -136,6 +139,7 @@
     .senses { margin-top: min(14px, 1.4vh); }
     .senses li { font-size: clamp(19px, 2.5vh, 24px); margin-bottom: min(14px, 1.2vh); }
     .senses .ex { font-size: clamp(17px, 2.3vh, 22px); }
+    .usage { font-size: clamp(16px, 2vh, 19px); margin-bottom: min(14px, 1.2vh); }
     .xref { font-size: clamp(26px, 3.3vh, 32px); }
     .flow { margin-top: min(34px, 2.6vh); }
     .flow .sheet { height: clamp(196px, 25vh, 212px); }
@@ -193,6 +197,7 @@
 
   /* 狭い画面:見出し語の項目を先に、本文をその下に1段で */
   @media (max-width: 900px) {
+    .usage { margin-left: 28px; font-size: 16px; }
     body { font-size: 16px; }
     .masthead { height: 56px; padding: 0 16px; gap: 10px; }
     .brand { font-size: 19px; }
@@ -253,8 +258,8 @@
     <span class="pos">名</span>
     <ol class="senses">
       <li><span class="n">1</span><span>中に入るための場所。出入りする所。<span class="ex">建物の入口／入口で待つ。</span></span></li>
-      <li><span class="n">2</span><span>物事を始めるための足がかり。<span class="ex">検討の入口に立つ。</span></span></li>
     </ol>
+    <p class="usage"><span class="usage-mark">注意</span>技術文書で、英語の <span lang="en">entry point</span> を1語で訳して使うと、読み手には何のことか分からない。</p>
     <p class="xref">
       <svg viewBox="0 0 44 26" aria-hidden="true"><path pathLength="1" d="M2 8.5h31M2 17.5h31M27 2l13 11-13 11" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
       <span class="xref-word">公開エンドポイント</span>
@@ -288,38 +293,36 @@
   <div class="gutter-rule" aria-hidden="true"></div>
 
   <article class="column">
-    <h1>英語の言い方を1語に置いた言葉を、書く段階と仕上げで防ぐ</h1>
-    <p class="lead">Opus が書いた技術系の相談資料に、公開エンドポイントを「入口」、リクエストを「要求」と書くような言葉が混ざります。指摘すれば直せますが、書いたモデル自身は読み返しても気づけません。</p>
+    <h1>AI が英語を1語ずつ訳した言葉を、読み手の用語に直します</h1>
+    <p class="lead">natural-japanese は、AI に書かせた日本語を読みやすくする Agent Skill です。この版では、技術文書に混ざる「入口」(<span lang="en">entry point</span>)や「要求」(<span lang="en">request</span>)のような言葉を、「公開エンドポイント」「リクエスト」に直します。</p>
 
     <section id="changed">
       <h2>変わったこと</h2>
       <ul>
-        <li>書くときの原則に、読み手がふだん使う用語で書くことを足しました。</li>
-        <li>仕上げで <code>calques.py</code> が「拾う」「効く」「入口」のような候補を並べます。</li>
-        <li>経緯を知らない別の読み手に本文を読ませ、用語の食い違いを挙げさせます。</li>
+        <li>書くときも直すときも、仕上げに言葉を読み手の用語と照らし合わせます。</li>
+        <li>「失効が効く」は「次のリクエストから通らなくなる」と、起きることを書きます。</li>
+        <li>頼み方は変わりません。これまでどおり「読みやすくして」と頼めば行います。</li>
       </ul>
     </section>
 
     <section id="verified">
       <h2>確かめたこと</h2>
-      <p>同じ素材から相談資料を書かせて3回組み直し、条件を伏せて判定しました。</p>
-      <p class="table-title">確信の高い指摘の件数(Opus、各2本)</p>
+      <p>Opus に技術系の相談資料を書かせ、3回直しを頼みました。条件ごとに2本作り、どの条件か伏せて別のモデル(Fable)に、読み手の用語と食い違う言葉を挙げさせました。数字は1本目・2本目の件数で、少ないほどよい数字です。</p>
       <table>
-        <thead><tr><th scope="col"></th><th scope="col">スキルなし</th><th scope="col">前の版</th><th scope="col">この版</th></tr></thead>
+        <thead><tr><th scope="col"></th><th scope="col">スキルなし</th><th scope="col">v1.6.0</th><th scope="col">v1.7.0</th></tr></thead>
         <tbody>
-          <tr><th scope="row">インフラへの相談</th><td>3・7件</td><td>4・0件</td><td>0・0件</td></tr>
-          <tr><th scope="row">アナリストへの相談</th><td>1・1件</td><td>0・0件</td><td>0・0件</td></tr>
+          <tr><th scope="row">インフラへの相談</th><td>3件・7件</td><td>4件・0件</td><td>0件・0件</td></tr>
+          <tr><th scope="row">アナリストへの相談</th><td>1件・1件</td><td>0件・0件</td><td>0件・0件</td></tr>
         </tbody>
       </table>
-      <p class="table-note">スキルなしは2題材とも、図を足した版で「公開の入口」と書きました。</p>
+      <p class="table-note">スキルなしは2題材とも、3回の直しのうち図を足す依頼で「公開の入口」と書きました。</p>
     </section>
 
     <section id="limits">
       <h2>苦手なこと</h2>
       <ul>
-        <li>事実・影響・承認のように、語は正しくても読み手の用語と食い違う言葉は、まだ見つけられません。</li>
-        <li>判定は条件ごとに2本で、人が直した例を基準にしています。</li>
-        <li>時間がかかります(3回の組み直しで150〜260秒、スキルなしは約60秒)。</li>
+        <li>「事実」「影響」「承認」のように、語は正しくても読み手の用語と食い違う言葉は、まだ見つけられません。</li>
+        <li>スキルを使うと時間がかかります。上の相談資料では、スキルなしが約60秒、v1.7.0 が150〜260秒でした。v1.6.0 との差は測っていません。</li>
       </ul>
     </section>
   </article>
@@ -328,7 +331,7 @@
 <div class="spread more">
   <aside class="entry index" aria-labelledby="index-title">
     <h2 id="index-title">この版で直した言葉</h2>
-    <p class="index-note">元の資料で人が直した17件から。左が元の言葉、右が読み手の言葉です。</p>
+    <p class="index-note">この版のきっかけになった、Opus が書いた相談資料で人が直した17件のうち8件です。左が AI の書いた言葉、右が直した言葉です。</p>
     <dl class="xrefs">
       <div><dt>要求</dt><dd>リクエスト</dd></div>
       <div><dt>受け口</dt><dd>VPN の外から届くための URL</dd></div>
@@ -344,11 +347,21 @@
   <div class="gutter-rule" aria-hidden="true"></div>
 
   <article class="column">
+    <section id="method">
+      <h2>同じようなスキルを作っている方へ</h2>
+      <p>書いたモデルは、自分の意図を知ったまま読み返すので、こうした言葉に気づけません。そこで、気づく役を外に出しました。</p>
+      <ul>
+        <li><code>calques.py</code>:「拾う」「効く」のように機械の処理に当てた動詞と、「入口」「〜先」のように仕組みを場所にたとえた名詞を、決めた一覧から候補として並べます。判断はしません。</li>
+        <li>読み手役:書いた経緯を知らない別のエージェントに本文だけを渡し、決まった呼び名がある語と、英語を1語ずつ置き換えた語だけを挙げさせます。</li>
+      </ul>
+      <p>左の17件のうち、<code>calques.py</code> だけで11件、読み手役を合わせて13件を見つけました。人が直したあとの版で、誤って挙げたのは数件です。書くときの原則・<code>calques.py</code>・読み手役のどれが効いたかは、切り分けていません。「確かめたこと」の判定役(Fable)には、人が直した例を基準として渡しています。</p>
+    </section>
+
     <section id="regression">
       <h2>前の版より悪くなっていないか</h2>
       <p>v1.6.0 と同じ技術記事と PR の説明文10本を、Sonnet(effort high)に直させました。直すべき箇所と残すべき箇所は、作者があらかじめ決めておきました。1回ずつの結果で、差はぶれの範囲です。</p>
       <table>
-        <thead><tr><th scope="col"></th><th scope="col">直すべき23件のうち直した</th><th scope="col">残すべき40件のうち手を入れた</th></tr></thead>
+        <thead><tr><th scope="col"></th><th scope="col">直すべき23件のうち直した(多いほどよい)</th><th scope="col">残すべき40件のうち手を入れた(少ないほどよい)</th></tr></thead>
         <tbody>
           <tr><th scope="row">v1.6.0</th><td>11件</td><td>12件</td></tr>
           <tr><th scope="row">v1.7.0</th><td>12件</td><td>10件</td></tr>
@@ -359,15 +372,15 @@
     <section id="declined">
       <h2>試して採らなかったもの</h2>
       <ul>
-        <li>語の組み合わせの珍しさや、同義語辞書と分野ごとの頻度から見つける方法。人間の技術記事での誤検出が、見つけたい言葉より多くなりました。</li>
-        <li>読み手役に「分かりにくい語をすべて」と広く聞く方法。問題のない版でも、30行で57〜70件を挙げました。</li>
+        <li>語の組み合わせの珍しさや、同義語辞書と分野ごとの頻度から見つける方法。人が書いた技術記事で、見つけたい言葉より多くの誤検出が出ました。</li>
+        <li>読み手役に「分かりにくい語をすべて」と広く聞く方法。人が直したあとの版でも、30行で57〜70件を挙げました。</li>
       </ul>
     </section>
 
     <section id="install">
       <h2>導入する</h2>
       <pre><code>npx skills add coji/natural-japanese</code></pre>
-      <p>あとは、エージェントに「読みやすくして」「議事録にして」と頼むだけです。版ごとの変更は <a href="https://github.com/coji/natural-japanese/releases">GitHub の Releases</a> にあります。</p>
+      <p>すでに入れている人も、同じコマンドで入れ直すとこの版になります。あとは、エージェントに「読みやすくして」「議事録にして」と頼むだけです。版ごとの変更は <a href="https://github.com/coji/natural-japanese/releases">GitHub の Releases</a> にあります。</p>
     </section>
   </article>
 </div>
@@ -375,7 +388,7 @@
 <footer class="colophon">
   <span>natural-japanese</span>
   <span>この文書も natural-japanese の規則で書いています。</span>
-  <a href="https://github.com/coji/natural-japanese/pull/17">PR #17</a>
+  <a href="https://github.com/coji/natural-japanese/pull/17">変更の詳細(PR #17)</a>
 </footer>
 </body>
 </html>
