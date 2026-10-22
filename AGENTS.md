@@ -13,7 +13,7 @@
 - 疑わしい箇所の検出は `skills/natural-japanese/scripts/lint.py`(sudachipy による形態素解析)が機械的に行い、直すかどうかはエージェントが文脈を見て決める。lint の各指摘には直し方が付いている
 - 書く前に読み手・主メッセージ・見出しを決め、書くときは SKILL.md §2 の12の原則に沿う
 
-規則と工程はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。`references/` には、文書タイプ別の型(`doctypes/`)、診断モードの採点方法(`diagnose.md`)、lint が使えない環境向けの手順(`manual-checklist.md`)、別のコンテキストの読み手に読ませる問い(`reader-check.md`)だけを置いています。
+規則と工程はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。`references/` には、文書タイプ別の型(`doctypes/`)、診断モードの採点方法(`diagnose.md`)、lint が使えない環境向けの手順(`manual-checklist.md`)だけを置いています。
 
 ## openskills 経由で読み込む場合
 
