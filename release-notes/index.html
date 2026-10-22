@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>natural-japanese v1.6.1</title>
 <meta name="description" content="AI の書く文章から、何を指すのか分からない言葉が減りました。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-@font-face { font-family: "Seed"; src: url("fonts/seed-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Seed"; src: url("fonts/seed-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
-@font-face { font-family: "Seed"; src: url("fonts/seed-800.woff2") format("woff2"); font-weight: 800; font-display: swap; }
-@font-face { font-family: "Mono"; src: url("fonts/mono-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 
 :root {
   --ink: #141414;
@@ -29,7 +28,7 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 400 17px/1.85 "Seed", "Hiragino Sans", sans-serif;
+  font: 400 17px/1.85 "LINE Seed JP", "Hiragino Sans", sans-serif;
   font-feature-settings: "palt" 1;
   line-break: strict;
   word-break: auto-phrase;
@@ -65,11 +64,11 @@ p { margin: 0; }
   background: #fff;
   color: var(--ink);
   display: grid; place-items: center;
-  font: 800 20px/1 "Seed", sans-serif;
+  font: 800 20px/1 "LINE Seed JP", sans-serif;
   letter-spacing: -.02em;
 }
-.name { font: 800 clamp(24px, 3vw, 34px)/1.15 "Seed", sans-serif; }
-.name span { display: block; font: 400 14px/1.5 "Seed", sans-serif; letter-spacing: .08em; margin-top: 4px; }
+.name { font: 800 clamp(24px, 3vw, 34px)/1.15 "LINE Seed JP", sans-serif; }
+.name span { display: block; font: 400 14px/1.5 "LINE Seed JP", sans-serif; letter-spacing: .08em; margin-top: 4px; }
 .band nav { margin-left: auto; display: flex; gap: 6px 22px; flex-wrap: wrap; font-size: 15px; }
 .band nav a { color: #fff; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
 .band nav a:hover, .band nav a[aria-current="true"] { border-bottom-color: var(--line); }
@@ -84,14 +83,14 @@ p { margin: 0; }
   gap: clamp(32px, 5vw, 72px);
 }
 .ver {
-  font: 800 clamp(76px, 10.5vw, 148px)/.86 "Seed", sans-serif;
+  font: 800 clamp(76px, 10.5vw, 148px)/.86 "LINE Seed JP", sans-serif;
   letter-spacing: -.035em;
   margin: 0;
 }
 .ver-meta { margin-top: 18px; font-size: 15px; line-height: 1.7; }
 .hl { color: inherit; background: linear-gradient(transparent 58%, var(--caution) 58%); padding: 0 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .hl.ok { background: linear-gradient(transparent 58%, #8ed5cc 58%); }
-.lead { font: 700 clamp(22px, 2.3vw, 30px)/1.55 "Seed", sans-serif; max-width: 26em; margin: 0; }
+.lead { font: 700 clamp(22px, 2.3vw, 30px)/1.55 "LINE Seed JP", sans-serif; max-width: 26em; margin: 0; }
 .sub { margin-top: 16px; max-width: 38em; }
 
 /* 前後の文 */
@@ -105,7 +104,7 @@ p { margin: 0; }
 .pair > div { padding: 18px; }
 .pair-head > div:first-child, .pair > div:first-child { padding-left: 0; }
 .pair .k { font-size: 15px; line-height: 1.7; }
-.pair .k strong { display: block; font: 800 18px/1.4 "Seed", sans-serif; margin-bottom: 4px; }
+.pair .k strong { display: block; font: 800 18px/1.4 "LINE Seed JP", sans-serif; margin-bottom: 4px; }
 .tag { display: inline-flex; align-items: center; gap: 8px; }
 .mark {
   flex: none;
@@ -158,8 +157,8 @@ section::before {
   transition: background-color .4s cubic-bezier(.16, 1, .3, 1), transform .4s cubic-bezier(.16, 1, .3, 1);
 }
 section.here::before { background: var(--ink); border-color: var(--ink); transform: scale(1.15); }
-h2 { font: 800 clamp(24px, 2.4vw, 30px)/1.3 "Seed", sans-serif; margin: 0 0 20px; letter-spacing: .01em; }
-section h3 { font: 800 19px/1.4 "Seed", sans-serif; margin: 40px 0 12px; }
+h2 { font: 800 clamp(24px, 2.4vw, 30px)/1.3 "LINE Seed JP", sans-serif; margin: 0 0 20px; letter-spacing: .01em; }
+section h3 { font: 800 19px/1.4 "LINE Seed JP", sans-serif; margin: 40px 0 12px; }
 section p + p, section p + ul, section ul + p, section .table-wrap + p, section p + .table-wrap, section .cmd + p { margin-top: 16px; }
 ul { margin: 0; padding-left: 1.2em; }
 li + li { margin-top: 10px; }
@@ -171,7 +170,7 @@ th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--in
 thead th { border-bottom: 3px solid var(--ink); font-weight: 700; font-size: 15px; }
 th:first-child, td:first-child { padding-left: 0; }
 td.n { white-space: nowrap; }
-td.n b { font: 800 26px/1 "Seed", sans-serif; margin-right: 2px; }
+td.n b { font: 800 26px/1 "LINE Seed JP", sans-serif; margin-right: 2px; }
 td.n small { font-size: 14px; }
 .notes { font-size: 15px; line-height: 1.8; }
 
@@ -207,27 +206,27 @@ th .open[aria-expanded="true"] { background: var(--ink); color: #fff; padding: 4
 .viewer { margin-top: 24px; border: 3px solid var(--ink); max-width: none !important; }
 .viewer[hidden] { display: none; }
 .viewer-head { display: flex; align-items: center; gap: 16px; background: var(--ink); color: #fff; padding: 12px 16px; }
-.viewer-head h3 { margin: 0; font: 700 17px/1.4 "Seed", sans-serif; flex: 1; }
-.viewer-close { font: 700 14px/1 "Seed", sans-serif; color: #fff; background: none; border: 2px solid #fff; padding: 8px 12px; cursor: pointer; }
+.viewer-head h3 { margin: 0; font: 700 17px/1.4 "LINE Seed JP", sans-serif; flex: 1; }
+.viewer-close { font: 700 14px/1 "LINE Seed JP", sans-serif; color: #fff; background: none; border: 2px solid #fff; padding: 8px 12px; cursor: pointer; }
 .viewer-close:hover { background: #fff; color: var(--ink); }
 .flags { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.7; }
 .flags th, .flags td { padding: 12px 14px; border-bottom: 1px solid var(--ink); vertical-align: top; text-align: left; }
 .flags thead th { font-size: 13px; border-bottom-width: 2px; background: none; }
 .flags td:first-child { width: 26%; font-weight: 700; }
 .flags td:first-child span { display: block; font-weight: 400; font-size: 12.5px; }
-.st { display: inline-block; font: 700 12px/1.6 "Seed", sans-serif; padding: 0 7px; margin-right: 6px; border: 2px solid var(--ink); }
+.st { display: inline-block; font: 700 12px/1.6 "LINE Seed JP", sans-serif; padding: 0 7px; margin-right: 6px; border: 2px solid var(--ink); }
 .st.fixed { background: var(--line-ink); border-color: var(--line-ink); color: #fff; }
 .st.kept { background: var(--caution); border-color: var(--caution); }
 .st.removed { border-style: dashed; }
 .diff-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 16px; border-bottom: 1px solid var(--ink); }
 .diff-head p { font-size: 14px; flex: 1 1 18em; }
 .seg { display: flex; border: 2px solid var(--ink); }
-.seg button { font: 700 14px/1 "Seed", sans-serif; padding: 9px 12px; background: none; border: 0; cursor: pointer; color: var(--ink); }
+.seg button { font: 700 14px/1 "LINE Seed JP", sans-serif; padding: 9px 12px; background: none; border: 0; cursor: pointer; color: var(--ink); }
 .seg button + button { border-left: 2px solid var(--ink); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
 .doc { max-height: 70vh; overflow: auto; font-size: 14.5px; line-height: 1.8; padding: 12px 18px 24px; }
 .doc > * { margin: 0 0 10px; max-width: none; }
-.doc h1, .doc h2, .doc h3 { font: 800 16px/1.5 "Seed", sans-serif; margin: 18px 0 8px; }
+.doc h1, .doc h2, .doc h3 { font: 800 16px/1.5 "LINE Seed JP", sans-serif; margin: 18px 0 8px; }
 .doc h1 { font-size: 18px; margin-top: 4px; }
 .doc ul.md, .doc ol.md { padding-left: 1.4em; }
 .doc .md li + li { margin-top: 4px; }
@@ -235,9 +234,9 @@ th .open[aria-expanded="true"] { background: var(--ink); color: #fff; padding: 4
 .doc th, .doc td { padding: 6px 8px; border-bottom: 1px solid var(--ink); }
 .doc thead th { border-bottom-width: 2px; }
 .doc th:first-child, .doc td:first-child { padding-left: 0; }
-.doc pre { font: 400 12.5px/1.6 "Mono", ui-monospace, monospace; background: #f4f4f4; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.doc pre::before { content: "図(mermaid)"; display: block; font: 700 12px/1.6 "Seed", sans-serif; margin-bottom: 4px; }
-.doc code { font: 400 .92em "Mono", ui-monospace, monospace; background: #f4f4f4; padding: 0 3px; }
+.doc pre { font: 400 12.5px/1.6 ui-monospace, "SF Mono", Menlo, monospace; background: #f4f4f4; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.doc pre::before { content: "図(mermaid)"; display: block; font: 700 12px/1.6 "LINE Seed JP", sans-serif; margin-bottom: 4px; }
+.doc code { font: 400 .92em ui-monospace, "SF Mono", Menlo, monospace; background: #f4f4f4; padding: 0 3px; }
 .doc ins { text-decoration: none; background: #c9ece8; }
 .doc del { text-decoration: line-through; text-decoration-thickness: 2px; color: #6b1d1d; background: #fbe3e3; }
 .doc p.gone-line { margin: 0 0 10px; }
@@ -257,14 +256,14 @@ th .open[aria-expanded="true"] { background: var(--ink); color: #fff; padding: 4
   color: #fff;
   max-width: 34em;
 }
-.cmd code { flex: 1; padding: 16px 20px; font: 400 16px/1.5 "Mono", ui-monospace, monospace; overflow-x: auto; white-space: nowrap; }
+.cmd code { flex: 1; padding: 16px 20px; font: 400 16px/1.5 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto; white-space: nowrap; }
 .cmd button {
   flex: none;
   border: 0;
   border-left: 1px solid #fff;
   background: var(--line-ink);
   color: #fff;
-  font: 700 15px/1 "Seed", sans-serif;
+  font: 700 15px/1 "LINE Seed JP", sans-serif;
   padding: 0 20px;
   cursor: pointer;
   min-width: 7.5em;
