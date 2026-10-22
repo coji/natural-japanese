@@ -110,7 +110,7 @@ def load_corpus() -> dict[str, list[CorpusDoc]]:
     存在しないディレクトリ・0件のディレクトリがあっても構わない
     （コーパスが部分的でも動く要件）。読めないファイル（binary 等）はスキップする。
 
-    加えて、business ジャンル校正用に human_business / ai_business のサブビンも作る。
+    加えて、business ジャンル校正用に human_business / ai_business の集合も作る。
     human 側は corpus/sources.json の genre=="business" で判定（human/web 配下の
     biz-* ファイル）。ai 側はファイル名が "business-" で始まるかで判定
     （corpus/ai/<model>/business-*.md の命名規則に依拠）。
@@ -547,7 +547,7 @@ def cmd_sweep(mod, detector_name: str) -> None:
             except Exception:
                 # 統計系検出器は最低サンプル数未満だと空リストを返すだけで例外は
                 # 起きない設計だが、想定外の入力（極端な閾値等）でも1文書の
-                # 失敗でスイープ全体を落とさないよう保険を掛けておく。
+                # 失敗でスイープ全体が止まらないよう、例外を捕まえて読み飛ばす。
                 pass
         ai_hit = 0
         for p in ai_prepared:

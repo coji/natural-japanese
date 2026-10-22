@@ -20,7 +20,7 @@
     uv run scripts/outline.py <file.md> [--json]
 
 入力エラー（ファイル不在・ディレクトリ指定・読み取り不可等）は exit code 1、
-それ以外は exit code 0（判断は人間/AIに委ねる。他の検査層エントリと同じ方針）。
+それ以外は exit code 0（判断は人間/AIに委ねる。ほかの検査スクリプトと同じ方針）。
 
 見出し統計の体言止め判定・POSシグネチャ化には sudachipy を使うため、
 textcore.py と同じ PEP 723 メタデータを宣言しておく。

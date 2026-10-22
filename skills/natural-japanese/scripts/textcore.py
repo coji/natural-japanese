@@ -1,4 +1,4 @@
-"""textcore.py — 検査層3スクリプト（lint.py / outline.py / terms.py）の共有基盤。
+"""textcore.py — 検査スクリプト3本（lint.py / outline.py / terms.py）の共有基盤。
 
 エントリポイントではない（単体実行を想定しない）ため PEP 723 インラインメタデータは
 持たない。依存（sudachipy / sudachidict-core）は各エントリスクリプト側で宣言する。

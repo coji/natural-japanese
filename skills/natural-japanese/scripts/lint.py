@@ -148,7 +148,7 @@ FORBIDDEN_PHRASES_WEAK_SIGNAL: set[str] = {
 # ---------------------------------------------------------------------------
 # 「することができる」「することが可能」は、2026-10 の測定で生成AI以前の人間の文書(Qiita 2022・llm-jp)の
 # ほうが生成AIの文書より多く使っており、生成AIらしさの印にならない。冗長さの指摘として
-# 読解負荷レーンの translationese_morph(品詞列で「〜ことができる」を拾う)だけで扱う。
+# 読みにくそうな箇所の検査の translationese_morph(品詞列で「〜ことができる」を拾う)だけで扱う。
 TRANSLATIONESE_PATTERNS: list[str] = [
     r"と言えるだろう",
     r"という点で",
@@ -369,7 +369,7 @@ GENRE_PROFILES: dict[str, dict] = {
         # 依然として人間の意図的反復技法との区別はつかないため、共通閾値より
         # わずかに低いだけに留める（過検出を避ける）。
         "lead_repeat_threshold": 5,
-        # 読解負荷レーン（--reading-load）の一文長の目安。readability-sweep.md の
+        # 読みにくそうな箇所の検査（--reading-load）の一文長の目安。readability-sweep.md の
         # 候補1（文長）で、essay だけがジャンル別FP率6.7%と唯一5%を超えた
         # （tech/business はいずれも0.0%）。エッセイの長い一文は書き手の呼吸で
         # あることが多いため、共通の90字より緩める。
@@ -389,7 +389,7 @@ GENRE_PROFILES: dict[str, dict] = {
     },
     # business は 2026-07 の実地校正（corpus/reports/business-calibration.md）で
     # 実測した。人間側コーパスは corpus/human/web の biz-* 10件のみと薄いため、
-    # 「AIで強く光る検出器を厳しくする」方向の調整はせず、事業文書の正当な慣習
+    # 「AI の文書でよく発火する検出器を厳しくする」方向の調整はせず、事業文書の正当な慣習
     # （箇条書き・太字強調・定型見出し・フェーズ表現）と衝突しうる検出器は
     # 無効化するに留めている（詳細は上記レポート参照）。
     #   - nominal_min_chars: tech と同値（3000）を維持。実測では business
@@ -502,21 +502,21 @@ def validate_baseline_data(baseline_data) -> tuple[dict | None, list[str]]:
     warnings: list[str] = []
     if not isinstance(baseline_data, dict):
         warnings.append(
-            "--baseline の内容が JSON オブジェクトではありません。baseline比較を無視して通常のlintを実行します。"
+            "--baseline の内容が JSON オブジェクトではありません。baseline との比較はせずに通常のlintを実行します。"
         )
         return None, warnings
 
     findings_raw = baseline_data.get("findings")
     if not isinstance(findings_raw, list):
         warnings.append(
-            "--baseline に 'findings' 配列が見つかりません。baseline比較を無視して通常のlintを実行します。"
+            "--baseline に 'findings' 配列が見つかりません。baseline との比較はせずに通常のlintを実行します。"
         )
         return None, warnings
 
     valid_findings = []
     skipped = 0
     for item in findings_raw:
-        # dict であることに加え、_finding_identity_key() が触るフィールドの型も
+        # dict であることに加え、_finding_identity_key() が参照するフィールドの型も
         # ここで検証する（category が非文字列だと set 判定、excerpt が非文字列だと
         # re.sub がクラッシュするため。JSON としては valid でも型が壊れた baseline
         # は要素単位で読み飛ばす）。
@@ -1765,11 +1765,11 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 
 
 # ---------------------------------------------------------------------------
-# 読解負荷レーン（推敲用の指さし）
+# 読みにくそうな箇所の検査（推敲で見る箇所を示すだけ）
 #
 # ここに並ぶ検出器は「AI臭さ」を測らない。自然度スコアにも、by_category 集計にも、
 # --baseline 比較にも一切入らない。目的は「読みやすい文章に直す」ことだけで、
-# 出力は「この文を見ろ」という指さしに留める（severity は常に info）。
+# 出力は「この文を見る」と示すだけにする（severity は常に info）。
 #
 # なぜ別レーンなのか:
 #     corpus/reports/readability-sweep.md は、ここに実装した指標のほとんど
@@ -1785,7 +1785,7 @@ def detect_structural_ai_habits(raw_text: str) -> tuple[list[Finding], dict]:
 #     原文より読みやすくなるか」に置く。その基準での校正が済むまでは opt-in
 #     （--reading-load）に留め、既存の findings / stats / baseline には混ぜない。
 #     混ぜた瞬間に「AI臭さの採点」と「読みやすさの推敲」という別目的の指標が
-#     同じスコアに乗ってしまい、どちらの判断も濁る。
+#     同じスコアに合算され、どちらの判断にも使いにくくなる。
 #
 # このレーンが存在する理由（検出器を足すかどうかの判断基準）:
 #     lint.py 本体が機械検出を要求するのは「AI は自分の AI 臭さを認識できない」からである。
@@ -2110,7 +2110,7 @@ def detect_reading_load(
 
 
 def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Finding], dict]:
-    """読解負荷レーンだけを実行する。
+    """読みにくそうな箇所の検査だけを実行する。
 
     run_lint() とは意図的に独立した関数にしてある。既存の findings / stats /
     baseline 比較に読解負荷の finding が混入する経路を、構造として作らないため。
@@ -2199,8 +2199,8 @@ HINTS = {
     "sentence_too_long": "主張が二つ以上あれば、主張ごとに文を分ける。分けて字数が増えるのはかまわない。元にない接続の言葉は足さない",
     "kanji_run": "ひらがなを交えて開く（「再送抑制機能」→「再送を止める機能」）。固有名詞はそのままでよい",
     "buried_list": "箇条書きに開く。各項目を「太字: 説明」の形にはしない",
-    "double_negative": "肯定に畳むなら、真偽が反転していないかを必ず確かめる（「招かないとは言えない」は「招くことがある」）。控えめに言うことが意図なら触らない",
-    "no_chain": "どこかを動詞に開く（「上限の設定の検討」→「上限をどう設定するか検討する」）",
+    "double_negative": "肯定の形に直すなら、真偽が反転していないかを必ず確かめる（「招かないとは言えない」は「招くことがある」）。控えめに言うことが意図なら触らない",
+    "no_chain": "どこかを動詞に戻す（「上限の設定の検討」→「上限をどう設定するか検討する」）",
 }
 
 
@@ -2361,8 +2361,8 @@ def print_human_report(
 
 
 def print_reading_load_report(findings: list[Finding], stats: dict) -> None:
-    """読解負荷レーンを、AI臭さの検出結果とは視覚的にも分けて出力する。"""
-    print("=== 読解負荷（推敲用の指さし・自然度スコアには含まない） ===")
+    """読みにくそうな箇所の検査を、AI臭さの検出結果とは視覚的にも分けて出力する。"""
+    print("=== 読解負荷（推敲で見る箇所を示すだけ。自然度スコアには含まない） ===")
     print(f"指摘件数: {stats.get('total', len(findings))}（本文 {stats.get('sentences', 0)} 文）")
     if stats.get("by_category"):
         print("カテゴリ別内訳:")
@@ -2375,7 +2375,7 @@ def print_reading_load_report(findings: list[Finding], stats: dict) -> None:
         return
 
     for f in findings:
-        print(f"[指さし] L{f.line} ({f.category})")
+        print(f"[見る箇所] L{f.line} ({f.category})")
         print(f"    該当箇所: {f.excerpt}")
         if f.detail:
             print(f"    詳細    : {f.detail}")
@@ -2420,8 +2420,8 @@ def main() -> int:
         metavar="PREV.json",
         help=(
             "前回の --json 出力ファイルと比較し、resolved（解消）/ new（新規）/ "
-            "persisting（継続）を判定する（収束駆動の修正ループ支援。指定しない場合の"
-            "挙動は完全に不変）"
+            "persisting（継続）を判定する（直して lint をかけ直すたびに、指摘が減ったかを見るのに使う。"
+            "指定しない場合の挙動は完全に不変）"
         ),
     )
     parser.add_argument(
@@ -2437,7 +2437,7 @@ def main() -> int:
         "--experimental",
         action="store_true",
         help=(
-            "まだコーパスで定量校正されていない、または無反応と判定された検出器"
+            "まだコーパスで定量校正されていない、またはコーパスでほとんど何も検出しなかった検出器"
             "（EXPERIMENTAL_CATEGORIES）も出力する。デフォルトでは除外される"
         ),
     )
@@ -2445,8 +2445,8 @@ def main() -> int:
         "--reading-load",
         action="store_true",
         help=(
-            "読解負荷レーン（一文長・埋もれた列挙・連続漢字・二重否定・「の」連鎖）を"
-            "併せて出力する。AI臭さの検出とは別目的の推敲用の指さしで、"
+            "読みにくそうな箇所（一文長・埋もれた列挙・連続漢字・二重否定・「の」連鎖）も"
+            "出力する。AI臭さの検出とは別の検査で、推敲で見る箇所を示すだけ。"
             "自然度スコアにも --baseline 比較にも含まれない"
         ),
     )
@@ -2482,7 +2482,7 @@ def main() -> int:
 
     findings, stats = run_lint(text, genre=args.genre, experimental=args.experimental)
 
-    # 読解負荷レーンは完全に別扱いにする。findings にも stats にも混ぜず、
+    # 読みにくそうな箇所の検査は完全に別扱いにする。findings にも stats にも混ぜず、
     # --baseline 比較（compute_baseline_diff）にも渡さない。
     reading_load_findings: list[Finding] | None = None
     reading_load_stats: dict | None = None

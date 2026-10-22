@@ -12,14 +12,14 @@
 【重要】これは lint.py の中核パイプラインとは独立した重量級のオプトイン検出器である。
 torch + sentence-transformers（cl-nagoya/ruri-v3-310m、初回~1GB級のHFダウンロード）に
 依存するため、scripts/lint.py・.github/workflows/release.yml・scripts/check-fixtures.sh の
-どこにも組み込まない。実行したい人だけが明示的に `uv run scripts/semantic.py` を叩く。
+どこにも組み込まない。実行したい人だけが明示的に `uv run scripts/semantic.py` を実行する。
 
 背景・設計思想（corpus/reports/nn-detector-sweep.md §B 参照）:
     perplexity・教師あり分類器・GiNZA係り受けの3系統は、コーパス実測の結果
-    「ジャンルの文体」や「読みやすさそのもの」を罰していることが判明し不採用となった。
+    「ジャンルの文体」や「読みやすさそのもの」を AI らしさとして検出していることが判明し不採用となった。
     唯一生き残ったのが本検出器（文埋め込みによる話題平板性）で、表層の文体をどれだけ
     磨いても消えにくい「一つの話題を同じ意味距離で刻み続ける」癖を捉えている。
-    ただし model 依存が重く、閾値もFP基盤（human quality:high 81文書）がまだ薄いため、
+    ただし model 依存が重く、閾値もFP基準集合（human quality:high 81文書）の標本がまだ少ないため、
     lint.py 本体（sudachipy のみ・数秒で完結）とは別の EXPERIMENTAL な独立エントリとする。
 
 指標定義（corpus/experiments/embedding/sweep.py と同一ロジック。すべて cos類似度、
@@ -97,7 +97,7 @@ MIN_SENTENCES_FOR_STATS = 10
 #     n(ai)=84, AI検出率=73.8%（62/84）。
 #   注意: essay(0.1581) > business(0.1556) > tech(0.1426) の順で、essayが
 #   3ジャンル中もっとも「緩い」（=値が高くても発火しにくい方向に振っている
-#   わけではなく、essay固有のFP基盤分布の谷間を使って全体閾値0.1612より
+#   わけではなく、essay固有のFP基準集合の分布の谷間を使って全体閾値0.1612より
 #   厳しくした結果、3ジャンル中では最も高い値になった）。数値上essayの
 #   閾値がtech/businessより高いのは、essay固有の人間分布が0.134と0.161の
 #   間に空白域を持つため、この空白の直下（0.1581）まで閾値を上げても
