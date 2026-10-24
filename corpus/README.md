@@ -2,9 +2,9 @@
 
 ## 目的
 
-`skills/natural-japanese/scripts/lint.py` の各検出器(禁止語・統語パターン・統計指標など)は、
-現状「経験則」で閾値を決めている。このコーパスは、その閾値を実測に基づいて
-校正するために存在する。具体的には:
+`skills/natural-japanese/scripts/lint.py` の各検出器(禁止語・統語パターン・統計指標など)の閾値は、
+もともと「経験則」で決めていた。このコーパスは、その閾値を実測に基づいて
+校正するために作った。具体的には:
 
 - 人間が書いた自然な日本語文章(人間コーパス)に対する誤検知率(FP率)を測る
 - AI(Claude / GPT系)が「素の状態」(AI臭除去の指示なしで)書いた文章
@@ -68,10 +68,11 @@ corpus/
 ## 収録状況
 
 - `corpus/human/aozora/`: 寺田寅彦・中島敦・坂口安吾・岸田國士の随筆 12本(実収録・コミット済み)
-- `corpus/human/web/`: `sources.json` に基づき `fetch.py` で取得した記事本文 125本
-  (note エッセイ 38 + Zenn 技術記事 43 + 官公庁系ビジネス文書 32 + スライド系資料 12)
-- `corpus/sources.json`: 上記 web エントリ 137件のソース定義(ジャンル別内訳: essay 50 / tech 43 / business 32 / slide 12。
-  一部エントリは genre ラベルと human/web/ 上のファイル接頭辞(note-/zenn-/biz-/slide-)が対応する)
+- `corpus/human/web/`: `sources.json` に基づき `fetch.py` で取得した記事本文 93本
+  (note エッセイ 8 + 技術記事 45 + 官公庁系ビジネス文書 28 + スライド系資料 12)
+- `corpus/sources.json`: aozora 12件と、上記 web エントリ 93件のソース定義(web のジャンル別内訳: essay 8 / tech 45 / business 28 / slide 12)。
+  human/web/ のファイル名の接頭辞は取得元を表す。essay は note-、business は biz-、slide は slide- で、
+  tech は zenn-・qiita-・cookpad-・mercari-・hatena-・zozo-・recruit- に分かれる
 - `corpus/ai/`: 7モデル × 58本(essay/tech/blog 各10 + business 12 + slide 12) = 406本
   (`generate.py` / `generate-all.sh` で全モデル・全ジャンル生成済み)
   - Claude 系: `claude-haiku-4-5` / `claude-sonnet-5` / `claude-opus-4-8` / `claude-fable-5`

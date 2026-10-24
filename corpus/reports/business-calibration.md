@@ -19,7 +19,7 @@ human business コーパス（10件）を用いて実測し、business プロフ
    `detect_nominal_ending_and_paragraph_conjunctions` / `detect_ngram_repetition`
    を直接呼び、business コーパス（human_business n=10, ai_business n=24）に対して
    複数の閾値でスイープし、human 側の誤検知率と ai 側の検出率の両方を確認した。
-4. 実験的構造検出器（`high_bullet_ratio` 等）はタスクの指示に基づき候補として
+4. 実験的構造検出器（`high_bullet_ratio` 等）も候補として
    検証したが、以下の理由から「厳しくする」方向の調整は一切行っていない
    （下記の限界セクション参照）。
 
@@ -55,7 +55,7 @@ human business コーパス（10件）を用いて実測し、business プロフ
 business コーパスの文書はいずれも短め（human: 2,627〜7,984字、
 ai: 454〜2,937字）で、nominal_ending は閾値をどこに設定しても
 一度も発火しなかった。誤検知（human側の発火）が実測上存在しないため、
-「厳しくする方向の調整はしない」という指示のもと、tech と同じ
+「厳しくする方向の調整はしない」という方針のもと、tech と同じ
 `nominal_min_chars=3000` を据え置いた。
 
 ### lead_repeat_threshold（文頭反復の閾値）

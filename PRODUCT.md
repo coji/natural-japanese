@@ -52,8 +52,9 @@ AI の書いた日本語から、読み手が中身を推測し直さなけれ�
 ## Evidence on Hand
 
 - 実際の出力の比較:README の「直すとこうなる」、`.claude/work/scratch/release/`(v1.6.0 のリリースノートの素材と生成スクリプト build.py)
-- 過去のリリースノート:`release-notes-v1.5.0.html`、v1.6.0 は https://6c8j7oke3x.artifactshare.link/
-- 実測の数字:PR #15(v1.6.0)と PR #17(読み手の分野の呼び名)の説明にある表。どれもモデル・effort・本数の条件つき
+- 過去のリリースノート:`release-notes-v1.5.0.html`、v1.6.0 は https://6c8j7oke3x.artifactshare.link/ 、v1.6.1 は https://tkewowm1d6.artifactshare.link/ (元の HTML とデータは `release-notes/`)
+- v1.6.1 の素材:同じ相談文9本を v1.6.0 と v1.6.1 で直させた比較(`.claude/work/scratch/calque-eval/score/`)。作り方は `.claude/skills/release-notes/SKILL.md`
+- 実測の数字:PR #15(v1.6.0)、PR #17(読み手の分野の呼び名)、PR #19(v1.6.1)、PR #22(リポジトリの文書の直しと回帰チェック)の説明にある表。どれもモデル・effort・本数の条件つき
 - 利用者の声、導入数、第三者の評価はない。作らない
 
 ## Product Principles
