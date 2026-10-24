@@ -58,6 +58,8 @@ essay ジャンルは `readability-sweep.md` で唯一ジャンル別FP率が5%�
 
 ### 1. `too_many_ten`（読点4個以上）を `buried_list` に置き換えた
 
+以下の B4・F1 などの記号は、[meiseki](https://github.com/bamboo-nova/meiseki) の「高負荷構文カタログ A–H」（`.agents/skills/meiseki/references/patterns.md`）の項目番号である。
+
 初版は「一文の読点が4個以上」を B4（読点の位置が悪い・多すぎる）として指していた。
 結果は**573件・文書の62%が発火**。中身を見ると、ほぼ全件が同格の列挙だった。
 読点の打ち方の問題ではなく、列挙が一文に埋もれている問題（F1）である。
