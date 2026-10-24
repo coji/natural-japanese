@@ -30,9 +30,15 @@ uv run corpus/experiments/skill-eval/eval.py \
   （再現性のため）。
 - `--model-apply` / `--model-critic` でモデルを上書きできる（既定:
   apply=`claude-sonnet-5`、critic=`claude-fable-5`。effort は既定で両方 low、`--effort-apply/--effort-critic` で変更可）。
-- 1 item あたり claude 呼び出しは最大 6 回（baseline生成 or source コピー、
-  thesis抽出、skill-apply、human_ness、thesis_preservation、structural_smell。
-  rewrite モードは baseline がコピーなので呼び出しが1回減る）。skill-apply は
+- 1 item あたり claude 呼び出しは最大 6 回。rewrite モードは baseline がコピーなので1回減る。
+  1. baseline の生成(rewrite モードでは source のコピー)
+  2. thesis 抽出
+  3. skill-apply
+  4. human_ness
+  5. thesis_preservation
+  6. structural_smell
+
+  skill-apply は
   スキルの検査工程（lint.py/outline.py/terms.pyの実行含む）をフルで回すため、
   他の呼び出しより時間がかかる。
 

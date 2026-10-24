@@ -5,7 +5,7 @@
 
 ## このスキルについて
 
-仕事の日本語文書を、自然で読みやすく書く・直すためのスキルです。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成といった仕事の文書から、技術記事・PR の説明文・ブログ・エッセイまで扱います。AI らしい書き癖を取り除くことも、この工程に含まれます。
+仕事の日本語文書を、自然で読みやすく書く・直すためのスキルです。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成といった仕事の文書から、技術記事・PR の説明文・ブログ・エッセイまで扱います。AI らしい書き癖を取り除くことも含みます。
 
 設計の要点は次の3つです。
 
@@ -34,9 +34,9 @@ uv run skills/natural-japanese/scripts/lint.py path/to/draft.md      # 疑わし
 uv run skills/natural-japanese/scripts/outline.py path/to/draft.md   # 見出しと各段落の先頭文の抽出(構造の点検に使う)
 uv run skills/natural-japanese/scripts/terms.py path/to/draft.md     # 専門用語の初出・説明有無の一覧
 uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞・英字の語
-uv run skills/natural-japanese/scripts/paragraphs.py path/to/draft.md   # 段落ごとの確かめ用の表(取れない言い回しを段落ごとに書き出す)
+uv run skills/natural-japanese/scripts/paragraphs.py path/to/draft.md   # 段落ごとの確かめ用の表(読み手が何のことか分からない言い回しを、段落ごとに書き出す)
 uv run skills/natural-japanese/scripts/calques.py path/to/draft.md     # 仕組みを場所にたとえた名詞と、機械の処理に当てた動詞の候補(入口・効く・拾う など)
 ```
 
 依存関係(sudachipy, sudachidict-core)は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されているため、
-`uv run` が自動的に解決します。共有基盤は `skills/natural-japanese/scripts/textcore.py` にまとまっています。
+`uv run` が自動的に解決します。各スクリプトが共通で使う処理は `skills/natural-japanese/scripts/textcore.py` にまとまっています。
