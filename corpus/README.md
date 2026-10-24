@@ -53,17 +53,17 @@ corpus/
 
 **閾値校正(FP基準)の使い分け**: 検出器の人間側 FP 率は、`quality: "high"` の web エントリと
 `register: "modern-colloquial-classic"` の aozora エントリ(＝上手な書き手による現代文)のみを基準集合とする。
-`quality: "ordinary"` の web エントリや `register: "literary-classic"` の aozora エントリは参考ビンとして
-保持するが、閾値算出には使わない。下手な(粗い)人間の文章に lint が反応すること自体は、必ずしも
-「誤検知」とは言い切れない — 検出器が捉えている冗長さ・紋切り型表現は、実際に文章の質の低さの一因でも
-あるため、閾値校正の基準には含めない方針とする。
+`quality: "ordinary"` の web エントリや `register: "literary-classic"` の aozora エントリは参考用の区分として
+保持するが、閾値算出には使わない。下手な(粗い)人間の文章に lint が反応しても、必ずしも
+「誤検知」とは言い切れない。検出器が捉えている冗長さや紋切り型の表現は、実際に文章を読みにくくしている
+原因の一つでもあるため、閾値校正の基準には含めない。
 
 **公開時期による除外(AI混入リスク)**: web エントリには `published`(YYYY-MM、記事本文中の公開日表記から
 確認)を付与している。2023年以降に公開された記事は、生成AIによる執筆・校正支援が混入している可能性を
-完全には排除できないため `ai_era_risk: true` を付与する。除外はしない(参考ビンとして残す)が、
-**人間側正例は原則として2022年以前(`ai_era_risk` の付いていない)記事を優先する**方針とする。
-理想的には、閾値校正のFP基準集合は「`quality: high` かつ `ai_era_risk` なし(2022年以前)」の記事に
-絞り込むことが望ましい。
+完全には排除できないため `ai_era_risk: true` を付与する。除外はしない(参考用の区分として残す)が、
+**人間側の基準に使う記事は原則として2022年以前(`ai_era_risk` の付いていない)記事を優先する**方針とする。
+閾値校正のFP基準集合は、「`quality: high` かつ `ai_era_risk` なし(2022年以前)」の記事に
+絞り込むのが望ましい。
 
 ## 収録状況
 
@@ -104,7 +104,8 @@ uv run skills/natural-japanese/scripts/calibrate.py report
 - **直下(`corpus/reports/*.md`)**: 現行の根拠レポート。コミット対象
   (`.gitignore` に個別の否定パターンあり)。
   - `readability-sweep.md` / `business-calibration.md` / `business-fp-check.md` /
-    `antithesis-recalibration.md`
+    `antithesis-recalibration.md` / `nn-detector-sweep.md` / `reading-load-calibration.md` /
+    `skill-eval-findings.md`
   - ドキュメント(`references/`, `skills/natural-japanese/scripts/lint.py` のコメント等)から参照される、
     現行の検出器設計の根拠となっているレポート。
 - **`corpus/reports/archive/`**: v0.3.0 校正期に作成された旧世代レポート。非コミット
@@ -113,7 +114,8 @@ uv run skills/natural-japanese/scripts/calibrate.py report
   再生成の対象ではない。
 - **`corpus/reports/research/`**: 収集・調査メモは原則として非コミット。
   `business-corpus-sources.md`, `embed-research.md` などの作業ログはローカルに置く。一方、
-  公開用に出典・方法・限界を整理した文献レビューと証拠表は、`.gitignore` で個別に指定して
+  公開用に出典・方法・限界を整理した文献レビューと証拠表(`prose-rhythm-*.md`、
+  `sentence-length-analysis.*`)は、`.gitignore` で個別に指定して
   コミット対象とする。公開した調査を再現する実験スクリプトも、`corpus/experiments/` の
   対応するサブディレクトリで個別にコミット対象へ戻す。
 
@@ -123,11 +125,11 @@ uv run skills/natural-japanese/scripts/calibrate.py report
 
 ## 収集の規律
 
-- **公開時期**: 人間側正例は原則として pre-2023(2022年以前公開、`ai_era_risk` なし)を優先する。
+- **公開時期**: 人間側の基準に使う記事は原則として pre-2023(2022年以前公開、`ai_era_risk` なし)を優先する。
   2023年以降の記事は生成AIによる執筆・校正支援の混入リスクがあるため `ai_era_risk: true` を付与し、
-  参考ビンとして残すが閾値校正の基準集合には含めない。
+  参考用の区分として残すが閾値校正の基準集合には含めない。
 - **quality 判定**: 機械的指標ではなく、1本ずつ本文を読んで文章としての完成度(リズム・冗長性のなさ・
   読む際の負荷の低さ)を主観評価し `quality: "high"` / `"ordinary"` を付与する。
 - **FP基準集合**: 検出器の人間側 FP 率算出には `quality: "high"` かつ(aozora の場合)
   `register: "modern-colloquial-classic"` のエントリのみを使う。`quality: "ordinary"` や
-  `register: "literary-classic"` は参考ビンとして保持するが、閾値算出には使わない。
+  `register: "literary-classic"` は参考用の区分として保持するが、閾値算出には使わない。

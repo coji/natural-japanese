@@ -89,6 +89,7 @@ uv run skills/natural-japanese/scripts/lint.py draft.md --reading-load   # 長�
 uv run skills/natural-japanese/scripts/outline.py draft.md               # 見出しと各段落の先頭文
 uv run skills/natural-japanese/scripts/terms.py draft.md                 # 専門用語の初出と説明の有無
 uv run skills/natural-japanese/scripts/paragraphs.py draft.md            # 段落ごとの確認用の一覧
+uv run skills/natural-japanese/scripts/calques.py draft.md               # 仕組みを場所にたとえた名詞と、機械の処理に当てた動詞の候補
 uv run skills/natural-japanese/scripts/newfacts.py original.md revised.md  # 直した文書にだけある数値・固有名詞
 ```
 

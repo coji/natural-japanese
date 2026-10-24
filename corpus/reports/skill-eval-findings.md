@@ -23,6 +23,8 @@ corpus/experiments/skill-eval/eval.py が実行した結果を集約したレポ
 
 ## スキルレベル所見クラスタ（原因 file/section 別、頻度×severity降順）
 
+原因ファイルの列は、評価した当時のスキルの構成で書いている。`references/writing-constitution.md`(文体憲法)はいまはなく、その内容は SKILL.md §2 に移っている。
+
 | 原因ファイル | 節 | 出現item数/総item数 | 趣旨歪み件数 | severity内訳(smell) | score |
 | --- | --- | --- | --- | --- | --- |
 | `references/writing-constitution.md` | 2. 見出しに結論を埋め込む。ラベルだけの見出しは書かない | 4/5 | 0 | high=2, mid=2 | 8.00 |
