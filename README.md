@@ -46,7 +46,20 @@ npx skills add coji/natural-japanese
 <details>
 <summary>ほかの入れ方(Cursor・ChatGPT・Codex、Claude Code プラグイン、手動)</summary>
 
-Cursor・ChatGPT・Codex など(`AGENTS.md` を経由して使う):
+Cursor:
+
+Cursor Marketplace での公開は審査待ちです。公開後は Marketplace で `natural-japanese` を探してインストールできます。公開前にローカルで試す場合は、リポジトリのルートで次を実行します。
+
+```bash
+rm -rf ~/.cursor/plugins/local/natural-japanese
+mkdir -p ~/.cursor/plugins/local/natural-japanese
+cp plugin.json ~/.cursor/plugins/local/natural-japanese/
+cp -R skills ~/.cursor/plugins/local/natural-japanese/
+```
+
+そのあと Cursor を再起動するか、`Developer: Reload Window` を実行してください。Customize を開くと、`natural-japanese` が Skills に表示されます。
+
+ChatGPT・Codex など(`AGENTS.md` を経由して使う):
 
 ```bash
 npx openskills install coji/natural-japanese
