@@ -41,7 +41,7 @@ npx skills add coji/natural-japanese
 
 あとは、エージェントに「読みやすくして」「議事録にして」「AI っぽいところを直して」のように頼むだけです。書き換えずに自然さの点数(0〜100)と理由だけを知りたいときは、`/natural-japanese score <ファイル>` を使います。
 
-版ごとの変更点は [Releases](https://github.com/coji/natural-japanese/releases) にあります。
+バージョンごとの変更点は [Releases](https://github.com/coji/natural-japanese/releases) にあります。
 
 <details>
 <summary>ほかの入れ方(Cursor・ChatGPT・Codex、Claude Code プラグイン、手動)</summary>
