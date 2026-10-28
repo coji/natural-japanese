@@ -42,7 +42,9 @@ from pathlib import Path
 from textcore import (
     Finding,
     SENTENCE_SPLIT_RE,
+    _CODE_FENCE_RE,
     _HEADING_RE,
+    _blank_inline_code_spans,
     _LIST_ITEM_RE,
     get_tokenizer,
     iter_lines_with_no,
@@ -1827,6 +1829,7 @@ READING_LOAD_CATEGORIES: set[str] = {
     "kanji_run",
     "double_negative",
     "no_chain",
+    "sentence_in_paren",
 }
 
 _KANJI_RUN_RE = re.compile(rf"[一-鿿々]{{{READING_LOAD_KANJI_RUN_MAX + 1},}}")
@@ -2109,6 +2112,47 @@ def detect_reading_load(
     return findings
 
 
+# 括弧の中に文が入っているか。括弧の中の「」『』は引用なので先に外し、残りに句点が
+# あるかを見る。末尾の句点だけ(「(〜です。)」)も文として扱う。
+# 2026-10 の実測(人の文章 245 本、Opus 5.5 の仕事の文書 40 本)では、人の文章でも1割前後の
+# 文書に1件は出る(余談の括弧、エッセイ)。文書単位の多用の判定に使うほどの差はないので、
+# AI らしさのレーンには入れず、ここで1件ずつ見る箇所として示す。
+_PAREN_RE = re.compile(r"[（(]([^（()）\n]{2,200})[)）]")
+_PAREN_QUOTE_RE = re.compile(r"「[^「」]*」|『[^『』]*』")
+_JA_CHAR_RE = re.compile(r"[ぁ-んァ-ヶ一-鿿]")
+
+
+def detect_sentence_in_paren(raw_text: str) -> list[Finding]:
+    """括弧の中に文が入っている箇所を指さす。
+
+    文分割は句点で切るので括弧の中の文を割ってしまう。そのため文単位ではなく行単位で見る。
+    箇条書きの項目は対象に含め、コードブロック・表・引用・インラインコードは除く。
+    """
+    findings: list[Finding] = []
+    in_fence = False
+    for no, line in iter_lines_with_no(mask_html_comments(raw_text)):
+        if _CODE_FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        stripped = line.lstrip()
+        if in_fence or stripped.startswith(("|", ">")) or line.startswith("    "):
+            continue
+        for m in _PAREN_RE.finditer(_blank_inline_code_spans(line)):
+            inner = _PAREN_QUOTE_RE.sub("", m.group(1))
+            if "。" not in inner or not _JA_CHAR_RE.search(inner):
+                continue
+            findings.append(
+                Finding(
+                    line=no,
+                    category="sentence_in_paren",
+                    excerpt=line[m.start() : m.end()][:60],
+                    severity="info",
+                    detail="括弧の中に文が入っている。括弧の中は読み飛ばされやすい",
+                )
+            )
+    return findings
+
+
 def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Finding], dict]:
     """読みにくそうな箇所の検査だけを実行する。
 
@@ -2132,6 +2176,8 @@ def run_reading_load(raw_text: str, genre: str | None = None) -> tuple[list[Find
     )
     # 「〜ことができる」は生成AIらしさではなく冗長さの指摘として、このレーンで出す。
     findings += detect_translationese_morph(tokenized)
+    findings += detect_sentence_in_paren(raw_text)
+    findings.sort(key=lambda f: f.line)
     attach_hints(findings)
     stats = {
         "total": len(findings),
@@ -2200,6 +2246,7 @@ HINTS = {
     "kanji_run": "ひらがなを交えて開く（「再送抑制機能」→「再送を止める機能」）。固有名詞はそのままでよい",
     "buried_list": "箇条書きに開く。各項目を「太字: 説明」の形にはしない",
     "double_negative": "肯定の形に直すなら、真偽が反転していないかを必ず確かめる（「招かないとは言えない」は「招くことがある」）。控えめに言うことが意図なら触らない",
+    "sentence_in_paren": "括弧の中の言葉をそのまま本文に入れるか、その言葉だけで一文にする（「書きました(#512。まだレビュー前です)」→「#512 に書きました。まだレビュー前です」）。接続の言葉や、中身と本文の関係を決める言葉は足さない。エッセイの余談のように、書き手の語り口なら残す",
     "no_chain": "どこかを動詞に戻す（「上限の設定の検討」→「上限をどう設定するか検討する」）",
 }
 
