@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           cd skills/critical-thinking
-          zip -r "${GITHUB_WORKSPACE}/critical-thinking.skill" SKILL.md references scripts fixtures \
+          zip -r "${GITHUB_WORKSPACE}/critical-thinking.skill" SKILL.md references scripts \
             -x 'scripts/__pycache__/*'
 
       - name: Create GitHub Release

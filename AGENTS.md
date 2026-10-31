@@ -1,7 +1,7 @@
 # AGENTS.md
 
 このリポジトリは2つの Agent Skill を配布するためのものです。日本語を直す [`natural-japanese`](./skills/natural-japanese/SKILL.md) と、文書の論旨を書き換えずに検査する [`critical-thinking`](./skills/critical-thinking/SKILL.md) です。
-スキル本体は `skills/<名前>/` にあり、`SKILL.md` と `references/`・`scripts/` で構成されます(natural-japanese はさらに `assets/`、critical-thinking は評価用の `fixtures/` を持ちます)。
+スキル本体は `skills/<名前>/` にあり、`SKILL.md` と `references/`・`scripts/` で構成されます(natural-japanese はさらに `assets/` を持ちます)。
 
 ## このスキルについて
 
@@ -22,7 +22,7 @@
 - `logic`:文書の中で筋が通っているか。論理構造を `<ファイル>.logic.yaml` に書き出し、矛盾・根拠のない主張・事実と推論の混在・並列の漏れやねじれ・どこにも対応しない文を、行番号つきの問いで返す
 - `somosomo`:文書の外から前提を疑う。logic の YAML を足場に、前提・問いそのもの・他の選択肢・覆る条件・利害と実行を問う。各指摘は「問い・倒れる場所(行番号)・要る材料の種類」の3点で、代替案の中身や文書にない事実は書かない
 
-規則は [`skills/critical-thinking/SKILL.md`](./skills/critical-thinking/SKILL.md) と `references/logic.md`・`references/somosomo.md` にあります。YAML の漏れは `scripts/coverage.py` で機械的に確かめます。検査は LLM の読みに頼るため、lint のような再現性はありません。その揺れと誤検知は `dev/ct-eval/eval.py`(仕込んだ欠陥つきの架空の稟議書に複数回かける評価ハーネス)で測ります。スキルの指示を変えたら手で回してください。
+規則は [`skills/critical-thinking/SKILL.md`](./skills/critical-thinking/SKILL.md) と `references/logic.md`・`references/somosomo.md` にあります。YAML の漏れは `scripts/coverage.py` で機械的に確かめます。検査は LLM の読みに頼るため、lint のような再現性はありません。その揺れと誤検知は `dev/ct-eval/eval.py`(欠陥を仕込んだ架空の稟議書と障害報告書、欠陥のない対の文書に複数回かける評価ハーネス。素材は `dev/ct-eval/fixtures/`)で測ります。スキルの指示を変えたら手で回してください。
 
 ```bash
 uv run skills/critical-thinking/scripts/coverage.py path/to/doc.md   # logic の YAML が文書の全行を拾っているか

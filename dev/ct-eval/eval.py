@@ -4,8 +4,9 @@
 # ///
 """critical-thinking スキルの評価ハーネス。
 
-仕込んだ欠陥つきの文書(skills/critical-thinking/fixtures/ringi-planted.md)と、欠陥のない文書
-(clean.md)に、logic と somosomo を複数回かけ、次を測る。
+dev/ct-eval/fixtures/ にある文書に logic と somosomo を複数回かけ、次を測る。
+`<名前>.expected.json` がある文書は欠陥を仕込んだ文書(ringi-planted, postmortem-planted)、
+ない文書は欠陥のない文書(ringi-clean, postmortem-clean)として扱う。
 
 1. 機械的な検査(LLM を使わない。1つでも落ちれば終了コード 1)
    - 対象ファイルが変わっていない(ハッシュ)
@@ -17,16 +18,17 @@
    - 報告に「文書の性格」の行がある
 2. 判定(claude を判定者にする。dev/ct-eval/prompts/judge.txt)
    - 仕込んだ欠陥ごとに found / partial / missed
-   - 仕込んでいない指摘を plausible / false / crossing に分類
+   - 仕込んでいない指摘を plausible(妥当)/ false(読み違い)/ crossing(持ち込み)に分類
 3. 集計
    - 欠陥ごとの検出回数(N 回中)。安定検出 = 2/3 以上で found
-   - clean.md での矛盾・根拠のない主張の件数(誤検知)
-   - crossing の件数(0 が条件)
+   - 欠陥のない文書での false(誤検知)の件数
+   - crossing(持ち込み)の件数(0 が条件)
 
 使い方:
     uv run dev/ct-eval/eval.py --dry-run
     uv run dev/ct-eval/eval.py --repeat 3 --jobs 6 --run-label 2026-10-31-r1
     uv run dev/ct-eval/eval.py --modes logic --fixtures ringi-planted --repeat 1
+    uv run dev/ct-eval/eval.py --fixtures postmortem-planted,postmortem-clean
 
 生成物は dev/ct-eval/runs/<run-label>/ に残る(gitignore)。集計は同じディレクトリの summary.md と、
 標準出力に出す。release.yml には入れない(費用と認証が要るので手で回す)。
@@ -51,7 +53,8 @@ import yaml
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-FIXTURES = REPO / "skills" / "critical-thinking" / "fixtures"
+FIXTURES = HERE / "fixtures"
+DEFAULT_FIXTURES = "ringi-planted,ringi-clean,postmortem-planted,postmortem-clean"
 RUNS = HERE / "runs"
 JUDGE_PROMPT = (HERE / "prompts" / "judge.txt").read_text()
 
@@ -76,7 +79,7 @@ def make_plugin_dir() -> Path:
     d = Path(tempfile.mkdtemp(prefix="ct-plugin-"))
     shutil.copy(REPO / "plugin.json", d / "plugin.json")
     shutil.copytree(REPO / ".claude-plugin", d / ".claude-plugin")
-    shutil.copytree(REPO / "skills", d / "skills", ignore=shutil.ignore_patterns("__pycache__", "fixtures"))
+    shutil.copytree(REPO / "skills", d / "skills", ignore=shutil.ignore_patterns("__pycache__"))
     return d
 
 
@@ -141,7 +144,8 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
         body = text[m.start():]
     m2 = re.search(r"YAML の保存先|## YAML|\*\*YAML|\.logic\.yaml", body)
     if m2:
-        body = body[: m2.start()]
+        # 目印を含む行ごと落とす(行の途中で切ると、残った前半が箇条書きとして数えられる)
+        body = body[: body.rfind("\n", 0, m2.start()) + 1]
     # 行番号を求めるのは指摘そのもの。3点セットの「問い」「要る材料」や件数の行は除き、「倒れる場所」は必ず行番号を求める
     skip = re.compile(r"^\**\s*(問い|要る材料|意図の分かるもの|分からないもの|些末|細かいもの|そのほか)")
     bullets = [b for b in re.findall(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", body, re.M) if len(b) > 20 and not skip.match(b)]
@@ -189,6 +193,11 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
 # 1 回分
 # ---------------------------------------------------------------------------
 
+def expected_path(fixture: str) -> Path | None:
+    p = FIXTURES / f"{fixture}.expected.json"
+    return p if p.exists() else None
+
+
 def one_run(fixture: str, mode: str, i: int, run_dir: Path, plugin: Path, model: str, effort: str, judge_model: str,
             dry: bool) -> dict:
     name = f"{fixture}-{mode}-{i}"
@@ -212,10 +221,10 @@ def one_run(fixture: str, mode: str, i: int, run_dir: Path, plugin: Path, model:
     elapsed = time.time() - t
     checks = mechanical(mode, src, src_sha, yaml_path, yaml_sha_before, w / "report.md")
     result = {"name": name, "fixture": fixture, "mode": mode, "i": i, "seconds": round(elapsed), "mechanical": checks}
-    # 判定
-    expected = json.loads((FIXTURES / "ringi-planted.expected.json").read_text())
-    if fixture == "ringi-planted":
-        shutil.copy(FIXTURES / "ringi-planted.expected.json", w / "expected.json")
+    # 判定。expected.json のない素材は欠陥なしとして、空の一覧を渡す
+    exp_path = expected_path(fixture)
+    if exp_path:
+        shutil.copy(exp_path, w / "expected.json")
     else:
         (w / "expected.json").write_text(json.dumps({"defects": []}, ensure_ascii=False))
     if (w / "report.md").exists():
@@ -236,7 +245,6 @@ def one_run(fixture: str, mode: str, i: int, run_dir: Path, plugin: Path, model:
 # ---------------------------------------------------------------------------
 
 def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, bool]:
-    expected = json.loads((FIXTURES / "ringi-planted.expected.json").read_text())["defects"]
     lines = [f"# critical-thinking eval: {run_dir.name}", ""]
     ok = True
     mech_fail = [r["name"] for r in results if not r.get("mechanical", {}).get("PASS")]
@@ -248,49 +256,48 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
     if mech_fail:
         ok = False
     lines.append("")
-    for mode in ("logic", "somosomo"):
-        rs = [r for r in results if r["fixture"] == "ringi-planted" and r["mode"] == mode and "judge" in r]
-        if not rs:
-            continue
-        exp = [d for d in expected if d["mode"] == mode]
-        lines.append(f"## {mode}: 仕込んだ欠陥の検出({len(rs)} 回)")
-        lines.append("| id | 分類 | found | partial | missed | 安定 |")
-        lines.append("|---|---|---|---|---|---|")
-        stable = 0
-        required = 0
-        for d in exp:
-            c = defaultdict(int)
+    fixtures = list(dict.fromkeys(r["fixture"] for r in results))
+    for fixture in fixtures:
+        exp_path = expected_path(fixture)
+        expected = json.loads(exp_path.read_text())["defects"] if exp_path else []
+        for mode in ("logic", "somosomo"):
+            rs = [r for r in results if r["fixture"] == fixture and r["mode"] == mode and "judge" in r]
+            if not rs:
+                continue
+            extra = defaultdict(int)
             for r in rs:
-                st = next((e["status"] for e in r["judge"].get("expected", []) if e.get("id") == d["id"]), "missed")
-                c[st] += 1
-            is_stable = c["found"] * 3 >= len(rs) * 2
-            if not d.get("optional"):
-                required += 1
-                stable += is_stable
-            lines.append(f"| {d['id']} | {d['category']} | {c['found']} | {c['partial']} | {c['missed']} | {'o' if is_stable else '-'}{' (任意)' if d.get('optional') else ''} |")
-        rate = stable / required if required else 0
-        lines.append("")
-        lines.append(f"安定検出率(任意を除く): {stable}/{required} = {rate:.0%}  (条件 80% 以上)")
-        if rate < 0.8:
-            ok = False
-        extra = defaultdict(int)
-        for r in rs:
-            for e in r["judge"].get("extra", []):
-                extra[e.get("status", "?")] += 1
-        lines.append(f"仕込んでいない指摘: plausible {extra['plausible']}, false {extra['false']}, crossing {extra['crossing']}  (条件 crossing = 0)")
-        if extra["crossing"]:
-            ok = False
-        lines.append("")
-        crs = [r for r in results if r["fixture"] == "clean" and r["mode"] == mode and "judge" in r]
-        if crs:
-            ce = defaultdict(int)
-            for r in crs:
                 for e in r["judge"].get("extra", []):
-                    ce[e.get("status", "?")] += 1
-            per_run_false = ce["false"] / len(crs)
-            lines.append(f"## {mode}: clean.md({len(crs)} 回): plausible {ce['plausible']}, false {ce['false']}, crossing {ce['crossing']}  (条件 false ≤ 1/回、crossing = 0)")
-            if per_run_false > 1 or ce["crossing"]:
-                ok = False
+                    extra[e.get("status", "?")] += 1
+            if exp_path:
+                exp = [d for d in expected if d["mode"] == mode]
+                lines.append(f"## {fixture} / {mode}: 仕込んだ欠陥の検出({len(rs)} 回)")
+                lines.append("| id | 分類 | found | partial | missed | 安定 |")
+                lines.append("|---|---|---|---|---|---|")
+                stable = 0
+                required = 0
+                for d in exp:
+                    c = defaultdict(int)
+                    for r in rs:
+                        st = next((e["status"] for e in r["judge"].get("expected", []) if e.get("id") == d["id"]), "missed")
+                        c[st] += 1
+                    is_stable = c["found"] * 3 >= len(rs) * 2
+                    if not d.get("optional"):
+                        required += 1
+                        stable += is_stable
+                    lines.append(f"| {d['id']} | {d['category']} | {c['found']} | {c['partial']} | {c['missed']} | {'o' if is_stable else '-'}{' (任意)' if d.get('optional') else ''} |")
+                rate = stable / required if required else 0
+                lines.append("")
+                lines.append(f"安定検出率(任意を除く): {stable}/{required} = {rate:.0%}  (条件 80% 以上)")
+                if rate < 0.8:
+                    ok = False
+                lines.append(f"仕込んでいない指摘: 妥当 {extra['plausible']}, 読み違い {extra['false']}, 持ち込み {extra['crossing']}  (条件 持ち込み = 0)")
+                if extra["crossing"]:
+                    ok = False
+            else:
+                per_run_false = extra["false"] / len(rs)
+                lines.append(f"## {fixture} / {mode}: 欠陥なしの文書({len(rs)} 回): 妥当 {extra['plausible']}, 読み違い {extra['false']}, 持ち込み {extra['crossing']}  (条件 読み違い ≤ 1/回、持ち込み = 0)")
+                if per_run_false > 1 or extra["crossing"]:
+                    ok = False
             lines.append("")
     lines.append(f"## 判定: {'PASS' if ok else 'FAIL'}")
     return "\n".join(lines), ok
@@ -298,7 +305,7 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--fixtures", default="ringi-planted,clean")
+    ap.add_argument("--fixtures", default=DEFAULT_FIXTURES)
     ap.add_argument("--modes", default="logic,somosomo")
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--jobs", type=int, default=6)
