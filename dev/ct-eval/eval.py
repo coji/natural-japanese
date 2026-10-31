@@ -151,7 +151,10 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
         body = body[: body.rfind("\n", 0, m2.start()) + 1]
     # 行番号を求めるのは指摘そのもの。3点セットの「問い」「要る材料」や件数の行は除き、「倒れる場所」は必ず行番号を求める
     skip = re.compile(r"^\**\s*(問い|要る材料|意図の分かるもの|分からないもの|些末|細かいもの|そのほか)")
-    bullets = [b for b in re.findall(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", body, re.M) if len(b) > 20 and not skip.match(b)]
+    # 「1. **見出し**」のように全体が太字の見出しだけの項目は、行番号が下の「倒れる場所」に付くので数えない
+    title_only = re.compile(r"^\*\*[^*]+\*\*\s*[::]?\s*$")
+    bullets = [b for b in re.findall(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", body, re.M)
+               if len(b) > 20 and not skip.match(b) and not title_only.match(b.strip())]
     no_line = [b for b in bullets if not re.search(r"行\s*\d|\d+\s*行|\[\d", b)]
     checks["bullets_total"] = len(bullets)
     checks["bullets_without_line"] = len(no_line)
