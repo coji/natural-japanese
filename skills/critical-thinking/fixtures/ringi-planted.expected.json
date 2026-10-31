@@ -1,0 +1,133 @@
+{
+  "file": "ringi-planted.md",
+  "note": "仕込んだ欠陥の一覧。最初の実行より前に書いた。検査結果を見て足さない。",
+  "defects": [
+    {
+      "id": "L1",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [5, 29, 67],
+      "description": "対象は12名(行5、行67)だが、費用表は15名分(行29)",
+      "must_mention": ["12名", "15名"]
+    },
+    {
+      "id": "L2",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [43, 45],
+      "description": "外部への共有を禁止(行43)しながら、管理者承認で顧客へ共有してよい(行45)",
+      "must_mention": ["共有"]
+    },
+    {
+      "id": "L3",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [11, 60, 61],
+      "description": "目的は作業時間と残業の削減(行11)だが、評価基準は利用回数と継続希望だけで時間を測らない(行60〜61)",
+      "must_mention": ["残業", "利用回数"]
+    },
+    {
+      "id": "L4",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "前提条件のちがい",
+      "lines": [17],
+      "description": "月3時間の削減、1時間3,500円の単価に出どころがない",
+      "must_mention": ["3時間"]
+    },
+    {
+      "id": "L5",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "偶然の必然化",
+      "lines": [19],
+      "description": "1名1件の試用で30分になったことから、部全体で半分になると言い切っている",
+      "must_mention": ["1件"]
+    },
+    {
+      "id": "L6",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "異質なものの同質化",
+      "lines": [21],
+      "description": "同業300名のA社と他業種・個人事業のB社を並べて『業界で標準』と言っている",
+      "must_mention": ["B社"]
+    },
+    {
+      "id": "L7",
+      "mode": "logic",
+      "category": "事実と推論の混在",
+      "lines": [13, 23],
+      "description": "『強い不満を持っている』(行13)と『離職は減る』(行23)が、根拠なく事実の形で書かれている",
+      "must_mention": ["離職"]
+    },
+    {
+      "id": "L8",
+      "mode": "logic",
+      "category": "横の論理",
+      "lines": [51, 52, 53, 54],
+      "description": "リスク4つのうち『法務部門』は部門名、『初月』は時期で、種類の並びに混ざっている",
+      "must_mention": ["法務部門", "初月"]
+    },
+    {
+      "id": "L9",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "見出しに支えがない",
+      "lines": [37, 39],
+      "description": "見出し『他社事例』の本文が自社の試用の話で、他社の事例がない",
+      "must_mention": ["他社事例"]
+    },
+    {
+      "id": "L10",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [29, 31, 32, 33],
+      "description": "99,000×6=594,000に予備費6,000を足して600,000だが、15名分の単価6,600×15=99,000は合う一方、12名なら79,200で合計が変わる。数値の整合は15名を前提にしている",
+      "must_mention": ["99,000"],
+      "optional": true
+    },
+    {
+      "id": "S1",
+      "mode": "somosomo",
+      "category": "他の選択肢",
+      "lines": [5, 67],
+      "description": "何もしない案や既存ツールとの比較がない",
+      "must_mention": ["選択肢"]
+    },
+    {
+      "id": "S2",
+      "mode": "somosomo",
+      "category": "覆る条件",
+      "lines": [17, 63],
+      "description": "月3時間が出なかったら、または効果が測れなかったらどうなるかが書かれていない。終了条件は利用回数と継続希望だけ",
+      "must_mention": ["3時間"]
+    },
+    {
+      "id": "S3",
+      "mode": "somosomo",
+      "category": "利害と実行",
+      "lines": [63, 69],
+      "description": "利用回数と継続希望を対象者の自己申告で測り、管理者が誰かも書かれていない",
+      "must_mention": ["自己申告"]
+    },
+    {
+      "id": "S4",
+      "mode": "somosomo",
+      "category": "問いそのもの",
+      "lines": [11, 60, 61],
+      "description": "決裁者が決めたいのは残業が減るかだが、文書は利用回数に答えている",
+      "must_mention": ["残業"]
+    },
+    {
+      "id": "S5",
+      "mode": "somosomo",
+      "category": "前提",
+      "lines": [9, 11, 17],
+      "description": "削減した作業時間がそのまま残業の減少になる、という前提が書かれていない",
+      "must_mention": ["残業"]
+    }
+  ],
+  "clean_file": "clean.md",
+  "clean_note": "clean.md には欠陥を仕込んでいない。矛盾と根拠のない主張は0件が期待値。混在・横の論理は数えるだけ"
+}

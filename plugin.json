@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "natural-japanese",
-  "description": "仕事の日本語文書を、読みやすくわかりやすく書く・直すためのスキル。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成などの仕事の文書から、技術記事・PR の説明文・note・ブログ・エッセイまでを扱う。AI らしい書き癖を取り除くことも含む。",
+  "description": "仕事の日本語文書を、読みやすくわかりやすく書く・直す natural-japanese と、提案書・稟議書・報告書の論旨を書き換えずに検査する critical-thinking の2つのスキル。議事録・調査レポート・社内ガイド・リサーチメモ・スライド構成などの仕事の文書から、技術記事・PR の説明文・note・ブログ・エッセイまでを扱う。AI らしい書き癖を取り除くことも含む。",
   "version": "1.6.4",
   "author": {
     "name": "coji"
