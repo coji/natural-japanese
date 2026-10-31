@@ -86,6 +86,17 @@ Claude Code プラグイン:
 - 英語の言い方を1語ずつ訳した熟語や、動作を名詞にまとめた言い回しは、半分ほど見逃します。書いたモデルにも直すモデルにも、自然に見えるためです
 - effort(モデルが推論にかける量の設定)を下げると、手順の一部を省いて見逃しが増えます。選べる環境では high を使ってください
 
+## 論旨を見る(critical-thinking)
+
+同じリポジトリに、文書の「考え」を書き換えずに検査するスキル `critical-thinking` が入っています。natural-japanese が日本語を直すのに対し、こちらは中身を見ます。
+
+```
+/critical-thinking logic 稟議書.md      # 文書の中で筋が通っているか。矛盾・根拠のない主張・事実と推論の混在・並列のねじれ
+/critical-thinking somosomo 稟議書.md   # そもそも前提は合っているか。他の選択肢・覆る条件・誰のための何か
+```
+
+どちらも文書には一文字も書き込まず、行番号つきの問いと `<ファイル>.logic.yaml` を返します。直すかどうかは書き手が決めます。検査は LLM の読みに頼るため、同じ文書を2回かけると指摘は揺れます。
+
 ## 仕組み
 
 疑わしい箇所は [`lint.py`](./skills/natural-japanese/scripts/lint.py) が形態素解析([sudachipy](https://github.com/WorksApplications/sudachi.rs))で検出し、直すかどうかはエージェントが文脈を見て決めます。AI は自分の書き癖に気づきにくいので、検出を機械に任せています。規則と手順はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。

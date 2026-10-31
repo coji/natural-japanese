@@ -28,8 +28,17 @@ jobs:
           zip -r "${GITHUB_WORKSPACE}/natural-japanese.skill" SKILL.md references scripts assets \
             -x 'scripts/__pycache__/*'
 
+      - name: Build critical-thinking.skill
+        run: |
+          set -euo pipefail
+          cd skills/critical-thinking
+          zip -r "${GITHUB_WORKSPACE}/critical-thinking.skill" SKILL.md references scripts \
+            -x 'scripts/__pycache__/*'
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: natural-japanese.skill
+          files: |
+            natural-japanese.skill
+            critical-thinking.skill
           generate_release_notes: true

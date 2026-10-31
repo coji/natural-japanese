@@ -1,7 +1,7 @@
 # AGENTS.md
 
-このリポジトリは [`natural-japanese`](./skills/natural-japanese/SKILL.md) という Agent Skill を配布するためのものです。
-スキル本体は `skills/natural-japanese/` にあり、`SKILL.md` と `references/`・`scripts/`・`assets/` で構成されます。
+このリポジトリは2つの Agent Skill を配布するためのものです。日本語を直す [`natural-japanese`](./skills/natural-japanese/SKILL.md) と、文書の論旨を書き換えずに検査する [`critical-thinking`](./skills/critical-thinking/SKILL.md) です。
+スキル本体は `skills/<名前>/` にあり、`SKILL.md` と `references/`・`scripts/` で構成されます(natural-japanese はさらに `assets/` を持ちます)。
 
 ## このスキルについて
 
@@ -14,6 +14,20 @@
 - 書く前に読み手・主メッセージ・見出しを決め、書くときは SKILL.md §2 の12の原則に沿う
 
 規則と工程はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。`references/` には、文書タイプ別の型(`doctypes/`)、診断モードの採点方法(`diagnose.md`)、lint が使えない環境向けの手順(`manual-checklist.md`)だけを置いています。
+
+## critical-thinking について
+
+提案書・稟議書・企画書・報告書の「考え」を、文書を書き換えずに検査するスキルです。モードは2つあります。
+
+- `logic`:文書の中で筋が通っているか。論理構造を `<ファイル>.logic.yaml` に書き出し、矛盾・根拠のない主張・事実と推論の混在・並列の漏れやねじれ・どこにも対応しない文を、行番号つきの問いで返す
+- `somosomo`:文書の外から前提を疑う。logic の YAML を足場に、前提・問いそのもの・他の選択肢・覆る条件・利害と実行を問う。各指摘は「問い・倒れる場所(行番号)・要る材料の種類」の3点で、代替案の中身や文書にない事実は書かない
+
+規則は [`skills/critical-thinking/SKILL.md`](./skills/critical-thinking/SKILL.md) と `references/logic.md`・`references/somosomo.md` にあります。YAML の漏れは `scripts/coverage.py` で機械的に確かめます。検査は LLM の読みに頼るため、lint のような再現性はありません。その揺れと誤検知は `dev/ct-eval/eval.py`(欠陥を仕込んだ架空の稟議書と障害報告書、欠陥のない対の文書に複数回かける評価ハーネス。素材は `dev/ct-eval/fixtures/`)で測ります。スキルの指示を変えたら手で回してください。
+
+```bash
+uv run skills/critical-thinking/scripts/coverage.py path/to/doc.md   # logic の YAML が文書の全行を拾っているか
+uv run dev/ct-eval/eval.py --repeat 3                                 # 評価ハーネス(claude を呼ぶ。CI には入れない)
+```
 
 ## openskills 経由で読み込む場合
 

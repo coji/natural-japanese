@@ -63,6 +63,8 @@ argument-hint: "[write|score] [quick|full|exp(score のみ)] [対象ファイル
 - `/natural-japanese write [quick|full] <お題や素材>`:新しく書く。§1 から順に進める
 - `/natural-japanese score [quick|full|exp] <ファイル>`:診断だけを行い、文書は書き換えない。最初に `references/diagnose.md` を読む。スコアの算出式と出力の形式はそこにだけ書いてある。診断のあとでリライトを提案してよいが、頼まれるまで直さない
 
+論旨(主張と根拠の対応、矛盾、前提)を見てほしいという依頼は、このスキルの範囲ではない。同じリポジトリの `critical-thinking` スキル(`/critical-thinking logic <ファイル>`、`/critical-thinking somosomo <ファイル>`)に渡す。
+
 モードの指定がなければ、上の基準で選ぶ。自然な言葉での依頼も同じように扱う。「〇〇について書いて」は write、「この文章 AI っぽい?」は score にする。
 
 ## 1. 書く前に決める
