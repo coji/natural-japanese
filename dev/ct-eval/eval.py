@@ -60,8 +60,10 @@ JUDGE_PROMPT = (HERE / "prompts" / "judge.txt").read_text()
 
 ALLOWED_KINDS = {"事実", "推論", "意見", "前提", "見積"}
 FORBIDDEN = ["弱めるべき", "条件を足すべき", "べきだ", "べきです", "弱めた方が", "足した方が", "出し直して", "書き足す", "足すとよい", "書き直して"]
-RUN_TOOLS = ["Skill", "Read", "Write", "Glob", "Grep", "Bash(uv run:*)", "Bash(uv:*)", "Bash(python3:*)",
-             "Bash(cat:*)", "Bash(wc:*)", "Bash(ls:*)", "Bash(grep:*)", "Bash(sed:*)", "Bash(awk:*)"]
+# cd を許さないと「cd X; cat Y」の複合コマンドが1回却下され、以後 Bash を使わなくなる(dontAsk の却下文が回避を禁じるため)
+RUN_TOOLS = ["Skill", "Read", "Write", "Edit", "Glob", "Grep", "Bash(uv run:*)", "Bash(uv:*)", "Bash(python3:*)",
+             "Bash(cd:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(echo:*)", "Bash(wc:*)", "Bash(ls:*)",
+             "Bash(grep:*)", "Bash(sed:*)", "Bash(awk:*)"]
 JUDGE_TOOLS = ["Read", "Write", "Glob"]
 
 PROMPTS = {
@@ -91,7 +93,8 @@ def claude(prompt: str, cwd: Path, tools: list[str], model: str, effort: str, pl
            "--setting-sources", "project", "--permission-mode", "dontAsk", "--strict-mcp-config",
            "--tools", ",".join(base), "--allowedTools", ",".join(tools)]
     if plugin:
-        cmd += ["--plugin-dir", str(plugin)]
+        # --add-dir がないと、プラグインのディレクトリへの cd が作業ディレクトリの外として却下される
+        cmd += ["--plugin-dir", str(plugin), "--add-dir", str(plugin)]
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL)
     log.write_text(r.stdout + "\n--- stderr ---\n" + r.stderr)
 
