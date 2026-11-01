@@ -260,10 +260,10 @@ def mechanical_rewrite(src: Path, src_sha: str, after: Path, log: Path) -> dict:
     checks["headings_short"] = not bad_heads
     if bad_heads:
         checks["bad_headings"] = " / ".join(bad_heads)
-    # 確認事項があるなら、付録・別紙を除いて最後の節
+    # 確認事項があるなら、付録・別紙・出典を除いて最後の節
     if kakunin:
         h2_after = [h for pos, h in heads if h.startswith("## ") and pos > kakunin[-1]]
-        checks["kakunin_last"] = all(re.match(r"##\s*(付録|別紙)", h) for h in h2_after)
+        checks["kakunin_last"] = all(re.match(r"##\s*(付録|別紙|出典|参考)", h) for h in h2_after)
     # 元にない固有名詞・英字の語(数値は計算で出るので判定に回す)
     try:
         r = subprocess.run(["uv", "run", str(NEWFACTS), "--json", str(src), str(after)], capture_output=True, text=True,
@@ -279,8 +279,10 @@ def mechanical_rewrite(src: Path, src_sha: str, after: Path, log: Path) -> dict:
             checks["new_words_list"] = ",".join(words[:10])
     except Exception as e:  # noqa: BLE001
         checks["newfacts_error"] = str(e)[:200]
-    # natural-japanese の lint を回したか(log から見る)
-    checks["lint_ran"] = "lint.py" in log.read_text() if log.exists() else False
+    # スキルを読んだか、natural-japanese の lint を回したか(log から見る)
+    logtext = log.read_text() if log.exists() else ""
+    checks["skill_loaded"] = bool(re.search(r'"skill":\s*"[^"]*critical-thinking"|critical-thinking/SKILL\.md', logtext))
+    checks["lint_ran"] = "lint.py" in logtext
     gate_keys = [k for k, v in checks.items() if isinstance(v, bool)]
     checks["PASS"] = all(checks[k] for k in gate_keys)
     return checks
@@ -452,12 +454,22 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
             lines.append(f"| {r['i']} | {m.get('chars_before')}→{m.get('chars_after_body')}/{m.get('chars_after')} | {m.get('markers_in_body')} | "
                          f"{m.get('revision_notes_added')} | {m.get('new_words')} | {st['fixed']} | {st['deferred']} | "
                          f"{st['remains']} | {ad['plausible']} | {ad['crossing']} |")
-            required = {d["id"] for d in expected if not d.get("optional")}
-            unresolved = [e["id"] for e in j.get("expected", []) if e.get("id") in required and e.get("status") == "remains"]
-            if ad["crossing"] or unresolved:
+            if ad["crossing"]:
                 ok = False
+        # 欠陥ごとに、直したか確認事項に回した回数。検出側と同じく 2/3 以上で安定とみなす
+        unstable = []
+        for d in expected:
+            if d.get("optional"):
+                continue
+            n = sum(1 for r in rs for e in r.get("judge", {}).get("expected", [])
+                    if e.get("id") == d["id"] and e.get("status") in ("fixed", "deferred"))
+            if n * 3 < len(rs) * 2:
+                unstable.append(f"{d['id']}({n}/{len(rs)})")
         lines.append("")
-        lines.append("条件: 持ち込み = 0、任意でない欠陥に remains がない、機械的な検査が通過")
+        lines.append(f"安定して直した欠陥(任意を除く): {'すべて' if not unstable else '残り ' + ', '.join(unstable)}  (条件 各欠陥 2/3 以上で fixed か deferred)")
+        if unstable:
+            ok = False
+        lines.append("条件: 持ち込み = 0、欠陥ごとに 2/3 以上で fixed か deferred、機械的な検査が通過")
         lines.append("")
     lines.append(f"## 判定: {'PASS' if ok else 'FAIL'}")
     return "\n".join(lines), ok

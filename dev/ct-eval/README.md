@@ -50,10 +50,10 @@ uv run dev/ct-eval/eval.py --modes rewrite --reports-from r12 --repeat 3       #
    - logic と somosomo の 1 回目の `report.md` を渡し、`source-after.md` に直させる。`--reports-from <run-label>` で別の run の報告を足場にできる
    - 機械的な検査: 元の文書が変わっていない、「確認事項」の節より前に【要確認】の印がない、改訂の経緯(版番号・改訂日・「指摘を反映」)を足していない、
      本編(確認事項と付録を除く)が元より長くない(空白を除いた文字数。数え方の差を吸収するため 1% まで許す)、見出しが番号を除いて 25 字以内で【 と 。 を含まない、「確認事項」があれば最後の節、
-     `newfacts.py` で元にない固有名詞・英字の語が 0(数値は計算で出るので件数だけ記録)、natural-japanese の lint を回した
+     `newfacts.py` で元にない固有名詞・英字の語が 0(数値は計算で出るので件数だけ記録)、critical-thinking の SKILL.md を読んだ(読まずに直すと手順が効かない)、natural-japanese の lint を回した
    - 判定(`prompts/judge-rewrite.txt`): 仕込んだ欠陥ごとに fixed(文書の中の材料で直した)/ deferred(確認事項に回した)/ remains(残った)。
      足した内容を plausible(元の数字の計算、矛盾の統一、仮定の形への変更)/ crossing(元にない事実、書き手の代わりに決めた日程・担当・目標値、新しい施策や宿題、推定値)に分類
-   - 合否: crossing が 0、任意でない欠陥に remains がない、機械的な検査が通過
+   - 合否: crossing が 0、任意でない欠陥ごとに 3回中2回以上 fixed か deferred(検出側の安定検出と同じ基準)、機械的な検査が通過
 
 ## 限界
 
