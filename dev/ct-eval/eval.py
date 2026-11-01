@@ -23,12 +23,19 @@ dev/ct-eval/fixtures/ にある文書に logic と somosomo を複数回かけ�
    - 欠陥ごとの検出回数(N 回中)。安定検出 = 2/3 以上で found
    - 欠陥のない文書での false(誤検知)の件数
    - crossing(持ち込み)の件数(0 が条件)
+4. rewrite(「指摘を反映して直す」工程。欠陥を仕込んだ文書だけ)
+   - logic と somosomo の 1 回目の報告を渡し、source-after.md に直させる
+   - 機械的な検査: 本文に【要確認】の印がない、改訂の経緯を書いていない、元より長くない、
+     見出しが短い名詞句のまま、「確認事項」が最後の節、元にない固有名詞や英字の語がない
+   - 判定(prompts/judge-rewrite.txt): 欠陥ごとに fixed / deferred / remains、
+     足した内容を plausible(妥当)/ crossing(持ち込み)に分類
 
 使い方:
     uv run dev/ct-eval/eval.py --dry-run
     uv run dev/ct-eval/eval.py --repeat 3 --jobs 6 --run-label 2026-10-31-r1
     uv run dev/ct-eval/eval.py --modes logic --fixtures ringi-planted --repeat 1
     uv run dev/ct-eval/eval.py --fixtures postmortem-planted,postmortem-clean
+    uv run dev/ct-eval/eval.py --modes rewrite --reports-from r12 --repeat 3   # 直す工程だけ。報告は r12 のを使う
 
 生成物は dev/ct-eval/runs/<run-label>/ に残る(gitignore)。集計は同じディレクトリの summary.md と、
 標準出力に出す。release.yml には入れない(費用と認証が要るので手で回す)。
@@ -57,6 +64,8 @@ FIXTURES = HERE / "fixtures"
 DEFAULT_FIXTURES = "ringi-planted,ringi-clean,postmortem-planted,postmortem-clean"
 RUNS = HERE / "runs"
 JUDGE_PROMPT = (HERE / "prompts" / "judge.txt").read_text()
+JUDGE_REWRITE_PROMPT = (HERE / "prompts" / "judge-rewrite.txt").read_text()
+NEWFACTS = REPO / "skills" / "natural-japanese" / "scripts" / "newfacts.py"
 
 ALLOWED_KINDS = {"事実", "推論", "意見", "前提", "見積"}
 FORBIDDEN = ["弱めるべき", "条件を足すべき", "べきだ", "べきです", "弱めた方が", "足した方が", "出し直して", "書き足す", "足すとよい", "書き直して"]
@@ -65,10 +74,17 @@ RUN_TOOLS = ["Skill", "Read", "Write", "Edit", "Glob", "Grep", "Bash(uv run:*)",
              "Bash(cd:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(echo:*)", "Bash(wc:*)", "Bash(ls:*)",
              "Bash(grep:*)", "Bash(sed:*)", "Bash(awk:*)"]
 JUDGE_TOOLS = ["Read", "Write", "Glob"]
+REWRITE_TOOLS = RUN_TOOLS + ["Bash(cp:*)", "Bash(diff:*)", "Bash(mkdir:*)"]
+# 本文に埋めてはいけない印。確認事項の節より前にあれば落とす
+MARKERS = re.compile(r"【要確認】|要確認|TODO")
+# 改訂の経緯。元の文書にある分は引いて数える
+REVISION_NOTES = re.compile(r"改訂|第\s*[0-9０-９一二三四五]\s*版|\bv[0-9]|指摘を反映|レビューを反映|初版|前版")
 
 PROMPTS = {
     "logic": "critical-thinking スキルの logic モードで {file} を検査してください。結果の報告をそのまま report.md に書き出してください。確認の質問はせず、最後まで自分の判断で進めてください。",
     "somosomo": "critical-thinking スキルの somosomo モードで {file} を検査してください。結果の報告をそのまま report.md に書き出してください。確認の質問はせず、最後まで自分の判断で進めてください。",
+    # 規則の中身は書かない(スキルがどう直すかを測るため)
+    "rewrite": "{file} に対する critical-thinking の検査結果が report-logic.md と report-somosomo.md にあります。この指摘を反映して文書を直し、直した本文を source-after.md に保存してください。{file} そのものは書き換えないでください。確認の質問はせず、最後まで自分の判断で進めてください。",
 }
 
 
@@ -195,6 +211,114 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
     return checks
 
 
+def _nonspace(t: str) -> int:
+    return len(re.sub(r"\s", "", t))
+
+
+def mechanical_rewrite(src: Path, src_sha: str, after: Path, log: Path) -> dict:
+    checks: dict[str, bool | str | int] = {}
+    checks["source_unchanged"] = sha(src) == src_sha
+    checks["after_exists"] = after.exists()
+    if not after.exists():
+        checks["PASS"] = False
+        return checks
+    before = src.read_text()
+    text = after.read_text()
+    # 確認事項の節より前に印がないか
+    heads = [(m.start(), m.group(0)) for m in re.finditer(r"^#{1,6}\s+.*$", text, re.M)]
+    kakunin = [pos for pos, h in heads if "確認事項" in h]
+    body = text[: kakunin[-1]] if kakunin else text
+    n_markers = len(MARKERS.findall(body)) - len(MARKERS.findall(before))
+    checks["markers_in_body"] = max(n_markers, 0)
+    checks["no_markers_in_body"] = n_markers <= 0
+    # 改訂の経緯
+    n_rev = len(REVISION_NOTES.findall(text)) - len(REVISION_NOTES.findall(before))
+    checks["revision_notes_added"] = max(n_rev, 0)
+    checks["no_revision_notes"] = n_rev <= 0
+    # 長さ。決める人が読む本編(確認事項と付録を除く)が元より長くないか
+    def body_only(t: str) -> str:
+        out, keep = [], True
+        for line in t.splitlines():
+            if re.match(r"^##\s", line):
+                keep = not re.match(r"^##\s*(\d+[.．]?\s*)?(確認事項|付録|別紙)", line)
+            if keep:
+                out.append(line)
+        return "\n".join(out)
+    checks["chars_before"] = _nonspace(body_only(before))
+    checks["chars_after"] = _nonspace(text)
+    checks["chars_after_body"] = _nonspace(body_only(text))
+    # 数え方の差(空白や表の罫線を含めるか)を吸収するため 1% まで許す
+    checks["not_longer"] = checks["chars_after_body"] <= checks["chars_before"] * 1.01
+    # 見出しは短い名詞句のまま(番号を除いて 25 字以内、【 と 。 を含まない)
+    bad_heads = []
+    for _, h in heads:
+        t = re.sub(r"^#+\s*", "", h)
+        t = re.sub(r"^[0-9０-９]+(?:[.．-][0-9０-９]+)*[.．]?\s*", "", t)
+        t = re.sub(r"^(?:付録|別紙)\s*[A-ZＡ-Ｚ0-9０-９]*[.．:：]?\s*", "", t)
+        if len(t) > 25 or "【" in t or "。" in t:
+            bad_heads.append(t[:30])
+    checks["headings_short"] = not bad_heads
+    if bad_heads:
+        checks["bad_headings"] = " / ".join(bad_heads)
+    # 確認事項があるなら、付録・別紙を除いて最後の節
+    if kakunin:
+        h2_after = [h for pos, h in heads if h.startswith("## ") and pos > kakunin[-1]]
+        checks["kakunin_last"] = all(re.match(r"##\s*(付録|別紙)", h) for h in h2_after)
+    # 元にない固有名詞・英字の語(数値は計算で出るので判定に回す)
+    try:
+        r = subprocess.run(["uv", "run", str(NEWFACTS), "--json", str(src), str(after)], capture_output=True, text=True,
+                           timeout=300)
+        items = json.loads(r.stdout).get("new_items", [])
+        numeric = re.compile(r"^[0-9０-９][0-9０-９,.,.〜~%％]*[^0-9０-９]{0,3}$")
+        nums = [i["word"] for i in items if numeric.match(i["word"])]
+        words = [i["word"] for i in items if not numeric.match(i["word"])]
+        checks["new_numbers"] = len(nums)
+        checks["new_words"] = len(words)
+        checks["no_new_words"] = not words
+        if words:
+            checks["new_words_list"] = ",".join(words[:10])
+    except Exception as e:  # noqa: BLE001
+        checks["newfacts_error"] = str(e)[:200]
+    # natural-japanese の lint を回したか(log から見る)
+    checks["lint_ran"] = "lint.py" in log.read_text() if log.exists() else False
+    gate_keys = [k for k, v in checks.items() if isinstance(v, bool)]
+    checks["PASS"] = all(checks[k] for k in gate_keys)
+    return checks
+
+
+def one_rewrite(fixture: str, i: int, w: Path, src: Path, run_dir: Path, plugin: Path, model: str, effort: str,
+                judge_model: str, dry: bool, reports_from: Path | None) -> dict:
+    """「指摘を反映して直す」工程。logic と somosomo の 1 回目の報告を足場にする。"""
+    name = f"{fixture}-rewrite-{i}"
+    base = reports_from or run_dir
+    for m in ("logic", "somosomo"):
+        rep = base / f"{fixture}-{m}-1" / "report.md"
+        if not rep.exists():
+            return {"name": name, "fixture": fixture, "mode": "rewrite", "i": i, "error": f"missing {rep}"}
+        shutil.copy(rep, w / f"report-{m}.md")
+    src_sha = sha(src)
+    if dry:
+        return {"name": name, "dry": True}
+    t = time.time()
+    claude(PROMPTS["rewrite"].format(file=str(src)), w, REWRITE_TOOLS, model, effort, plugin, w / "log-run.txt")
+    elapsed = time.time() - t
+    checks = mechanical_rewrite(src, src_sha, w / "source-after.md", w / "log-run.txt")
+    result = {"name": name, "fixture": fixture, "mode": "rewrite", "i": i, "seconds": round(elapsed), "mechanical": checks}
+    exp_path = expected_path(fixture)
+    shutil.copy(exp_path, w / "expected.json") if exp_path else (w / "expected.json").write_text('{"defects": []}')
+    if (w / "source-after.md").exists():
+        claude(JUDGE_REWRITE_PROMPT.replace("{DIR}", str(w)), w, JUDGE_TOOLS, judge_model, "medium", None,
+               w / "log-judge.txt", timeout=900)
+        jp = w / "judge.json"
+        if jp.exists():
+            try:
+                result["judge"] = json.loads(jp.read_text())
+            except json.JSONDecodeError:
+                result["judge_error"] = "parse"
+    (w / "result.json").write_text(json.dumps(result, ensure_ascii=False, indent=2))
+    return result
+
+
 # ---------------------------------------------------------------------------
 # 1 回分
 # ---------------------------------------------------------------------------
@@ -205,12 +329,14 @@ def expected_path(fixture: str) -> Path | None:
 
 
 def one_run(fixture: str, mode: str, i: int, run_dir: Path, plugin: Path, model: str, effort: str, judge_model: str,
-            dry: bool) -> dict:
+            dry: bool, reports_from: Path | None = None) -> dict:
     name = f"{fixture}-{mode}-{i}"
     w = run_dir / name
     w.mkdir(parents=True, exist_ok=True)
     src = w / "source.md"
     shutil.copy(FIXTURES / f"{fixture}.md", src)
+    if mode == "rewrite":
+        return one_rewrite(fixture, i, w, src, run_dir, plugin, model, effort, judge_model, dry, reports_from)
     yaml_path = w / "source.md.logic.yaml"
     yaml_sha_before = None
     if mode == "somosomo":
@@ -305,6 +431,34 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
                 if per_run_false > 1 or extra["crossing"]:
                     ok = False
             lines.append("")
+    for fixture in fixtures:
+        rs = [r for r in results if r["fixture"] == fixture and r["mode"] == "rewrite"]
+        if not rs:
+            continue
+        exp_path = expected_path(fixture)
+        expected = json.loads(exp_path.read_text())["defects"] if exp_path else []
+        lines.append(f"## {fixture} / rewrite: 指摘を反映して直す({len(rs)} 回)")
+        lines.append("| run | 文字数(前→後。後は本編/全体) | 本文の印 | 改訂の経緯 | 新しい語 | fixed | deferred | remains | 妥当 | 持ち込み |")
+        lines.append("|---|---|---|---|---|---|---|---|---|---|")
+        for r in rs:
+            m = r.get("mechanical", {})
+            j = r.get("judge", {})
+            st = defaultdict(int)
+            for e in j.get("expected", []):
+                st[e.get("status", "?")] += 1
+            ad = defaultdict(int)
+            for e in j.get("added", []):
+                ad[e.get("status", "?")] += 1
+            lines.append(f"| {r['i']} | {m.get('chars_before')}→{m.get('chars_after_body')}/{m.get('chars_after')} | {m.get('markers_in_body')} | "
+                         f"{m.get('revision_notes_added')} | {m.get('new_words')} | {st['fixed']} | {st['deferred']} | "
+                         f"{st['remains']} | {ad['plausible']} | {ad['crossing']} |")
+            required = {d["id"] for d in expected if not d.get("optional")}
+            unresolved = [e["id"] for e in j.get("expected", []) if e.get("id") in required and e.get("status") == "remains"]
+            if ad["crossing"] or unresolved:
+                ok = False
+        lines.append("")
+        lines.append("条件: 持ち込み = 0、任意でない欠陥に remains がない、機械的な検査が通過")
+        lines.append("")
     lines.append(f"## 判定: {'PASS' if ok else 'FAIL'}")
     return "\n".join(lines), ok
 
@@ -320,25 +474,28 @@ def main() -> None:
     ap.add_argument("--judge-model", default="claude-opus-5-5")
     ap.add_argument("--run-label", default=time.strftime("%Y-%m-%d-%H%M%S"))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--reports-from", default=None, help="rewrite の足場にする報告を別の run から取る(run-label)")
     a = ap.parse_args()
+    reports_from = RUNS / a.reports_from if a.reports_from else None
     run_dir = RUNS / a.run_label
     run_dir.mkdir(parents=True, exist_ok=True)
     fixtures = a.fixtures.split(",")
     modes = a.modes.split(",")
     plugin = make_plugin_dir()
     print(f"plugin dir: {plugin}", file=sys.stderr)
-    # logic を先に回し、somosomo はその YAML を足場にする
+    # logic を先に回し、somosomo はその YAML を足場にする。rewrite は両方の報告を足場にし、欠陥を仕込んだ文書だけ回す
     results: list[dict] = []
-    for mode in ("logic", "somosomo"):
+    for mode in ("logic", "somosomo", "rewrite"):
         if mode not in modes:
             continue
-        jobs = [(f, mode, i) for f in fixtures for i in range(1, a.repeat + 1)]
+        fs = [f for f in fixtures if expected_path(f)] if mode == "rewrite" else fixtures
+        jobs = [(f, mode, i) for f in fs for i in range(1, a.repeat + 1)]
         if a.dry_run:
             for f, m, i in jobs:
                 print(f"would run {f}-{m}-{i}")
             continue
         with ThreadPoolExecutor(max_workers=a.jobs) as ex:
-            for r in ex.map(lambda j: one_run(*j, run_dir, plugin, a.model, a.effort, a.judge_model, False), jobs):
+            for r in ex.map(lambda j: one_run(*j, run_dir, plugin, a.model, a.effort, a.judge_model, False, reports_from), jobs):
                 print(f"done {r['name']} {r.get('seconds')}s mech={'PASS' if r.get('mechanical', {}).get('PASS') else 'FAIL'}", file=sys.stderr)
                 results.append(r)
     if a.dry_run:

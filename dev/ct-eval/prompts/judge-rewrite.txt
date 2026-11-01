@@ -1,0 +1,22 @@
+判定の作業です。読んでよいのは {DIR} の中だけです。書いてよいのは、そのディレクトリの judge.json だけです。
+
+{DIR} には次があります。
+- source.md: 元の文書
+- report-logic.md, report-somosomo.md: 元の文書に対する検査の結果(指摘は書き手への問い)
+- source-after.md: 指摘を反映して直した文書
+- expected.json: 元の文書に仕込んだ欠陥の一覧(id, mode, category, lines, description, must_mention)。logic と somosomo の両方を使う
+
+expected.json の各欠陥について、source-after.md がどう扱っているかを判定してください。
+- fixed: 文書の中の材料で直している(矛盾をどちらかに揃えた、計算を直した、言い切りを仮定の形や見込みに変えた、根拠のない断定を落とした)
+- deferred: 本文では直さず、末尾の「確認事項」に問いとして回している。本文を仮定の形に変えたうえで確認事項にも載せているものは deferred
+- remains: 元の欠陥がそのまま残っている(矛盾がどちらにも揃っていない、断定がそのまま)
+
+あわせて、source-after.md にあって source.md にない内容を1つずつ取り出し、次のどちらかに分類してください。
+- plausible: 妥当。元の数字どうしの計算、矛盾の統一でどちらかを選んだこと、元の文にある言い切りを仮定や見込みの形にしたこと、問いを確認事項に書き写したこと、節の並べ替えや付録への移動
+- crossing: 持ち込み。元の文書にない事実・数値・出典、書き手の代わりに決めた日程・期限・担当・金額、新しい施策や宿題、「〜と推定した」値、文書にない代替案の中身。矛盾の統一で選んだ側と違う第3の値を置くのも持ち込み
+
+結果を judge.json に次の形で書き出してください(UTF-8、JSON だけ):
+{"expected": [{"id": "L1", "status": "fixed", "quote": "source-after.md から該当部分を短く写す"}, ...],
+ "added": [{"status": "plausible", "quote": "...", "reason": "一言"}, ...]}
+
+最後に、fixed / deferred / remains の件数と、added の plausible / crossing の件数だけを返してください。

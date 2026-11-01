@@ -12,6 +12,7 @@ uv run dev/ct-eval/eval.py --dry-run                      # 何を回すかだ�
 uv run dev/ct-eval/eval.py --repeat 3 --jobs 8 --run-label 2026-10-31-r6        # 4素材 × 2モード × 3回
 uv run dev/ct-eval/eval.py --modes logic --fixtures ringi-planted --repeat 1   # 1本だけ
 uv run dev/ct-eval/eval.py --fixtures postmortem-planted,postmortem-clean      # 障害報告書だけ
+uv run dev/ct-eval/eval.py --modes rewrite --reports-from r12 --repeat 3       # 直す工程だけ。報告は r12 のを足場にする
 ```
 
 生成物は `dev/ct-eval/runs/<run-label>/` に残る(gitignore)。`summary.md` に集計、各 run のディレクトリに
@@ -45,6 +46,14 @@ uv run dev/ct-eval/eval.py --fixtures postmortem-planted,postmortem-clean      #
    - 欠陥のない文書での false が 1回あたり 1件以下(素材ごと)
    - crossing が 0
    - 機械的な検査が全 run で通過
+4. rewrite(SKILL.md「指摘を反映して直すよう頼まれたとき」の検査。欠陥を仕込んだ文書だけ)
+   - logic と somosomo の 1 回目の `report.md` を渡し、`source-after.md` に直させる。`--reports-from <run-label>` で別の run の報告を足場にできる
+   - 機械的な検査: 元の文書が変わっていない、「確認事項」の節より前に【要確認】の印がない、改訂の経緯(版番号・改訂日・「指摘を反映」)を足していない、
+     本編(確認事項と付録を除く)が元より長くない(空白を除いた文字数。数え方の差を吸収するため 1% まで許す)、見出しが番号を除いて 25 字以内で【 と 。 を含まない、「確認事項」があれば最後の節、
+     `newfacts.py` で元にない固有名詞・英字の語が 0(数値は計算で出るので件数だけ記録)、natural-japanese の lint を回した
+   - 判定(`prompts/judge-rewrite.txt`): 仕込んだ欠陥ごとに fixed(文書の中の材料で直した)/ deferred(確認事項に回した)/ remains(残った)。
+     足した内容を plausible(元の数字の計算、矛盾の統一、仮定の形への変更)/ crossing(元にない事実、書き手の代わりに決めた日程・担当・目標値、新しい施策や宿題、推定値)に分類
+   - 合否: crossing が 0、任意でない欠陥に remains がない、機械的な検査が通過
 
 ## 限界
 
