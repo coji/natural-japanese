@@ -252,6 +252,10 @@ code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 /* 触れる部分は 44px 以上 */
 .dsc summary{min-height:calc(44 / 16 * 1rem);align-items:center;padding:calc(6 / 16 * 1rem) 0}
 .cmd button{min-height:calc(44 / 16 * 1rem)}
+/* 48rem 未満では左右でなく上下に積むので、言い方を替える */
+.wide{display:none}.narrow{display:inline}
+@media (min-width:48rem){.wide{display:inline}.narrow{display:none}}
+.p{font-variant-numeric:tabular-nums}
 .eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
 /* 数字のタイル */
 .tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
@@ -270,7 +274,7 @@ code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 @media (min-width:75rem){.flow{grid-template-columns:repeat(6,1fr)}}
 .flow li{padding-right:calc(12 / 16 * 1rem)}
 .flow li b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
-.flow li .chip{min-height:calc(24 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(6 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(14 / 16 * 1rem)}
+.flow li .chip{min-height:calc(26 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(8 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(16 / 16 * 1rem)}
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
 .twoc h4{margin-top:0}
 .twoc>div{min-width:0}
@@ -337,8 +341,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">42<small>件</small></div><p class="d">論理の指摘28件、前提への問い14件。うち3問を書き手に聞く</p></div>
   <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">34<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
-<h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
+<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
 <div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 7, 2, 3, 10, 4, 5, 12, 6]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 3,299字</span></p><div class="doc L" tabindex="0"></div></div>
   <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,808字</span></p><div class="doc R" tabindex="0"></div></div>
@@ -1001,8 +1005,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">41<small>件</small></div><p class="d">論理の指摘29件、前提への問い12件。うち3問を書き手に聞く</p></div>
   <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">33<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
-<h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
+<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
 <div class="viewer" data-doc="kikaku" data-maps='{"after": [0, 1, 2, 3, 7, 5, 6]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 2,894字</span></p><div class="doc L" tabindex="0"></div></div>
   <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,840字</span></p><div class="doc R" tabindex="0"></div></div>
@@ -1494,8 +1498,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">39<small>件</small></div><p class="d">論理の指摘27件、前提への問い12件。うち3問を書き手に聞く</p></div>
   <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">30<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
-<h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
+<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
 <div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 2, 3, 4, 8, 6, 7]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 4,701字</span></p><div class="doc L" tabindex="0"></div></div>
   <div class="pane"><p class="cap">直した後 <span class="ln">本編 4,695字</span></p><div class="doc R" tabindex="0"></div></div>
@@ -2061,8 +2065,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">24<small>件</small></div><p class="d">論理の指摘16件、前提への問い8件。うち3問を書き手に聞く</p></div>
   <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">29<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
-<h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
+<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
 <div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 1, 2, 3, 4]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 1,246字</span></p><div class="doc L" tabindex="0"></div></div>
   <div class="pane"><p class="cap">直した後 <span class="ln">本編 1,248字</span></p><div class="doc R" tabindex="0"></div></div>
@@ -2360,7 +2364,9 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',a
       for(let k=1;k<pts.length;k++){const [a,ta]=pts[k-1],[b,tb]=pts[k]; if(y<=b){return b>a?ta+(y-a)/(b-a)*(tb-ta):tb;}}
       return pts[pts.length-1][1];
     }
+    const sideBySide=matchMedia('(min-width:48rem)');
     function sync(from,to,map,name){
+      if(!sideBySide.matches)return;
       if(Date.now()<hold[name])return;
       const pts=anchors(from,to,map); let target=interp(pts,from.scrollTop);
       target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));

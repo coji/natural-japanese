@@ -383,8 +383,8 @@ def doc_panel(key):
     return f'''<p class="p prose-max">{E(desc)}</p>
 <h3>ひとめで分かる変化</h3>
 {tiles(key)}
-<h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
+<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
 {viewer(key)}
 <h3>主な変更 {len(CHANGES[key])} 件</h3>
 <p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>

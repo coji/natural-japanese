@@ -10,6 +10,10 @@ code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 /* 触れる部分は 44px 以上 */
 .dsc summary{min-height:calc(44 / 16 * 1rem);align-items:center;padding:calc(6 / 16 * 1rem) 0}
 .cmd button{min-height:calc(44 / 16 * 1rem)}
+/* 48rem 未満では左右でなく上下に積むので、言い方を替える */
+.wide{display:none}.narrow{display:inline}
+@media (min-width:48rem){.wide{display:inline}.narrow{display:none}}
+.p{font-variant-numeric:tabular-nums}
 .eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
 /* 数字のタイル */
 .tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
@@ -28,7 +32,7 @@ code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 @media (min-width:75rem){.flow{grid-template-columns:repeat(6,1fr)}}
 .flow li{padding-right:calc(12 / 16 * 1rem)}
 .flow li b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
-.flow li .chip{min-height:calc(24 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(6 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(14 / 16 * 1rem)}
+.flow li .chip{min-height:calc(26 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(8 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(16 / 16 * 1rem)}
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
 .twoc h4{margin-top:0}
 .twoc>div{min-width:0}
@@ -93,7 +97,9 @@ JS2 = r"""
       for(let k=1;k<pts.length;k++){const [a,ta]=pts[k-1],[b,tb]=pts[k]; if(y<=b){return b>a?ta+(y-a)/(b-a)*(tb-ta):tb;}}
       return pts[pts.length-1][1];
     }
+    const sideBySide=matchMedia('(min-width:48rem)');
     function sync(from,to,map,name){
+      if(!sideBySide.matches)return;
       if(Date.now()<hold[name])return;
       const pts=anchors(from,to,map); let target=interp(pts,from.scrollTop);
       target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));
