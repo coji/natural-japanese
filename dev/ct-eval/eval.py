@@ -131,6 +131,44 @@ def claude(prompt: str, cwd: Path, tools: list[str], model: str, effort: str, pl
 # 機械的な検査
 # ---------------------------------------------------------------------------
 
+def weight_stats(data) -> dict:
+    """重みの付け方の記録(CT11)。決裁に要るの本数、論点の数、記述で数値のない決裁に要る、
+    決裁事項を並べた節を論点にしていないか(これだけ合否に入れる)、依存の論点で決裁に要るが 0 のもの"""
+    out: dict = {}
+    if not isinstance(data, dict):
+        return out
+    kessai_lines: set[int] = set()
+    main = data.get("主結論") or {}
+    for k in main.get("決裁事項") or []:
+        collect_lines(k, kessai_lines)
+    deps = set(main.get("依存") or [])
+    n_kessai = n_ronten = n_nonum = n_dup = 0
+    dep_zero: list[str] = []
+    for r in data.get("論点") or []:
+        if not isinstance(r, dict):
+            continue
+        n_ronten += 1
+        gl: set[int] = set()
+        collect_lines(r.get("根拠"), gl)
+        if gl and kessai_lines and gl <= kessai_lines:
+            n_dup += 1
+        c = 0
+        for g in r.get("根拠") or []:
+            if isinstance(g, dict) and g.get("重み") == "決裁に要る":
+                c += 1
+                if r.get("種類") == "記述" and not re.search(r"\d", str(g.get("内容", ""))):
+                    n_nonum += 1
+        n_kessai += c
+        if r.get("名前") in deps and c == 0:
+            dep_zero.append(str(r.get("名前")))
+    out["n_kessai"] = n_kessai
+    out["n_ronten"] = n_ronten
+    out["n_desc_kessai_nonum"] = n_nonum
+    out["no_ronten_dup_kessai"] = n_dup == 0
+    out["dep_ronten_without_kessai"] = ",".join(dep_zero)
+    return out
+
+
 def collect_lines(obj, acc: set[int]) -> None:
     if isinstance(obj, dict):
         for k, v in obj.items():
@@ -237,6 +275,7 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
                 checks["all_lines_covered"] = not missing
                 checks["missing_lines"] = ",".join(map(str, missing[:20]))
                 checks["has_character_in_yaml"] = "文書の性格" in data
+                checks.update(weight_stats(data))
     else:
         if yaml_sha_before is None:
             # 足場の YAML を渡していない run: somosomo が自分で logic の YAML を作る経路
@@ -664,6 +703,9 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
                 rate = stable / required if required else 0
                 lines.append("")
                 lines.append(f"安定検出率(任意を除く): {stable}/{required} = {rate:.0%}  (条件 80% 以上)")
+                if mode == "logic":
+                    ws = [(r["i"], r.get("mechanical", {})) for r in rs]
+                    lines.append("重み: " + ", ".join(f"run{i}: 決裁に要る {m.get('n_kessai')} / 論点 {m.get('n_ronten')} / 記述で数値なし {m.get('n_desc_kessai_nonum')}" + (f" / 依存で0本 {m.get('dep_ronten_without_kessai')}" if m.get('dep_ronten_without_kessai') else "") for i, m in ws))
                 if rate < 0.8:
                     ok = False
                 lines.append(f"仕込んでいない指摘: 妥当 {extra['plausible']}, 読み違い {extra['false']}, 持ち込み {extra['crossing']}  (条件 持ち込み = 0)")

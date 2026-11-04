@@ -8,6 +8,8 @@
 
 YAML を省略すると <文書>.logic.yaml を読む。YAML のどこにも現れない行番号と、
 文書にない行番号(書き間違い)、使ってはいけない種別を出す。すべて空なら OK と出て終了コード 0。
+そのほかに、落とさない注意を1つ出す: 論点の根拠の行がすべて主結論の決裁事項の行に入っている
+(決裁事項を並べた節を論点にしている)。
 """
 
 from __future__ import annotations
@@ -45,6 +47,24 @@ def walk(obj, lines: set[int], kinds: set[str]) -> None:
             walk(v, lines, kinds)
 
 
+def weight_notes(data) -> list[str]:
+    """重みの付け方の注意。規則は references/logic.md の `重み` の説明"""
+    notes: list[str] = []
+    if not isinstance(data, dict):
+        return notes
+    kessai_lines: set[int] = set()
+    for k in (data.get("主結論") or {}).get("決裁事項") or []:
+        walk(k, kessai_lines, set())
+    for r in data.get("論点") or []:
+        if not isinstance(r, dict):
+            continue
+        gl: set[int] = set()
+        walk(r.get("根拠"), gl, set())
+        if gl and kessai_lines and gl <= kessai_lines:
+            notes.append(f"論点「{r.get('名前')}」の根拠の行がすべて決裁事項の行: 決裁事項を並べた節は論点にしない")
+    return notes
+
+
 def main() -> None:
     if len(sys.argv) < 2:
         print(__doc__)
@@ -78,6 +98,8 @@ def main() -> None:
         print("使ってはいけない重み:", ", ".join(bad_weights))
     if bad_types:
         print("使ってはいけない種類:", ", ".join(bad_types))
+    for n in weight_notes(data):
+        print("注意:", n)
     print("OK" if ok else "NG")
     sys.exit(0 if ok else 1)
 
