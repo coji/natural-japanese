@@ -7,6 +7,9 @@ code.ic{font-family:var(--font-family-mono);font-size:.92em;background:var(--col
 code.ic .ck{color:var(--color-key-900);font-weight:bold}
 code.ic .cs{color:var(--color-primitive-green-800);font-weight:bold}
 code.ic .cf{color:var(--color-neutral-solid-gray-800)}
+/* 触れる部分は 44px 以上 */
+.dsc summary{min-height:calc(44 / 16 * 1rem);align-items:center;padding:calc(6 / 16 * 1rem) 0}
+.cmd button{min-height:calc(44 / 16 * 1rem)}
 .eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
 /* 数字のタイル */
 .tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
@@ -14,6 +17,7 @@ code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 @media (min-width:60rem){.tiles{grid-template-columns:repeat(4,1fr)}}
 .tile{border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);padding:calc(16 / 16 * 1rem)}
 .tile .l{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold}
+@media (min-width:48rem){.tile .l{min-height:calc(2 * 1.7em)}}
 .tile .v{font-weight:bold;font-size:calc(32 / 16 * 1rem);line-height:1.5;letter-spacing:.01em;color:var(--color-key-900);font-variant-numeric:tabular-nums}
 @media (min-width:48rem){.tile .v{font-size:calc(36 / 16 * 1rem);line-height:1.4}}
 .tile .v small{font-size:calc(16 / 16 * 1rem);font-weight:bold;color:var(--color-neutral-solid-gray-800);margin-left:calc(6 / 16 * 1rem)}

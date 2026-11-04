@@ -408,7 +408,7 @@ def checked_html():
     uudd = [tuple(int(x) for x in r["cells"][2].split("/")) for r in rv_rows]
     rv_used = sum(u[0] for u in uudd); rv_drop = sum(u[3] for u in uudd)
     cc_ok = [(int(a), int(b)) for a, b in re.findall(r"満たした run: (\d+)/(\d+)", cc + cl)]
-    method = f'''<p>上司や顧客の役は別のセッションの Claude Opus 5.5 で、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事と指摘を3回ずつ返させました。返事は OK、条件つきOK、判断の前に質問あり、却下の4つから選びます。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、ある文書への指摘を無関係な文書の確認事項と組み合わせた42組で、全部「ない」と出ることを確かめました。</p>
+    method = f'''<p>想定した読み手は、別のセッションの Claude Opus 5.5 に役を与えたもので、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事と指摘を3回ずつ返させました。返事は OK、条件つきOK、判断の前に質問あり、却下の4つから選びます。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、ある文書への指摘を無関係な文書の確認事項と組み合わせた42組で、全部「ない」と出ることを確かめました。</p>
 <p>テスト用の文書は、スキルの作者が欠陥を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。仕込んだ欠陥は、表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」などです。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd["kept"]} 本すべてで元のままでした。組み直した本編が元より長くなった回が制度企画で2本ありました。どちらも元の 2% 以内です。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました。満たさなかった1回は、丁寧にした本編が元の 110% を超えたものです。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
     return f'''<h3>上の4本で</h3>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>直した後への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
@@ -416,10 +416,10 @@ def checked_html():
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
-    <div class="tile"><p class="l">仕込んだ欠陥{DET["rows"]}か所を3回ずつ検査した計{DET["found"] + DET["partial"] + DET["missed"]}回のうち、問いにできた</p><div class="v">{DET["found"]}<small>回</small></div><p class="d">見落とし {DET["missed"]}</p></div>
-    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で誤って欠陥を指摘した数は {sum(DET["false_clean"])} 件</p></div>
-    <div class="tile"><p class="l">「決裁者の目で見て直す」が、3本を3回ずつの計{len(rv_rows)}回で書き手に聞いた問い</p><div class="v">{rv_q}<small>件</small></div><p class="d">文書の中で答えが出るもの {rv_q_doc}。答えは改変せずに本文に入れ、落としたのは {rv_drop} 件</p></div>
-    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">残った {rw["remains"]}。本編が元より長くなったのは、5本×3回の {rw["n"]} 本中 {rw["n"] - rw["not_longer"]} 本、元にない事実の持ち込み {rw["crossing"]} 件</p></div>
+    <div class="tile"><p class="l">仕込んだ欠陥を問いにできた</p><div class="v">{DET["found"]}<small>/ {DET["found"] + DET["partial"] + DET["missed"]} 回</small></div><p class="d">{DET["rows"]}か所 × 3回。見落とし {DET["missed"]}</p></div>
+    <div class="tile"><p class="l">元にない事実の持ち込み</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で誤って指摘した数も {sum(DET["false_clean"])} 件</p></div>
+    <div class="tile"><p class="l">書き手に聞いた問い</p><div class="v">{rv_q}<small>件</small></div><p class="d">3本 × 3回。文書の中で答えが出るものは {rv_q_doc}。答えは改変せずに本文に入れ、落としは {rv_drop}</p></div>
+    <div class="tile"><p class="l">直すか確認事項に回した欠陥</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">5本 × 3回。残り {rw["remains"]}、本編が元より長くなったのは {rw["n"]} 本中 {rw["n"] - rw["not_longer"]} 本</p></div>
   </div>
   {disclosure("測り方と注", method)}'''
 
@@ -431,7 +431,11 @@ page = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>natural-japanese v{VER}:AI の文書に、クリティカルシンキングを</title>
-<meta name="description" content="稟議書・提案資料・企画・障害報告書を、出す前に読む人の目で検査し、書き手にしか答えられないことを3つだけ聞いて、答えを入れた文書を返す Agent Skill、critical-thinking を追加しました。">
+<meta name="description" content="AI が書いた稟議書や企画書、提案書を、提出する前に決裁者の目で読んで直す Agent Skill、critical-thinking を追加しました。文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れます。">
+<meta property="og:title" content="natural-japanese v{VER}:AI の文書に、クリティカルシンキングを">
+<meta property="og:description" content="AI が書いた稟議書や企画書、提案書を、提出する前に決裁者の目で読んで直す Agent Skill、critical-thinking を追加しました。">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
 {FONT}
 <style>{CSS}</style>
 </head>
@@ -480,7 +484,7 @@ page = f"""<!doctype html>
     <tr><th scope="row">short / detail</th><td>「もっと端的に」「もっと丁寧に」</td><td>決裁に要る根拠だけを本編に残す / 裏づけと論拠を本編に戻す</td></tr>
     <tr><th scope="row">rebuild</th><td>「構成から組み直して」</td><td>事実と決裁事項は保ち、構成案を3つ出す。1つは決裁事項を小さくする案</td></tr>
   </tbody></table></div>
-  <div class="cmd"><code id="cmd2">/critical-thinking short 稟議書.md</code><button type="button" data-copy="cmd2">コピー</button></div>
+  <div class="cmd"><code id="cmd2">/critical-thinking 稟議書.md</code><button type="button" data-copy="cmd2">コピー</button></div>
 </div></section>
 
 <section class="block" id="install"><div class="wrap">
