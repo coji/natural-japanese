@@ -18,6 +18,7 @@ from pathlib import Path
 import yaml
 
 ALLOWED_KINDS = {"事実", "推論", "意見", "前提", "見積"}
+ALLOWED_WEIGHTS = {"決裁に要る", "裏づけ", "補足"}
 
 
 def walk(obj, lines: set[int], kinds: set[str]) -> None:
@@ -30,6 +31,8 @@ def walk(obj, lines: set[int], kinds: set[str]) -> None:
                     lines.add(v)
             elif k == "種別" and isinstance(v, str):
                 kinds.add(v)
+            elif k == "重み" and isinstance(v, str):
+                kinds.add("重み:" + v)
             else:
                 walk(v, lines, kinds)
     elif isinstance(obj, list):
@@ -51,8 +54,11 @@ def main() -> None:
     nonempty = {i + 1 for i, l in enumerate(src) if l.strip()}
     missing = sorted(nonempty - lines)
     bogus = sorted(l for l in lines if l < 1 or l > len(src))
+    weights = {k[3:] for k in kinds if k.startswith("重み:")}
+    kinds = {k for k in kinds if not k.startswith("重み:")}
     bad_kinds = sorted(kinds - ALLOWED_KINDS)
-    ok = not (missing or bogus or bad_kinds)
+    bad_weights = sorted(weights - ALLOWED_WEIGHTS)
+    ok = not (missing or bogus or bad_kinds or bad_weights)
     if missing:
         print("YAML に現れない行:", ", ".join(map(str, missing)))
         for n in missing:
@@ -61,6 +67,8 @@ def main() -> None:
         print("文書にない行番号:", ", ".join(map(str, bogus)))
     if bad_kinds:
         print("使ってはいけない種別:", ", ".join(bad_kinds))
+    if bad_weights:
+        print("使ってはいけない重み:", ", ".join(bad_weights))
     print("OK" if ok else "NG")
     sys.exit(0 if ok else 1)
 
