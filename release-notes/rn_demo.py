@@ -7,6 +7,7 @@ code.ic{font-family:var(--font-family-mono);font-size:.92em;background:var(--col
 code.ic .ck{color:var(--color-key-900);font-weight:bold}
 code.ic .cs{color:var(--color-primitive-green-800);font-weight:bold}
 code.ic .cf{color:var(--color-neutral-solid-gray-800)}
+code.ic.sk{color:var(--color-key-900);font-weight:bold;font-size:.95em}
 /* 触れる部分は 44px 以上 */
 .dsc summary{min-height:calc(44 / 16 * 1rem);align-items:center;padding:calc(6 / 16 * 1rem) 0}
 .cmd button{min-height:calc(44 / 16 * 1rem)}
