@@ -41,7 +41,7 @@ def one(label: str, name: str, src: Path, i: int, model: str, prompt: str = PROM
     # 付録と確認事項は経営者も読めるので残す。改訂の印などはない前提
     doc.write_text(text)
     ev.claude(prompt.replace("{FILE}", str(doc)), w, ["Read", "Write"], model, "medium", None, w / "log.txt", timeout=900)
-    out = {"name": name, "i": i, "chars": ev._nonspace(text)}
+    out = {"name": name, "i": i, "chars": ev._nonspace(text), "kakuninchu": kakuninchu(text)}
     jp = w / "exec.json"
     if jp.exists():
         try:
@@ -49,6 +49,25 @@ def one(label: str, name: str, src: Path, i: int, model: str, prompt: str = PROM
         except json.JSONDecodeError:
             out["error"] = "parse"
     return out
+
+
+def kakuninchu(text: str) -> dict:
+    """本編(付録・確認事項の前)の「確認中」の数と、そのうち2つの値の食い違いを示していないもの(未決に付いたもの)の数。
+    SKILL.md は、本文に「確認中」と書くのは文書の2か所に違う値があるときだけ、と決めている。
+    同じ文の中に数字が2つ以上あれば食い違いの表記とみなし、それ以外を「未決」と数える(機械的な目安)。"""
+    body = []
+    for line in text.splitlines():
+        if re.match(r"^#{1,3}\s*(\d+[.．]?\s*)?(確認事項|付録|別紙)", line):
+            break
+        body.append(line)
+    t = "\n".join(body)
+    n = misuse = 0
+    for sent in re.split(r"[。\n|]", t):
+        for _ in re.finditer(r"確認中", sent):
+            n += 1
+            if len(re.findall(r"\d[\d,.]*", sent)) < 2:
+                misuse += 1
+    return {"n": n, "misuse": misuse}
 
 
 def _stats(rs: list[dict]) -> dict:
@@ -61,7 +80,8 @@ def _stats(rs: list[dict]) -> dict:
             "n_q": len(qs) / len(rs),
             "in_doc": sum(1 for q in qs if "文書" in q.get("kind", "")) / len(rs),
             "ext": sum(1 for q in qs if "しか答えられない" in q.get("kind", "")) / len(rs),
-            "read": sum(r["exec"].get("chars_read", 0) or 0 for r in rs) / len(rs)}
+            "read": sum(r["exec"].get("chars_read", 0) or 0 for r in rs) / len(rs),
+            "kk": rs[0].get("kakuninchu", {"n": 0, "misuse": 0})}
 
 
 def summarize(results: list[dict], repeat: int) -> str:
@@ -89,14 +109,14 @@ def summarize(results: list[dict], repeat: int) -> str:
                 cells.append("(元がない。元と同じ回で比べること)")
             lines.append(f"| {g} | " + " | ".join(cells) + " |")
         lines.append("")
-    lines += ["| 文書 | 字数 | 返事(多数決) | 指摘(平均) | うち文書の中で答えが出る | 書き手にしか答えられない | 読んだ字数(平均) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|"]
+    lines += ["| 文書 | 字数 | 返事(多数決) | 指摘(平均) | うち文書の中で答えが出る | 書き手にしか答えられない | 読んだ字数(平均) | 本編の確認中(うち未決) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|---|"]
     for n in names:
         rs = [r for r in results if r["name"] == n and "exec" in r]
         if not rs:
-            lines.append(f"| {n} | - | 失敗 | | | | | |"); continue
+            lines.append(f"| {n} | - | 失敗 | | | | | | |"); continue
         st = _stats(rs)
         reply = rs[0]["exec"].get("reply", "").replace("|", "/")[:60]
-        lines.append(f"| {n} | {rs[0]['chars']} | {st['verdict']} | {st['n_q']:.1f} | {st['in_doc']:.1f} | {st['ext']:.1f} | {st['read']:.0f} | {reply} |")
+        lines.append(f"| {n} | {rs[0]['chars']} | {st['verdict']} | {st['n_q']:.1f} | {st['in_doc']:.1f} | {st['ext']:.1f} | {st['read']:.0f} | {st['kk']['n']}({st['kk']['misuse']}) | {reply} |")
     lines += ["", "聞きたいことと理由の一覧:"]
     for n in names:
         for r in [r for r in results if r["name"] == n and "exec" in r]:
