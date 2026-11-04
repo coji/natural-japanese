@@ -288,6 +288,30 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
     return checks
 
 
+def topple_in_body(src: Path, report: Path, after: Path) -> dict:
+    """somosomo の「決裁事項を倒しうる問い」が挙げた行のうち、端的にした本編に中身が残っている数(CT14)。
+    行の文の 12 字の断片が本編(付録の前)にあれば残っているとみなす。合否には入れず記録だけ"""
+    rep = report.read_text()
+    if "## 決裁事項を倒しうる問い" not in rep:
+        return {}
+    sec = rep.split("## 決裁事項を倒しうる問い", 1)[1].split("\n## ", 1)[0]
+    lines = sorted({int(n) for n in re.findall(r"行(\d+)", sec)})
+    srcl = src.read_text().splitlines()
+    text = after.read_text()
+    heads = [(m.start(), m.group(0)) for m in re.finditer(r"^#{1,6}\s+.*$", text, re.M)]
+    cut = next((pos for pos, h in heads if re.match(r"^#{1,6}\s*(付録|別紙|確認事項)", h)), len(text))
+    body = re.sub(r"[\s|*#\-]", "", text[:cut])
+    def present(line: str) -> bool:
+        t = re.sub(r"[\s|*#\-]", "", line)
+        if len(t) < 8:
+            return t in body
+        chunks = [t[i:i + 12] for i in range(0, max(1, len(t) - 12), 8)] or [t]
+        return any(c in body for c in chunks if len(c) >= 8)
+    valid = [n for n in lines if 1 <= n <= len(srcl) and srcl[n - 1].strip()]
+    hit = [n for n in valid if present(srcl[n - 1])]
+    return {"topple_lines": len(valid), "topple_in_body": len(hit), "topple_missing": ",".join(str(n) for n in valid if n not in hit)}
+
+
 def _nonspace(t: str) -> int:
     return len(re.sub(r"\s", "", t))
 
@@ -459,6 +483,10 @@ def one_length(fixture: str, i: int, w: Path, src: Path, run_dir: Path, plugin: 
     if not y.exists():
         return {"name": name, "fixture": fixture, "mode": mode, "i": i, "error": f"missing {y}"}
     shutil.copy(y, w / "source.md.logic.yaml")
+    # somosomo の報告があれば隣に置く(CT14: 端的は「決裁事項を倒しうる問い」の倒れる場所を本編に残す)
+    rs = base / f"{fixture}-somosomo-1" / "report.md"
+    if rs.exists():
+        shutil.copy(rs, w / "report-somosomo.md")
     (w / "mode.txt").write_text(mode)
     src_sha = sha(src)
     if dry:
@@ -471,6 +499,8 @@ def one_length(fixture: str, i: int, w: Path, src: Path, run_dir: Path, plugin: 
     cb, ca = checks.get("chars_before", 0), checks.get("chars_after_body", 0)
     checks["ratio"] = round(ca / cb, 3) if cb else None
     checks["not_longer"] = ca <= cb * (0.7 if mode == "concise" else 1.1)
+    if mode == "concise" and (w / "report-somosomo.md").exists() and (w / "source-after.md").exists():
+        checks.update(topple_in_body(src, w / "report-somosomo.md", w / "source-after.md"))
     # 確認事項のファイルは、端的・丁寧では要らないことがある
     checks["kakunin_file_exists"] = True
     gate_keys = [k for k, v in checks.items() if isinstance(v, bool) and k != "PASS"]
@@ -821,7 +851,8 @@ def summarize(results: list[dict], repeat: int, run_dir: Path) -> tuple[str, boo
                 k = j.get("kept", {}); yn = lambda v: "○" if v is True else ("×" if v is False else "?")  # noqa: E731
                 crossing = sum(1 for e in j.get("added", []) if e.get("status") == "crossing")
                 uns = len(j.get("unsupported", []))
-                lines.append(f"| {r['i']} | {m.get('chars_before')}→{m.get('chars_after_body')} ({m.get('ratio')}) | {yn(k.get('conclusion_kept'))} | {yn(k.get('request_kept'))} | {yn(k.get('numbers_kept'))} | {crossing} | {uns} | {yn(j.get('readable', {}).get('ok'))} |")
+                tp = (f" 倒れる場所 {m.get('topple_in_body')}/{m.get('topple_lines')}" + (f" 落ち {m['topple_missing']}" if m.get('topple_missing') else "")) if m.get('topple_lines') else ""
+                lines.append(f"| {r['i']} | {m.get('chars_before')}→{m.get('chars_after_body')} ({m.get('ratio')}){tp} | {yn(k.get('conclusion_kept'))} | {yn(k.get('request_kept'))} | {yn(k.get('numbers_kept'))} | {crossing} | {uns} | {yn(j.get('readable', {}).get('ok'))} |")
                 if m.get("PASS") and all(k.get(x) is True for x in ("conclusion_kept", "request_kept", "numbers_kept")) and crossing == 0 and uns == 0:
                     good += 1
             lim = "70%" if mode == "concise" else "110%"
