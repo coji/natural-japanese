@@ -453,7 +453,7 @@ page = f"""<!doctype html>
 <main>
 <section class="block" id="docs-sec"><div class="wrap">
   <h2 data-chip>4つの文書で見る</h2>
-  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。「決裁者の目で見て直して」と頼み、出力は手を入れずに載せています。</p>
+  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。スキルを実行し、出力は手を入れずに載せています。</p>
   {doc_tabs}
 </div></section>
 
