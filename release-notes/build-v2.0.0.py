@@ -369,7 +369,7 @@ def doc_panel(key):
     steps = "".join(f'<li><b>{E(n)} <span class="chip" data-color="gray">{E(c)}</span></b><span>{E(x)}</span></li>' for (n, c), x in zip(STEPS, step_texts(t)))
     qa = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"])
     kak = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
-    how = f'''<p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、頼むときのサブコマンドです。</p>
+    how = f'''<p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
 <ol class="flow">{steps}</ol>
 <h4>工程ごとの本編の字数</h4>{bars(key)}
 {asks_table(key)}
@@ -447,7 +447,7 @@ page = f"""<!doctype html>
       <li><a href="#top">v{VER}</a></li>
       <li><a href="#docs-sec">4つの文書で見る</a></li>
       <li><a href="#checked">確かめたこと</a></li>
-      <li><a href="#how">頼み方</a></li>
+      <li><a href="#how">使い方</a></li>
       <li><a href="#install">インストール</a></li>
     </ol>
   </div>
@@ -474,9 +474,9 @@ page = f"""<!doctype html>
 </div></section>
 
 <section class="block" id="how"><div class="wrap">
-  <h2 data-chip>頼み方</h2>
-  <p class="p prose-max">基本は {cmd("/critical-thinking 稟議書.md")} の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、{cmd("/critical-thinking short 稟議書.md")} のようにサブコマンドを挟みます。</p>
-  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
+  <h2 data-chip>使い方</h2>
+  <p class="p prose-max">基本は {cmd("/critical-thinking 稟議書.md")} の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて実行するときだけ、{cmd("/critical-thinking short 稟議書.md")} のようにサブコマンドを挟みます。</p>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の指示</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
     <tr><th scope="row">somosomo</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提、他の選択肢、結論が覆る条件、誰が得をして誰が動くのか、を問う</td></tr>
@@ -507,7 +507,7 @@ page = f"""<!doctype html>
         <ol class="steps">
           <li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li>
           <li>「カスタマイズ」→「スキル」→「+」→「スキルをアップロード」で、ダウンロードした zip ファイルを選ぶ</li>
-          <li>文書を貼るか添付して、「この稟議書を決裁者の目で見て直して」と頼む</li>
+          <li>文書を貼るか添付して、「この稟議書を決裁者の目で見て直して」と指示する</li>
         </ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-3" role="tabpanel" aria-labelledby="env-tab-3" tabindex="0" hidden>
