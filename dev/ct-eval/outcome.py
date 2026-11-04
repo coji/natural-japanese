@@ -54,11 +54,13 @@ def one(label: str, name: str, src: Path, i: int, model: str, prompt: str = PROM
 def _stats(rs: list[dict]) -> dict:
     verdicts = Counter(r["exec"].get("verdict", "?") for r in rs)
     top = verdicts.most_common(1)[0]
-    qs = [q for r in rs for q in r["exec"].get("questions", [])]
+    # 指摘 = 聞きたいこと + 条件つきOK・却下の理由(役が聞く代わりに決めるようになったので、両方を同じ分類で数える)
+    qs = [q for r in rs for q in r["exec"].get("questions", [])] + [
+        {"q": x.get("r", ""), "kind": x.get("kind", "")} for r in rs for x in r["exec"].get("reasons", [])]
     return {"verdict": top[0] + ("" if top[1] == len(rs) else f"({dict(verdicts)})"),
             "n_q": len(qs) / len(rs),
             "in_doc": sum(1 for q in qs if "文書" in q.get("kind", "")) / len(rs),
-            "ext": sum(1 for q in qs if "起案者" in q.get("kind", "")) / len(rs),
+            "ext": sum(1 for q in qs if "しか答えられない" in q.get("kind", "")) / len(rs),
             "read": sum(r["exec"].get("chars_read", 0) or 0 for r in rs) / len(rs)}
 
 
@@ -73,7 +75,7 @@ def summarize(results: list[dict], repeat: int) -> str:
             groups.setdefault(g, []).append(v)
     if groups:
         variants = list(dict.fromkeys(v for vs in groups.values() for v in vs))
-        lines += ["## 同じ回での比較(返事 / 聞きたい(うち文書の中で答えが出る) / 読んだ字数)", "",
+        lines += ["## 同じ回での比較(返事 / 指摘 = 聞きたい + 理由(うち文書の中で答えが出る) / 読んだ字数)", "",
                   "| 組 | " + " | ".join(variants) + " |", "|---|" + "---|" * len(variants)]
         for g, vs in groups.items():
             cells = []
@@ -87,7 +89,7 @@ def summarize(results: list[dict], repeat: int) -> str:
                 cells.append("(元がない。元と同じ回で比べること)")
             lines.append(f"| {g} | " + " | ".join(cells) + " |")
         lines.append("")
-    lines += ["| 文書 | 字数 | 返事(多数決) | 聞きたい(平均) | うち文書の中で答えが出る | 起案者にしか答えられない | 読んだ字数(平均) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|"]
+    lines += ["| 文書 | 字数 | 返事(多数決) | 指摘(平均) | うち文書の中で答えが出る | 書き手にしか答えられない | 読んだ字数(平均) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|"]
     for n in names:
         rs = [r for r in results if r["name"] == n and "exec" in r]
         if not rs:
@@ -95,11 +97,13 @@ def summarize(results: list[dict], repeat: int) -> str:
         st = _stats(rs)
         reply = rs[0]["exec"].get("reply", "").replace("|", "/")[:60]
         lines.append(f"| {n} | {rs[0]['chars']} | {st['verdict']} | {st['n_q']:.1f} | {st['in_doc']:.1f} | {st['ext']:.1f} | {st['read']:.0f} | {reply} |")
-    lines += ["", "聞きたいことの一覧:"]
+    lines += ["", "聞きたいことと理由の一覧:"]
     for n in names:
         for r in [r for r in results if r["name"] == n and "exec" in r]:
             for q in r["exec"].get("questions", []):
-                lines.append(f"- {n} #{r['i']} [{q.get('kind','?')}] {q.get('q','')}")
+                lines.append(f"- {n} #{r['i']} 問 [{q.get('kind','?')}] {q.get('q','')}")
+            for x in r["exec"].get("reasons", []):
+                lines.append(f"- {n} #{r['i']} 理由 [{x.get('kind','?')}] {x.get('r','')}")
     return "\n".join(lines)
 
 

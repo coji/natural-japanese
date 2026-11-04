@@ -37,9 +37,13 @@ def gather(name: str, spec: str, label: str, judge_model: str) -> dict:
         jp = d / "exec.json"
         if not jp.exists():
             continue
-        for q in json.loads(jp.read_text()).get("questions", []):
+        ex = json.loads(jp.read_text())
+        # 読む人の指摘 = 聞きたいこと + 条件つきOK・却下の理由
+        objs = [(q.get("q"), q.get("kind", "")) for q in ex.get("questions", [])] + [
+            (x.get("r"), x.get("kind", "")) for x in ex.get("reasons", [])]
+        for q, kind in objs:
             n += 1
-            reader.append(f"{n}. {q.get('q')}(回 {d.name.rsplit('-', 1)[-1]}。{q.get('kind', '')})")
+            reader.append(f"{n}. {q}(回 {d.name.rsplit('-', 1)[-1]}。{kind})")
         src = d / "doc.md"
     (w / "reader.md").write_text("\n".join(reader) + "\n")
     skill = []
