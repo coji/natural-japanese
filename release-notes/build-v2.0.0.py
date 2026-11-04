@@ -17,6 +17,8 @@ sys.path.insert(0, str(HERE))
 from rn_style import CSS, JS, FONT, DOC_CSS  # noqa: E402
 from rn_demo import CSS2, JS2  # noqa: E402
 CSS = CSS + CSS2
+for _a, _b in (('.doc h4{', '.doc h6{'), ('.doc h3{', '.doc h5{'), ('.doc h2{', '.doc h4{'), ('.doc h1{', '.doc h3{')):
+    CSS = CSS.replace(_a, _b)
 # 旧の文書ビューア(#viewer)は使わないので、その初期化を外してから実演の JS を足す
 _i = JS.index("const caps={before:"); _j = JS.index("mode('side');") + len("mode('side');")
 JS = JS[:_i] + JS[_j:] + JS2
@@ -182,6 +184,9 @@ def _norm(t): return re.sub(r"[\s|*]", "", re.sub(r"<[^>]+>", "", t))
 def V(v): return v.replace("聞きたい", "判断の前に質問あり")
 def _hname(h): return re.sub(r"^##\s*(?:\d+[.．]\s*)?", "", h).strip()
 def md(t): return markdown.markdown(t, extensions=["tables"])
+def demote(h):
+    """文書の中の見出しをページの見出しより2段下げる(h1→h3 … h4→h6)。"""
+    return re.sub(r"<(/?)h([1-4])\b", lambda m: f"<{m.group(1)}h{int(m.group(2)) + 2}", h)
 
 # 一本道の出力(直した後の文書に short / rebuild をかけたもの)
 for _k, _t in SETS.items():
@@ -341,7 +346,7 @@ def changes_list(key):
 def viewer(key):
     t = SETS[key]
     docs = {"before": t["before"], "after": t["after"], "short": t["short"], "rebuild": t["rebuild"]}
-    tpl = "".join(f'<template id="t-{key}-{k}"><article>{md(v)}</article></template>' for k, v in docs.items())
+    tpl = "".join(f'<template id="t-{key}-{k}"><article>{demote(md(v))}</article></template>' for k, v in docs.items())
     # 節の対応(左の節 i → 右の各文書の節 j)
     maps = {}
     for k in ("after", "short", "rebuild"):
@@ -349,9 +354,9 @@ def viewer(key):
         rh = [_hname(h) for h, _ in sections(docs[k]) if h]
         maps[k] = [rh.index(mv[_hname(h)][0]) if h and mv.get(_hname(h)) and mv[_hname(h)][0] in rh else -1 for h, _ in sections(t["before"]) if h]
     return f'''<div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}'>
+<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}' data-lens='{json.dumps({"after": fmt(t["P1"]["body"]), "short": fmt(t["P_short"]["body"]), "rebuild": fmt(t["P_rebuild"]["body"])}, ensure_ascii=False)}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 {fmt(t["P0"]["body"])}字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 {fmt(t["P1"]["body"])}字</span></p><div class="doc R" tabindex="0"></div></div>
 </div>{tpl}'''
 def doc_panel(key):
     t = SETS[key]; desc = dict((k, d) for k, _, d, *_ in DOCSETS)[key]
@@ -495,7 +500,7 @@ page = f"""<!doctype html>
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
         <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code>/reload-plugins</code> で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">

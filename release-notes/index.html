@@ -226,10 +226,10 @@ footer p{margin:0 0 calc(8 / 16 * 1rem)}
 .doc{padding:calc(24 / 16 * 1rem) calc(16 / 16 * 1rem) calc(64 / 16 * 1rem);color:var(--color-neutral-solid-gray-800)}
 @media (min-width:48rem){.doc{padding:calc(24 / 16 * 1rem) calc(32 / 16 * 1rem) calc(64 / 16 * 1rem)}}
 .doc article{max-width:40em}
-.doc h1{font-size:calc(24 / 16 * 1rem);line-height:1.5;margin:0 0 calc(24 / 16 * 1rem)}
-.doc h2{font-size:calc(20 / 16 * 1rem);line-height:1.5;margin:calc(48 / 16 * 1rem) 0 calc(12 / 16 * 1rem);padding-top:calc(16 / 16 * 1rem);border-top:1px solid var(--color-neutral-solid-gray-420)}
-.doc h3{font-size:calc(18 / 16 * 1rem);line-height:1.6;margin:calc(28 / 16 * 1rem) 0 calc(8 / 16 * 1rem)}
-.doc h4{font-size:calc(16 / 16 * 1rem);margin:calc(20 / 16 * 1rem) 0 calc(6 / 16 * 1rem)}
+.doc h3{font-size:calc(24 / 16 * 1rem);line-height:1.5;margin:0 0 calc(24 / 16 * 1rem)}
+.doc h4{font-size:calc(20 / 16 * 1rem);line-height:1.5;margin:calc(48 / 16 * 1rem) 0 calc(12 / 16 * 1rem);padding-top:calc(16 / 16 * 1rem);border-top:1px solid var(--color-neutral-solid-gray-420)}
+.doc h5{font-size:calc(18 / 16 * 1rem);line-height:1.6;margin:calc(28 / 16 * 1rem) 0 calc(8 / 16 * 1rem)}
+.doc h6{font-size:calc(16 / 16 * 1rem);margin:calc(20 / 16 * 1rem) 0 calc(6 / 16 * 1rem)}
 .doc p{margin:0 0 1em}
 .doc ul,.doc ol{padding-left:calc(32 / 16 * 1rem);margin:0 0 1em}
 .doc li{margin:.3em 0}
@@ -260,12 +260,11 @@ footer p{margin:0 0 calc(8 / 16 * 1rem)}
 .flow li .chip{min-height:calc(24 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(6 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(14 / 16 * 1rem)}
 @media (min-width:75rem){.flow li+li::before{content:"";position:absolute;left:calc(-14 / 16 * 1rem);top:calc(6 / 16 * 1rem);width:calc(8 / 16 * 1rem);height:calc(8 / 16 * 1rem);border-top:2px solid var(--color-neutral-solid-gray-536);border-right:2px solid var(--color-neutral-solid-gray-536);transform:rotate(45deg)}}
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
-@media (min-width:60rem){.twoc{grid-template-columns:1fr 1fr;gap:calc(32 / 16 * 1rem)}}
 .twoc h4{margin-top:0}
 .twoc>div{min-width:0}
 /* 字数の棒 */
 .cbars{display:grid;gap:calc(8 / 16 * 1rem)}
-.bar{display:grid;grid-template-columns:minmax(5em,9em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
+.bar{display:grid;grid-template-columns:minmax(5em,11em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
 .bar .bl{font-size:calc(16 / 16 * 1rem)}
 .bar .tr{display:block;height:calc(20 / 16 * 1rem);background:var(--color-neutral-solid-gray-50);border-radius:calc(4 / 16 * 1rem);overflow:hidden}
 .bar .f{display:block;height:100%;background:var(--color-key-400)}
@@ -274,7 +273,6 @@ footer p{margin:0 0 calc(8 / 16 * 1rem)}
 table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0}
 /* 主な変更 */
 .changes{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:0;display:grid;grid-template-columns:1fr;gap:0}
-@media (min-width:60rem){.changes{grid-template-columns:1fr 1fr;column-gap:calc(48 / 16 * 1rem)}}
 .chg{appearance:none;background:none;border:0;border-bottom:1px solid var(--color-neutral-solid-gray-420);width:100%;text-align:left;padding:calc(12 / 16 * 1rem) 0;display:grid;grid-template-columns:auto 10em 1fr;gap:calc(12 / 16 * 1rem);align-items:start;font:inherit;color:inherit;cursor:pointer}
 .chg .num{display:inline-grid;place-items:center;width:calc(28 / 16 * 1rem);height:calc(28 / 16 * 1rem);border-radius:calc(624.9375rem);background:var(--color-key-900);color:var(--color-neutral-white);font-weight:bold;font-variant-numeric:tabular-nums}
 @media (hover:hover){.chg:hover b{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}}
@@ -282,6 +280,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 .viewer{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem)}
 @media (min-width:48rem){.viewer{grid-template-columns:1fr 1fr}}
 .pane .cap .ln{font-weight:normal;margin-left:calc(8 / 16 * 1rem)}
+.doc td:first-child,.doc th:first-child{white-space:nowrap}
+.doc table+hr{display:none}
 .doc mark.chg-b{background:none;box-shadow:none;text-decoration:underline dashed;text-decoration-color:var(--color-neutral-solid-gray-536);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
 .doc mark.chg-a{background:none;box-shadow:none;text-decoration:underline solid;text-decoration-color:var(--color-key-900);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
 .doc mark.on{background:var(--color-primitive-yellow-300)}
@@ -342,10 +342,10 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>左右に並べて読む</h3>
 <p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
 <div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 7, 2, 3, 10, 4, 5, 12, 6], "short": [0, 13, 7, 9, 3, 10, 14, 11, 12, 6], "rebuild": [0, 1, 10, 2, 4, 9, 8, 6, 9, 5]}'>
+<div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 7, 2, 3, 10, 4, 5, 12, 6], "short": [0, 13, 7, 9, 3, 10, 14, 11, 12, 6], "rebuild": [0, 1, 10, 2, 4, 9, 8, 6, 9, 5]}' data-lens='{"after": "2,808", "short": "1,603", "rebuild": "2,546"}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 3,299字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
-</div><template id="t-ringi-before"><article><h1>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h1>
+  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 2,808字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-ringi-before"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
 <table>
 <thead>
 <tr>
@@ -372,21 +372,21 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>1. 申請内容</h2>
+<h4>1. 申請内容</h4>
 <p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。</p>
 <ul>
 <li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
 <li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
 <li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
 </ul>
-<h2>2. 背景と課題</h2>
+<h4>2. 背景と課題</h4>
 <ul>
 <li>営業部では、顧客打ち合わせが週に平均8件(月に約35件)ある。</li>
 <li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。先月ツールを試した担当者の場合、普段は1件あたり約60分かかっている。</li>
 <li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右される。</li>
 <li>部全体での平均作成時間はまだ測っていない。試験導入の開始前に測定する(8章)。</li>
 </ul>
-<h2>3. 導入するツール</h2>
+<h4>3. 導入するツール</h4>
 <table>
 <thead>
 <tr>
@@ -418,8 +418,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
-<h2>4. 期待効果</h2>
-<h3>4.1 議事録作成時間の削減</h3>
+<h4>4. 期待効果</h4>
+<h5>4.1 議事録作成時間の削減</h5>
 <p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。部全体で同じ効果が出るかどうかは、この試験導入で確かめる。</p>
 <p>参考値どおり1件あたり30分減った場合の削減時間は、次のとおり。</p>
 <table>
@@ -448,7 +448,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>4.2 費用対効果の目安</h3>
+<h5>4.2 費用対効果の目安</h5>
 <p>月額費用79,200円を月あたりの削減時間で割ると、<strong>削減できる1時間あたりの費用</strong>になる。営業担当者の時間単価(人件費)がこの金額を上回れば、費用は回収できる。</p>
 <table>
 <thead>
@@ -477,14 +477,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>当社の営業担当者の時間単価:【 】円(人事・経理部門に確認して記入)</p>
-<h3>4.3 金額にしにくい効果(試験期間中に確認)</h3>
+<h5>4.3 金額にしにくい効果(試験期間中に確認)</h5>
 <p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
 <ul>
 <li>発言が記録に残るため、聞き漏らしや顧客との認識違いを後から確認できる</li>
 <li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められる</li>
 <li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすい</li>
 </ul>
-<h2>5. 費用</h2>
+<h4>5. 費用</h4>
 <table>
 <thead>
 <tr>
@@ -520,7 +520,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>上限と見込みの差額は、税区分や契約条件の確認結果に備えるためのものである。上限を超える支出は行わない。</li>
 <li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
 </ul>
-<h2>6. 実施体制</h2>
+<h4>6. 実施体制</h4>
 <table>
 <thead>
 <tr>
@@ -552,7 +552,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>7. リスクと対策</h2>
+<h4>7. リスクと対策</h4>
 <table>
 <thead>
 <tr>
@@ -587,15 +587,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>8. 評価の方法</h2>
-<h3>8.1 測定の進め方</h3>
+<h4>8. 評価の方法</h4>
+<h5>8.1 測定の進め方</h5>
 <ol>
 <li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
 <li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
 <li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
 <li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
 </ol>
-<h3>8.2 評価の指標</h3>
+<h5>8.2 評価の指標</h5>
 <table>
 <thead>
 <tr>
@@ -632,13 +632,13 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>8.3 判断の基準</h3>
+<h5>8.3 判断の基準</h5>
 <ul>
 <li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
 <li><strong>規模を縮小して続ける</strong>:効果は出ているが、利用率が低い場合(ライセンス数を減らすなど)</li>
 <li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
 </ul>
-<h2>9. スケジュール</h2>
+<h4>9. スケジュール</h4>
 <table>
 <thead>
 <tr>
@@ -669,12 +669,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>10. 決裁をお願いする事項</h2>
+<h4>10. 決裁をお願いする事項</h4>
 <ol>
 <li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
 <li>費用の上限を月額10万円、6か月合計60万円とすること</li>
 </ol>
-<p>以上</p></article></template><template id="t-ringi-after"><article><h1>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h1>
+<p>以上</p></article></template><template id="t-ringi-after"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
 <table>
 <thead>
 <tr>
@@ -701,14 +701,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>1. 申請内容</h2>
+<h4>1. 申請内容</h4>
 <p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。ただし、今ある参考値(1件30分の削減)では費用に見合わず、データの扱いが社内規程に合うかもまだ確かめていない。</p>
 <ul>
 <li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
 <li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
 <li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
 </ul>
-<h2>2. 背景と課題</h2>
+<h4>2. 背景と課題</h4>
 <p>議事録作成にかかる時間は、1件60分が全件に当てはまるとすると、部全体で月約35時間、1人あたり月約3時間である。</p>
 <ul>
 <li>顧客打ち合わせは営業部全体で週に平均8件(月に約35件)ある。1人あたりの件数ではなく、営業支援システムの訪問記録の直近6か月から出した。</li>
@@ -716,7 +716,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
 <li>部全体での平均作成時間はまだ測っていない。開始前に測定する予定で(付録E)、2週間あれば12名分を記録でき、承認の前に測ることもできる。</li>
 </ul>
-<h2>3. 期待効果</h2>
+<h4>3. 期待効果</h4>
 <p>費用に見合うのは、打ち合わせの全件で使い、1件あたり約39分以上減った場合で、今ある参考値の30分では届かない。</p>
 <p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。部全体で同じ効果が出るかどうかは、この試験導入で確かめる。</p>
 <p>月額費用79,200円を月あたりの削減時間で割ると、<strong>削減できる1時間あたりの費用</strong>になる。営業担当者の時間単価がこの金額を上回れば、費用は回収できる計算になる。時間単価は、経理部が社内の試算に使う標準単価の1時間3,500円である。</p>
@@ -751,14 +751,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>表は月約35件のすべてでツールを使った場合の値である(計算は付録C)。同意が得られず使えない打ち合わせがあれば、その分だけ削減時間は減り、1時間あたりの費用は上がる。単価が税抜の場合は費用がどの行も1割高くなり、約39分は約43分になる。比べているのは利用料だけで、同意の取得や記録などで増える時間は入れていない。</p>
-<h2>4. 費用</h2>
+<h4>4. 費用</h4>
 <p>申請する上限は月額10万円、6か月合計60万円である。見込みは1人月額6,600円の12名分で、月額79,200円、6か月合計475,200円になる。</p>
 <ul>
 <li>単価6,600円が税込か税抜かは、契約前に確認する。税抜の場合でも月額は87,120円で、上限の範囲に収まる。</li>
 <li>上限と見込みの差額は、税区分や契約条件の確認結果に備えるためのものである。上限を超える支出は行わない。</li>
 <li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
 </ul>
-<h2>5. リスクと対策</h2>
+<h4>5. リスクと対策</h4>
 <p>データの扱いが社内規程に合うかは、まだ確かめていない。情報システム部門には声をかけただけで、ミナトノートのデータの扱いの資料は取り寄せていない。問題があれば導入しない。</p>
 <table>
 <thead>
@@ -794,9 +794,9 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>6. 評価の方法</h2>
+<h4>6. 評価の方法</h4>
 <p>判断の中心は、作成時間の削減が費用に見合うかと、情報管理上の問題がないかの2つである。</p>
-<h3>6.1 評価の指標</h3>
+<h5>6.1 評価の指標</h5>
 <table>
 <thead>
 <tr>
@@ -833,19 +833,19 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>6.2 判断の基準</h3>
+<h5>6.2 判断の基準</h5>
 <ul>
 <li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
 <li><strong>規模を縮小して続ける</strong>:1件あたりの時間は減っているが、利用率が低い場合(ライセンス数を減らすなど)</li>
 <li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
 </ul>
-<h2>7. 決裁をお願いする事項</h2>
+<h4>7. 決裁をお願いする事項</h4>
 <ol>
 <li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
 <li>費用の上限を月額10万円、6か月合計60万円とすること</li>
 </ol>
 <p>以上</p>
-<h2>付録A 導入するツール</h2>
+<h4>付録A 導入するツール</h4>
 <table>
 <thead>
 <tr>
@@ -877,14 +877,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
-<h2>付録B 金額にしにくい効果</h2>
+<h4>付録B 金額にしにくい効果</h4>
 <p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
 <ul>
 <li>録音した打ち合わせで、聞き漏らしや顧客との認識違いを後から確認できること</li>
 <li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められること</li>
 <li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすいこと</li>
 </ul>
-<h2>付録C 削減時間の計算</h2>
+<h4>付録C 削減時間の計算</h4>
 <table>
 <thead>
 <tr>
@@ -912,7 +912,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>費用に見合う水準は、月額費用を時間単価で割り、月の件数で割って求めた。税込の場合の月額79,200円では、月約22.6時間、1件あたり約39分になる。税抜の場合の月額87,120円では、月約24.9時間、1件あたり約43分になる。</p>
-<h2>付録D 実施体制</h2>
+<h4>付録D 実施体制</h4>
 <table>
 <thead>
 <tr>
@@ -944,14 +944,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録E 測定の進め方</h2>
+<h4>付録E 測定の進め方</h4>
 <ol>
 <li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
 <li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
 <li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
 <li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
 </ol>
-<h2>付録F スケジュール</h2>
+<h4>付録F スケジュール</h4>
 <table>
 <thead>
 <tr>
@@ -981,7 +981,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>最終評価、判断案を経営会議へ提出</td>
 </tr>
 </tbody>
-</table></article></template><template id="t-ringi-short"><article><h1>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h1>
+</table></article></template><template id="t-ringi-short"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
 <table>
 <thead>
 <tr>
@@ -1008,30 +1008,30 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>1. 申請内容</h2>
+<h4>1. 申請内容</h4>
 <p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。ただし、今ある参考値(1件30分の削減)では費用に見合わず、データの扱いが社内規程に合うかもまだ確かめていない。</p>
 <ul>
 <li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
 <li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
 <li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
 </ul>
-<h2>2. 背景と課題</h2>
+<h4>2. 背景と課題</h4>
 <p>議事録作成にかかる時間は、1件60分が全件に当てはまるとすると、部全体で月約35時間、1人あたり月約3時間である。顧客打ち合わせは営業部全体で週に平均8件(月に約35件)あり、60分は、先月ツールを試した担当者の普段の時間である。</p>
-<h2>3. 期待効果</h2>
+<h4>3. 期待効果</h4>
 <p>費用に見合うのは、打ち合わせの全件で使い、1件あたり約39分以上減った場合で、今ある参考値の30分では届かない。</p>
 <p>費用に見合う水準は、月額費用を時間単価で割り、月の件数で割って求めた。税込の場合の月額79,200円と、経理部が社内の試算に使う標準単価の1時間3,500円では、月約22.6時間、1件あたり約39分になる(計算は付録C)。</p>
 <p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。全件で30分減ると月約17.3時間で、削減1時間あたりの費用は約4,600円になり、時間単価3,500円では回収できない。</p>
-<h2>4. 費用</h2>
+<h4>4. 費用</h4>
 <p>申請する上限は月額10万円、6か月合計60万円である。見込みは1人月額6,600円の12名分で、月額79,200円、6か月合計475,200円になる。</p>
 <ul>
 <li>上限と見込みの差額は、税区分や契約条件の確認結果に備えるためのものである。上限を超える支出は行わない。</li>
 <li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
 </ul>
-<h2>5. リスクと対策</h2>
+<h4>5. リスクと対策</h4>
 <p>データの扱いが社内規程に合うかは、まだ確かめていない。情報システム部門には声をかけただけで、ミナトノートのデータの扱いの資料は取り寄せていない。問題があれば導入しない。</p>
-<h2>6. 評価の方法</h2>
+<h4>6. 評価の方法</h4>
 <p>判断の中心は、作成時間の削減が費用に見合うかと、情報管理上の問題がないかの2つである。</p>
-<h3>6.1 評価の指標</h3>
+<h5>6.1 評価の指標</h5>
 <table>
 <thead>
 <tr>
@@ -1058,19 +1058,19 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>6.2 判断の基準</h3>
+<h5>6.2 判断の基準</h5>
 <ul>
 <li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
 <li><strong>規模を縮小して続ける</strong>:1件あたりの時間は減っているが、利用率が低い場合(ライセンス数を減らすなど)</li>
 <li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
 </ul>
-<h2>7. 決裁をお願いする事項</h2>
+<h4>7. 決裁をお願いする事項</h4>
 <ol>
 <li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
 <li>費用の上限を月額10万円、6か月合計60万円とすること</li>
 </ol>
 <p>以上</p>
-<h2>付録A 導入するツール</h2>
+<h4>付録A 導入するツール</h4>
 <table>
 <thead>
 <tr>
@@ -1102,14 +1102,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
-<h2>付録B 金額にしにくい効果</h2>
+<h4>付録B 金額にしにくい効果</h4>
 <p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
 <ul>
 <li>録音した打ち合わせで、聞き漏らしや顧客との認識違いを後から確認できること</li>
 <li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められること</li>
 <li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすいこと</li>
 </ul>
-<h2>付録C 削減時間の計算</h2>
+<h4>付録C 削減時間の計算</h4>
 <table>
 <thead>
 <tr>
@@ -1171,7 +1171,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <p>表は月約35件のすべてでツールを使った場合の値である。同意が得られず使えない打ち合わせがあれば、その分だけ削減時間は減り、1時間あたりの費用は上がる。単価が税抜の場合は費用がどの行も1割高くなり、約39分は約43分になる。比べているのは利用料だけで、同意の取得や記録などで増える時間は入れていない。</p>
 <p>単価6,600円が税込か税抜かは、契約前に確認する。税抜の場合でも月額は87,120円で、上限の範囲に収まる。</p>
 <p>費用に見合う水準は、月額費用を時間単価で割り、月の件数で割って求めた。税込の場合の月額79,200円では、月約22.6時間、1件あたり約39分になる。税抜の場合の月額87,120円では、月約24.9時間、1件あたり約43分になる。</p>
-<h2>付録D 実施体制</h2>
+<h4>付録D 実施体制</h4>
 <table>
 <thead>
 <tr>
@@ -1203,14 +1203,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録E 測定の進め方</h2>
+<h4>付録E 測定の進め方</h4>
 <ol>
 <li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
 <li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
 <li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
 <li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
 </ol>
-<h2>付録F スケジュール</h2>
+<h4>付録F スケジュール</h4>
 <table>
 <thead>
 <tr>
@@ -1241,14 +1241,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録G 議事録作成の現状</h2>
+<h4>付録G 議事録作成の現状</h4>
 <ul>
 <li>週8件は1人あたりの件数ではなく、営業支援システムの訪問記録の直近6か月から出した。</li>
 <li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。</li>
 <li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
 <li>部全体での平均作成時間はまだ測っていない。開始前に測定する予定で(付録E)、2週間あれば12名分を記録でき、承認の前に測ることもできる。</li>
 </ul>
-<h2>付録H リスクと対策</h2>
+<h4>付録H リスクと対策</h4>
 <table>
 <thead>
 <tr>
@@ -1283,7 +1283,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録I 評価の指標の測定方法</h2>
+<h4>付録I 評価の指標の測定方法</h4>
 <table>
 <thead>
 <tr>
@@ -1319,7 +1319,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>6.1のとおり</td>
 </tr>
 </tbody>
-</table></article></template><template id="t-ringi-rebuild"><article><h1>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h1>
+</table></article></template><template id="t-ringi-rebuild"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
 <table>
 <thead>
 <tr>
@@ -1346,14 +1346,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>1. 申請内容</h2>
+<h4>1. 申請内容</h4>
 <p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。ただし、今ある参考値(1件30分の削減)では費用に見合わず、データの扱いが社内規程に合うかもまだ確かめていない。</p>
 <ul>
 <li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
 <li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
 <li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
 </ul>
-<h2>2. 背景と課題</h2>
+<h4>2. 背景と課題</h4>
 <p>議事録作成にかかる時間は、1件60分が全件に当てはまるとすると、部全体で月約35時間、1人あたり月約3時間である。</p>
 <ul>
 <li>顧客打ち合わせは営業部全体で週に平均8件(月に約35件)ある。1人あたりの件数ではなく、営業支援システムの訪問記録の直近6か月から出した。</li>
@@ -1361,9 +1361,9 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
 <li>部全体での平均作成時間はまだ測っていない。開始前に測定する予定で(付録A)、2週間あれば12名分を記録でき、承認の前に測ることもできる。</li>
 </ul>
-<h2>3. 試験で確かめること</h2>
+<h4>3. 試験で確かめること</h4>
 <p>判断の中心は、作成時間の削減が費用に見合うかと、情報管理上の問題がないかの2つである。作成時間は試験期間中に測定する。情報管理は契約の前に確認し、試験期間中も点検する。</p>
-<h3>3.1 費用対効果</h3>
+<h5>3.1 費用対効果</h5>
 <p>費用に見合うのは、打ち合わせの全件で使い、1件あたり約39分以上減った場合で、今ある参考値の30分では届かない。</p>
 <p>月額費用79,200円を月あたりの削減時間で割ると、<strong>削減できる1時間あたりの費用</strong>になる。営業担当者の時間単価がこの金額を上回れば、費用は回収できる計算になる。時間単価は、経理部が社内の試算に使う標準単価の1時間3,500円である。参考値の30分では、月あたりの削減時間は約17.3時間、削減1時間あたりの費用は約4,600円で、回収できない。計算と、削減時間を変えた場合の値は付録Bに示す。</p>
 <p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。部全体で同じ効果が出るかどうかは、この試験導入で確かめる。</p>
@@ -1390,7 +1390,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>3.2 情報管理</h3>
+<h5>3.2 情報管理</h5>
 <p>データの扱いが社内規程に合うかは、まだ確かめていない。情報システム部門には声をかけただけで、ミナトノートのデータの扱いの資料は取り寄せていない。問題があれば導入しない。</p>
 <p>契約の前に、情報管理担当者がデータの保存場所、AIの学習に使われるかどうか、保存期間と削除の方法、アクセス権の設定を確認する。社内規程に合っているかどうかは、情報システム部門と確認する。</p>
 <table>
@@ -1409,7 +1409,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>4. 判断の基準</h2>
+<h4>4. 判断の基準</h4>
 <p>次の基準に沿って、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する。</p>
 <ul>
 <li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
@@ -1417,7 +1417,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
 </ul>
 <p>3か月目の中間評価で効果を確かめ、見合わない場合は規模縮小か中止を判断する。中間評価は経営会議への報告としており、そこで判断するかは確認中である。ライセンス数は12名分に固定する(途中で減らせるかは確認中)。</p>
-<h2>5. 費用</h2>
+<h4>5. 費用</h4>
 <p>申請する上限は月額10万円、6か月合計60万円である。見込みは1人月額6,600円の12名分で、月額79,200円、6か月合計475,200円になる。</p>
 <ul>
 <li>単価6,600円が税込か税抜かは、契約前に確認する。税抜の場合でも月額は87,120円で、上限の範囲に収まる。</li>
@@ -1425,13 +1425,13 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
 <li>解約は月単位ででき、最低契約期間もないので、6か月で解約できる(販売店に確認済み)。</li>
 </ul>
-<h2>6. 決裁をお願いする事項</h2>
+<h4>6. 決裁をお願いする事項</h4>
 <ol>
 <li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
 <li>費用の上限を月額10万円、6か月合計60万円とすること</li>
 </ol>
 <p>以上</p>
-<h2>付録A 測定の進め方と指標</h2>
+<h4>付録A 測定の進め方と指標</h4>
 <ol>
 <li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
 <li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
@@ -1460,7 +1460,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録B 費用対効果の計算</h2>
+<h4>付録B 費用対効果の計算</h4>
 <table>
 <thead>
 <tr>
@@ -1519,7 +1519,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>費用に見合う水準は、月額費用を時間単価で割り、月の件数で割って求めた。税込の場合の月額79,200円では、月約22.6時間、1件あたり約39分になる。税抜の場合の月額87,120円では、月約24.9時間、1件あたり約43分になる。</p>
-<h2>付録C リスクと対策</h2>
+<h4>付録C リスクと対策</h4>
 <table>
 <thead>
 <tr>
@@ -1554,7 +1554,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録D 実施体制とスケジュール</h2>
+<h4>付録D 実施体制とスケジュール</h4>
 <table>
 <thead>
 <tr>
@@ -1616,7 +1616,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録E 導入するツール</h2>
+<h4>付録E 導入するツール</h4>
 <table>
 <thead>
 <tr>
@@ -1648,7 +1648,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
-<h2>付録F 金額にしにくい効果</h2>
+<h4>付録F 金額にしにくい効果</h4>
 <p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
 <ul>
 <li>録音した打ち合わせで、聞き漏らしや顧客との認識違いを後から確認できること</li>
@@ -1679,22 +1679,22 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>左右に並べて読む</h3>
 <p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
 <div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="kikaku" data-maps='{"after": [0, 1, 2, 3, 7, 5, 6], "short": [0, 1, 5, 5, 5, 4, -1], "rebuild": [0, 1, 2, 1, 5, 4, -1]}'>
+<div class="viewer" data-doc="kikaku" data-maps='{"after": [0, 1, 2, 3, 7, 5, 6], "short": [0, 1, 5, 5, 5, 4, -1], "rebuild": [0, 1, 2, 1, 5, 4, -1]}' data-lens='{"after": "2,840", "short": "1,547", "rebuild": "2,256"}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 2,894字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
-</div><template id="t-kikaku-before"><article><h1>在宅勤務制度（週1日）導入の企画</h1>
+  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 2,840字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-kikaku-before"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
 <p>人事部 人事企画担当
 経営会議 付議資料</p>
 <hr />
-<h2>本日お諮りしたいこと</h2>
+<h4>本日お諮りしたいこと</h4>
 <ol>
 <li>内勤の従業員180名を対象に、週1日の在宅勤務制度を <strong>2027年4月から</strong> 始めること</li>
 <li>準備として、就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手すること</li>
 </ol>
 <p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。</p>
 <hr />
-<h2>1. 背景と目的</h2>
-<h3>現状</h3>
+<h4>1. 背景と目的</h4>
+<h5>現状</h5>
 <table>
 <thead>
 <tr>
@@ -1722,15 +1722,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>業界平均との差は、人数にすると年間でおよそ10名です。退職者自身が柔軟性のなさを理由に挙げていること、競合がすでに制度を持っていることから、在宅勤務がないことは「辞める理由」と「選ばれない理由」の両方になっていると考えます。</p>
-<h3>目的</h3>
+<h5>目的</h5>
 <ul>
 <li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
 <li><strong>採用力の向上</strong>：求人で競合と同じ条件を示せるようにし、応募や内定承諾で見劣りしないようにする</li>
 </ul>
 <p>在宅勤務だけで離職率が業界平均まで下がるとは考えていません。退職理由のうち、働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。</p>
 <hr />
-<h2>2. 制度の内容</h2>
-<h3>基本の設計</h3>
+<h4>2. 制度の内容</h4>
+<h5>基本の設計</h5>
 <table>
 <thead>
 <tr>
@@ -1770,14 +1770,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>競合は週1〜2日です。当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。最初から大きく始めず、確実に回る形で始めることを優先します。</p>
-<h3>曜日の割り当て</h3>
+<h5>曜日の割り当て</h5>
 <p>情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。</p>
 <p>対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。そのため、部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者が上限を大きく下回る</strong>ようにします。</p>
 <p>なお、外勤の方などがふだんからVPNを使っている場合は、その分も上限に含めて考える必要があります。現在の利用状況は情報システム部に確認中です。</p>
-<h3>公平性への配慮</h3>
+<h5>公平性への配慮</h5>
 <p>対象外となる70名（内勤以外の従業員）からは、不公平だという声が出る可能性があります。業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。</p>
 <hr />
-<h2>3. 期待効果</h2>
+<h4>3. 期待効果</h4>
 <table>
 <thead>
 <tr>
@@ -1804,11 +1804,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>数字で示すために必要な情報</h3>
+<h5>数字で示すために必要な情報</h5>
 <p>効果を金額で示すには、退職者1名あたりの採用・育成コストが必要です。これは現在、人事部で集計中です。</p>
 <p>仮にこのコストを1名あたり X 円とすると、離職者が年に1名減るごとに X 円の削減になります。業界平均との差（年間およそ10名）のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
 <hr />
-<h2>4. 懸念と対策</h2>
+<h4>4. 懸念と対策</h4>
 <table>
 <thead>
 <tr>
@@ -1851,14 +1851,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>事前に確認が必要なこと</h3>
+<h5>事前に確認が必要なこと</h5>
 <ul>
 <li>内勤180名のうち、持ち出せるPC（ノートPC）を持っていない人の数と、追加購入の費用</li>
 <li>外勤の方などによる、現在のVPNの利用状況</li>
 <li>在宅勤務手当を設ける場合の金額と、年間の総額</li>
 </ul>
 <hr />
-<h2>5. 進め方</h2>
+<h4>5. 進め方</h4>
 <p>2027年4月の開始に向けた予定です。</p>
 <table>
 <thead>
@@ -1900,25 +1900,25 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>試行期間中の扱い（暫定的なルールが必要かどうか）は、社会保険労務士に確認したうえで決めます。</p>
 <hr />
-<h2>まとめ</h2>
+<h4>まとめ</h4>
 <ul>
 <li>当社の離職率は業界平均より4ポイント高く、退職者は働き方の柔軟性のなさを理由に挙げています</li>
 <li>競合はすでに在宅勤務を導入しており、採用でも見劣りしています</li>
 <li>週1日・曜日の割り当て制で始めれば、VPNの上限の範囲内で運用できる見込みです</li>
 <li>本日は方針の承認をいただき、試行の結果を踏まえて2月に最終案をお諮りします</li>
-</ul></article></template><template id="t-kikaku-after"><article><h1>在宅勤務制度（週1日）導入の企画</h1>
+</ul></article></template><template id="t-kikaku-after"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
 <p>人事部 人事企画担当
 経営会議 付議資料</p>
 <hr />
-<h2>本日お諮りしたいこと</h2>
+<h4>本日お諮りしたいこと</h4>
 <ol>
 <li>内勤の従業員180名を対象に、週1日の在宅勤務制度を作る方針を承認いただくこと（開始は <strong>2027年4月</strong> を目標とします）</li>
 <li>規程と費用の準備を始めること。就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手します</li>
 </ol>
 <p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。開始日も、その最終案で改めて決めていただきます。</p>
 <hr />
-<h2>1. 背景と目的</h2>
-<h3>現状</h3>
+<h4>1. 背景と目的</h4>
+<h5>現状</h5>
 <p>当社の離職率は業界平均より4ポイント高く、在宅勤務がないことは「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます。</p>
 <table>
 <thead>
@@ -1947,15 +1947,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>業界平均との差は、人数にすると年間でおよそ10名です。</p>
-<h3>目的</h3>
+<h5>目的</h5>
 <p>在宅勤務は、退職理由のうち働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。在宅勤務だけで離職率が業界平均まで下がるとは考えていません。</p>
 <ul>
 <li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
 <li><strong>採用力の向上</strong>：求人で在宅勤務の制度を示せるようにし、応募や内定承諾で見劣りしないようにする</li>
 </ul>
 <hr />
-<h2>2. 制度の内容</h2>
-<h3>基本の設計</h3>
+<h4>2. 制度の内容</h4>
+<h5>基本の設計</h5>
 <p>週1日まで、曜日は部署ごとの割り当てで始めます。</p>
 <table>
 <thead>
@@ -1980,15 +1980,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。日数を最初から増やさず、確実に回る形で始めることを優先します。</p>
-<h3>曜日の割り当て</h3>
+<h5>曜日の割り当て</h5>
 <p>部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者が上限を大きく下回る</strong>ようにします。</p>
 <p>情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。</p>
 <p>外勤の方などがふだんからVPNを使っている場合は、その分も上限に含めて考える必要があります。現在の利用状況は情報システム部に確認中です。</p>
-<h3>公平性への配慮</h3>
+<h5>公平性への配慮</h5>
 <p>対象外となる70名（内勤以外の従業員）には、業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。不公平だという声が出る可能性があるためです。</p>
 <hr />
-<h2>3. 期待効果と費用</h2>
-<h3>期待効果</h3>
+<h4>3. 期待効果と費用</h4>
+<h5>期待効果</h5>
 <p>見込む効果は離職の抑制と採用力の向上で、次の指標で測ります。</p>
 <table>
 <thead>
@@ -2017,11 +2017,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>業界平均との差（年間およそ10名）のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
-<h3>費用</h3>
+<h5>費用</h5>
 <p>いま概算が出ている費用は、ノートPCの追加購入費の約900万円です。内勤180名のうち約60名がデスクトップPCで、1台の購入費が約15万円なので、60台すべてを買う場合の金額です。在宅勤務手当は、設ける場合は1日あたり250円を想定しています。手当の要否と年間の総額、通勤手当の扱いは、2月の最終案で示します。</p>
 <p>効果を金額で示すには、退職者1名あたりの採用・育成コストが必要です。これは現在、人事部で集計中で、2月までに出ます。離職者が年に1名減るごとに、このコスト1名分の削減になります。</p>
 <hr />
-<h2>4. 懸念と対策</h2>
+<h4>4. 懸念と対策</h4>
 <p>VPNの上限と対象外の従業員の不公平感には、次のとおり手を打ちます。労働時間の管理、情報セキュリティ、業務の滞りやコミュニケーションの低下、評価への不安の対策は付録に載せています。</p>
 <table>
 <thead>
@@ -2042,7 +2042,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>5. 進め方</h2>
+<h4>5. 進め方</h4>
 <p>2027年4月の開始を目標とした予定です。</p>
 <table>
 <thead>
@@ -2085,7 +2085,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <p>就業規則の改定が必要です。在宅勤務規程を新設し、就業規則に位置づけます。社会保険労務士に条文を確認してもらい、従業員代表の意見を聴いたうえで、労働基準監督署に届け出ます。</p>
 <p>試行期間中の扱い（暫定的なルールが必要かどうか）は、社会保険労務士に確認したうえで決めます。</p>
 <hr />
-<h2>まとめ</h2>
+<h4>まとめ</h4>
 <ul>
 <li>当社の離職率は業界平均より4ポイント高く、退職者アンケートの回答者22名のうち9名が働き方の柔軟性のなさを理由に挙げています</li>
 <li>競合2社はすでに在宅勤務を導入しており、採用でも見劣りするおそれがあります</li>
@@ -2093,8 +2093,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>本日は方針と準備の着手を承認いただき、試行の結果を踏まえて2月に、開始日を含む最終案をお諮りします</li>
 </ul>
 <hr />
-<h2>付録</h2>
-<h3>制度の運用</h3>
+<h4>付録</h4>
+<h5>制度の運用</h5>
 <table>
 <thead>
 <tr>
@@ -2121,7 +2121,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>懸念ごとの対策</h3>
+<h5>懸念ごとの対策</h5>
 <table>
 <thead>
 <tr>
@@ -2147,19 +2147,19 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
 </tr>
 </tbody>
-</table></article></template><template id="t-kikaku-short"><article><h1>在宅勤務制度（週1日）導入の企画</h1>
+</table></article></template><template id="t-kikaku-short"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
 <p>人事部 人事企画担当
 経営会議 付議資料</p>
 <hr />
-<h2>本日お諮りしたいこと</h2>
+<h4>本日お諮りしたいこと</h4>
 <ol>
 <li>内勤の従業員180名を対象に、週1日の在宅勤務制度を作る方針を承認いただくこと（開始は <strong>2027年4月</strong> を目標とします）</li>
 <li>規程と費用の準備を始めること。就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手します</li>
 </ol>
 <p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。開始日も、その最終案で改めて決めていただきます。</p>
 <hr />
-<h2>1. 背景と目的</h2>
-<h3>現状</h3>
+<h4>1. 背景と目的</h4>
+<h5>現状</h5>
 <p>当社の離職率は業界平均より4ポイント高く、在宅勤務がないことは「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます。</p>
 <table>
 <thead>
@@ -2187,7 +2187,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>目的と期待効果</h3>
+<h5>目的と期待効果</h5>
 <p>在宅勤務は、退職理由のうち働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。見込む効果は離職の抑制と採用力の向上で、次の指標で測ります。</p>
 <table>
 <thead>
@@ -2211,8 +2211,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>2. 制度の内容</h2>
-<h3>基本の設計</h3>
+<h4>2. 制度の内容</h4>
+<h5>基本の設計</h5>
 <p>週1日まで、曜日は部署ごとの割り当てで始めます。日数を最初から増やさず、確実に回る形で始めることを優先します。</p>
 <table>
 <thead>
@@ -2236,14 +2236,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>曜日の割り当て</h3>
+<h5>曜日の割り当て</h5>
 <p>部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者が上限を大きく下回る</strong>ようにします。本人の希望に任せると月曜や金曜に偏るおそれがあります。</p>
 <p>情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名で、上限を下回ります。ふだんの利用分は確認中です。</p>
 <hr />
-<h2>3. 費用</h2>
+<h4>3. 費用</h4>
 <p>いま概算が出ている費用は、ノートPCの追加購入費の約900万円です。内勤180名のうち約60名がデスクトップPCで、1台の購入費が約15万円なので、60台すべてを買う場合の金額です。在宅勤務手当は、設ける場合は1日あたり250円を想定しています。手当の要否と年間の総額、通勤手当の扱いは、2月の最終案で示します。</p>
 <hr />
-<h2>4. 進め方</h2>
+<h4>4. 進め方</h4>
 <p>2027年4月の開始を目標とした予定です。</p>
 <table>
 <thead>
@@ -2276,18 +2276,18 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>付録</h2>
-<h3>目的</h3>
+<h4>付録</h4>
+<h5>目的</h5>
 <ul>
 <li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
 <li><strong>採用力の向上</strong>：求人で在宅勤務の制度を示せるようにし、応募や内定承諾で見劣りしないようにする</li>
 </ul>
 <p>在宅勤務だけで離職率が業界平均まで下がるとは考えていません。</p>
-<h3>業界平均との差</h3>
+<h5>業界平均との差</h5>
 <p>業界平均との差は、人数にすると年間でおよそ10名です。このうち何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
-<h3>効果の金額</h3>
+<h5>効果の金額</h5>
 <p>効果を金額で示すには、退職者1名あたりの採用・育成コストが必要です。これは現在、人事部で集計中で、2月までに出ます。離職者が年に1名減るごとに、このコスト1名分の削減になります。</p>
-<h3>付随する効果</h3>
+<h5>付随する効果</h5>
 <table>
 <thead>
 <tr>
@@ -2304,11 +2304,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>VPNのふだんの利用</h3>
+<h5>VPNのふだんの利用</h5>
 <p>外勤の方などがふだんからVPNを使っている場合は、その分も上限に含めて考える必要があります。現在の利用状況は情報システム部に確認中です。</p>
-<h3>公平性への配慮</h3>
+<h5>公平性への配慮</h5>
 <p>対象外となる70名（内勤以外の従業員）には、業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。不公平だという声が出る可能性があるためです。</p>
-<h3>開始までの手続きと開始後の見直し</h3>
+<h5>開始までの手続きと開始後の見直し</h5>
 <table>
 <thead>
 <tr>
@@ -2330,7 +2330,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <p>当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。</p>
 <p>就業規則の改定が必要です。在宅勤務規程を新設し、就業規則に位置づけます。社会保険労務士に条文を確認してもらい、従業員代表の意見を聴いたうえで、労働基準監督署に届け出ます。</p>
 <p>試行期間中の扱い（暫定的なルールが必要かどうか）は、社会保険労務士に確認したうえで決めます。</p>
-<h3>制度の運用</h3>
+<h5>制度の運用</h5>
 <table>
 <thead>
 <tr>
@@ -2357,7 +2357,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>懸念ごとの対策</h3>
+<h5>懸念ごとの対策</h5>
 <table>
 <thead>
 <tr>
@@ -2391,18 +2391,18 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
 </tr>
 </tbody>
-</table></article></template><template id="t-kikaku-rebuild"><article><h1>在宅勤務制度（週1日）導入の企画</h1>
+</table></article></template><template id="t-kikaku-rebuild"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
 <p>人事部 人事企画担当
 経営会議 付議資料</p>
 <hr />
-<h2>本日お諮りしたいこと</h2>
+<h4>本日お諮りしたいこと</h4>
 <ol>
 <li>内勤の従業員180名を対象に、週1日の在宅勤務制度を作る方針を承認いただくこと（開始は <strong>2027年4月</strong> を目標とします）</li>
 <li>規程と費用の準備を始めること。就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手します</li>
 </ol>
 <p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。開始日も、その最終案で改めて決めていただきます。</p>
 <hr />
-<h2>方針の理由</h2>
+<h4>方針の理由</h4>
 <p>当社の離職率は業界平均より4ポイント高く、在宅勤務がないことは「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます。</p>
 <table>
 <thead>
@@ -2455,13 +2455,13 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>業界平均との差（年間およそ10名）のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
 <hr />
-<h2>制度の案</h2>
+<h4>制度の案</h4>
 <p>週1日まで、曜日は部署ごとの割り当てで始めます。対象者は内勤の従業員180名（試用期間中の者は除く）で、翌週への繰り越しはしません。当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。日数を最初から増やさず、確実に回る形で始めることを優先します。</p>
 <p>部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者がVPNの上限を大きく下回る</strong>ようにします。情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名で、外勤の方などがふだん使う分を除けば上限を下回ります。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。</p>
 <p>対象外となる70名（内勤以外の従業員）には、業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。不公平だという声が出る可能性があるためです。</p>
 <p>労働時間の管理、情報セキュリティ、業務の滞りやコミュニケーションの低下、評価への不安の対策と、制度の運用は付録に載せています。</p>
 <hr />
-<h2>未確定の材料</h2>
+<h4>未確定の材料</h4>
 <p>費用の確定額、効果の金額、ふだんのVPN利用の件数は、本日の資料にはありません。いま概算が出ている費用は、ノートPCの追加購入費の約900万円です。</p>
 <table>
 <thead>
@@ -2502,7 +2502,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>進め方</h2>
+<h4>進め方</h4>
 <p>2027年4月の開始を目標とした予定です。</p>
 <table>
 <thead>
@@ -2543,8 +2543,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>付録</h2>
-<h3>制度の運用</h3>
+<h4>付録</h4>
+<h5>制度の運用</h5>
 <table>
 <thead>
 <tr>
@@ -2571,9 +2571,9 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>付随する効果</h3>
+<h5>付随する効果</h5>
 <p>通勤負担が減り、育児や介護との両立がしやすくなることを見込み、従業員アンケートで測ります。</p>
-<h3>懸念ごとの対策</h3>
+<h5>懸念ごとの対策</h5>
 <table>
 <thead>
 <tr>
@@ -2600,7 +2600,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>規程の手続き</h3>
+<h5>規程の手続き</h5>
 <p>就業規則の改定が必要です。在宅勤務規程を新設し、就業規則に位置づけます。社会保険労務士に条文を確認してもらい、従業員代表の意見を聴いたうえで、労働基準監督署に届け出ます。</p></article></template></div><div class="dads-tab__panel" id="doc-panel-3" role="tabpanel" aria-labelledby="doc-tab-3" tabindex="0" hidden><p class="p prose-max">コンサルティング会社が食品卸の北都フーズに、営業支援システム(SFA)の導入支援(3か月の診断と6か月の導入支援、2,700万円)を提案する資料。読むのは先方の営業本部長と経営会議。</p>
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
@@ -2626,15 +2626,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>左右に並べて読む</h3>
 <p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
 <div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 2, 3, 4, 8, 6, 7], "short": [0, 10, 11, 9, 4, 8, 6, 7], "rebuild": [0, 1, 4, 12, 6, 10, 7, 8]}'>
+<div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 2, 3, 4, 8, 6, 7], "short": [0, 10, 11, 9, 4, 8, 6, 7], "rebuild": [0, 1, 4, 12, 6, 10, 7, 8]}' data-lens='{"after": "4,695", "short": "2,352", "rebuild": "4,166"}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 4,701字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
-</div><template id="t-teian-before"><article><h1>営業部門デジタル化支援のご提案</h1>
+  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 4,695字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-teian-before"><article><h3>営業部門デジタル化支援のご提案</h3>
 <p>北都フーズ株式会社 御中</p>
 <p>2026年11月
 〇〇コンサルティング株式会社</p>
 <hr />
-<h2>本提案の要点</h2>
+<h4>本提案の要点</h4>
 <p>御社の営業担当30名の顧客訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。そのため担当者が異動・退職するたびに顧客の情報が後任に十分引き継がれず、失注が起きています。</p>
 <p>当社は、この訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
 <table>
@@ -2664,17 +2664,17 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>1. 現状の課題</h2>
-<h3>顧客の情報が担当者個人のもとにある</h3>
+<h4>1. 現状の課題</h4>
+<h5>顧客の情報が担当者個人のもとにある</h5>
 <p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
-<h3>異動・退職のたびに失注が起きている</h3>
+<h5>異動・退職のたびに失注が起きている</h5>
 <p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。御社ではこの引き継ぎの場面で実際に失注が起きています。どのような情報が抜けたことで失注に至ったのか、その件数と金額はどの程度か、は現状診断で具体的に確認します。</p>
-<h3>今後、引き継ぎの機会は増えていく</h3>
+<h5>今後、引き継ぎの機会は増えていく</h5>
 <p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
 <hr />
-<h2>2. ご提案内容</h2>
+<h4>2. ご提案内容</h4>
 <p>支援は2つのフェーズで進めます。</p>
-<h3>フェーズ1 現状診断(3か月)</h3>
+<h5>フェーズ1 現状診断(3か月)</h5>
 <p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けます。</p>
 <ul>
 <li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
@@ -2685,7 +2685,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標・目標値を決めます</li>
 </ul>
 <p>フェーズ1の成果物として、診断報告書、SFA の要件と製品比較、導入計画書(効果目標を含む)をお渡しします。</p>
-<h3>フェーズ2 SFA 導入・定着支援(6か月)</h3>
+<h5>フェーズ2 SFA 導入・定着支援(6か月)</h5>
 <p>フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。</p>
 <ul>
 <li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
@@ -2695,7 +2695,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>引き継ぎルールの整備:異動・退職の際に SFA に何を残し、後任者が何を確認するかを決め、社内のルールとして定めます</li>
 <li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
 </ul>
-<h3>現場で使われ続けるための工夫</h3>
+<h5>現場で使われ続けるための工夫</h5>
 <p>SFA は、入れただけでは効果が出ません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。当社はこの点を最も重要な課題と考え、次の4つの工夫を組み込んでいます。</p>
 <ol>
 <li>
@@ -2717,15 +2717,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </ol>
 <p>あわせて、ベテランの方に記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
 <hr />
-<h2>3. 期待効果</h2>
-<h3>引き継ぎによる失注の削減</h3>
+<h4>3. 期待効果</h4>
+<h5>引き継ぎによる失注の削減</h5>
 <p>顧客ごとの訪問履歴や商談の経緯が SFA にまとまるため、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、口頭説明だけに頼る引き継ぎがなくなり、情報の抜け落ちによる失注を減らせます。</p>
-<h3>新人の立ち上がり期間の短縮</h3>
+<h5>新人の立ち上がり期間の短縮</h5>
 <p>新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できます。上長も新人の訪問状況を SFA で確認できるため、つまずきに早く気づいて助言できます。</p>
-<h3>同じ規模の食品卸での事例</h3>
+<h5>同じ規模の食品卸での事例</h5>
 <p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。同業・同規模の会社で、営業記録の共有が成果につながった例です。</p>
 <p>ただし、B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
-<h3>効果の測り方</h3>
+<h5>効果の測り方</h5>
 <p>次の指標を使い、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。</p>
 <table>
 <thead>
@@ -2753,14 +2753,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>投資額に見合う効果があるかの判断について</h3>
+<h5>投資額に見合う効果があるかの判断について</h5>
 <p>引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
 <blockquote>
 <p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
 </blockquote>
 <p>現時点で当社は御社の失注件数や取引額の資料を持っていないため、本資料では金額での試算を控えています。フェーズ1の最初の1か月で過去の引き継ぎ実績からこれらの数字を算出し、投資額に見合う効果が見込めるかをご報告します。3か月目の継続判断は、この試算をもとに行っていただけます。</p>
 <hr />
-<h2>4. 費用</h2>
+<h4>4. 費用</h4>
 <table>
 <thead>
 <tr>
@@ -2790,8 +2790,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <p>当社の支援費用は月額300万円です。</p>
 <p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
 <hr />
-<h2>5. 進め方</h2>
-<h3>スケジュール</h3>
+<h4>5. 進め方</h4>
+<h5>スケジュール</h5>
 <table>
 <thead>
 <tr>
@@ -2848,13 +2848,13 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>3か月目の継続判断</h3>
+<h5>3か月目の継続判断</h5>
 <p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
-<h3>進捗のご報告</h3>
+<h5>進捗のご報告</h5>
 <p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
 <hr />
-<h2>6. 体制</h2>
-<h3>当社の体制</h3>
+<h4>6. 体制</h4>
+<h5>当社の体制</h5>
 <table>
 <thead>
 <tr>
@@ -2881,7 +2881,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>御社にお願いしたいこと</h3>
+<h5>御社にお願いしたいこと</h5>
 <p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
 <ul>
 <li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
@@ -2890,18 +2890,18 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>ヒアリングへのご協力:営業担当・管理職の方に、1人あたり1時間程度のお時間</li>
 </ul>
 <hr />
-<h2>7. 今後の進め方</h2>
+<h4>7. 今後の進め方</h4>
 <ol>
 <li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
 <li>経営会議でご審議いただきます</li>
 <li>ご承認後、契約を締結し、キックオフを行います</li>
 </ol>
-<p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の概算を本資料に追加できます。ご検討いただけますと幸いです。</p></article></template><template id="t-teian-after"><article><h1>営業部門デジタル化支援のご提案</h1>
+<p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の概算を本資料に追加できます。ご検討いただけますと幸いです。</p></article></template><template id="t-teian-after"><article><h3>営業部門デジタル化支援のご提案</h3>
 <p>北都フーズ株式会社 御中</p>
 <p>2026年11月
 〇〇コンサルティング株式会社</p>
 <hr />
-<h2>本提案の要点</h2>
+<h4>本提案の要点</h4>
 <p>当社は、営業担当30名の顧客訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
 <p>訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。担当者が異動・退職するとき、顧客の情報は後任に十分引き継がれないおそれがあります。営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、失注の理由、件数、金額は現状診断で確認します。</p>
 <table>
@@ -2931,18 +2931,18 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>1. 現状の課題</h2>
-<h3>顧客の情報が担当者個人のもとにある</h3>
+<h4>1. 現状の課題</h4>
+<h5>顧客の情報が担当者個人のもとにある</h5>
 <p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
-<h3>異動・退職の引き継ぎでの失注</h3>
+<h5>異動・退職の引き継ぎでの失注</h5>
 <p>営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、その2社の時期や理由もうかがっていません。</p>
 <p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。情報が届かなかった失注と、前任者との関係が切れて起きた失注がどのくらい混じっているか、その件数と金額はどの程度かは、現状診断で具体的に確認します。</p>
-<h3>今後、引き継ぎの機会は増えていく</h3>
+<h5>今後、引き継ぎの機会は増えていく</h5>
 <p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
 <hr />
-<h2>2. ご提案内容</h2>
+<h4>2. ご提案内容</h4>
 <p>支援は2つのフェーズで進めます。</p>
-<h3>フェーズ1 現状診断(3か月)</h3>
+<h5>フェーズ1 現状診断(3か月)</h5>
 <p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けやすくします。</p>
 <ul>
 <li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
@@ -2953,7 +2953,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標の定義・目標値を決めます</li>
 </ul>
 <p>フェーズ1の成果物として、診断報告書、効果の試算、SFA の要件と製品比較(候補製品ごとの見積もりを含む)、導入計画書(効果目標を含む)をお渡しします。</p>
-<h3>フェーズ2 SFA 導入・定着支援(6か月)</h3>
+<h5>フェーズ2 SFA 導入・定着支援(6か月)</h5>
 <p>フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。</p>
 <ul>
 <li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
@@ -2963,7 +2963,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
 <li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
 </ul>
-<h3>現場で使われ続けるための工夫</h3>
+<h5>現場で使われ続けるための工夫</h5>
 <p>当社は、営業担当が記録を入れ続けることを最も重要な課題と考え、4つの工夫を組み込んでいます。SFA は、入れただけでは効果を見込めません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。</p>
 <p>御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました。ただし、これは支援の終了後も入力が続くかを確かめたものではありません。</p>
 <ol>
@@ -2985,24 +2985,24 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </li>
 </ol>
 <hr />
-<h2>3. 期待効果</h2>
-<h3>引き継ぎによる失注の削減</h3>
+<h4>3. 期待効果</h4>
+<h5>引き継ぎによる失注の削減</h5>
 <p>失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます。顧客ごとの訪問履歴や商談の経緯が SFA に記録され続ければ、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、前任者の Excel と口頭の説明に頼る引き継ぎを改めます。</p>
-<h3>新人の立ち上がり期間の短縮</h3>
+<h5>新人の立ち上がり期間の短縮</h5>
 <p>SFA に記録がたまれば、新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できると見込みます。上長も新人の訪問状況を SFA で確認でき、つまずきに早く気づいて助言しやすくなります。</p>
-<h3>同じ規模の食品卸での事例</h3>
+<h5>同じ規模の食品卸での事例</h5>
 <p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。</p>
 <p>ただし、受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません。B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
-<h3>効果の測り方</h3>
+<h5>効果の測り方</h5>
 <p>引き継ぎ顧客の失注率と新人の独り立ちまでの期間は、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。失注率の定義も御社と決めます。SFA の入力率は、導入後の定着を確かめる指標です。指標の内容は付録Bのとおりです。</p>
-<h3>投資額に見合う効果の判断</h3>
+<h5>投資額に見合う効果の判断</h5>
 <p>3か月目の継続判断は、効果の試算をもとに行っていただけます。引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
 <blockquote>
 <p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
 </blockquote>
 <p>現時点で当社は御社の失注件数や取引額の資料を持っていません。台帳があると営業本部長からうかがっていますが、まだ拝見していないため、本資料では金額での試算を控えています。フェーズ1の最初の1か月で、過去の引き継ぎ実績から改善幅を除く数字を算出します。改善幅は効果目標とあわせて決めるため、ライセンス費の見積もりもそろう3か月目に、投資額に見合う効果が見込めるかをご報告します。</p>
 <hr />
-<h2>4. 費用</h2>
+<h4>4. 費用</h4>
 <p>当社の支援費用は月額300万円です。</p>
 <table>
 <thead>
@@ -3032,15 +3032,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
 <hr />
-<h2>5. 進め方</h2>
+<h4>5. 進め方</h4>
 <p>月ごとの作業は付録Aにまとめています。</p>
-<h3>3か月目の継続判断</h3>
+<h5>3か月目の継続判断</h5>
 <p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
-<h3>進捗のご報告</h3>
+<h5>進捗のご報告</h5>
 <p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
 <hr />
-<h2>6. 体制</h2>
-<h3>当社の体制</h3>
+<h4>6. 体制</h4>
+<h5>当社の体制</h5>
 <table>
 <thead>
 <tr>
@@ -3067,7 +3067,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h3>御社にお願いしたいこと</h3>
+<h5>御社にお願いしたいこと</h5>
 <p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
 <ul>
 <li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
@@ -3077,7 +3077,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>研修と記録:営業担当30名と管理職の方の研修へのご参加と、営業担当の方の毎日の記録</li>
 </ul>
 <hr />
-<h2>7. 今後の進め方</h2>
+<h4>7. 今後の進め方</h4>
 <ol>
 <li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
 <li>経営会議でご審議いただきます</li>
@@ -3085,7 +3085,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </ol>
 <p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の式のうち年間に担当が替わる顧客数を本資料に追加できます。ご検討いただけますと幸いです。</p>
 <hr />
-<h2>付録A 月ごとの作業</h2>
+<h4>付録A 月ごとの作業</h4>
 <table>
 <thead>
 <tr>
@@ -3142,7 +3142,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録B 効果を測る指標</h2>
+<h4>付録B 効果を測る指標</h4>
 <table>
 <thead>
 <tr>
@@ -3168,12 +3168,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>現場への定着</td>
 </tr>
 </tbody>
-</table></article></template><template id="t-teian-short"><article><h1>営業部門デジタル化支援のご提案</h1>
+</table></article></template><template id="t-teian-short"><article><h3>営業部門デジタル化支援のご提案</h3>
 <p>北都フーズ株式会社 御中</p>
 <p>2026年11月
 〇〇コンサルティング株式会社</p>
 <hr />
-<h2>本提案の要点</h2>
+<h4>本提案の要点</h4>
 <p>当社は、営業担当30名の顧客訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
 <table>
 <thead>
@@ -3202,20 +3202,20 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>1. 現状の課題</h2>
-<h3>顧客の情報が担当者個人のもとにある</h3>
+<h4>1. 現状の課題</h4>
+<h5>顧客の情報が担当者個人のもとにある</h5>
 <p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。</p>
-<h3>異動・退職の引き継ぎでの失注</h3>
+<h5>異動・退職の引き継ぎでの失注</h5>
 <p>担当者が異動・退職するとき、顧客の情報は後任に十分引き継がれないおそれがあります。営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、失注の理由、件数、金額は現状診断で確認します。</p>
-<h3>今後、引き継ぎの機会は増えていく</h3>
+<h5>今後、引き継ぎの機会は増えていく</h5>
 <p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。</p>
 <hr />
-<h2>2. ご提案内容</h2>
-<h3>フェーズ1 現状診断(3か月)</h3>
+<h4>2. ご提案内容</h4>
+<h5>フェーズ1 現状診断(3か月)</h5>
 <p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。フェーズ1の成果物として、診断報告書、効果の試算、SFA の要件と製品比較(候補製品ごとの見積もりを含む)、導入計画書(効果目標を含む)をお渡しします。</p>
-<h3>フェーズ2 SFA 導入・定着支援(6か月)</h3>
+<h5>フェーズ2 SFA 導入・定着支援(6か月)</h5>
 <p>フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。全体展開では、営業担当30名と管理職の方を対象に研修を行います。</p>
-<h3>現場で使われ続けるための工夫</h3>
+<h5>現場で使われ続けるための工夫</h5>
 <p>当社は、営業担当が記録を入れ続けることを最も重要な課題と考え、4つの工夫を組み込んでいます。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。</p>
 <ol>
 <li>入力項目を最小限に絞る</li>
@@ -3224,19 +3224,19 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>一人ひとりに合わせて支援する</li>
 </ol>
 <hr />
-<h2>3. 期待効果</h2>
-<h3>引き継ぎによる失注の削減</h3>
+<h4>3. 期待効果</h4>
+<h5>引き継ぎによる失注の削減</h5>
 <p>失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます。顧客ごとの訪問履歴や商談の経緯が SFA に記録され続ければ、後任者は着任前に過去のやりとりを確認できます。</p>
-<h3>新人の立ち上がり期間の短縮</h3>
+<h5>新人の立ち上がり期間の短縮</h5>
 <p>SFA に記録がたまれば、新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できると見込みます。</p>
-<h3>投資額に見合う効果の判断</h3>
+<h5>投資額に見合う効果の判断</h5>
 <p>3か月目の継続判断は、効果の試算をもとに行っていただけます。引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
 <blockquote>
 <p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
 </blockquote>
 <p>現時点で当社は御社の失注件数や取引額の資料を持っていません。台帳があると営業本部長からうかがっていますが、まだ拝見していないため、本資料では金額での試算を控えています。ライセンス費の見積もりもそろう3か月目に、投資額に見合う効果が見込めるかをご報告します。</p>
 <hr />
-<h2>4. 費用</h2>
+<h4>4. 費用</h4>
 <p>当社の支援費用は月額300万円です。</p>
 <table>
 <thead>
@@ -3266,12 +3266,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。</p>
 <hr />
-<h2>5. 進め方</h2>
+<h4>5. 進め方</h4>
 <p>月ごとの作業は付録Aにまとめています。</p>
-<h3>3か月目の継続判断</h3>
+<h5>3か月目の継続判断</h5>
 <p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
 <hr />
-<h2>6. 御社にお願いしたいこと</h2>
+<h4>6. 御社にお願いしたいこと</h4>
 <p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
 <ul>
 <li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
@@ -3281,7 +3281,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>研修と記録:営業担当30名と管理職の方の研修へのご参加と、営業担当の方の毎日の記録</li>
 </ul>
 <hr />
-<h2>7. 今後の進め方</h2>
+<h4>7. 今後の進め方</h4>
 <ol>
 <li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
 <li>経営会議でご審議いただきます</li>
@@ -3289,7 +3289,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </ol>
 <p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の式のうち年間に担当が替わる顧客数を本資料に追加できます。ご検討いただけますと幸いです。</p>
 <hr />
-<h2>付録A 月ごとの作業</h2>
+<h4>付録A 月ごとの作業</h4>
 <table>
 <thead>
 <tr>
@@ -3346,7 +3346,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録B 効果を測る指標</h2>
+<h4>付録B 効果を測る指標</h4>
 <table>
 <thead>
 <tr>
@@ -3374,13 +3374,13 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>引き継ぎ顧客の失注率と新人の独り立ちまでの期間は、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。失注率の定義も御社と決めます。SFA の入力率は、導入後の定着を確かめる指標です。</p>
-<h2>付録C 現状の課題の補足</h2>
+<h4>付録C 現状の課題の補足</h4>
 <p>訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
 <p>引き継ぎで失った2社の時期や理由は、うかがっていません。</p>
 <p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。情報が届かなかった失注と、前任者との関係が切れて起きた失注がどのくらい混じっているか、その件数と金額はどの程度かは、現状診断で具体的に確認します。</p>
 <p>ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
-<h2>付録D ご提案内容の詳細</h2>
-<h3>フェーズ1 現状診断の作業</h3>
+<h4>付録D ご提案内容の詳細</h4>
+<h5>フェーズ1 現状診断の作業</h5>
 <p>ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けやすくします。</p>
 <ul>
 <li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
@@ -3390,7 +3390,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>SFA の要件整理と製品選定の支援:記録すべき項目を絞り込み、候補となる製品を比較して選定をお手伝いします</li>
 <li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標の定義・目標値を決めます</li>
 </ul>
-<h3>フェーズ2 SFA 導入・定着支援の作業</h3>
+<h5>フェーズ2 SFA 導入・定着支援の作業</h5>
 <ul>
 <li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
 <li>既存データの移行:Excel の記録のうち、どの顧客のどの情報を移すかを決め、移行を支援します</li>
@@ -3399,7 +3399,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
 <li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
 </ul>
-<h3>現場で使われ続けるための工夫の詳細</h3>
+<h5>現場で使われ続けるための工夫の詳細</h5>
 <p>SFA は、入れただけでは効果を見込めません。</p>
 <p>御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました。ただし、これは支援の終了後も入力が続くかを確かめたものではありません。</p>
 <ol>
@@ -3420,15 +3420,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
    集合研修だけで終わらせず、操作に不安のある方には個別にサポートします。全体展開の後も入力状況を確認し、記録が止まっている方には早めに声をかけます。ベテランの方に記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
 </li>
 </ol>
-<h2>付録E 期待効果の補足</h2>
+<h4>付録E 期待効果の補足</h4>
 <p>引き継ぎルールを整えることで、前任者の Excel と口頭の説明に頼る引き継ぎを改めます。</p>
 <p>上長も新人の訪問状況を SFA で確認でき、つまずきに早く気づいて助言しやすくなります。</p>
 <p>フェーズ1の最初の1か月で、過去の引き継ぎ実績から改善幅を除く数字を算出します。改善幅は効果目標とあわせて決めます。</p>
 <p>製品の決定は、ライセンス費のお見積もりをご確認いただいてからで構いません。</p>
-<h2>付録F 同じ規模の食品卸での事例</h2>
+<h4>付録F 同じ規模の食品卸での事例</h4>
 <p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。</p>
 <p>ただし、受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません。B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
-<h2>付録G 当社の体制と進捗のご報告</h2>
+<h4>付録G 当社の体制と進捗のご報告</h4>
 <table>
 <thead>
 <tr>
@@ -3455,12 +3455,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p></article></template><template id="t-teian-rebuild"><article><h1>営業部門デジタル化支援のご提案</h1>
+<p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p></article></template><template id="t-teian-rebuild"><article><h3>営業部門デジタル化支援のご提案</h3>
 <p>北都フーズ株式会社 御中</p>
 <p>2026年11月
 〇〇コンサルティング株式会社</p>
 <hr />
-<h2>本提案の要点</h2>
+<h4>本提案の要点</h4>
 <p>当社は、営業担当30名の顧客訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
 <p>訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。担当者が異動・退職するとき、顧客の情報は後任に十分引き継がれないおそれがあります。営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、失注の理由、件数、金額は現状診断で確認します。</p>
 <p>現状診断が終わる3か月目の時点で、診断結果をもとに導入フェーズへ進むかどうかをご判断いただけます。投資額に見合う効果が見込めるかも、このときにご報告します。</p>
@@ -3487,16 +3487,16 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <hr />
-<h2>1. 現状の課題</h2>
-<h3>顧客の情報が担当者個人のもとにある</h3>
+<h4>1. 現状の課題</h4>
+<h5>顧客の情報が担当者個人のもとにある</h5>
 <p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
-<h3>異動・退職の引き継ぎでの失注</h3>
+<h5>異動・退職の引き継ぎでの失注</h5>
 <p>営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、その2社の時期や理由もうかがっていません。</p>
 <p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。情報が届かなかった失注と、前任者との関係が切れて起きた失注がどのくらい混じっているか、その件数と金額はどの程度かは、現状診断で具体的に確認します。</p>
-<h3>今後、引き継ぎの機会は増えていく</h3>
+<h5>今後、引き継ぎの機会は増えていく</h5>
 <p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
 <hr />
-<h2>2. フェーズ1 現状診断(3か月)</h2>
+<h4>2. フェーズ1 現状診断(3か月)</h4>
 <p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けやすくします。</p>
 <table>
 <thead>
@@ -3541,18 +3541,18 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>フェーズ1の成果物として、診断報告書、効果の試算、SFA の要件と製品比較(候補製品ごとの見積もりを含む)、導入計画書(効果目標を含む)をお渡しします。</p>
 <hr />
-<h2>3. 3か月目の継続判断</h2>
+<h4>3. 3か月目の継続判断</h4>
 <p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
-<h3>投資額に見合う効果の判断</h3>
+<h5>投資額に見合う効果の判断</h5>
 <p>引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
 <blockquote>
 <p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
 </blockquote>
 <p>現時点で当社は御社の失注件数や取引額の資料を持っていません。台帳があると営業本部長からうかがっていますが、まだ拝見していないため、本資料では金額での試算を控えています。フェーズ1の最初の1か月で、過去の引き継ぎ実績から改善幅を除く数字を算出します。改善幅は効果目標とあわせて決めるため、ライセンス費の見積もりもそろう3か月目に、投資額に見合う効果が見込めるかをご報告します。</p>
 <hr />
-<h2>4. フェーズ2 SFA 導入・定着支援(6か月)</h2>
+<h4>4. フェーズ2 SFA 導入・定着支援(6か月)</h4>
 <p>フェーズ2へ進む場合は、フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。作業の内容は付録A、月ごとの作業は付録Bにまとめています。</p>
-<h3>現場で使われ続けるための工夫</h3>
+<h5>現場で使われ続けるための工夫</h5>
 <p>当社は、営業担当が記録を入れ続けることを最も重要な課題と考え、4つの工夫を組み込んでいます。SFA は、入れただけでは効果を見込めません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。</p>
 <p>御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました。ただし、これは支援の終了後も入力が続くかを確かめたものではありません。</p>
 <ol>
@@ -3574,16 +3574,16 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </li>
 </ol>
 <hr />
-<h2>5. 期待効果</h2>
+<h4>5. 期待効果</h4>
 <p>期待する効果は、引き継ぎによる失注の削減と、新人が独り立ちするまでの期間の短縮です。御社での効果目標は現状診断の結果をもとに設定します。同じ規模の食品卸での事例は付録Dにまとめています。</p>
-<h3>引き継ぎによる失注の削減</h3>
+<h5>引き継ぎによる失注の削減</h5>
 <p>失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます。顧客ごとの訪問履歴や商談の経緯が SFA に記録され続ければ、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、前任者の Excel と口頭の説明に頼る引き継ぎを改めます。</p>
-<h3>新人の立ち上がり期間の短縮</h3>
+<h5>新人の立ち上がり期間の短縮</h5>
 <p>SFA に記録がたまれば、新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できると見込みます。上長も新人の訪問状況を SFA で確認でき、つまずきに早く気づいて助言しやすくなります。</p>
-<h3>効果の測り方</h3>
+<h5>効果の測り方</h5>
 <p>引き継ぎ顧客の失注率と新人の独り立ちまでの期間は、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。失注率の定義も御社と決めます。SFA の入力率は、導入後の定着を確かめる指標です。指標の内容は付録Cのとおりです。</p>
 <hr />
-<h2>6. 費用</h2>
+<h4>6. 費用</h4>
 <p>当社の支援費用は月額300万円です。</p>
 <table>
 <thead>
@@ -3613,10 +3613,10 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table>
 <p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
 <hr />
-<h2>7. 体制</h2>
-<h3>当社の体制</h3>
+<h4>7. 体制</h4>
+<h5>当社の体制</h5>
 <p>当社はプロジェクトマネージャー1名とコンサルタント2名で支援します。役割は付録Eのとおりです。月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
-<h3>御社にお願いしたいこと</h3>
+<h5>御社にお願いしたいこと</h5>
 <p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
 <ul>
 <li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
@@ -3626,7 +3626,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>研修と記録:営業担当30名と管理職の方の研修へのご参加と、営業担当の方の毎日の記録</li>
 </ul>
 <hr />
-<h2>8. 今後の進め方</h2>
+<h4>8. 今後の進め方</h4>
 <ol>
 <li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
 <li>経営会議でご審議いただきます</li>
@@ -3634,7 +3634,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </ol>
 <p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の式のうち年間に担当が替わる顧客数を本資料に追加できます。ご検討いただけますと幸いです。</p>
 <hr />
-<h2>付録A SFA 導入・定着支援の作業</h2>
+<h4>付録A SFA 導入・定着支援の作業</h4>
 <ul>
 <li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
 <li>既存データの移行:Excel の記録のうち、どの顧客のどの情報を移すかを決め、移行を支援します</li>
@@ -3643,7 +3643,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
 <li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
 </ul>
-<h2>付録B 月ごとの作業</h2>
+<h4>付録B 月ごとの作業</h4>
 <table>
 <thead>
 <tr>
@@ -3700,7 +3700,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録C 効果を測る指標</h2>
+<h4>付録C 効果を測る指標</h4>
 <table>
 <thead>
 <tr>
@@ -3727,10 +3727,10 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録D 同じ規模の食品卸での事例</h2>
+<h4>付録D 同じ規模の食品卸での事例</h4>
 <p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。</p>
 <p>ただし、受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません。B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
-<h2>付録E 当社の体制</h2>
+<h4>付録E 当社の体制</h4>
 <table>
 <thead>
 <tr>
@@ -3781,17 +3781,17 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>左右に並べて読む</h3>
 <p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
 <div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 1, 2, 3, 4], "short": [0, 4, 1, 2, 3], "rebuild": [0, 4, 2, 1, 3]}'>
+<div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 1, 2, 3, 4], "short": [0, 4, 1, 2, 3], "rebuild": [0, 4, 2, 1, 3]}' data-lens='{"after": "1,248", "short": "889", "rebuild": "1,084"}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 1,246字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
-</div><template id="t-postmortem-before"><article><h1>受注管理システム障害報告書(10月21日発生分)</h1>
+  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 1,248字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-postmortem-before"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
-<h2>概要</h2>
+<h4>概要</h4>
 <p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためで、サーバーを再起動し、11:50 ごろに復旧しました。</p>
 <p>営業が入力した注文約300件のうち約40件が入力に失敗し、営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでした。</p>
 <p>メモリが上限に達した原因は、まだ確定していません。前日の夕方に本番へ反映した受注検索の改修を疑っていますが、改修が原因だとは確かめられていません。再発防止策として、改修のメモリ使用量の確認、監視のしきい値の見直し、レビュー体制の強化を考えています。</p>
-<h2>経緯</h2>
+<h4>経緯</h4>
 <table>
 <thead>
 <tr>
@@ -3819,14 +3819,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p>
-<h2>原因</h2>
+<h4>原因</h4>
 <p>直接の原因は、アプリケーションサーバーのメモリが上限に達したことです。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
 <p>メモリが上限に達した理由は確定していません。疑っているのは前日の夕方に反映した受注検索の改修ですが、根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。</p>
 <p>改修のレビューは1人で行いました。レビューの体制が障害につながったかどうかは、改修が原因かどうかが分かるまで判断できません。</p>
-<h2>影響</h2>
+<h4>影響</h4>
 <p>この時間帯に営業が入力した注文は約300件で、そのうち約40件(約13%)が入力に失敗しました。失敗した分は、営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでしたが、約40件の分は顧客に再入力の手間をかけています。</p>
 <p>残りの約260件は入力できています。画面が応答しなかった時間帯にも入力できた注文があることになり、止まり方が全面的だったのか断続的だったのかは確認中です。</p>
-<h2>再発防止策</h2>
+<h4>再発防止策</h4>
 <p>次の3つを考えています。いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません。</p>
 <table>
 <thead>
@@ -3850,15 +3850,15 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<p>改修のメモリ使用量を確認した結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template><template id="t-postmortem-after"><article><h1>受注管理システム障害報告書(10月21日発生分)</h1>
+<p>改修のメモリ使用量を確認した結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template><template id="t-postmortem-after"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
-<h2>概要</h2>
+<h4>概要</h4>
 <p>決めていただきたいことが2つあります。再発防止の3つの方向でよいかと、受注検索の改修が障害の原因かどうかの調査に1週間かけてよいかです。</p>
 <p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。この間に入力できた注文もあり、止まり方が全面的か断続的かは確認中です。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためと見ています。サーバーを再起動し、11:50 ごろに復旧しました。</p>
 <p>この時間帯に営業が入力した注文約300件のうち約40件が入力に失敗し、営業が顧客に再入力を頼みました。入力し直すのが営業か顧客かは確認中です。顧客からの問い合わせはありませんでした。</p>
 <p>メモリが上限に達した原因は確定しておらず、前日の夕方に本番へ反映した受注検索の改修を疑っています。改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。</p>
-<h2>経緯</h2>
+<h4>経緯</h4>
 <table>
 <thead>
 <tr>
@@ -3886,12 +3886,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p>
-<h2>原因</h2>
+<h4>原因</h4>
 <p>直接の原因は、メモリが上限に達したことと見ています。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
 <p>メモリが上限に達した理由は確定していません。改修を疑う根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。半年前に1度、同じサーバーのメモリで通知が出たことがあります。そのときは再起動で収まり、原因は調べていません。</p>
-<h2>影響</h2>
+<h4>影響</h4>
 <p>入力に失敗した約40件は、この時間帯の注文約300件の約13%です。約40件の分は、顧客に再入力の手間をかけています。残りの約260件は入力できています。</p>
-<h2>再発防止策</h2>
+<h4>再発防止策</h4>
 <p>次の3つの方向でよいかの了承をお願いします。具体的な内容、担当、期限は、調査の結果が出てから改めて出します。</p>
 <table>
 <thead>
@@ -3915,19 +3915,19 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<p>1つ目の確認は改修が原因かどうかを判断する材料になり、結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template><template id="t-postmortem-short"><article><h1>受注管理システム障害報告書(10月21日発生分)</h1>
+<p>1つ目の確認は改修が原因かどうかを判断する材料になり、結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template><template id="t-postmortem-short"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
-<h2>概要</h2>
+<h4>概要</h4>
 <p>決めていただきたいことが2つあります。再発防止の3つの方向でよいかと、受注検索の改修が障害の原因かどうかの調査に1週間かけてよいかです。</p>
 <p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。この間に入力できた注文もあり、止まり方が全面的か断続的かは確認中です。サーバーを再起動し、11:50 ごろに復旧しました。</p>
 <p>改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。</p>
-<h2>原因</h2>
+<h4>原因</h4>
 <p>直接の原因は、アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したことと見ています。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
 <p>メモリが上限に達した理由は確定しておらず、前日の夕方に本番へ反映した受注検索の改修を疑っています。根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。半年前に1度、同じサーバーのメモリで通知が出たことがあります。そのときは再起動で収まり、原因は調べていません。</p>
-<h2>影響</h2>
+<h4>影響</h4>
 <p>入力に失敗した約40件の分は、顧客に再入力の手間をかけています。この時間帯に営業が入力した注文約300件の約13%で、営業が顧客に再入力を頼みました。入力し直すのが営業か顧客かは確認中です。</p>
-<h2>再発防止策</h2>
+<h4>再発防止策</h4>
 <p>次の3つの方向でよいかの了承をお願いします。具体的な内容、担当、期限は、調査の結果が出てから改めて出します。</p>
 <table>
 <thead>
@@ -3951,7 +3951,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h2>付録A 経緯</h2>
+<h4>付録A 経緯</h4>
 <table>
 <thead>
 <tr>
@@ -3979,24 +3979,24 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p>
-<h2>付録B 補足</h2>
+<h4>付録B 補足</h4>
 <ul>
 <li>影響:残りの約260件は入力できています。顧客からの問い合わせはありませんでした。</li>
 <li>再発防止策:改修のメモリ使用量の確認は、改修が原因かどうかを判断する材料になり、結果によっては、ほかの2つの策の中身も変わることがあります。</li>
-</ul></article></template><template id="t-postmortem-rebuild"><article><h1>受注管理システム障害報告書(10月21日発生分)</h1>
+</ul></article></template><template id="t-postmortem-rebuild"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
-<h2>概要</h2>
+<h4>概要</h4>
 <p>決めていただきたいことが2つあります。再発防止の3つの方向でよいかと、受注検索の改修が障害の原因かどうかの調査に1週間かけてよいかです。</p>
 <p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。この間に入力できた注文もあり、止まり方が全面的か断続的かは確認中です。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためと見ています。サーバーを再起動し、11:50 ごろに復旧しました。</p>
 <p>メモリが上限に達した原因は確定しておらず、前日の夕方に本番へ反映した受注検索の改修を疑っています。改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。</p>
-<h2>影響</h2>
+<h4>影響</h4>
 <p>この時間帯に営業が入力した注文約300件のうち約40件(約13%)が入力に失敗し、営業が顧客に再入力を頼みました。入力し直すのが営業か顧客かは確認中です。約40件の分は、顧客に再入力の手間をかけています。残りの約260件は入力できています。顧客からの問い合わせはありませんでした。</p>
-<h2>原因と調査</h2>
+<h4>原因と調査</h4>
 <p>メモリが上限に達した理由は確定していません。受注検索の改修が原因かどうかの調査に1週間かけてよいかの判断をお願いします。</p>
 <p>直接の原因は、メモリが上限に達したことと見ています。運用チームが調べてこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
 <p>改修を疑う根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。半年前に1度、同じサーバーのメモリで通知が出たことがあります。そのときは再起動で収まり、原因は調べていません。</p>
-<h2>再発防止策</h2>
+<h4>再発防止策</h4>
 <p>次の3つの方向でよいかの了承をお願いします。具体的な内容、担当、期限は、調査の結果が出てから改めて出します。</p>
 <table>
 <thead>
@@ -4021,7 +4021,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <p>1つ目の確認は改修が原因かどうかを判断する材料になり、結果によっては、ほかの2つの策の中身も変わることがあります。</p>
-<h2>付録A 経緯</h2>
+<h4>付録A 経緯</h4>
 <table>
 <thead>
 <tr>
@@ -4107,7 +4107,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
         <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code>/reload-plugins</code> で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">
@@ -4181,6 +4181,7 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',a
   const views=[...document.querySelectorAll('.viewer[data-doc]')];
   const caps={after:'決裁者の目で見て直した後',short:'もっと端的にした後',rebuild:'構成から組み直した後'};
   views.forEach(v=>{
+    const lens=JSON.parse(v.dataset.lens||'{}');
     const key=v.dataset.doc, maps=JSON.parse(v.dataset.maps), L=v.querySelector('.doc.L'), R=v.querySelector('.doc.R'), cap=v.querySelector('.R-cap');
     const seg=v.previousElementSibling;
     function load(d,k){d.replaceChildren(document.getElementById('t-'+key+'-'+k).content.cloneNode(true));d.dataset.key=k;d.scrollTop=0;}
@@ -4189,20 +4190,33 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',a
     function markAll(){mark(L,chgs.map(b=>b.dataset.b),'chg-b');mark(R,chgs.map(b=>b.dataset.a),'chg-a');}
     load(L,'before');load(R,'after');markAll();
     let right='after';
-    seg.querySelectorAll('button[data-r]').forEach(b=>b.addEventListener('click',()=>{right=b.dataset.r;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));load(R,right);cap.textContent=caps[right];markAll();}));
-    // 節の対応でスクロール同期
-    let lock=false;
-    function heads(d){return [...d.querySelectorAll('article h2')];}
-    function sync(from,to,map){if(lock)return;const hs=heads(from);const top=from.getBoundingClientRect().top;let i=-1;for(let k=0;k<hs.length;k++){if(hs[k].getBoundingClientRect().top-top<=8)i=k;}
-      if(i<0){lock=true;to.scrollTop=0;requestAnimationFrame(()=>lock=false);return;}
-      const j=map[i];if(j==null||j<0)return;const th=heads(to)[j];if(!th)return;lock=true;to.scrollTop=th.offsetTop-to.querySelector('article').offsetTop;requestAnimationFrame(()=>lock=false);}
+    seg.querySelectorAll('button[data-r]').forEach(b=>b.addEventListener('click',()=>{right=b.dataset.r;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));load(R,right);cap.innerHTML=caps[right]+' <span class="ln">本編 '+lens[right]+'字</span>';markAll();}));
+    // 節の対応でスクロール同期。スクロール位置を「いまの節の何割まで読んだか」に直し、相手の対応する節の同じ割合へ動かす。
+    // 自分が動かした側から返ってくる scroll イベントは、動かしてから 200ms のあいだ無視する(往復して 0 に戻るのを防ぐ)
+    const hold={L:0,R:0};
+    function heads(d){return [...d.querySelectorAll('article h4')];}
+    function pos(el,d){return el.getBoundingClientRect().top-d.getBoundingClientRect().top+d.scrollTop;}
+    function sync(from,to,map,name){
+      if(Date.now()<hold[name==='L'?'L':'R'])return;
+      const hs=heads(from), ts=heads(to); if(!hs.length||!ts.length)return;
+      const y=from.scrollTop, ph=hs.map(h=>pos(h,from)), pt=ts.map(h=>pos(h,to));
+      let i=-1; for(let k=0;k<ph.length;k++){if(ph[k]-y<=8)i=k;}
+      let target;
+      if(i<0){target=y*(pt[0]/Math.max(1,ph[0]));}
+      else{const j=map[i]; if(j==null||j<0)return;
+        const a=ph[i], b=i+1<ph.length?ph[i+1]:from.scrollHeight, ta=pt[j], tb=j+1<pt.length?pt[j+1]:to.scrollHeight;
+        target=ta+(y-a)/Math.max(1,b-a)*(tb-ta);}
+      target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));
+      if(Math.abs(to.scrollTop-target)<1)return;
+      hold[name==='L'?'R':'L']=Date.now()+200; to.scrollTop=target;
+    }
     function inv(map,n){const m=new Array(n).fill(-1);map.forEach((j,i)=>{if(j>=0&&m[j]<0)m[j]=i;});return m;}
-    L.addEventListener('scroll',()=>sync(L,R,maps[right]),{passive:true});
-    R.addEventListener('scroll',()=>sync(R,L,inv(maps[right],heads(R).length)),{passive:true});
+    L.addEventListener('scroll',()=>sync(L,R,maps[right],'L'),{passive:true});
+    R.addEventListener('scroll',()=>sync(R,L,inv(maps[right],heads(R).length),'R'),{passive:true});
     // 主な変更を押すと移動
     chgs.forEach(b=>b.addEventListener('click',()=>{v.scrollIntoView({block:'start'});const mb=[...L.querySelectorAll('mark.chg-b')].find(m=>m.dataset.t===b.dataset.b);const ma=[...R.querySelectorAll('mark.chg-a')].find(m=>m.dataset.t===b.dataset.a);
       document.querySelectorAll('.doc mark.on').forEach(m=>m.classList.remove('on'));
-      lock=true;if(mb){mb.classList.add('on');L.scrollTop=mb.offsetTop-L.querySelector('article').offsetTop-40;}if(ma){ma.classList.add('on');R.scrollTop=ma.offsetTop-R.querySelector('article').offsetTop-40;}setTimeout(()=>lock=false,50);}));
+      hold.L=hold.R=Date.now()+300;if(mb){mb.classList.add('on');L.scrollTop=pos(mb,L)-40;}if(ma){ma.classList.add('on');R.scrollTop=pos(ma,R)-40;}}));
   });
 })();
 </script>

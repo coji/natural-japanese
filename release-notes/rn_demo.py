@@ -22,12 +22,11 @@ CSS2 = """
 .flow li .chip{min-height:calc(24 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(6 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(14 / 16 * 1rem)}
 @media (min-width:75rem){.flow li+li::before{content:"";position:absolute;left:calc(-14 / 16 * 1rem);top:calc(6 / 16 * 1rem);width:calc(8 / 16 * 1rem);height:calc(8 / 16 * 1rem);border-top:2px solid var(--color-neutral-solid-gray-536);border-right:2px solid var(--color-neutral-solid-gray-536);transform:rotate(45deg)}}
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
-@media (min-width:60rem){.twoc{grid-template-columns:1fr 1fr;gap:calc(32 / 16 * 1rem)}}
 .twoc h4{margin-top:0}
 .twoc>div{min-width:0}
 /* 字数の棒 */
 .cbars{display:grid;gap:calc(8 / 16 * 1rem)}
-.bar{display:grid;grid-template-columns:minmax(5em,9em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
+.bar{display:grid;grid-template-columns:minmax(5em,11em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
 .bar .bl{font-size:calc(16 / 16 * 1rem)}
 .bar .tr{display:block;height:calc(20 / 16 * 1rem);background:var(--color-neutral-solid-gray-50);border-radius:calc(4 / 16 * 1rem);overflow:hidden}
 .bar .f{display:block;height:100%;background:var(--color-key-400)}
@@ -36,7 +35,6 @@ CSS2 = """
 table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0}
 /* 主な変更 */
 .changes{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:0;display:grid;grid-template-columns:1fr;gap:0}
-@media (min-width:60rem){.changes{grid-template-columns:1fr 1fr;column-gap:calc(48 / 16 * 1rem)}}
 .chg{appearance:none;background:none;border:0;border-bottom:1px solid var(--color-neutral-solid-gray-420);width:100%;text-align:left;padding:calc(12 / 16 * 1rem) 0;display:grid;grid-template-columns:auto 10em 1fr;gap:calc(12 / 16 * 1rem);align-items:start;font:inherit;color:inherit;cursor:pointer}
 .chg .num{display:inline-grid;place-items:center;width:calc(28 / 16 * 1rem);height:calc(28 / 16 * 1rem);border-radius:calc(624.9375rem);background:var(--color-key-900);color:var(--color-neutral-white);font-weight:bold;font-variant-numeric:tabular-nums}
 @media (hover:hover){.chg:hover b{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}}
@@ -44,6 +42,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 .viewer{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem)}
 @media (min-width:48rem){.viewer{grid-template-columns:1fr 1fr}}
 .pane .cap .ln{font-weight:normal;margin-left:calc(8 / 16 * 1rem)}
+.doc td:first-child,.doc th:first-child{white-space:nowrap}
+.doc table+hr{display:none}
 .doc mark.chg-b{background:none;box-shadow:none;text-decoration:underline dashed;text-decoration-color:var(--color-neutral-solid-gray-536);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
 .doc mark.chg-a{background:none;box-shadow:none;text-decoration:underline solid;text-decoration-color:var(--color-key-900);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
 .doc mark.on{background:var(--color-primitive-yellow-300)}
@@ -59,6 +59,7 @@ JS2 = r"""
   const views=[...document.querySelectorAll('.viewer[data-doc]')];
   const caps={after:'決裁者の目で見て直した後',short:'もっと端的にした後',rebuild:'構成から組み直した後'};
   views.forEach(v=>{
+    const lens=JSON.parse(v.dataset.lens||'{}');
     const key=v.dataset.doc, maps=JSON.parse(v.dataset.maps), L=v.querySelector('.doc.L'), R=v.querySelector('.doc.R'), cap=v.querySelector('.R-cap');
     const seg=v.previousElementSibling;
     function load(d,k){d.replaceChildren(document.getElementById('t-'+key+'-'+k).content.cloneNode(true));d.dataset.key=k;d.scrollTop=0;}
@@ -67,20 +68,33 @@ JS2 = r"""
     function markAll(){mark(L,chgs.map(b=>b.dataset.b),'chg-b');mark(R,chgs.map(b=>b.dataset.a),'chg-a');}
     load(L,'before');load(R,'after');markAll();
     let right='after';
-    seg.querySelectorAll('button[data-r]').forEach(b=>b.addEventListener('click',()=>{right=b.dataset.r;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));load(R,right);cap.textContent=caps[right];markAll();}));
-    // 節の対応でスクロール同期
-    let lock=false;
-    function heads(d){return [...d.querySelectorAll('article h2')];}
-    function sync(from,to,map){if(lock)return;const hs=heads(from);const top=from.getBoundingClientRect().top;let i=-1;for(let k=0;k<hs.length;k++){if(hs[k].getBoundingClientRect().top-top<=8)i=k;}
-      if(i<0){lock=true;to.scrollTop=0;requestAnimationFrame(()=>lock=false);return;}
-      const j=map[i];if(j==null||j<0)return;const th=heads(to)[j];if(!th)return;lock=true;to.scrollTop=th.offsetTop-to.querySelector('article').offsetTop;requestAnimationFrame(()=>lock=false);}
+    seg.querySelectorAll('button[data-r]').forEach(b=>b.addEventListener('click',()=>{right=b.dataset.r;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));load(R,right);cap.innerHTML=caps[right]+' <span class="ln">本編 '+lens[right]+'字</span>';markAll();}));
+    // 節の対応でスクロール同期。スクロール位置を「いまの節の何割まで読んだか」に直し、相手の対応する節の同じ割合へ動かす。
+    // 自分が動かした側から返ってくる scroll イベントは、動かしてから 200ms のあいだ無視する(往復して 0 に戻るのを防ぐ)
+    const hold={L:0,R:0};
+    function heads(d){return [...d.querySelectorAll('article h4')];}
+    function pos(el,d){return el.getBoundingClientRect().top-d.getBoundingClientRect().top+d.scrollTop;}
+    function sync(from,to,map,name){
+      if(Date.now()<hold[name==='L'?'L':'R'])return;
+      const hs=heads(from), ts=heads(to); if(!hs.length||!ts.length)return;
+      const y=from.scrollTop, ph=hs.map(h=>pos(h,from)), pt=ts.map(h=>pos(h,to));
+      let i=-1; for(let k=0;k<ph.length;k++){if(ph[k]-y<=8)i=k;}
+      let target;
+      if(i<0){target=y*(pt[0]/Math.max(1,ph[0]));}
+      else{const j=map[i]; if(j==null||j<0)return;
+        const a=ph[i], b=i+1<ph.length?ph[i+1]:from.scrollHeight, ta=pt[j], tb=j+1<pt.length?pt[j+1]:to.scrollHeight;
+        target=ta+(y-a)/Math.max(1,b-a)*(tb-ta);}
+      target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));
+      if(Math.abs(to.scrollTop-target)<1)return;
+      hold[name==='L'?'R':'L']=Date.now()+200; to.scrollTop=target;
+    }
     function inv(map,n){const m=new Array(n).fill(-1);map.forEach((j,i)=>{if(j>=0&&m[j]<0)m[j]=i;});return m;}
-    L.addEventListener('scroll',()=>sync(L,R,maps[right]),{passive:true});
-    R.addEventListener('scroll',()=>sync(R,L,inv(maps[right],heads(R).length)),{passive:true});
+    L.addEventListener('scroll',()=>sync(L,R,maps[right],'L'),{passive:true});
+    R.addEventListener('scroll',()=>sync(R,L,inv(maps[right],heads(R).length),'R'),{passive:true});
     // 主な変更を押すと移動
     chgs.forEach(b=>b.addEventListener('click',()=>{v.scrollIntoView({block:'start'});const mb=[...L.querySelectorAll('mark.chg-b')].find(m=>m.dataset.t===b.dataset.b);const ma=[...R.querySelectorAll('mark.chg-a')].find(m=>m.dataset.t===b.dataset.a);
       document.querySelectorAll('.doc mark.on').forEach(m=>m.classList.remove('on'));
-      lock=true;if(mb){mb.classList.add('on');L.scrollTop=mb.offsetTop-L.querySelector('article').offsetTop-40;}if(ma){ma.classList.add('on');R.scrollTop=ma.offsetTop-R.querySelector('article').offsetTop-40;}setTimeout(()=>lock=false,50);}));
+      hold.L=hold.R=Date.now()+300;if(mb){mb.classList.add('on');L.scrollTop=pos(mb,L)-40;}if(ma){ma.classList.add('on');R.scrollTop=pos(ma,R)-40;}}));
   });
 })();
 """
