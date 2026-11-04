@@ -15,7 +15,7 @@ uv run dev/ct-eval/eval.py --fixtures postmortem-planted,postmortem-clean      #
 uv run dev/ct-eval/eval.py --modes rewrite --reports-from r12 --repeat 3       # 直す工程だけ。報告は r12 のを足場にする
 uv run dev/ct-eval/eval.py --modes redesign --reports-from r9 --repeat 3       # 組み直す工程だけ
 uv run dev/ct-eval/eval.py --rejudge r27j --run-label r27j-sj                  # 生成を回さず、保存した出力に判定だけをかけ直す(判定者を替えたときの基準の置き直し)
-uv run --with pyyaml dev/ct-eval/outcome.py --label o3 --repeat 3 ringi-元=dev/ct-eval/fixtures/ringi-planted.md   # 成果物の評価(経営者役)
+uv run --with pyyaml dev/ct-eval/outcome.py --label o3 --repeat 3 ringi-元=dev/ct-eval/fixtures/ringi-planted.md   # 成果物の評価(読む人の役。--prompt で素材ごとに変える)
 ```
 
 生成は Opus 5.5(`--model`、effort は `--effort`、既定 high)、判定は Sonnet 5.5(`--judge-model`。生成と別のモデルにする)、review の模擬書き手は Opus 5.5(`--writer-model`)。
@@ -87,10 +87,15 @@ uv run --with pyyaml dev/ct-eval/outcome.py --label o3 --repeat 3 ringi-元=dev/
    - 判定(`prompts/judge-length.txt`): 主結論・決裁事項・数値(付録に移っていてもよい)が同じか、元にも YAML にもない内容の持ち込み、端的では本編の各文が元の文書のどの行に対応するか(対応なしの文を数える)、丁寧では論拠の文が YAML の論拠に対応するか、見出しと各節の先頭文だけで何を決める文書か分かるか
    - 合否: 素材ごとに 3 回中 2 回以上。仕込んだ欠陥は見ない(直す工程ではない)
 
-8. outcome(`outcome.py`。規則の合否ではなく、成果物が決裁者にとって良くなったかの計測)
-   - スタートアップ経営者役(`prompts/exec.txt`。戻せる判断は速く通し、起案者が自分で決めているか・一番怪しいところを自分で言っているか・他に何を捨てたかを見る)に文書を1本だけ渡し、返事(OK / 条件つきOK / 聞きたい / 却下)、一言、聞きたいこと(3つまで。文書の中で答えが出るものか、起案者にしか答えられないものか)、返事を決めるまでに読んだ行数と字数を返させる
-   - 元の文書と各工程の出力を伏せて別々に渡し、同じ文書に3回かけて多数決。`runs/<label>/summary.md` に文書ごとの表
-   - 見るもの: 元 → 出力で「聞きたい」が減ったか、文書の中で答えが出る問いが 0 に近づいたか、読んだ字数が増えていないか。1つでも悪化していれば「改悪の疑い」として工程ごとに記録する
+8. outcome(`outcome.py`。規則の合否ではなく、成果物が読む人にとって良くなったかの計測)
+   - 文書を受け取る側の役に文書を1本だけ渡し、返事(OK / 条件つきOK / 聞きたい / 却下)、一言、聞きたいこと(返事が変わるものだけ。数を埋めない)、条件つきOK・却下の条件や理由(`reasons`)、返事を決めるまでに読んだ行数と字数を返させる。聞きたいことと理由は、文書の中で答えが出るものか、書き手にしか答えられないものかに分けさせる。役は `--prompt` で素材ごとに変える: 稟議・制度企画 = スタートアップ経営者役(`prompts/exec.txt`、既定。戻せる判断は速く通し、起案者が自分で決めているか・一番怪しいところを自分で言っているか・他に何を捨てたかを見る)、提案資料 = 提案を受け取る会社の役員役(`prompts/customer.txt`)、障害報告 = 報告を受け取る上司役(`prompts/boss.txt`)。役の1段落目だけが違い、残りは同じ
+   - 元の文書と各工程の出力を伏せて別々に渡し、同じ文書に3回かけて多数決。比べるものは必ず同じ回に入れ、name を「組:版」にする(読む人の役は日によって揺れる)。`runs/<label>/summary.md` の先頭に、組ごとに版を横に並べた表(返事 / 指摘 = 聞きたい + 理由(うち文書の中で答えが出る) / 読んだ字数)
+   - 見るもの: 元 → 出力で返事が悪くなっていないか、文書の中で答えが出る指摘(読む人がミスを拾わされているか)が減ったか、読んだ字数が増えていないか。悪化していれば「改悪の疑い」として工程ごとに記録する。書き手の答えを入れた一括の出力は、実態が見えて却下になることがある(稟議: 最良の前提でも効果が費用を下回る)。これは悪化ではなく、確認事項の先頭の「頼む中身を小さくする案」と読む人の却下の理由が一致するかを見る
+   - 役を「返事が変わるものだけ聞く」にする前(o1〜o9)は、文書がよくなっても3つ聞く癖があり、聞きたいの数で前後を比べられなかった。o10 からの数字と、それ以前の数字は比べない
+9. overlap(`overlap.py`。読む人の指摘が、スキルの確認事項にどれだけ入っているか)
+   - outcome の run の指摘(聞きたい + 理由)と、rewrite / review の run の `source.確認事項.md`(3回分をまとめて)を判定者(Sonnet、`prompts/judge-overlap.txt`)に突き合わせ、指摘1件ずつを「先に答える問いにある / そのほかにある / なし」に分ける。3回のうち1回でも先に答える問いにあれば「ある」なので、割合は上限として読む
+   - `uv run --with pyyaml dev/ct-eval/overlap.py --label ov2 ringi=o10-exec/ringi_元:r43c/ringi-planted-rewrite ...`(name=<outcome の run>/<name。: は _>:<eval の run>/<fixture-mode>)
+   - 判定者が緩くないかは、文書を取り違えた組(稟議の指摘 × 提案の確認事項)で「なし」が出ることで確かめる(ovx)
 
 ## 限界
 
