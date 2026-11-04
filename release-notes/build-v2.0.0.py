@@ -184,6 +184,13 @@ def _norm(t): return re.sub(r"[\s|*]", "", re.sub(r"<[^>]+>", "", t))
 def V(v): return v.replace("聞きたい", "判断の前に質問あり")
 def _hname(h): return re.sub(r"^##\s*(?:\d+[.．]\s*)?", "", h).strip()
 def md(t): return markdown.markdown(t, extensions=["tables"])
+def cmd(text):
+    """本文の中のコマンドを、コマンド名・サブコマンド・ファイル名で色分けする。"""
+    parts = text.split(" ")
+    out = [f'<span class="ck">{E(parts[0])}</span>']
+    for x in parts[1:]:
+        out.append(f'<span class="{"cf" if "." in x else "cs"}">{E(x)}</span>')
+    return '<code class="ic">' + " ".join(out) + "</code>"
 def demote(h):
     """文書の中の見出しをページの見出しより2段下げる(h1→h3 … h4→h6)。"""
     return re.sub(r"<(/?)h([1-4])\b", lambda m: f"<{m.group(1)}h{int(m.group(2)) + 2}", h)
@@ -464,7 +471,7 @@ page = f"""<!doctype html>
 
 <section class="block" id="how"><div class="wrap">
   <h2 data-chip>頼み方</h2>
-  <p class="p prose-max">基本は <code>/critical-thinking 稟議書.md</code> の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、<code>/critical-thinking short 稟議書.md</code> のようにサブコマンドを挟みます。</p>
+  <p class="p prose-max">基本は {cmd("/critical-thinking 稟議書.md")} の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、{cmd("/critical-thinking short 稟議書.md")} のようにサブコマンドを挟みます。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
@@ -490,7 +497,7 @@ page = f"""<!doctype html>
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
         <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code>/reload-plugins</code> で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか {cmd("/reload-plugins")} で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">

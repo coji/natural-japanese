@@ -240,6 +240,11 @@ footer p{margin:0 0 calc(8 / 16 * 1rem)}
 .doc th{background:var(--color-neutral-solid-gray-100);font-weight:bold;border-bottom-color:var(--color-neutral-black)}
 .doc code{font-family:var(--font-family-mono);font-size:.92em;background:var(--color-neutral-solid-gray-50);padding:1px 4px;border-radius:calc(4 / 16 * 1rem)}
 
+/* 本文の中のコマンド */
+code.ic{font-family:var(--font-family-mono);font-size:.92em;background:var(--color-neutral-solid-gray-50);border:1px solid var(--color-neutral-solid-gray-420);padding:calc(2 / 16 * 1rem) calc(6 / 16 * 1rem);border-radius:calc(4 / 16 * 1rem);white-space:nowrap}
+code.ic .ck{color:var(--color-key-900);font-weight:bold}
+code.ic .cs{color:var(--color-primitive-green-800);font-weight:bold}
+code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 .eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
 /* 数字のタイル */
 .tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
@@ -2222,7 +2227,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 
 <section class="block" id="how"><div class="wrap">
   <h2 data-chip>頼み方</h2>
-  <p class="p prose-max">基本は <code>/critical-thinking 稟議書.md</code> の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、<code>/critical-thinking short 稟議書.md</code> のようにサブコマンドを挟みます。</p>
+  <p class="p prose-max">基本は <code class="ic"><span class="ck">/critical-thinking</span> <span class="cf">稟議書.md</span></code> の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、<code class="ic"><span class="ck">/critical-thinking</span> <span class="cs">short</span> <span class="cf">稟議書.md</span></code> のようにサブコマンドを挟みます。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
@@ -2248,7 +2253,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
         <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code>/reload-plugins</code> で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code class="ic"><span class="ck">/reload-plugins</span></code> で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">

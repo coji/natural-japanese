@@ -2,6 +2,11 @@
 値は rn_style.py と同じ DADS のトークンを使う。"""
 
 CSS2 = """
+/* 本文の中のコマンド */
+code.ic{font-family:var(--font-family-mono);font-size:.92em;background:var(--color-neutral-solid-gray-50);border:1px solid var(--color-neutral-solid-gray-420);padding:calc(2 / 16 * 1rem) calc(6 / 16 * 1rem);border-radius:calc(4 / 16 * 1rem);white-space:nowrap}
+code.ic .ck{color:var(--color-key-900);font-weight:bold}
+code.ic .cs{color:var(--color-primitive-green-800);font-weight:bold}
+code.ic .cf{color:var(--color-neutral-solid-gray-800)}
 .eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
 /* 数字のタイル */
 .tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
