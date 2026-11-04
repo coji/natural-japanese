@@ -464,9 +464,9 @@ page = f"""<!doctype html>
 
 <section class="block" id="how"><div class="wrap">
   <h2 data-chip>頼み方</h2>
-  <p class="p prose-max">文書は Markdown かテキストのファイルで渡します。基本は「決裁者の目で見て直して」の1つで、検査から組み直しまでの6つの工程を通します。サブコマンドでは full で、サブコマンドなしも同じです。工程を分けるときはサブコマンドか、同じ意味の言葉で頼みます。Claude Code では <code>/critical-thinking short 稟議書.md</code> のように、コマンドにサブコマンドとファイル名を続けます。</p>
+  <p class="p prose-max">基本は <code>/critical-thinking 稟議書.md</code> の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて頼むときだけ、<code>/critical-thinking short 稟議書.md</code> のようにサブコマンドを挟みます。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
-    <tr><th scope="row">full、またはなし</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
+    <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
     <tr><th scope="row">somosomo</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提、他の選択肢、結論が覆る条件、誰が得をして誰が動くのか、を問う</td></tr>
     <tr><th scope="row">fix</th><td>「指摘を反映して直して」</td><td>検査の報告を本文に反映し、残りの問いを確認事項に出す</td></tr>
