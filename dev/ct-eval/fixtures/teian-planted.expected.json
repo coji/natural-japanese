@@ -1,0 +1,204 @@
+{
+  "file": "teian-planted.md",
+  "note": "仕込んだ欠陥の一覧。最初の実行より前に書いた。検査結果を見て足さない。欠陥のない対になる文書は teian-clean.md。コンサルティング会社がクライアントの営業本部長に出す提案資料。 r19 のあと、S1(と kikaku の S2)の行を、節の見出しだけから、提案の要点と判断依頼の行を含む形に直した(欠陥の定義は変えていない)。",
+  "defects": [
+    {
+      "id": "L1",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        5,
+        30,
+        31,
+        54
+      ],
+      "description": "要点と判断依頼は9か月・2,700万円だが、費用表はフェーズ2が7か月で合計3,000万円",
+      "must_mention": [
+        "2,700万円",
+        "3,000万円"
+      ]
+    },
+    {
+      "id": "L2",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        15
+      ],
+      "description": "フェーズ1で SFA の要否と製品を決めると言いながら、フェーズ2では製品名まで決まっている",
+      "must_mention": [
+        "セールスノートX"
+      ]
+    },
+    {
+      "id": "L3",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        5,
+        50
+      ],
+      "description": "課題は引き継ぎによる失注だが、効果は入力率だけで測り、失注を測らない",
+      "must_mention": [
+        "入力率"
+      ]
+    },
+    {
+      "id": "L4",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "前提条件のちがい",
+      "lines": [
+        9
+      ],
+      "description": "『失注のうち3割は引き継ぎ不足が原因』に出どころがない",
+      "must_mention": [
+        "3割"
+      ]
+    },
+    {
+      "id": "L5",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "偶然の必然化",
+      "lines": [
+        21
+      ],
+      "description": "B社1社の受注率の変化から、御社でも3ポイント上がると言い切っている",
+      "must_mention": [
+        "3ポイント"
+      ]
+    },
+    {
+      "id": "L6",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "異質なものの同質化",
+      "lines": [
+        23
+      ],
+      "description": "同規模の卸B社と従業員8,000名のメーカーC社を並べて『業界では標準』と言っている",
+      "must_mention": [
+        "C社"
+      ]
+    },
+    {
+      "id": "L7",
+      "mode": "logic",
+      "category": "事実と推論の混在",
+      "lines": [
+        11,
+        17
+      ],
+      "description": "『現場は歓迎している』『定着は確実である』が、根拠なく事実の形で書かれている",
+      "must_mention": [
+        "確実"
+      ]
+    },
+    {
+      "id": "L8",
+      "mode": "logic",
+      "category": "横の論理",
+      "lines": [
+        41,
+        42
+      ],
+      "description": "当社の体制の並びに『週次報告』(活動)と『御社の営業本部長』(先方の人)が混ざっている",
+      "must_mention": [
+        "週次報告"
+      ]
+    },
+    {
+      "id": "L9",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "見出しに支えがない",
+      "lines": [
+        44,
+        46
+      ],
+      "description": "見出し『リスクと対策』の本文が対策だけで、どんなリスクを想定しているかが書かれていない",
+      "must_mention": [
+        "リスク"
+      ]
+    },
+    {
+      "id": "L10",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        15,
+        55
+      ],
+      "description": "診断で SFA の要否を決めると言いながら、判断依頼では診断結果にかかわらずフェーズ2へ進むことを求めている",
+      "must_mention": [
+        "フェーズ2"
+      ],
+      "optional": true
+    },
+    {
+      "id": "S1",
+      "mode": "somosomo",
+      "category": "他の選択肢",
+      "lines": [
+        5,
+        13,
+        54
+      ],
+      "description": "何もしない案、Excel の共有ルールだけを決める案、御社だけで導入する案との比較がない",
+      "must_mention": [
+        "Excel"
+      ]
+    },
+    {
+      "id": "S2",
+      "mode": "somosomo",
+      "category": "覆る条件",
+      "lines": [
+        9,
+        55
+      ],
+      "description": "失注の原因が引き継ぎ以外だったらどうなるかが書かれていない。診断の結果で止める道がない",
+      "must_mention": [
+        "原因"
+      ]
+    },
+    {
+      "id": "S3",
+      "mode": "somosomo",
+      "category": "利害と実行",
+      "lines": [
+        15,
+        54
+      ],
+      "description": "SFA の要否を診断する当社が、導入支援も受注する。要否の判断を誰がどの基準で下すかが書かれていない",
+      "must_mention": [
+        "要否"
+      ]
+    },
+    {
+      "id": "S4",
+      "mode": "somosomo",
+      "category": "問いそのもの",
+      "lines": [
+        50
+      ],
+      "description": "先方が決めたいのは失注が減るかだが、文書は入力率に答えている",
+      "must_mention": [
+        "失注"
+      ]
+    },
+    {
+      "id": "S5",
+      "mode": "somosomo",
+      "category": "前提",
+      "lines": [
+        17
+      ],
+      "description": "入力されれば引き継ぎに要る情報がすべて渡る、という前提が書かれていない(何を入力するかで決まる)",
+      "must_mention": [
+        "入力"
+      ]
+    }
+  ]
+}

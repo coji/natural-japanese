@@ -1,0 +1,201 @@
+{
+  "file": "kikaku-planted.md",
+  "note": "仕込んだ欠陥の一覧。最初の実行より前に書いた。検査結果を見て足さない。欠陥のない対になる文書は kikaku-clean.md。人事企画担当が経営会議に出す制度企画の説明資料。 r19 のあと、S1(と kikaku の S2)の行を、節の見出しだけから、提案の要点と判断依頼の行を含む形に直した(欠陥の定義は変えていない)。",
+  "defects": [
+    {
+      "id": "L1",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        5,
+        33
+      ],
+      "description": "対象は内勤180名だが、PC は250台分を計上している",
+      "must_mention": [
+        "180名",
+        "250台"
+      ]
+    },
+    {
+      "id": "L2",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        15
+      ],
+      "description": "部署ごとに割り当てた曜日と言いながら、各自が希望する日に取れるとも書いている",
+      "must_mention": [
+        "曜日"
+      ]
+    },
+    {
+      "id": "L3",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        11,
+        53,
+        54
+      ],
+      "description": "目的は離職の抑制と採用力だが、評価基準は利用率と継続希望だけで離職を測らない",
+      "must_mention": [
+        "利用率"
+      ]
+    },
+    {
+      "id": "L4",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "前提条件のちがい",
+      "lines": [
+        9
+      ],
+      "description": "『退職者の6割は柔軟性のなさが理由』に出どころがない",
+      "must_mention": [
+        "6割"
+      ]
+    },
+    {
+      "id": "L5",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "偶然の必然化",
+      "lines": [
+        21
+      ],
+      "description": "競合2社が導入していることから、当社の離職率が8%まで下がると言い切っている",
+      "must_mention": [
+        "8%"
+      ]
+    },
+    {
+      "id": "L6",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "異質なものの同質化",
+      "lines": [
+        23
+      ],
+      "description": "同業の競合2社と従業員5,000名の IT 企業D社を並べて『業界の標準』と言っている",
+      "must_mention": [
+        "D社"
+      ]
+    },
+    {
+      "id": "L7",
+      "mode": "logic",
+      "category": "事実と推論の混在",
+      "lines": [
+        11,
+        23
+      ],
+      "description": "『社員は強く望んでいる』『生産性が落ちることはない』が、根拠なく事実の形で書かれている",
+      "must_mention": [
+        "生産性"
+      ]
+    },
+    {
+      "id": "L8",
+      "mode": "logic",
+      "category": "横の論理",
+      "lines": [
+        44,
+        45
+      ],
+      "description": "懸念4つのうち『情報システム部』は部署名、『4月』は時期で、種類の並びに混ざっている",
+      "must_mention": [
+        "4月"
+      ]
+    },
+    {
+      "id": "L9",
+      "mode": "logic",
+      "category": "根拠のない主張",
+      "subtype": "見出しに支えがない",
+      "lines": [
+        25,
+        27
+      ],
+      "description": "見出し『他社事例』の本文が社内アンケートの話で、他社の事例がない",
+      "must_mention": [
+        "アンケート"
+      ]
+    },
+    {
+      "id": "L10",
+      "mode": "logic",
+      "category": "矛盾",
+      "lines": [
+        47
+      ],
+      "description": "上限100に対して在宅36名で余裕64と言いながら、同じ段落で外勤が常時70名使っているとあり、合計106で上限を超える",
+      "must_mention": [
+        "70名"
+      ]
+    },
+    {
+      "id": "S1",
+      "mode": "somosomo",
+      "category": "他の選択肢",
+      "lines": [
+        5,
+        13,
+        60
+      ],
+      "description": "何もしない案、時差出勤、手当など他の打ち手との比較がない",
+      "must_mention": [
+        "案"
+      ]
+    },
+    {
+      "id": "S2",
+      "mode": "somosomo",
+      "category": "覆る条件",
+      "lines": [
+        5,
+        21,
+        49
+      ],
+      "description": "離職率が下がらなかったらどうするかが書かれていない。終了や見直しの条件がない",
+      "must_mention": [
+        "離職"
+      ]
+    },
+    {
+      "id": "S3",
+      "mode": "somosomo",
+      "category": "利害と実行",
+      "lines": [
+        56
+      ],
+      "description": "利用率と継続希望を自己申告で測り、曜日の承認や運用を誰が担うかが書かれていない",
+      "must_mention": [
+        "自己申告"
+      ]
+    },
+    {
+      "id": "S4",
+      "mode": "somosomo",
+      "category": "問いそのもの",
+      "lines": [
+        53
+      ],
+      "description": "経営会議が決めたいのは離職が減るかだが、文書は利用率に答えている",
+      "must_mention": [
+        "離職"
+      ]
+    },
+    {
+      "id": "S5",
+      "mode": "somosomo",
+      "category": "前提",
+      "lines": [
+        9
+      ],
+      "description": "『柔軟性のなさ』が在宅勤務で解けるものだ、という前提が書かれていない(時差出勤や休暇かもしれない)",
+      "must_mention": [
+        "柔軟性"
+      ]
+    }
+  ]
+}
