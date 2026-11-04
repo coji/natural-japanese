@@ -209,6 +209,8 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
             no_line.append(b)
     checks["bullets_total"] = len(bullets)
     checks["bullets_without_line"] = len(no_line)
+    if no_line:
+        checks["bullets_without_line_list"] = " / ".join(b[:60] for b in no_line[:5])
     checks["all_bullets_have_line"] = len(no_line) == 0
 
     if mode == "logic":
