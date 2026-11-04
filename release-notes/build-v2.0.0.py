@@ -214,7 +214,7 @@ ASKS = {
     ("本日決めるのは何か", "2027年4月から始めること", "制度を作る方針の承認と準備の着手。開始日は2月の最終案で決める"),
     ("辞めた人のうち、何名が対象か", "「退職理由の上位」", "回答者22名のうち9名、内勤7名"),
     ("離職率の差は何名か", "年間およそ30名", "31名(内勤19名、外勤など12名)"),
-    ("在宅勤務で離職率は下がるのか", "辞める理由と、応募者に選ばれない理由の両方", "辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない"),
+    ("在宅勤務は何に効くとしているか", "辞める理由と、応募者に選ばれない理由の両方に効く、と言い切り", "辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない"),
     ("VPN は足りるか", "上限100件、外勤の利用は確認中", "確認中のまま。確認事項に残る"),
  ],
  "postmortem": [
@@ -259,10 +259,10 @@ CHANGES = {
  ],
 }
 TILE_DECIDE = {  # 「決めてもらうこと」のタイル(見出し語, 数字, 単位, 説明)
- "ringi": ("決めてもらうこと", "3", "項目", "元から明記あり。目安の30分短縮(参考値)では費用に見合わないことを申請の文に添えた"),
- "teian": ("決めてもらうこと", "1", "文", "9か月・2,700万円のご契約。3か月目で止められることを要点に"),
- "kikaku": ("決めてもらうこと", "2", "項目", "4月開始の承認から、方針の承認と準備の着手に変わった"),
- "postmortem": ("決めてもらうこと", "2", "つ", "元の報告には書かれていなかった"),
+ "ringi": ("決めてもらうこと", "3", "件", "元から明記あり。元の文書が目安にした30分の短縮では費用に見合わない、と申請の文に添えた"),
+ "teian": ("決めてもらうこと", "1", "件", "9か月・2,700万円のご契約。3か月目で止められることを要点に書き足した"),
+ "kikaku": ("決めてもらうこと", "2", "件", "4月開始の承認から、方針の承認と準備の着手に変わった"),
+ "postmortem": ("決めてもらうこと", "2", "件", "元の報告には書かれていなかった"),
 }
 for _k in SETS:
     _t = SETS[_k]
@@ -281,8 +281,8 @@ def tiles(key):
     return f'''<div class="tiles">
   <div class="tile"><p class="l">本編の長さ</p><div class="v">{round((1 - b2 / b0) * 100)}%<small>短縮</small></div><p class="d">{fmt(b0)}字 → 直して {fmt(b1)}字 → 端的に {fmt(b2)}字</p></div>
   <div class="tile"><p class="l">{E(dec[0])}</p><div class="v">{E(dec[1])}<small>{E(dec[2])}</small></div><p class="d">{E(dec[3])}</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">{t["n_logic"] + t["n_somo"]}<small>件</small></div><p class="d">論理の指摘{t["n_logic"]}件、前提への問い{t["n_somo"]}件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">{len(t["kak"])}<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">{t["n_logic"] + t["n_somo"]}<small>件</small></div><p class="d">論理の指摘{t["n_logic"]}件、前提への問い{t["n_somo"]}件。うち3問を書き手に聞く</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">{len(t["kak"])}<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>'''
 def bars(key):
     t = SETS[key]
@@ -362,7 +362,7 @@ def doc_panel(key):
 <h3>ひとめで分かる変化</h3>
 {tiles(key)}
 <h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
 <ol class="flow">{steps}</ol>
 <div class="twoc"><div><h4>工程ごとの本編の字数</h4>{bars(key)}</div><div>{asks_table(key)}</div></div>
 <h4>書き手に聞いた3問と答え</h4>
@@ -399,14 +399,14 @@ def checked_html():
 <p>テスト用の文書は、スキルの作者が欠陥(表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」など)を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd['kept']} 本で元のままでした。組み直した本編が元より長くなった回が制度企画で2本(いずれも元の 2% 以内)ありました。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました(満たさなかった1回は、丁寧にした本編が元の 110% を超えたもの)。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
     return f'''<h3>上の4本で</h3>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>読む役</th><th>元の文書への返事</th><th>直した後への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
-  <p class="p prose-max">指摘 {OV_TOTAL} 件(同じ文書を3回読ませた合計)のうち、確認事項になかったものは {OV_NONE} 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは {OV_FIRST} 件で、残りは「そのほか」にありました。</p>
+  <p class="p prose-max">読む役が4本に出した指摘は計 {OV_TOTAL} 件(各文書3回の合計)で、確認事項になかったものは {OV_NONE} 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは {OV_FIRST} 件で、残りは「そのほか」にありました。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
     <div class="tile"><p class="l">仕込んだ欠陥{DET["rows"]}か所を3回ずつ検査した計{DET["found"] + DET["partial"] + DET["missed"]}回のうち、問いにできた</p><div class="v">{DET["found"]}<small>回</small></div><p class="d">見落とし {DET["missed"]}</p></div>
-    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で、ない欠陥を指摘したのは {sum(DET["false_clean"])} 件</p></div>
+    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で誤って欠陥を指摘した数は {sum(DET["false_clean"])} 件</p></div>
     <div class="tile"><p class="l">「決裁者の目で見て直す」が書き手に聞いた問い(3本を3回ずつ、計{len(rv_rows)}回)</p><div class="v">{rv_q}<small>件</small></div><p class="d">文書の中で答えが出るもの {rv_q_doc}。答えは改変せずに本文に入れ、落としたのは {rv_drop} 件</p></div>
-    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">残った {rw["remains"]}。本編が元より長くならなかったのは {rw["n"]} 本(5本×3回)中 {rw["not_longer"]} 本、元にない事実の持ち込み {rw["crossing"]} 件</p></div>
+    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">残った {rw["remains"]}。本編が元より長くなったのは {rw["n"]} 本(5本×3回)中 {rw["n"] - rw["not_longer"]} 本、元にない事実の持ち込み {rw["crossing"]} 件</p></div>
   </div>
   {disclosure("測り方と注", method)}'''
 
@@ -441,7 +441,7 @@ page = f"""<!doctype html>
   <p class="eye">natural-japanese v{VER} リリースノート 2026年11月</p>
   <h1>上司や顧客が聞いてくることを提出前に洗い出すスキル critical-thinking を追加しました</h1>
   <p class="p lead">natural-japanese は、AI の書く日本語を自然にするスキルです。v2.0.0 では、文書の中身を検査する critical-thinking を加えました。AI に稟議書や提案資料を書かせると、丁寧で穴のなさそうな文書ができます。それでも上司や顧客は「<mark>この数字は誰の分か</mark>」「<mark>空欄のままで判断できない</mark>」と聞いてきます。critical-thinking(Claude Code や ChatGPT に読み込ませて使います)に「決裁者の目で見て直して」と頼むと、文書の中で答えが出ることは黙って直し、書き手にしか答えられないことを3つ聞いて答えを本文に入れ、残りの問いを別ファイルの確認事項に残します。</p>
-  <p class="p lead">下は、スキルなしの AI が書いた架空の稟議書に通した実演です。本編(付録を除いた本文){fmt(R["P0"]["body"])} 字が、直して {fmt(R["P1"]["body"])} 字、端的にして {fmt(R["P_short"]["body"])} 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませた指摘は、すべてこのスキルの確認事項に含まれていました。</p>
+  <p class="p lead">下は、スキルなしの AI が書いた架空の文書4本に通した実演です。稟議書では、本編(付録を除いた本文){fmt(R["P0"]["body"])} 字が、直して {fmt(R["P1"]["body"])} 字、端的にして {fmt(R["P_short"]["body"])} 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませて出た指摘は、すべてこのスキルの確認事項に含まれていました。</p>
 </div></header>
 
 <main>
@@ -455,9 +455,9 @@ page = f"""<!doctype html>
   <h2 data-chip>この実演で言えること、言えないこと</h2>
   <ul class="list prose-max">
     <li>言えること: 上司や顧客の役の AI が元の文書に出した指摘は、4本とも、すべてスキルの確認事項にありました。直した後の文書への指摘は、「他の案と比べたか」のように書き手の判断を求めるものに変わります。</li>
-    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。読み手役の AI の返事(下の表)は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
+    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。読む役の返事(下の表)は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
     <li>書き手に聞くのは3つまでなので、聞かなかった問いは確認事項に残ります。稟議書では{len(R["kak"])}件でした。</li>
-    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。下のテスト用の文書(欠陥を仕込んだ稟議書)では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
+    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。テスト用の稟議書(下の表には載せていません)では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
     <li>文書の外の事実は調べに行きません。他社の事例が本当かは、問いにして返すだけです。検査は LLM の読みに頼るので、同じ文書をもう一度検査すると、指摘の数や言い方は揺れます。</li>
   </ul>
 </div></section>
@@ -473,7 +473,7 @@ page = f"""<!doctype html>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">(なし)</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>検査から直しまでを1回で通す。書き手にしか答えられない問いを3つまで聞き、答えを本文に入れる</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
-    <tr><th scope="row">somosomo(「そもそも」から)</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提・他の選択肢・覆る条件・利害と実行を問う</td></tr>
+    <tr><th scope="row">somosomo(「そもそも」から)</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提、他の選択肢、結論が覆る条件、誰が得をして誰が動くのか、を問う</td></tr>
     <tr><th scope="row">fix</th><td>「指摘を反映して直して」</td><td>検査の報告を本文に反映し、残りの問いを確認事項に出す</td></tr>
     <tr><th scope="row">short / detail</th><td>「もっと端的に」「もっと丁寧に」</td><td>決裁に要る根拠だけを本編に残す / 裏づけと論拠を本編に戻す</td></tr>
     <tr><th scope="row">rebuild</th><td>「構成から組み直して」</td><td>事実と決裁事項は保ち、構成案を3つ出す。1つは決裁事項を小さくする案</td></tr>
@@ -493,9 +493,9 @@ page = f"""<!doctype html>
     </ul>
     <div class="dads-tab__panels">
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
-        <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェント。</p>
+        <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールと違い、critical-thinking に uv と Python は要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">
@@ -505,11 +505,11 @@ page = f"""<!doctype html>
         </ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-3" role="tabpanel" aria-labelledby="env-tab-3" tabindex="0" hidden>
-        <p class="p">ChatGPT Business、Enterprise、Edu。管理者がスキルのアップロードを許可している必要があります。</p>
+        <p class="p">ChatGPT Business、Enterprise、Edu で使えます。管理者がスキルのアップロードを許可している必要があります。</p>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li><li>「スキル」→「作成」→「コンピューターからアップロード」で、ダウンロードしたファイル(zip 形式)を選ぶ</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-4" role="tabpanel" aria-labelledby="env-tab-4" tabindex="0" hidden>
-        <p class="p">Gemini アプリ。2026年11月の時点で個人アカウントで使えます。</p>
+        <p class="p">Gemini アプリで使えます。2026年11月の時点で個人アカウントで使えます。</p>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードして展開する</li><li>「カスタマイズ」→「スキル」→「作成」から、SKILL.md を含むフォルダをアップロードする</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-5" role="tabpanel" aria-labelledby="env-tab-5" tabindex="0" hidden>

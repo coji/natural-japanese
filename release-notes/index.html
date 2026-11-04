@@ -310,7 +310,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <p class="eye">natural-japanese v2.0.0 リリースノート 2026年11月</p>
   <h1>上司や顧客が聞いてくることを提出前に洗い出すスキル critical-thinking を追加しました</h1>
   <p class="p lead">natural-japanese は、AI の書く日本語を自然にするスキルです。v2.0.0 では、文書の中身を検査する critical-thinking を加えました。AI に稟議書や提案資料を書かせると、丁寧で穴のなさそうな文書ができます。それでも上司や顧客は「<mark>この数字は誰の分か</mark>」「<mark>空欄のままで判断できない</mark>」と聞いてきます。critical-thinking(Claude Code や ChatGPT に読み込ませて使います)に「決裁者の目で見て直して」と頼むと、文書の中で答えが出ることは黙って直し、書き手にしか答えられないことを3つ聞いて答えを本文に入れ、残りの問いを別ファイルの確認事項に残します。</p>
-  <p class="p lead">下は、スキルなしの AI が書いた架空の稟議書に通した実演です。本編(付録を除いた本文)3,299 字が、直して 2,808 字、端的にして 1,603 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませた指摘は、すべてこのスキルの確認事項に含まれていました。</p>
+  <p class="p lead">下は、スキルなしの AI が書いた架空の文書4本に通した実演です。稟議書では、本編(付録を除いた本文)3,299 字が、直して 2,808 字、端的にして 1,603 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませて出た指摘は、すべてこのスキルの確認事項に含まれていました。</p>
 </div></header>
 
 <main>
@@ -321,12 +321,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
   <div class="tile"><p class="l">本編の長さ</p><div class="v">51%<small>短縮</small></div><p class="d">3,299字 → 直して 2,808字 → 端的に 1,603字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">3<small>項目</small></div><p class="d">元から明記あり。目安の30分短縮(参考値)では費用に見合わないことを申請の文に添えた</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">42<small>件</small></div><p class="d">論理の指摘28件、前提への問い14件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">34<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">3<small>件</small></div><p class="d">元から明記あり。元の文書が目安にした30分の短縮では費用に見合わない、と申請の文に添えた</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">42<small>件</small></div><p class="d">論理の指摘28件、前提への問い14件。うち3問を書き手に聞く</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">34<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
 <h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
 <ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を28件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を14件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
 <div class="twoc"><div><h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">3,299字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:85.1%"></span></span><span class="bv">2,808字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:48.6%"></span></span><span class="bv">1,603字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:77.2%"></span></span><span class="bv">2,546字</span></div></div></div><div><div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">時間単価はいくらか</th><td>空欄(【 】円)</td><td>経理部の標準単価 1時間3,500円。1件あたり約39分短縮できれば費用に見合う</td></tr><tr><th scope="row">週8件は部全体か、1人あたりか</th><td>書いていない</td><td>部全体。営業支援システムの訪問記録から</td></tr><tr><th scope="row">6か月で解約できるか</th><td>契約前に確認する</td><td>月単位で解約できる(販売店に確認済み)</td></tr><tr><th scope="row">顧客は録音に同意するか</th><td>全件で使う前提の試算</td><td>見込みを出す材料がないと明記し、利用率の目安は空欄のまま確認事項へ</td></tr><tr><th scope="row">何もしない案や、数名で試す案と比べたか</th><td>書いていない</td><td>本文にはなく、確認事項に残る</td></tr></tbody></table></div></div></div>
 <h4>書き手に聞いた3問と答え</h4>
@@ -1658,14 +1658,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
   <div class="tile"><p class="l">本編の長さ</p><div class="v">47%<small>短縮</small></div><p class="d">2,894字 → 直して 2,840字 → 端的に 1,547字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>項目</small></div><p class="d">4月開始の承認から、方針の承認と準備の着手に変わった</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">41<small>件</small></div><p class="d">論理の指摘29件、前提への問い12件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">33<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>件</small></div><p class="d">4月開始の承認から、方針の承認と準備の着手に変わった</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">41<small>件</small></div><p class="d">論理の指摘29件、前提への問い12件。うち3問を書き手に聞く</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">33<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
 <h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
 <ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を29件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を12件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
-<div class="twoc"><div><h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,894字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:98.1%"></span></span><span class="bv">2,840字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:53.5%"></span></span><span class="bv">1,547字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:78.0%"></span></span><span class="bv">2,256字</span></div></div></div><div><div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">本日決めるのは何か</th><td>2027年4月から始めること</td><td>制度を作る方針の承認と準備の着手。開始日は2月の最終案で決める</td></tr><tr><th scope="row">辞めた人のうち、何名が対象か</th><td>「退職理由の上位」</td><td>回答者22名のうち9名、内勤7名</td></tr><tr><th scope="row">離職率の差は何名か</th><td>年間およそ30名</td><td>31名(内勤19名、外勤など12名)</td></tr><tr><th scope="row">在宅勤務で離職率は下がるのか</th><td>辞める理由と、応募者に選ばれない理由の両方</td><td>辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない</td></tr><tr><th scope="row">VPN は足りるか</th><td>上限100件、外勤の利用は確認中</td><td>確認中のまま。確認事項に残る</td></tr></tbody></table></div></div></div>
+<div class="twoc"><div><h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,894字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:98.1%"></span></span><span class="bv">2,840字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:53.5%"></span></span><span class="bv">1,547字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:78.0%"></span></span><span class="bv">2,256字</span></div></div></div><div><div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">本日決めるのは何か</th><td>2027年4月から始めること</td><td>制度を作る方針の承認と準備の着手。開始日は2月の最終案で決める</td></tr><tr><th scope="row">辞めた人のうち、何名が対象か</th><td>「退職理由の上位」</td><td>回答者22名のうち9名、内勤7名</td></tr><tr><th scope="row">離職率の差は何名か</th><td>年間およそ30名</td><td>31名(内勤19名、外勤など12名)</td></tr><tr><th scope="row">在宅勤務は何に効くとしているか</th><td>辞める理由と、応募者に選ばれない理由の両方に効く、と言い切り</td><td>辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない</td></tr><tr><th scope="row">VPN は足りるか</th><td>上限100件、外勤の利用は確認中</td><td>確認中のまま。確認事項に残る</td></tr></tbody></table></div></div></div>
 <h4>書き手に聞いた3問と答え</h4>
 <p class="p prose-max">答えは書き手の役の AI が返しました(スキルの作者が事実の一覧を先に書き、AI はそれだけを見て答え、一覧にないことは「分からない」と答えます)。</p>
 <ol class="list prose-max"><li>昨年の退職者およそ30名のうち、「働き方の柔軟性のなさ」を理由に挙げた人は何名で、そのうち今回の対象になる内勤は何名ですか。また、その人たちが求めていた柔軟性は、週1日で曜日は部署の割り当てという今回の制度で応えられる中身でしたか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>退職者は31名(内勤19名、外勤など12名)で、退職者アンケートの回答者は22名です。「働き方の柔軟性のなさ」を挙げたのは9名で、そのうち内勤は7名です。自由記述で在宅勤務に触れたのは4名です。その人たちが求めていた柔軟性が今回の制度で応えられる中身だったかどうかは、分かりません。</p></div></details></li><li>費用と効果について、いま分かる概算を教えてください。ノートPCの追加購入費、在宅勤務手当の年間総額、退職者1名あたりの採用・育成コストは、それぞれおよそいくらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>ノートPCの追加購入費は、内勤180名のうち約60名がデスクトップPCで、1台の購入費が約15万円なので、60台すべてを買うなら約900万円です。在宅勤務手当は1日あたり250円を想定していますが、年間総額は分かりません。退職者1名あたりの採用・育成コストも分かりません。人事部で集計中で、2月までには出ます。</p></div></details></li><li>本日の経営会議で決めてもらうのは「2027年4月の開始」そのものだと読みましたが、合っていますか。それとも「方針と準備の着手」までを決めてもらい、開始するかどうかは2月の最終案で決めますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>決めてもらうのは、在宅勤務制度を作る方針の承認と、規程と費用の準備を始めてよいかどうかです。4月開始は目標で、2月の最終案で開始日を改めて決めてもらう形でもかまいません。</p></div></details></li></ol>
@@ -2605,12 +2605,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
   <div class="tile"><p class="l">本編の長さ</p><div class="v">50%<small>短縮</small></div><p class="d">4,701字 → 直して 4,695字 → 端的に 2,352字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">1<small>文</small></div><p class="d">9か月・2,700万円のご契約。3か月目で止められることを要点に</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">39<small>件</small></div><p class="d">論理の指摘27件、前提への問い12件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">30<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">1<small>件</small></div><p class="d">9か月・2,700万円のご契約。3か月目で止められることを要点に書き足した</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">39<small>件</small></div><p class="d">論理の指摘27件、前提への問い12件。うち3問を書き手に聞く</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">30<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
 <h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
 <ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を27件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を12件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
 <div class="twoc"><div><h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">4,701字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:99.9%"></span></span><span class="bv">4,695字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:50.0%"></span></span><span class="bv">2,352字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:88.6%"></span></span><span class="bv">4,166字</span></div></div></div><div><div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">失注が起きているとは、何を根拠に</th><td>「実際に失注が起きています」と言い切り</td><td>営業本部長から2社と聞いただけで、資料では確かめていない、と明記</td></tr><tr><th scope="row">営業担当は入力を続けるか</th><td>4つの工夫を並べる</td><td>3名に聞いて2名賛成・1名が手間を心配。続くかは確かめていない、と明記</td></tr><tr><th scope="row">B社の事例は当てはまるか</th><td>成果につながった例、と紹介</td><td>受注率が上がった原因は営業記録の共有かどうか言えない、と明記</td></tr><tr><th scope="row">効果は何で測るか</th><td>指標を列挙</td><td>失注率と新人の独り立ち期間で測り、入力率は定着の指標と分ける</td></tr></tbody></table></div></div></div>
 <h4>書き手に聞いた3問と答え</h4>
@@ -3760,12 +3760,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
   <div class="tile"><p class="l">本編の長さ</p><div class="v">29%<small>短縮</small></div><p class="d">1,246字 → 直して 1,248字 → 端的に 889字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>つ</small></div><p class="d">元の報告には書かれていなかった</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">24<small>件</small></div><p class="d">論理の指摘16件、前提への問い8件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">29<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>件</small></div><p class="d">元の報告には書かれていなかった</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">24<small>件</small></div><p class="d">論理の指摘16件、前提への問い8件。うち3問を書き手に聞く</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">29<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
 </div>
 <h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
 <ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を16件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を8件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
 <div class="twoc"><div><h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:99.8%"></span></span><span class="bv">1,246字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">1,248字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:71.2%"></span></span><span class="bv">889字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:86.9%"></span></span><span class="bv">1,084字</span></div></div></div><div><div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">何を決めてほしいのか</th><td>書いていない</td><td>2つ。再発防止の3つの方向と、調査に1週間かけてよいか</td></tr><tr><th scope="row">疑っている改修は今も本番か</th><td>書いていない</td><td>切り戻しておらず、本番に残っている。再起動後は再発なし</td></tr><tr><th scope="row">改修を疑う根拠は</th><td>時期が近いことだけ</td><td>同じ。半年前にも同じサーバーで通知が出た、を追加</td></tr><tr><th scope="row">止まり方は全面か断続か</th><td>確認中</td><td>確認中(変わらず)</td></tr><tr><th scope="row">対策の担当と期限は</th><td>まだ決まっていない</td><td>調査の結果が出てから改めて出す、と頼む形に</td></tr></tbody></table></div></div></div>
 <h4>書き手に聞いた3問と答え</h4>
@@ -4055,9 +4055,9 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <h2 data-chip>この実演で言えること、言えないこと</h2>
   <ul class="list prose-max">
     <li>言えること: 上司や顧客の役の AI が元の文書に出した指摘は、4本とも、すべてスキルの確認事項にありました。直した後の文書への指摘は、「他の案と比べたか」のように書き手の判断を求めるものに変わります。</li>
-    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。読み手役の AI の返事(下の表)は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
+    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。読む役の返事(下の表)は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
     <li>書き手に聞くのは3つまでなので、聞かなかった問いは確認事項に残ります。稟議書では34件でした。</li>
-    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。下のテスト用の文書(欠陥を仕込んだ稟議書)では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
+    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。テスト用の稟議書(下の表には載せていません)では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
     <li>文書の外の事実は調べに行きません。他社の事例が本当かは、問いにして返すだけです。検査は LLM の読みに頼るので、同じ文書をもう一度検査すると、指摘の数や言い方は揺れます。</li>
   </ul>
 </div></section>
@@ -4066,14 +4066,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <h2 data-chip>確かめたこと</h2>
   <h3>上の4本で</h3>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>読む役</th><th>元の文書への返事</th><th>直した後への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody><tr><th scope="row">稟議書</th><td>経営者</td><td>条件つきOK</td><td>条件つきOK</td><td>10 件のうち 10 件</td></tr><tr><th scope="row">社内の制度企画</th><td>経営者</td><td>条件つきOK</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr><tr><th scope="row">コンサルの提案資料</th><td>提案を受け取る会社の役員</td><td>条件つきOK</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr><tr><th scope="row">障害報告書</th><td>報告を受け取る上司</td><td>判断の前に質問あり</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr></tbody></table></div>
-  <p class="p prose-max">指摘 34 件(同じ文書を3回読ませた合計)のうち、確認事項になかったものは 0 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは 6 件で、残りは「そのほか」にありました。</p>
+  <p class="p prose-max">読む役が4本に出した指摘は計 34 件(各文書3回の合計)で、確認事項になかったものは 0 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは 6 件で、残りは「そのほか」にありました。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
     <div class="tile"><p class="l">仕込んだ欠陥73か所を3回ずつ検査した計219回のうち、問いにできた</p><div class="v">219<small>回</small></div><p class="d">見落とし 0</p></div>
-    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">0<small>件</small></div><p class="d">欠陥のない4本で、ない欠陥を指摘したのは 0 件</p></div>
+    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">0<small>件</small></div><p class="d">欠陥のない4本で誤って欠陥を指摘した数は 0 件</p></div>
     <div class="tile"><p class="l">「決裁者の目で見て直す」が書き手に聞いた問い(3本を3回ずつ、計9回)</p><div class="v">27<small>件</small></div><p class="d">文書の中で答えが出るもの 0。答えは改変せずに本文に入れ、落としたのは 0 件</p></div>
-    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">219<small>回</small></div><p class="d">残った 0。本編が元より長くならなかったのは 15 本(5本×3回)中 13 本、元にない事実の持ち込み 0 件</p></div>
+    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">219<small>回</small></div><p class="d">残った 0。本編が元より長くなったのは 15 本(5本×3回)中 2 本、元にない事実の持ち込み 0 件</p></div>
   </div>
   <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>測り方と注</span></summary><div class="dsc-body"><p>上司や顧客の役は別のセッションの Claude Opus 5.5 で、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事(OK、条件つきOK、判断の前に質問あり、却下)と指摘を3回ずつ返させました。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、別の文書どうしを組み合わせた42組(ある文書への指摘と、無関係な文書の確認事項)で全部「ない」と出ることを確かめました。</p>
 <p>テスト用の文書は、スキルの作者が欠陥(表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」など)を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した 12 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は 12 本で元のままでした。組み直した本編が元より長くなった回が制度企画で2本(いずれも元の 2% 以内)ありました。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ本編の各文が元の文書に対応することを条件とし、15 回中 14 回で満たしました(満たさなかった1回は、丁寧にした本編が元の 110% を超えたもの)。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p></div></details>
@@ -4085,7 +4085,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">(なし)</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>検査から直しまでを1回で通す。書き手にしか答えられない問いを3つまで聞き、答えを本文に入れる</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
-    <tr><th scope="row">somosomo(「そもそも」から)</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提・他の選択肢・覆る条件・利害と実行を問う</td></tr>
+    <tr><th scope="row">somosomo(「そもそも」から)</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提、他の選択肢、結論が覆る条件、誰が得をして誰が動くのか、を問う</td></tr>
     <tr><th scope="row">fix</th><td>「指摘を反映して直して」</td><td>検査の報告を本文に反映し、残りの問いを確認事項に出す</td></tr>
     <tr><th scope="row">short / detail</th><td>「もっと端的に」「もっと丁寧に」</td><td>決裁に要る根拠だけを本編に残す / 裏づけと論拠を本編に戻す</td></tr>
     <tr><th scope="row">rebuild</th><td>「構成から組み直して」</td><td>事実と決裁事項は保ち、構成案を3つ出す。1つは決裁事項を小さくする案</td></tr>
@@ -4105,9 +4105,9 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
     </ul>
     <div class="dads-tab__panels">
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
-        <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェント。</p>
+        <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールと違い、critical-thinking に uv と Python は要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">
@@ -4117,11 +4117,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
         </ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-3" role="tabpanel" aria-labelledby="env-tab-3" tabindex="0" hidden>
-        <p class="p">ChatGPT Business、Enterprise、Edu。管理者がスキルのアップロードを許可している必要があります。</p>
+        <p class="p">ChatGPT Business、Enterprise、Edu で使えます。管理者がスキルのアップロードを許可している必要があります。</p>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li><li>「スキル」→「作成」→「コンピューターからアップロード」で、ダウンロードしたファイル(zip 形式)を選ぶ</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-4" role="tabpanel" aria-labelledby="env-tab-4" tabindex="0" hidden>
-        <p class="p">Gemini アプリ。2026年11月の時点で個人アカウントで使えます。</p>
+        <p class="p">Gemini アプリで使えます。2026年11月の時点で個人アカウントで使えます。</p>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードして展開する</li><li>「カスタマイズ」→「スキル」→「作成」から、SKILL.md を含むフォルダをアップロードする</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-5" role="tabpanel" aria-labelledby="env-tab-5" tabindex="0" hidden>
