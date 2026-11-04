@@ -345,18 +345,17 @@ def changes_list(key):
     return f'<ol class="changes">{items}</ol>'
 def viewer(key):
     t = SETS[key]
-    docs = {"before": t["before"], "after": t["after"], "short": t["short"], "rebuild": t["rebuild"]}
+    docs = {"before": t["before"], "after": t["after"]}
     tpl = "".join(f'<template id="t-{key}-{k}"><article>{demote(md(v))}</article></template>' for k, v in docs.items())
     # 節の対応(左の節 i → 右の各文書の節 j)
     maps = {}
-    for k in ("after", "short", "rebuild"):
+    for k in ("after",):
         mv = compute_moves(t["before"], docs[k])
         rh = [_hname(h) for h, _ in sections(docs[k]) if h]
         maps[k] = [rh.index(mv[_hname(h)][0]) if h and mv.get(_hname(h)) and mv[_hname(h)][0] in rh else -1 for h, _ in sections(t["before"]) if h]
-    return f'''<div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
-<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}' data-lens='{json.dumps({"after": fmt(t["P1"]["body"]), "short": fmt(t["P_short"]["body"]), "rebuild": fmt(t["P_rebuild"]["body"])}, ensure_ascii=False)}'>
+    return f'''<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 {fmt(t["P0"]["body"])}字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap R-cap">決裁者の目で見て直した後 <span class="ln">本編 {fmt(t["P1"]["body"])}字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 {fmt(t["P1"]["body"])}字</span></p><div class="doc R" tabindex="0"></div></div>
 </div>{tpl}'''
 def doc_panel(key):
     t = SETS[key]; desc = dict((k, d) for k, _, d, *_ in DOCSETS)[key]
@@ -381,7 +380,7 @@ def doc_panel(key):
 <p class="p prose-max">番号を押すと、下の比較で左右の該当箇所へ移動します。</p>
 {changes_list(key)}
 <h3>左右に並べて読む</h3>
-<p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
+<p class="p prose-max">左が元の文書、右が「決裁者の目で見て直す」の出力です。片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。</p>
 {viewer(key)}'''
 tabs_html = '<ul class="dads-tab__list" role="tablist" aria-label="4つの文書">' + "".join(
     f'<li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-{i+1}" aria-selected="{"true" if i == 0 else "false"}" aria-controls="doc-panel-{i+1}" tabindex="{0 if i == 0 else -1}"><span>{E(l)}</span></button></li>'

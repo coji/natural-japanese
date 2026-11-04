@@ -57,33 +57,36 @@ JS2 = r"""
 // 左右に並べて読む: 文書ごとに、右の文書の切り替え、節の対応でのスクロール同期、主な変更の下線と移動
 (function(){
   const views=[...document.querySelectorAll('.viewer[data-doc]')];
-  const caps={after:'決裁者の目で見て直した後',short:'もっと端的にした後',rebuild:'構成から組み直した後'};
   views.forEach(v=>{
-    const lens=JSON.parse(v.dataset.lens||'{}');
-    const key=v.dataset.doc, maps=JSON.parse(v.dataset.maps), L=v.querySelector('.doc.L'), R=v.querySelector('.doc.R'), cap=v.querySelector('.R-cap');
-    const seg=v.previousElementSibling;
+    const key=v.dataset.doc, maps=JSON.parse(v.dataset.maps), L=v.querySelector('.doc.L'), R=v.querySelector('.doc.R');
     function load(d,k){d.replaceChildren(document.getElementById('t-'+key+'-'+k).content.cloneNode(true));d.dataset.key=k;d.scrollTop=0;}
     function mark(d,texts,cls){texts.forEach(t=>{const walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT);let n;while((n=walker.nextNode())){const i=n.nodeValue.indexOf(t);if(i>=0){const r=document.createRange();r.setStart(n,i);r.setEnd(n,i+t.length);const m=document.createElement('mark');m.className=cls;m.dataset.t=t;r.surroundContents(m);return;}}});}
     const chgs=[...document.querySelectorAll('.chg[data-doc="'+key+'"]')];
     function markAll(){mark(L,chgs.map(b=>b.dataset.b),'chg-b');mark(R,chgs.map(b=>b.dataset.a),'chg-a');}
     load(L,'before');load(R,'after');markAll();
-    let right='after';
-    seg.querySelectorAll('button[data-r]').forEach(b=>b.addEventListener('click',()=>{right=b.dataset.r;seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));load(R,right);cap.innerHTML=caps[right]+' <span class="ln">本編 '+lens[right]+'字</span>';markAll();}));
-    // 節の対応でスクロール同期。スクロール位置を「いまの節の何割まで読んだか」に直し、相手の対応する節の同じ割合へ動かす。
-    // 自分が動かした側から返ってくる scroll イベントは、動かしてから 200ms のあいだ無視する(往復して 0 に戻るのを防ぐ)
+    const right='after';
+    // 節の対応でスクロール同期。左右の見出しの対応のうち、順序を保つもの(付録へ移った節のように前後が入れ替わるものは除く)を
+    // 目印にして、スクロール位置を目印のあいだで線形に補間する。自分が動かした側から返ってくる scroll イベントは、200ms のあいだ無視する
     const hold={L:0,R:0};
     function heads(d){return [...d.querySelectorAll('article h4')];}
     function pos(el,d){return el.getBoundingClientRect().top-d.getBoundingClientRect().top+d.scrollTop;}
+    function lis(pairs){ // j が増える最長の並び(節の数は十数個なので O(n^2) でよい)
+      const n=pairs.length, best=new Array(n).fill(1), prev=new Array(n).fill(-1); let end=0;
+      for(let a=0;a<n;a++){for(let b=0;b<a;b++){if(pairs[b][1]<pairs[a][1]&&best[b]+1>best[a]){best[a]=best[b]+1;prev[a]=b;}} if(best[a]>best[end])end=a;}
+      const out=[]; for(let k=end;k>=0&&n;k=prev[k]){out.unshift(pairs[k]); if(prev[k]<0)break;} return out;
+    }
+    function anchors(from,to,map){
+      const hs=heads(from), ts=heads(to); const pairs=[]; map.forEach((j,i)=>{if(j>=0&&hs[i]&&ts[j])pairs.push([i,j]);});
+      const kept=lis(pairs); const pts=[[0,0]]; kept.forEach(([i,j])=>pts.push([pos(hs[i],from),pos(ts[j],to)]));
+      pts.push([from.scrollHeight-from.clientHeight, to.scrollHeight-to.clientHeight]); return pts;
+    }
+    function interp(pts,y){
+      for(let k=1;k<pts.length;k++){const [a,ta]=pts[k-1],[b,tb]=pts[k]; if(y<=b){return b>a?ta+(y-a)/(b-a)*(tb-ta):tb;}}
+      return pts[pts.length-1][1];
+    }
     function sync(from,to,map,name){
-      if(Date.now()<hold[name==='L'?'L':'R'])return;
-      const hs=heads(from), ts=heads(to); if(!hs.length||!ts.length)return;
-      const y=from.scrollTop, ph=hs.map(h=>pos(h,from)), pt=ts.map(h=>pos(h,to));
-      let i=-1; for(let k=0;k<ph.length;k++){if(ph[k]-y<=8)i=k;}
-      let target;
-      if(i<0){target=y*(pt[0]/Math.max(1,ph[0]));}
-      else{const j=map[i]; if(j==null||j<0)return;
-        const a=ph[i], b=i+1<ph.length?ph[i+1]:from.scrollHeight, ta=pt[j], tb=j+1<pt.length?pt[j+1]:to.scrollHeight;
-        target=ta+(y-a)/Math.max(1,b-a)*(tb-ta);}
+      if(Date.now()<hold[name])return;
+      const pts=anchors(from,to,map); let target=interp(pts,from.scrollTop);
       target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));
       if(Math.abs(to.scrollTop-target)<1)return;
       hold[name==='L'?'R':'L']=Date.now()+200; to.scrollTop=target;
