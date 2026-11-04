@@ -109,3 +109,6 @@ corpus/experiments/skill-eval/*
 
 # dev/ct-eval: critical-thinking の評価ハーネスの生成物(再生成可能)
 dev/ct-eval/runs/
+
+# ページの文書にスキルをかけたときの実行ログ(release-notes/run-v2.0.0.py)
+release-notes/data/*/log-*.txt

@@ -6,7 +6,8 @@
   uv run --with pyyaml release-notes/run-v2.0.0.py ringi teian kikaku postmortem
 doc.md・brief.txt・writer.json は残し、それ以外の出力を作り直す。頼み方の文は dev/ct-eval/eval.py の PROMPTS と同じ。
 出力: report-logic.md, report-somosomo.md, doc.md.logic.yaml, questions.md, answers.md, doc-review.md, doc-review.確認事項.md,
-      plans.md, doc-redesign.md, doc-redesign.確認事項.md, doc-concise.md, doc-concise.確認事項.md, log-*.txt
+      plans.md, doc-redesign.md, doc-redesign.確認事項.md, doc-concise.md, doc-concise.確認事項.md。実行ログ log-*.txt は同じ場所に残るが git には入れない(.gitignore)。
+組み直す・端的は、同じ場所に answers.md がある状態で回るので、書き手の答えも読める
 """
 from __future__ import annotations
 
