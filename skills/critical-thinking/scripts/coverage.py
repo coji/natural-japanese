@@ -12,6 +12,7 @@ YAML を省略すると <文書>.logic.yaml を読む。YAML のどこにも現�
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -19,6 +20,8 @@ import yaml
 
 ALLOWED_KINDS = {"事実", "推論", "意見", "前提", "見積"}
 ALLOWED_WEIGHTS = {"決裁に要る", "裏づけ", "補足"}
+ALLOWED_TYPES = {"論証", "記述"}
+TABLE_RULE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")  # 表の罫線
 
 
 def walk(obj, lines: set[int], kinds: set[str]) -> None:
@@ -33,6 +36,8 @@ def walk(obj, lines: set[int], kinds: set[str]) -> None:
                 kinds.add(v)
             elif k == "重み" and isinstance(v, str):
                 kinds.add("重み:" + v)
+            elif k == "種類" and isinstance(v, str):
+                kinds.add("種類:" + v)
             else:
                 walk(v, lines, kinds)
     elif isinstance(obj, list):
@@ -51,14 +56,16 @@ def main() -> None:
     kinds: set[str] = set()
     walk(data, lines, kinds)
     src = doc.read_text().splitlines()
-    nonempty = {i + 1 for i, l in enumerate(src) if l.strip()}
+    nonempty = {i + 1 for i, l in enumerate(src) if l.strip() and not TABLE_RULE.match(l)}
     missing = sorted(nonempty - lines)
     bogus = sorted(l for l in lines if l < 1 or l > len(src))
     weights = {k[3:] for k in kinds if k.startswith("重み:")}
-    kinds = {k for k in kinds if not k.startswith("重み:")}
+    types_ = {k[3:] for k in kinds if k.startswith("種類:")}
+    kinds = {k for k in kinds if ":" not in k}
     bad_kinds = sorted(kinds - ALLOWED_KINDS)
     bad_weights = sorted(weights - ALLOWED_WEIGHTS)
-    ok = not (missing or bogus or bad_kinds or bad_weights)
+    bad_types = sorted(types_ - ALLOWED_TYPES)
+    ok = not (missing or bogus or bad_kinds or bad_weights or bad_types)
     if missing:
         print("YAML に現れない行:", ", ".join(map(str, missing)))
         for n in missing:
@@ -69,6 +76,8 @@ def main() -> None:
         print("使ってはいけない種別:", ", ".join(bad_kinds))
     if bad_weights:
         print("使ってはいけない重み:", ", ".join(bad_weights))
+    if bad_types:
+        print("使ってはいけない種類:", ", ".join(bad_types))
     print("OK" if ok else "NG")
     sys.exit(0 if ok else 1)
 

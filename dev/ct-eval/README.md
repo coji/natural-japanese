@@ -47,7 +47,7 @@ uv run --with pyyaml dev/ct-eval/outcome.py --label o3 --repeat 3 ringi-元=dev/
 
 1. 機械的な検査(LLM なし。1つでも落ちたら FAIL)
    - 対象ファイルが変わっていない
-   - logic: YAML が存在して読める、種別が5つの中、文書の非空行がすべて YAML の `行` に現れる(`scripts/coverage.py` と同じ検査)
+   - logic: YAML が存在して読める、種別が5つの中、文書の非空行(表の罫線を除く)がすべて YAML の `行` に現れる(`scripts/coverage.py` と同じ検査)
    - somosomo: 足場の YAML が変わっていない、各指摘に「問い・倒れる場所・要る材料」がある
    - 報告に「弱めるべき」「条件を足すべき」がない、指摘の各項目に行番号がある、「文書の性格」の行がある
 2. 判定(claude が `prompts/judge.txt` で判定)

@@ -69,6 +69,7 @@ JUDGE_REDESIGN_PROMPT = (HERE / "prompts" / "judge-redesign.txt").read_text()
 NEWFACTS = REPO / "skills" / "natural-japanese" / "scripts" / "newfacts.py"
 
 ALLOWED_KINDS = {"事実", "推論", "意見", "前提", "見積"}
+TABLE_RULE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
 FORBIDDEN = ["弱めるべき", "条件を足すべき", "べきだ", "べきです", "弱めた方が", "足した方が", "出し直して", "書き足す", "足すとよい", "書き直して"]
 # cd を許さないと「cd X; cat Y」の複合コマンドが1回却下され、以後 Bash を使わなくなる(dontAsk の却下文が回避を禁じるため)
 RUN_TOOLS = ["Skill", "Read", "Write", "Edit", "Glob", "Grep", "Bash(uv run:*)", "Bash(uv:*)", "Bash(python3:*)",
@@ -182,9 +183,30 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
     skip = re.compile(r"^\**\s*(問い|要る材料|意図の分かるもの|分からないもの|些末|細かいもの|そのほか|同じ文書を|直すかどうかは|ここで挙げたのは|どう倒れるか)")
     # 「1. **見出し**」のように全体が太字の見出しだけの項目は、行番号が下の「倒れる場所」に付くので数えない
     title_only = re.compile(r"^\*\*[^*]+\*\*\s*[::]?\s*$")
-    bullets = [b for b in re.findall(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", body, re.M)
-               if len(b) > 20 and not skip.match(b) and not title_only.match(b.strip())]
-    no_line = [b for b in bullets if not re.search(r"行\s*\d|\d+\s*行|\[\d", b)]
+    # 指摘の見出し(太字や ### の行)に行番号があれば、その下の箇条書き(問いや計算の内訳)は行番号なしでよい
+    has_line = re.compile(r"行\s*\d|\d+\s*行|\[\d")
+    bullets, no_line = [], []
+    head_has_line = head_line = False
+    blines = body.splitlines()
+    for idx, ln in enumerate(blines):
+        mb = re.match(r"^\s*(?:[-*]|\d+\.)\s+(.+)$", ln)
+        if not mb:
+            if ln.strip():
+                # 直前の見出しか地の文に行番号があれば、その下の箇条書きは同じ指摘の内訳とみなす
+                is_head = ln.lstrip().startswith(("#", "**")) or ln.rstrip().endswith("**")
+                if is_head:
+                    head_line = bool(has_line.search(ln))
+                head_has_line = head_line or bool(has_line.search(ln))
+            continue
+        b = mb.group(1)
+        if len(b) <= 20 or skip.match(b) or title_only.match(b.strip()):
+            continue
+        bullets.append(b)
+        # 指摘の見出しになっている箇条書きで、行番号がその下の子の箇条書きに付いているものも紐づいているとみなす
+        nxt = next((x for x in blines[idx + 1:] if x.strip()), "")
+        child_has_line = bool(re.match(r"^\s+(?:[-*]|\d+\.)\s+", nxt)) and bool(has_line.search(nxt))
+        if not has_line.search(b) and not head_has_line and not child_has_line:
+            no_line.append(b)
     checks["bullets_total"] = len(bullets)
     checks["bullets_without_line"] = len(no_line)
     checks["all_bullets_have_line"] = len(no_line) == 0
@@ -207,7 +229,8 @@ def mechanical(mode: str, src: Path, src_sha: str, yaml_path: Path, yaml_sha_bef
                     checks["bad_kinds"] = ",".join(sorted(kinds - ALLOWED_KINDS))
                 lines: set[int] = set()
                 collect_lines(data, lines)
-                nonempty = {i + 1 for i, l in enumerate(src.read_text().splitlines()) if l.strip()}
+                # 表の罫線は coverage.py と同じく数えない(CT9)
+                nonempty = {i + 1 for i, l in enumerate(src.read_text().splitlines()) if l.strip() and not TABLE_RULE.match(l)}
                 missing = sorted(nonempty - lines)
                 checks["all_lines_covered"] = not missing
                 checks["missing_lines"] = ",".join(map(str, missing[:20]))
@@ -250,10 +273,17 @@ def mechanical_rewrite(src: Path, src_sha: str, after: Path, log: Path) -> dict:
     checks["no_revision_notes"] = n_rev <= 0
     # 長さ。決める人が読む本編(付録を除く)が元より長くないか
     def body_only(t: str) -> str:
-        out, keep = [], True
+        out, keep, cut_level = [], True, 0
         for line in t.splitlines():
-            if re.match(r"^##\s", line):
-                keep = not re.match(r"^##\s*(\d+[.．]?\s*)?(確認事項|付録|別紙)", line)
+            m = re.match(r"^(#{1,3})\s", line)
+            if m:
+                level = len(m.group(1))
+                # 付録は ## でも # でも始まる(r36f で「# 付録」の下の「## 背景」が本編に数えられた)。
+                # 付録の見出しより深い見出しでは本編に戻らない
+                if re.match(r"^#{1,3}\s*(\d+[.．]?\s*)?(確認事項|付録|別紙)", line):
+                    keep, cut_level = False, level
+                elif not keep and level <= cut_level:
+                    keep = True
             if keep:
                 out.append(line)
         return "\n".join(out)
