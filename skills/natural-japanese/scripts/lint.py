@@ -1048,6 +1048,50 @@ def detect_translationese_morph(tokenized: list[TokenizedSentence]) -> list[Find
     return findings
 
 
+
+# ふだん漢語で言う語を、和語の動詞の名詞化で書いたもの(「事実の確かめ」「知らせが来る」)。
+# SKILL.md §3 の 5(語の組み合わせのずれ)のうち、辞書にはあるのでそのままでは拾えない型。
+# sudachi はこれらを最初から名詞として切るので、語の表で持つ。動詞の連用形(「〜を確かめ、」)は
+# 品詞が動詞になるので当たらない。「〜方」「〜直し」のような複合語も別の語になるので当たらない。
+# 表に入れるのは、ふだんの文書で漢語のほうが通る語だけ。経理の「突き合わせ」のように分野で
+# 定着している語は入れない(doctypes/guide.md の例に3回ある)。
+WAGO_NOMINALIZATION = {
+    "確かめ": "確認",
+    "知らせ": "通知",
+    "測り": "測定",
+    "調べ": "調査",
+}
+# 「に」は「調べに行く」のような連用形+目的の形と区別がつかないので入れない
+_WAGO_FOLLOWERS = {"の", "を", "は", "が", "も", "へ", "と", "で", "や", "か"}
+
+
+def detect_wago_nominalization(tokenized: list[TokenizedSentence]) -> list[Finding]:
+    """和語の動詞を名詞にした語(表 WAGO_NOMINALIZATION)が、名詞として助詞の前に置かれているものを拾う。"""
+    findings = []
+    for ts in tokenized:
+        ms = ts.morphemes
+        n = len(ms)
+        for i, m in enumerate(ms):
+            surf = m.surface()
+            if surf not in WAGO_NOMINALIZATION or m.part_of_speech()[0] != "名詞":
+                continue
+            nxt = ms[i + 1] if i + 1 < n else None
+            if nxt is not None and not (nxt.part_of_speech()[0] == "助詞" and nxt.surface() in _WAGO_FOLLOWERS):
+                continue
+            span_start = ms[max(0, i - 3)].begin()
+            span_end = (nxt.end() if nxt is not None else m.end())
+            findings.append(
+                Finding(
+                    line=ts.line,
+                    category="wago_nominalization",
+                    excerpt=ts.raw_text[span_start:span_end],
+                    severity="warn",
+                    detail=f"「{surf}」は、ふだん「{WAGO_NOMINALIZATION[surf]}」と書く",
+                )
+            )
+    return findings
+
+
 # 拗音を作る小書き文字（ャュョァィゥェォヮ）。「キャ」のように直前の文字と
 # 合わせて1モーラを構成するため、単純な文字数カウントだと過大カウントになる。
 # 促音（ッ）・長音（ー）は独立した1モーラとして数えるため、ここには含めない。
@@ -2221,6 +2265,7 @@ HINTS = {
     "forbidden_phrase": "多くは削っても意味が変わらない。削ると前後がつながらないときだけ、元の文書の内容で言い換える。固有名詞や引用の一部なら残す",
     "translationese": "日本語でふつうに言う形にする（「〜という点で」→「〜では」、「〜を持つ」→「〜がある」）",
     "translationese_morph": "「〜することができる」は「〜できる」か、動詞の可能形にする",
+    "wago_nominalization": "ふだん漢語で言う語を、和語の動詞の名詞化で書いたもの。直し方に挙げた漢語にする(「事実の確かめ」→「事実の確認」)。動詞のまま(「〜を確かめる」)なら自然なので、文を動詞の形に戻してもよい",
     "antithesis_repetition": "読み手の誤解を正している対比だけを残し、ほかは肯定文に直す。対比の後半だけで意味が通らないものは言い換えにすぎない",
     "negation_repetition": "事実や注意としての打ち消し(「必須ではありません」「預金保険の対象ではありません」)は残す。誰も言っていない思い込みを先回りして打ち消す文(「〜するだけで自動的に〜わけではない」)は、文ごと削り、次の文の中身を残す。「AはBではない。Cだ。」は、打ち消しを削り、主語を肯定の文につなぐ(「AはCだ。」)。新しい言葉は足さない",
     "low_sentence_variance": "新しく書くときは、内容のまとまりに合わせて文を分けたりつないだりする。既存の文書を直すときは、これだけを理由に文を変えない。リズムのためだけに短い文を差し込まない",
@@ -2310,6 +2355,7 @@ def run_lint(
     )
     findings += nominal_and_conj_findings
     findings += detect_inanimate_subject_morph(tokenized)
+    findings += detect_wago_nominalization(tokenized)
     # nested_attributive はコーパス校正で削除済み（上のコメント参照）。
 
     rhythm_findings, rhythm_stats = detect_rhythm_statistics(tokenized)
