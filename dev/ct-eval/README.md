@@ -37,6 +37,7 @@ uv run --with pyyaml dev/ct-eval/outcome.py --label o3 --repeat 3 ringi-元=dev/
 - `postmortem-clean.md`: 再現の記録・原因と対策の対応・担当と期限・判断を求める事項を書いた、欠陥のない障害報告書
 - `teian-planted.md`: コンサルティング会社がクライアントの営業本部長に出す提案資料に欠陥を仕込んだもの。logic 用 9件(+任意1件)、somosomo 用 5件。期間と費用の不一致、診断で決めるはずの製品名、入力率だけで測る効果など
 - `teian-clean.md`: 出典・比較した案・3か月目の判断・リスクと測り方を書いた、欠陥のない提案資料
+- `ringi-long-planted.md`: リリースノート v1.7.0 の長い稟議書の例(3,784 字)に、ringi-planted と同じ種類の欠陥を仕込んだ 3,724 字の素材。logic 用 9件、somosomo 用 5件、writer.json あり。短い素材では「確認中」1か所で本編の長さが 1% を超えるため、本物に近い長さで直す・一括・端的を測る
 - `kikaku-planted.md`: 人事企画が経営会議に出す制度企画(週1日の在宅勤務)に欠陥を仕込んだもの。logic 用 9件(+任意1件)、somosomo 用 5件。対象人数と PC 台数の不一致、曜日の割り当てと希望日の矛盾、VPN の計算など
 - `kikaku-clean.md`: 出典・比較した案・懸念と対策・評価と見直しの条件を書いた、欠陥のない制度企画
 - `*.writer.json`: 書き手だけが知っている事実(review モードの模擬書き手が使う。ringi-planted と teian-planted)

@@ -8,6 +8,16 @@
         ringi-review=dev/ct-eval/runs/r27j/ringi-planted-review-1/source-after.md ...
 
 name=path を並べる。各文書を repeat 回、別々に(並べずに)渡す。結果は runs/<label>/<name>-<i>/exec.json と runs/<label>/summary.md。
+
+経営者役は同じ文面・同じ文書でも日によって返事が揺れる(o1 と o3c で元の稟議書が 1.0 → 3.0)ので、
+別の回どうしは比べない。比べたいもの(元・旧・新)は必ず同じ回に入れ、name を「組:版」の形にする。
+
+    uv run --with pyyaml dev/ct-eval/outcome.py --label o4 --repeat 3 \
+        ringi:元=dev/ct-eval/fixtures/ringi-planted.md \
+        ringi:旧=dev/ct-eval/runs/r32/ringi-planted-rewrite-1/source-after.md \
+        ringi:新=dev/ct-eval/runs/r33e/ringi-planted-rewrite-1/source-after.md
+
+summary.md の先頭に、組ごとに版を横に並べた表が出る(返事 / 聞きたい(うち文書の中で答えが出る))。
 """
 from __future__ import annotations
 
@@ -24,7 +34,7 @@ PROMPT = (HERE / "prompts" / "exec.txt").read_text()
 
 
 def one(label: str, name: str, src: Path, i: int, model: str) -> dict:
-    w = ev.RUNS / label / f"{name}-{i}"
+    w = ev.RUNS / label / f"{name.replace(':', '_')}-{i}"
     w.mkdir(parents=True, exist_ok=True)
     doc = w / "doc.md"
     text = src.read_text()
@@ -41,22 +51,50 @@ def one(label: str, name: str, src: Path, i: int, model: str) -> dict:
     return out
 
 
+def _stats(rs: list[dict]) -> dict:
+    verdicts = Counter(r["exec"].get("verdict", "?") for r in rs)
+    top = verdicts.most_common(1)[0]
+    qs = [q for r in rs for q in r["exec"].get("questions", [])]
+    return {"verdict": top[0] + ("" if top[1] == len(rs) else f"({dict(verdicts)})"),
+            "n_q": len(qs) / len(rs),
+            "in_doc": sum(1 for q in qs if "文書" in q.get("kind", "")) / len(rs),
+            "ext": sum(1 for q in qs if "起案者" in q.get("kind", "")) / len(rs),
+            "read": sum(r["exec"].get("chars_read", 0) or 0 for r in rs) / len(rs)}
+
+
 def summarize(results: list[dict], repeat: int) -> str:
     names = list(dict.fromkeys(r["name"] for r in results))
-    lines = ["# outcome: 経営者役の返事", "", "| 文書 | 字数 | 返事(多数決) | 聞きたい(平均) | うち文書の中で答えが出る | 起案者にしか答えられない | 読んだ字数(平均) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|"]
+    lines = ["# outcome: 経営者役の返事", ""]
+    # 「組:版」の名前があれば、組ごとに版を横に並べる(同じ回の中でだけ比べる)
+    groups: dict[str, list[str]] = {}
+    for n in names:
+        if ":" in n:
+            g, v = n.split(":", 1)
+            groups.setdefault(g, []).append(v)
+    if groups:
+        variants = list(dict.fromkeys(v for vs in groups.values() for v in vs))
+        lines += ["## 同じ回での比較(返事 / 聞きたい(うち文書の中で答えが出る) / 読んだ字数)", "",
+                  "| 組 | " + " | ".join(variants) + " |", "|---|" + "---|" * len(variants)]
+        for g, vs in groups.items():
+            cells = []
+            for v in variants:
+                rs = [r for r in results if r["name"] == f"{g}:{v}" and "exec" in r]
+                if not rs:
+                    cells.append("-"); continue
+                st = _stats(rs)
+                cells.append(f"{st['verdict']} / {st['n_q']:.1f}({st['in_doc']:.1f}) / {st['read']:.0f}")
+            if "元" not in vs:
+                cells.append("(元がない。元と同じ回で比べること)")
+            lines.append(f"| {g} | " + " | ".join(cells) + " |")
+        lines.append("")
+    lines += ["| 文書 | 字数 | 返事(多数決) | 聞きたい(平均) | うち文書の中で答えが出る | 起案者にしか答えられない | 読んだ字数(平均) | 一言(1回目) |", "|---|---|---|---|---|---|---|---|"]
     for n in names:
         rs = [r for r in results if r["name"] == n and "exec" in r]
         if not rs:
             lines.append(f"| {n} | - | 失敗 | | | | | |"); continue
-        verdicts = Counter(r["exec"].get("verdict", "?") for r in rs)
-        v = verdicts.most_common(1)[0][0] + ("" if verdicts.most_common(1)[0][1] == len(rs) else f"({dict(verdicts)})")
-        qs = [q for r in rs for q in r["exec"].get("questions", [])]
-        n_q = len(qs) / len(rs)
-        in_doc = sum(1 for q in qs if "文書" in q.get("kind", "")) / len(rs)
-        ext = sum(1 for q in qs if "起案者" in q.get("kind", "")) / len(rs)
-        read = sum(r["exec"].get("chars_read", 0) or 0 for r in rs) / len(rs)
+        st = _stats(rs)
         reply = rs[0]["exec"].get("reply", "").replace("|", "/")[:60]
-        lines.append(f"| {n} | {rs[0]['chars']} | {v} | {n_q:.1f} | {in_doc:.1f} | {ext:.1f} | {read:.0f} | {reply} |")
+        lines.append(f"| {n} | {rs[0]['chars']} | {st['verdict']} | {st['n_q']:.1f} | {st['in_doc']:.1f} | {st['ext']:.1f} | {st['read']:.0f} | {reply} |")
     lines += ["", "聞きたいことの一覧:"]
     for n in names:
         for r in [r for r in results if r["name"] == n and "exec" in r]:

@@ -61,7 +61,7 @@ import yaml
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 FIXTURES = HERE / "fixtures"
-DEFAULT_FIXTURES = "ringi-planted,ringi-clean,postmortem-planted,postmortem-clean,teian-planted,teian-clean,kikaku-planted,kikaku-clean"
+DEFAULT_FIXTURES = "ringi-planted,ringi-clean,postmortem-planted,postmortem-clean,teian-planted,teian-clean,kikaku-planted,kikaku-clean,ringi-long-planted"
 RUNS = HERE / "runs"
 JUDGE_PROMPT = (HERE / "prompts" / "judge.txt").read_text()
 JUDGE_REWRITE_PROMPT = (HERE / "prompts" / "judge-rewrite.txt").read_text()
@@ -264,7 +264,11 @@ def mechanical_rewrite(src: Path, src_sha: str, after: Path, log: Path) -> dict:
     checks["not_longer"] = checks["chars_after_body"] <= checks["chars_before"] * 1.01
     # 見出しは短い名詞句のまま(番号を除いて 25 字以内、【 と 。 を含まない)
     bad_heads = []
+    # 元の文書にそのままある見出し(長い題名など)は、規則どおり「元のまま」なので数えない
+    src_heads = {re.sub(r"^#+\s*", "", ln).strip() for ln in src.read_text().splitlines() if ln.startswith("#")}
     for _, h in heads:
+        if re.sub(r"^#+\s*", "", h).strip() in src_heads:
+            continue
         t = re.sub(r"^#+\s*", "", h)
         t = re.sub(r"^[0-9０-９]+(?:[.．-][0-9０-９]+)*[.．]?\s*", "", t)
         t = re.sub(r"^(?:付録|別紙)\s*[A-ZＡ-Ｚ0-9０-９]*[.．:：]?\s*", "", t)
