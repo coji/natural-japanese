@@ -362,7 +362,7 @@ def doc_panel(key):
     steps = "".join(f'<li><b>{E(n)} <span class="chip" data-color="gray">{E(c)}</span></b><span>{E(x)}</span></li>' for (n, c), x in zip(STEPS, step_texts(t)))
     qa = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"])
     kak = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
-    how = f'''<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、頼むときのサブコマンドです。</p>
+    how = f'''<p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、頼むときのサブコマンドです。</p>
 <ol class="flow">{steps}</ol>
 <h4>工程ごとの本編の字数</h4>{bars(key)}
 {asks_table(key)}
@@ -423,7 +423,7 @@ page = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>natural-japanese v{VER}:出す前に、決裁者の目で直す</title>
+<title>natural-japanese v{VER}:AI の文書に、クリティカルシンキングを</title>
 <meta name="description" content="稟議書・提案資料・企画・障害報告書を、出す前に読む人の目で検査し、書き手にしか答えられないことを3つだけ聞いて、答えを入れた文書を返す Agent Skill、critical-thinking を追加しました。">
 {FONT}
 <style>{CSS}</style>
@@ -445,8 +445,8 @@ page = f"""<!doctype html>
 
 <header class="hero" id="top"><div class="wrap">
   <p class="eye">natural-japanese v{VER} リリースノート</p>
-  <h1>出す前に、決裁者の目で直す</h1>
-  <p class="p lead">AI に書かせた稟議書や提案資料は、丁寧でも上司や顧客の「<mark>この数字は誰の分か</mark>」に答えていません。新しいスキル critical-thinking は、文書の中で答えが出ることは黙って直し、書き手にしか答えられない問いを3つだけ聞いて本文に入れます。</p>
+  <h1>AI の文書に、クリティカルシンキングを</h1>
+  <p class="p lead">AI が書いた稟議書や企画書、提案書は、丁寧に見えて、決める人の問いに答えていないことがあります。<mark>根拠のない言い切り</mark>、<mark>空欄のままの単価</mark>、<mark>部全体か1人あたりか分からない件数</mark>、そして<mark>論点がはっきりしないダラダラした文章</mark>。新しいスキル critical-thinking は、提出する前に決裁者の目で読み、文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れ、決裁に要る根拠だけを残して短くします。</p>
   <p class="p lead">下は、架空の文書4本にかけた実演です。</p>
 </div></header>
 
