@@ -264,7 +264,7 @@ CHANGES = {
  ],
 }
 TILE_DECIDE = {  # 「決めてもらうこと」のタイル(見出し語, 数字, 単位, 説明)
- "ringi": ("決めてもらうこと", "3", "件", "元から明記あり。元の文書が目安にした30分の短縮では費用に見合わない、と申請の文に添えた"),
+ "ringi": ("決めてもらうこと", "3", "件", "元から明記あり。目安の30分の短縮では費用に見合わない、と添えた"),
  "teian": ("決めてもらうこと", "1", "件", "9か月・2,700万円のご契約。3か月目で止められることを要点に書き足した"),
  "kikaku": ("決めてもらうこと", "2", "件", "4月開始の承認から、方針の承認と準備の着手に変わった"),
  "postmortem": ("決めてもらうこと", "2", "件", "元の報告には書かれていなかった"),
@@ -362,26 +362,28 @@ def doc_panel(key):
     steps = "".join(f'<li><b>{E(n)} <span class="chip" data-color="gray">{E(c)}</span></b><span>{E(x)}</span></li>' for (n, c), x in zip(STEPS, step_texts(t)))
     qa = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"])
     kak = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
+    how = f'''<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、頼むときのサブコマンドです。</p>
+<ol class="flow">{steps}</ol>
+<h4>工程ごとの本編の字数</h4>{bars(key)}
+{asks_table(key)}
+<h4>書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
+<ol class="list prose-max">{qa}</ol>
+{disclosure(f"別ファイルに出した確認事項 {len(t['kak'])} 件と、先頭の「決裁事項を小さくする案」", kak)}
+<h4>構成がどう変わったか</h4>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
+<div class="map-wrap">{sankey(key)}</div>'''
     return f'''<p class="p prose-max">{E(desc)}</p>
 <h3>ひとめで分かる変化</h3>
 {tiles(key)}
-<h3>スキルがしたこと</h3>
-<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞きます。文書の中で直せたものを除いた残りと、書き手の答えを受けて新たに出た問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです。somosomo は「そもそも」から付けた名前です。</p>
-<ol class="flow">{steps}</ol>
-<div class="twoc"><div><h4>工程ごとの本編の字数</h4>{bars(key)}</div><div>{asks_table(key)}</div></div>
-<h4>書き手に聞いた3問と答え</h4>
-<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が事実の一覧を先に書き、AI はそれだけを見て答え、一覧にないことは「分からない」と答えます。</p>
-<ol class="list prose-max">{qa}</ol>
-{disclosure(f"別ファイルに出した確認事項 {len(t['kak'])} 件と、先頭の「決裁事項を小さくする案」", kak)}
-<h3>構成がどう変わったか</h3>
-<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は、元の節の文がどこへ移ったかを示します。点線は付録へ移ったものです。箱の高さは字数に比例します。※を付けた箱は高さを縮めています。</p>
-<div class="map-wrap">{sankey(key)}</div>
-<h3>主な変更 {len(CHANGES[key])} 件</h3>
-<p class="p prose-max">番号を押すと、下の比較で左右の該当箇所へ移動します。</p>
-{changes_list(key)}
 <h3>左右に並べて読む</h3>
-<p class="p prose-max">左が元の文書、右が「決裁者の目で見て直す」の出力です。片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。</p>
-{viewer(key)}'''
+<p class="p prose-max">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</p>
+{viewer(key)}
+<h3>主な変更 {len(CHANGES[key])} 件</h3>
+<p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
+{changes_list(key)}
+<h3>どうやったか</h3>
+{disclosure("工程と、決裁者の問いへの答え、構成の変化", how)}'''
 tabs_html = '<ul class="dads-tab__list" role="tablist" aria-label="4つの文書">' + "".join(
     f'<li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-{i+1}" aria-selected="{"true" if i == 0 else "false"}" aria-controls="doc-panel-{i+1}" tabindex="{0 if i == 0 else -1}"><span>{E(l)}</span></button></li>'
     for i, (k, l, *_) in enumerate(DOCSETS)) + '</ul>'
@@ -421,7 +423,7 @@ page = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>natural-japanese v{VER}:上司や顧客が聞いてくることを提出前に洗い出す critical-thinking を追加</title>
+<title>natural-japanese v{VER}:出す前に、決裁者の目で直す</title>
 <meta name="description" content="稟議書・提案資料・企画・障害報告書を、出す前に読む人の目で検査し、書き手にしか答えられないことを3つだけ聞いて、答えを入れた文書を返す Agent Skill、critical-thinking を追加しました。">
 {FONT}
 <style>{CSS}</style>
@@ -442,16 +444,16 @@ page = f"""<!doctype html>
 </nav>
 
 <header class="hero" id="top"><div class="wrap">
-  <p class="eye">natural-japanese v{VER} リリースノート 2026年11月</p>
-  <h1>上司や顧客が聞いてくることを提出前に洗い出すスキル critical-thinking を追加しました</h1>
-  <p class="p lead">natural-japanese は、AI の書く日本語を自然にするスキルです。v2.0.0 では、文書の中身を検査する critical-thinking を加えました。AI に稟議書や提案資料を書かせると、丁寧で穴のなさそうな文書ができます。それでも上司や顧客は「<mark>この数字は誰の分か</mark>」「<mark>空欄のままで判断できない</mark>」と聞いてきます。critical-thinking は Claude Code や ChatGPT に読み込ませて使います。「決裁者の目で見て直して」と頼むと、文書の中で答えが出ることは黙って直し、書き手にしか答えられないことを3つ聞いて答えを本文に入れ、残りの問いを別ファイルの確認事項に残します。直した文書から、端的にした版と構成から組み直した版も作ります。</p>
-  <p class="p lead">下は、スキルなしの AI が書いた架空の文書4本に、このスキルをかけた実演です。稟議書では、付録を除いた本編 {fmt(R["P0"]["body"])} 字が、直して {fmt(R["P1"]["body"])} 字、端的にして {fmt(R["P_short"]["body"])} 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませて出た指摘は、すべてこのスキルの確認事項に含まれていました。</p>
+  <p class="eye">natural-japanese v{VER} リリースノート</p>
+  <h1>出す前に、決裁者の目で直す</h1>
+  <p class="p lead">AI に書かせた稟議書や提案資料は、丁寧でも上司や顧客の「<mark>この数字は誰の分か</mark>」に答えていません。新しいスキル critical-thinking は、文書の中で答えが出ることは黙って直し、書き手にしか答えられない問いを3つだけ聞いて本文に入れます。</p>
+  <p class="p lead">下は、架空の文書4本にかけた実演です。</p>
 </div></header>
 
 <main>
 <section class="block" id="docs-sec"><div class="wrap">
   <h2 data-chip>4つの文書で見る</h2>
-  <p class="p prose-max">どれもスキルなしの Claude Code、モデルは Opus 5.5 に短い依頼文から書かせた架空の文書で、書かせたままです。「決裁者の目で見て直して」のあとに「もっと端的に」「構成から組み直して」を続けました。v2.0.0 の full は、この3つを1回で通します。問いと答え、確認事項の引用は出力のままです。</p>
+  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。full と同じ工程をかけ、出力は手を入れずに載せています。</p>
   {doc_tabs}
 </div></section>
 
@@ -473,7 +475,7 @@ page = f"""<!doctype html>
 
 <section class="block" id="how"><div class="wrap">
   <h2 data-chip>頼み方</h2>
-  <p class="p prose-max">文書は Markdown かテキストのファイルで渡します。基本は「決裁者の目で見て直して」の1つで、上の6工程を通します。サブコマンドでは full で、サブコマンドなしも同じです。工程を分けるときはサブコマンドか、同じ意味の言葉で頼みます。Claude Code では <code>/critical-thinking short 稟議書.md</code> のように、コマンドにサブコマンドとファイル名を続けます。</p>
+  <p class="p prose-max">文書は Markdown かテキストのファイルで渡します。基本は「決裁者の目で見て直して」の1つで、検査から組み直しまでの6つの工程を通します。サブコマンドでは full で、サブコマンドなしも同じです。工程を分けるときはサブコマンドか、同じ意味の言葉で頼みます。Claude Code では <code>/critical-thinking short 稟議書.md</code> のように、コマンドにサブコマンドとファイル名を続けます。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">full、またはなし</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>

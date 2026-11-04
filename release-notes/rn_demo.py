@@ -17,10 +17,9 @@ CSS2 = """
 .flow{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:calc(16 / 16 * 1rem) 0 0;border-top:calc(4 / 16 * 1rem) solid var(--color-key-900);display:grid;grid-template-columns:1fr;gap:calc(12 / 16 * 1rem)}
 @media (min-width:48rem){.flow{grid-template-columns:repeat(3,1fr);gap:calc(16 / 16 * 1rem)}}
 @media (min-width:75rem){.flow{grid-template-columns:repeat(6,1fr)}}
-.flow li{position:relative;padding-right:calc(20 / 16 * 1rem)}
+.flow li{padding-right:calc(12 / 16 * 1rem)}
 .flow li b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
 .flow li .chip{min-height:calc(24 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(6 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(14 / 16 * 1rem)}
-@media (min-width:75rem){.flow li+li::before{content:"";position:absolute;left:calc(-14 / 16 * 1rem);top:calc(6 / 16 * 1rem);width:calc(8 / 16 * 1rem);height:calc(8 / 16 * 1rem);border-top:2px solid var(--color-neutral-solid-gray-536);border-right:2px solid var(--color-neutral-solid-gray-536);transform:rotate(45deg)}}
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
 .twoc h4{margin-top:0}
 .twoc>div{min-width:0}
@@ -32,6 +31,7 @@ CSS2 = """
 .bar .f{display:block;height:100%;background:var(--color-key-400)}
 .bar .f.k{background:var(--color-key-900)}
 .bar .bv{text-align:right;font-variant-numeric:tabular-nums}
+table.tbl th[scope=row]{min-width:7em}
 table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0}
 /* 主な変更 */
 .changes{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:0;display:grid;grid-template-columns:1fr;gap:0}
