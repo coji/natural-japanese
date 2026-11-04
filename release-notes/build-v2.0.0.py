@@ -289,7 +289,7 @@ def bars(key):
     rows = [("元の文書", t["P0"]["body"], ""), ("決裁者の目で見て直す", t["P1"]["body"], ""), ("もっと端的に", t["P_short"]["body"], ""), ("構成から組み直す", t["P_rebuild"]["body"], "k")]
     mx = max(r[1] for r in rows)
     out = "".join(f'<div class="bar"><span class="bl">{E(n)}</span><span class="tr"><span class="f {c}" style="width:{v / mx * 100:.1f}%"></span></span><span class="bv">{fmt(v)}字</span></div>' for n, v, c in rows)
-    return f'<div class="bars">{out}</div>'
+    return f'<div class="cbars">{out}</div>'
 def asks_table(key):
     rows = "".join(f'<tr><th scope="row">{E(q)}</th><td>{E(b)}</td><td>{E(a)}</td></tr>' for q, b, a in ASKS[key])
     return f'<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody>{rows}</tbody></table></div>'

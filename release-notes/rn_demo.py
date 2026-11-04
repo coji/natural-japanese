@@ -24,9 +24,10 @@ CSS2 = """
 .twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
 @media (min-width:60rem){.twoc{grid-template-columns:1fr 1fr;gap:calc(32 / 16 * 1rem)}}
 .twoc h4{margin-top:0}
+.twoc>div{min-width:0}
 /* 字数の棒 */
-.bars{display:grid;gap:calc(8 / 16 * 1rem)}
-.bar{display:grid;grid-template-columns:9em 1fr 5em;align-items:center;gap:calc(8 / 16 * 1rem)}
+.cbars{display:grid;gap:calc(8 / 16 * 1rem)}
+.bar{display:grid;grid-template-columns:minmax(5em,9em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
 .bar .bl{font-size:calc(16 / 16 * 1rem)}
 .bar .tr{display:block;height:calc(20 / 16 * 1rem);background:var(--color-neutral-solid-gray-50);border-radius:calc(4 / 16 * 1rem);overflow:hidden}
 .bar .f{display:block;height:100%;background:var(--color-key-400)}
