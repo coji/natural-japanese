@@ -15,6 +15,11 @@ import markdown
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
 from rn_style import CSS, JS, FONT, DOC_CSS  # noqa: E402
+from rn_demo import CSS2, JS2  # noqa: E402
+CSS = CSS + CSS2
+# 旧の文書ビューア(#viewer)は使わないので、その初期化を外してから実演の JS を足す
+_i = JS.index("const caps={before:"); _j = JS.index("mode('side');") + len("mode('side');")
+JS = JS[:_i] + JS[_j:] + JS2
 
 DATA = HERE / "data" / "v2.0.0"
 RUNS = HERE.parent / "dev" / "ct-eval" / "runs"
@@ -68,9 +73,16 @@ def parse_kakfile(t):
     return shrink, first, rest
 def count_items(report):
     """検査の報告の指摘の数: 太字の L1・S1 のような項目と、「細かいもの n 件」の n。"""
-    n = len(re.findall(r"^\*\*[LSP]\d+", report, re.M))
-    m = re.search(r"細かいもの\s*(\d+)\s*件", report)
-    return n + (int(m.group(1)) if m else 0)
+    lines = report.splitlines()
+    numbered = re.compile(r"^(?:- |#{1,4} )?\*{0,2}[LSP]\d+")
+    n = sum(1 for ln in lines if numbered.match(ln))
+    # 「細かいもの n 件」は、その後の項目に L/S の番号が付いていないときだけ足す(番号つきなら上で数えている)
+    for i, ln in enumerate(lines):
+        m = re.match(r"^#{0,4}\s*細かいもの(?:が)?\s*(\d+)\s*件", ln)
+        if not m: continue
+        nxt = next((x for x in lines[i + 1:] if x.strip()), "")
+        if not numbered.match(nxt): n += int(m.group(1))
+    return n
 def load(name):
     d = DATA / name
     t = {k: (d / f).read_text() for k, f in [("before", "doc.md"), ("after", "doc-review.md"), ("redesign", "doc-redesign.md"), ("concise", "doc-concise.md"),
@@ -163,183 +175,126 @@ HAVE_R46 = all(R46.values()) and bool(DET["stable"])
 # ---------- 部品 ----------
 def EM(t):
     return html.escape(t).replace("&lt;em&gt;", "<em>").replace("&lt;/em&gt;", "</em>")
-def quote(ln, t, cls=""):
-    c = f' class="{cls}"' if cls else ""
-    l = f'<span class="ln">行{ln}</span> ' if ln else ""
-    return f'<blockquote{c}><p>{l}{EM(t)}</p></blockquote>'
 ICON = '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg>'
 def disclosure(label, body):
     return f'<details class="dsc"><summary>{ICON}<span>{E(label)}</span></summary><div class="dsc-body">{body}</div></details>'
-def chip(t, color="gray", fill=False):
-    return f'<span class="chip" data-color="{color}"{" data-fill" if fill else ""}>{E(t)}</span>'
 def _norm(t): return re.sub(r"[\s|*]", "", re.sub(r"<[^>]+>", "", t))
-def tabs(prefix, labels, aria):
-    return f'<ul class="dads-tab__list" role="tablist" aria-label="{E(aria)}">' + "".join(
-        f'<li><button type="button" class="dads-tab__tab" role="tab" id="{prefix}-tab-{i+1}" aria-selected="{"true" if i == 0 else "false"}" aria-controls="{prefix}-panel-{i+1}" tabindex="{0 if i == 0 else -1}"><span>{E(l)}</span></button></li>'
-        for i, l in enumerate(labels)) + '</ul>'
-def panel(prefix, i, body):
-    return f'<div class="dads-tab__panel" id="{prefix}-panel-{i}" role="tabpanel" aria-labelledby="{prefix}-tab-{i}" tabindex="0"{"" if i == 1 else " hidden"}>{body}</div>'
-def tabset(prefix, aria, bodies):
-    return f'<div class="dads-tab">{tabs(prefix, [l for _, l, *_ in DOCSETS], aria)}<div class="dads-tab__panels">{"".join(panel(prefix, i + 1, b) for i, b in enumerate(bodies))}</div></div>'
 def V(v): return v.replace("聞きたい", "判断の前に質問あり")
+def _hname(h): return re.sub(r"^##\s*(?:\d+[.．]\s*)?", "", h).strip()
+def md(t): return markdown.markdown(t, extensions=["tables"])
+
+# 一本道の出力(直した後の文書に short / rebuild をかけたもの)
+for _k, _t in SETS.items():
+    d = DATA / _k
+    _t["short"] = (d / "doc-review.short.md").read_text()
+    _t["rebuild"] = (d / "doc-review.rebuild.md").read_text()
+    _t["P_short"], _t["P_rebuild"] = parts(_t["short"]), parts(_t["rebuild"])
+    for k in ("short", "rebuild"):
+        assert "要確認" not in _t[k] and "確認事項" not in "".join(h for h, _ in sections(_t[k])), (_k, k)
+    _t["n_logic"] = count_items(_t["logic"]); _t["n_somo"] = count_items(_t["somo"])
 
 KAK_TOTAL = sum(len(SETS[k]["kak"]) for k in SETS)
-# ---------- ファーストビュー: 稟議書の1行だけ ----------
-SHORT = {"ringi": "議事録を作る AI ツール(架空の製品、ミナトノート)を、営業部の12名で6か月試験導入したいという稟議書"}
-def _find_obj(key, needle):
-    for q, k in OUTC[key]["元"]["objs"]:
-        if needle in q: return q
-    raise AssertionError((key, needle))
-HERO = dict(key="ringi", obj=_find_obj("ringi", "時間単価が空欄"), q=2, after="時間単価は、経理部が社内の試算に使う標準単価の1時間3,500円である。", after2="費用に見合うのは、打ち合わせの全件で使い、1件あたり約39分以上減った場合で、今ある参考値の30分では届かない。")
-def hero_row():
-    t = SETS[HERO["key"]]; n, q, ans = t["qa"][HERO["q"] - 1]
-    for x in (HERO["after"], HERO["after2"]): assert _norm(x) in _norm(t["after"]), x[:20]
-    return f'''<div class="cmp">
-  <div><h4>{chip("経営者役の指摘")}</h4><p>{E(SHORT["ringi"])}を読んで。4.2 と 8.3 は稟議書の節番号です。</p><blockquote><p>{E(HERO["obj"])}</p></blockquote></div>
-  <div><h4>{chip("スキルの問い(提出前)", "blue", True)}</h4><blockquote class="key"><p>{E(q)}</p></blockquote><p class="ans">{chip("書き手の答え", "blue")} {E(ans.split("。")[0] + "。")}</p></div>
-  <div><h4>{chip("答えを入れた文", "green", True)}</h4><blockquote><p>{E(HERO["after"])}</p></blockquote><blockquote><p>{E(HERO["after2"])}</p></blockquote></div>
-</div>'''
-
-# ---------- 流れ図 ----------
-N_LOGIC = count_items(R0["logic"]); N_SOMO = count_items(R0["somo"])
-NODES = {
-    "src": ("文書", ["AI が書いたまま"], "src", "このページの例は、スキルなしの Claude Code(Opus 5.5)に短い依頼文から書かせた架空の稟議書・制度企画・提案資料・障害報告書です。わざと穴を作らせたのではなく、書かせたままです。"),
-    "logic": ("筋を見る", ["文書の中だけで", "矛盾・根拠のない主張・食い違い"], "k", f"文書の中だけで読み、矛盾、根拠のない主張、事実と推論の混在、挙げた項目の抜けや食い違いを、行番号つきの問いにします。文書の論理構造(主結論、決裁事項、制約、論点ごとの根拠と、その根拠が決裁に要るかどうか)を別ファイルに書き出し、次の検査や直しはこれをもとに進めます。検査の結果は報告にまとめます。"),
-    "somo": ("前提を疑う", ["決裁者の立場で", "前提・他の選択肢・覆る条件"], "o", f"決裁者の立場で読み、前提は妥当か、課題の立て方は合っているか、他の選択肢と比べたか、何が起きたら結論が覆るか、誰が実行するかを問います。決裁事項(読む人に決めてもらうこと)を覆しうる問いを報告の先頭に置きます。"),
-    "ask": ("書き手に3つだけ聞く", ["書き手にしか答えられないこと", "文書の中で答えが出ることは聞かない"], "q", "文書の中で答えが出るもの(矛盾、計算、根拠に比べて強すぎる言い切り)は聞かずに直します。書き手に聞くのは、文書にない事実や、決裁者に何を決めてもらうつもりか、のように書き手にしか答えられないことだけで、3つまでです。関連する確認は1問にまとめます。「分からない」と答えてもかまいません。"),
-    "fix": ("直した文書", ["答えを本文に入れる", "残りの問いは別ファイルの確認事項に"], "k", "書き手の答えを、強めず弱めず、出どころを添えて本文に入れます。「分からない」だった箇所は仮定の形にします。残りの問いは別のファイル(稟議書.確認事項.md)に、先に答えるべき3件と「そのほか」に分けて出します。答えで決裁事項の前提が崩れたときは、決裁事項を小さくする案(例: 12名の承認ではなく、まず2週間の測定だけを頼む)を確認事項の先頭に短く書きます。直した文書に、直した箇所の印や確認事項の節は入れません。ただし、文書の2か所の値が食い違っていて書き手にしか決められないときは、本文に両方の値を残して「確認中」と書きます。頼み方:「稟議書.md を決裁者の目で見て直して」"),
-    "re": ("組み直す", ["頼んだときだけ", "事実と決裁事項は保ち、論の組み立てを替える"], "k", "事実・数値・主結論・決裁事項は保ったまま、論の組み立てだけを替えます。構成案を3つ出し、そのうち1つは必ず決裁事項を小さくする案です。書き手がその案を選んだときだけ、決裁事項も変わります。頼み方:「構成から組み直して」"),
-    "cc": ("もっと端的に・丁寧に", ["頼んだときだけ", "本編に残す根拠の量を変えて書き直す"], "k", "文章を削るのではなく、どの根拠まで本編に残すかを決めて書き直します。端的にするときは、主結論、各論点の主張と決裁に要る根拠、決裁事項と制約だけを本編に残し、裏づけと補足は付録に移します。事実・数値・事例は消しません。頼み方:「もっと端的に」「もっと丁寧に」"),
+# ---------- 文書ごとに作者が書いた部分(引用は文書の文そのまま。build が照合する) ----------
+# 決裁者が最初に聞くこと: (問い, 元の文書では, 直した後では)
+ASKS = {
+ "ringi": [
+    ("時間単価はいくらか", "空欄(【 】円)", "経理部の標準単価 1時間3,500円。1件あたり約39分短縮できれば費用に見合う"),
+    ("週8件は部全体か、1人あたりか", "書いていない", "部全体。営業支援システムの訪問記録から"),
+    ("6か月で解約できるか", "契約前に確認する", "月単位で解約できる(販売店に確認済み)"),
+    ("顧客は録音に同意するか", "全件で使う前提の試算", "見込みを出す材料がないと明記し、利用率の目安は空欄のまま確認事項へ"),
+    ("何もしない案や、数名で試す案と比べたか", "書いていない", "本文にはなく、確認事項に残る"),
+ ],
+ "teian": [
+    ("失注が起きているとは、何を根拠に", "「実際に失注が起きています」と言い切り", "営業本部長から2社と聞いただけで、資料では確かめていない、と明記"),
+    ("営業担当は入力を続けるか", "4つの工夫を並べる", "3名に聞いて2名賛成・1名が手間を心配。続くかは確かめていない、と明記"),
+    ("B社の事例は当てはまるか", "成果につながった例、と紹介", "受注率が上がった原因は営業記録の共有かどうか言えない、と明記"),
+    ("効果は何で測るか", "指標を列挙", "失注率と新人の独り立ち期間で測り、入力率は定着の指標と分ける"),
+ ],
+ "kikaku": [
+    ("本日決めるのは何か", "2027年4月から始めること", "制度を作る方針の承認と準備の着手。開始日は2月の最終案で決める"),
+    ("辞めた人のうち、何名が対象か", "「退職理由の上位」", "回答者22名のうち9名、内勤7名"),
+    ("離職率の差は何名か", "年間およそ30名", "31名(内勤19名、外勤など12名)"),
+    ("在宅勤務で離職率は下がるのか", "辞める理由と、応募者に選ばれない理由の両方", "辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない"),
+    ("VPN は足りるか", "上限100件、外勤の利用は確認中", "確認中のまま。確認事項に残る"),
+ ],
+ "postmortem": [
+    ("何を決めてほしいのか", "書いていない", "2つ。再発防止の3つの方向と、調査に1週間かけてよいか"),
+    ("疑っている改修は今も本番か", "書いていない", "切り戻しておらず、本番に残っている。再起動後は再発なし"),
+    ("改修を疑う根拠は", "時期が近いことだけ", "同じ。半年前にも同じサーバーで通知が出た、を追加"),
+    ("止まり方は全面か断続か", "確認中", "確認中(変わらず)"),
+    ("対策の担当と期限は", "まだ決まっていない", "調査の結果が出てから改めて出す、と頼む形に"),
+ ],
 }
-def flow_svg():
-    W, H = 1000, 420
-    def box(key, x, y, w, h):
-        title, sub, cls, _ = NODES[key]
-        t = f'<g class="node {cls}" data-node="{key}" role="button" tabindex="0" aria-pressed="false" aria-label="{E(title)}の説明を見る"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" class="bx"/>'
-        t += f'<text x="{x+w/2}" y="{y+34}" class="bt" text-anchor="middle">{E(title)}</text>'
-        for i, s in enumerate(sub):
-            t += f'<text x="{x+w/2}" y="{y+58+i*20}" class="bs" text-anchor="middle">{E(s)}</text>'
-        return t + '</g>'
-    def arrow(x1, y1, x2, y2, dashed=False):
-        mx = (x1 + x2) / 2
-        return f'<path d="M{x1},{y1} C{mx},{y1} {mx},{y2} {x2},{y2}" class="ar{" dashed" if dashed else ""}" marker-end="url(#ah)"/>'
-    s = f'<svg viewBox="0 0 {W} {H}" class="fig flow" role="group" aria-label="流れ:文書を2つの見方で検査し、書き手に3つだけ聞いて、答えを入れた文書を返す。頼めば組み直す、端的にする">'
-    s += '<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4d4d4d"/></marker></defs>'
-    s += arrow(130, 210, 170, 140) + arrow(130, 210, 170, 280) + arrow(390, 140, 430, 210) + arrow(390, 280, 430, 210) + arrow(690, 210, 730, 80)
-    s += arrow(690, 210, 730, 210, True) + arrow(690, 210, 730, 340, True)
-    s += box("src", 10, 160, 120, 100) + box("logic", 170, 90, 220, 100) + box("somo", 170, 230, 220, 100)
-    s += box("ask", 430, 160, 260, 100) + box("fix", 730, 30, 260, 100) + box("re", 730, 160, 260, 100) + box("cc", 730, 290, 260, 100)
-    return s + '</svg>'
-flow_list = "".join(f'<li>{disclosure(v[0], f"<p>{E(v[3])}</p>")}</li>' for v in NODES.values())
-node_desc = "".join(f'<div class="nd" data-for="{k}" hidden><b>{E(v[0])}</b><p>{E(v[3])}</p></div>' for k, v in NODES.items())
-
-# ---------- 4つの文書(1本につき、返事1文・3問・直った文1つ・小さくする案1行) ----------
-PICKS = {
- "ringi": dict(title="空欄だった時間単価が入り、損益の分かれ目が本文に出た", q=2,
-        before=[(62, "当社の営業担当者の時間単価:<em>【 】円(人事・経理部門に確認して記入)</em>")],
-        after=[(33, "時間単価は、<em>経理部が社内の試算に使う標準単価の1時間3,500円</em>である。"), (29, "費用に見合うのは、打ち合わせの全件で使い、<em>1件あたり約39分以上減った場合</em>で、今ある参考値の30分では届かない。")],
-        note="書き手が答えた単価と元の月額からスキルが損益の分かれ目を計算し、元の試算の30分では費用に見合わないことを本文に書いた。"),
- "kikaku": dict(title="「退職理由の上位」が、人数の内訳になった", q=1,
-        before=[(25, "| 退職者アンケート | 「働き方の柔軟性のなさ」が<em>退職理由の上位</em> | — |")],
-        after=[(27, "| 退職者アンケート | <em>回答者は22名</em>。「働き方の柔軟性のなさ」が退職理由の上位で、<em>挙げたのは9名（うち内勤7名）</em>。自由記述で在宅勤務に触れたのは4名 | — |")],
-        note="対象は内勤180名で、辞めた人が対象の中にいるかは書き手にしか分からない。答えの数字がそのまま入った。"),
- "teian": dict(title="「実際に失注が起きています」の出どころが、本文に入った", q=1,
-        before=[(33, "御社ではこの引き継ぎの場面で<em>実際に失注が起きています</em>。")],
-        after=[(33, "<em>営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、その2社の時期や理由もうかがっていません。</em>")],
-        note="答えは「聞いただけで、資料では確かめていない」。答えのまま書いたので、提案の前提が聞いた話だと読む人に分かる。"),
- "postmortem": dict(title="共有で終わる報告が、2つの判断を頼む報告になった", q=2,
-        before=[(8, "10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためで、サーバーを再起動し、11:50 ごろに復旧しました。")],
-        after=[(8, "<em>決めていただきたいことが2つあります。再発防止の3つの方向でよいかと、受注検索の改修が障害の原因かどうかの調査に1週間かけてよいかです。</em>")],
-        note="元の報告には読んだ人に何をしてほしいかがなかった。「共有で終わる文書だと読んだが合っているか」と聞き、答えが冒頭に入った。"),
+# 主な変更: (見出し, 説明, 元の文書の語句, 直した後の語句)。語句は文書の文そのままで、押すと左右の比較で該当箇所へ移動する
+CHANGES = {
+ "ringi": [
+    ("前提の弱さを冒頭に", "目安の30分短縮(参考値)では費用に見合わないことと、規程との突き合わせが済んでいないことを、申請の文に添えた", "営業部の営業担当12名で6か月間試験導入したい。", "今ある参考値(1件30分の削減)では費用に見合わず"),
+    ("書き手の答えを反映", "週8件は部全体の数で、出どころは訪問記録", "顧客打ち合わせが週に平均8件(月に約35件)ある。", "営業支援システムの訪問記録の直近6か月から出した"),
+    ("空欄を埋める", "時間単価が入った", "【 】円(人事・経理部門に確認して記入)", "経理部が社内の試算に使う標準単価の1時間3,500円"),
+    ("計算して言い切りを直す", "30分の参考値では回収できないと本文に書いた", "参考値どおり1件あたり30分減った場合の削減時間は、次のとおり", "今ある参考値の30分では届かない"),
+    ("言い切りを根拠に合わせる", "確かめていないことは見立てとして書く", "担当者のメモの取り方に左右される。", "担当者のメモの取り方に左右されると見ている"),
+    ("測れることを示す", "承認の前に2週間で測れる、という答えを入れた", "試験導入の開始前に測定する(8章)", "2週間あれば12名分を記録でき、承認の前に測ることもできる"),
+ ],
+ "teian": [
+    ("出どころを示す", "失注は聞いた話で、資料では確かめていない", "御社ではこの引き継ぎの場面で実際に失注が起きています", "営業本部長からは、引き継ぎで2社を失ったとうかがっています"),
+    ("言い切りを見込みに", "原因が情報の抜け落ちなら、の条件を付けた", "情報の抜け落ちによる失注を減らせます", "失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます"),
+    ("事例の限界を書く", "B社の受注率の原因は言えない", "同業・同規模の会社で、営業記録の共有が成果につながった例です", "受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません"),
+    ("書き手の答えを反映", "現場3名の声を事実として入れ、続くかは未確認と添えた", "当社はこの点を最も重要な課題と考え", "営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました"),
+    ("指標を分ける", "失注率で効果を測り、入力率は定着の指標にした", "次の指標を使い、導入前後を比べて効果を確認します", "SFA の入力率は、導入後の定着を確かめる指標です"),
+ ],
+ "kikaku": [
+    ("決めることを明記", "本日は方針の承認と準備の着手", "準備として、就業規則の改定", "作る方針を承認いただくこと"),
+    ("開始日の扱い", "開始日は2月の最終案で決める", "2月の経営会議で最終案としてお諮りします。", "開始日も、その最終案で改めて決めていただきます"),
+    ("書き手の答えを反映", "退職理由の上位、が人数になった", "退職理由の上位", "挙げたのは9名（うち内勤7名）"),
+    ("数字の内訳", "およそ30名が、内訳つきの31名になった", "250名規模で年間およそ30名", "250名規模で31名。内勤19名、外勤など12名"),
+    ("言い切りを根拠に合わせる", "採用の側は材料がないので「なりうる」に", "「辞める理由」と「選ばれない理由」の両方になっていると考えます", "「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます"),
+ ],
+ "postmortem": [
+    ("決めることを明記", "共有で終わる報告が、2つの判断を頼む報告になった", "受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー", "決めていただきたいことが2つあります"),
+    ("書き手の答えを反映", "改修は本番に残っていて、再発はない", "改修が原因だとは確かめられていません。", "改修は切り戻しておらず、本番に残っています"),
+    ("書き手の答えを反映", "半年前にも同じ通知があった", "根拠は反映と障害の時期が近いことだけで", "半年前に1度、同じサーバーのメモリで通知が出たことがあります"),
+    ("言い切りを根拠に合わせる", "原因は「と見ています」に", "メモリが上限に達したためで、サーバーを再起動し", "メモリが上限に達したためと見ています"),
+    ("頼む形にする", "対策は了承を頼み、中身は調査のあとに", "いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません", "次の3つの方向でよいかの了承をお願いします"),
+    ("食い違いを見せる", "再入力するのが誰かは確認中と書いた", "営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでした", "入力し直すのが営業か顧客かは確認中です"),
+ ],
 }
-for _k, _p in PICKS.items():
+TILE_DECIDE = {  # 「決めてもらうこと」のタイル(見出し語, 数字, 単位, 説明)
+ "ringi": ("決めてもらうこと", "3", "項目", "元から明記あり。目安の30分短縮(参考値)では費用に見合わないことを申請の文に添えた"),
+ "teian": ("決めてもらうこと", "1", "文", "9か月・2,700万円のご契約。3か月目で止められることを要点に"),
+ "kikaku": ("決めてもらうこと", "2", "項目", "4月開始の承認から、方針の承認と準備の着手に変わった"),
+ "postmortem": ("決めてもらうこと", "2", "つ", "元の報告には書かれていなかった"),
+}
+for _k in SETS:
     _t = SETS[_k]
-    for _ln, _q in _p["before"]: assert _norm(_q) in _norm(_t["before"]), (_k, "before", _ln)
-    for _ln, _q in _p["after"]: assert _norm(_q) in _norm(_t["after"]), (_k, "after", _ln)
-def doc_body(key):
-    t = SETS[key]; o = OUTC[key]; ov = OV[key]; p = PICKS[key]
-    qs = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"])
-    verdict = f'{E(READER[key])}役の返事は、元の文書で{E(V(o["元"]["verdict"]))}、直した後で{E(V(o["一括"]["verdict"]))}。元の文書への指摘 {ov["n"]} 件(同じ文書を3回読ませた合計)は、すべてスキルの確認事項にありました。'
-    ex_before = o["元"]["objs"][0][0]; ex_after = o["一括"]["objs"][0][0]
-    examples = f'<div class="ba"><div><h5>元の文書への指摘の例</h5><blockquote><p>{E(ex_before)}</p></blockquote></div><div><h5>直した後への指摘の例</h5><blockquote><p>{E(ex_after)}</p></blockquote></div></div>'
-    kak = f'<p class="p">行番号は元の文書の行です。</p><p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い</h4><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
-    desc = dict((k, d) for k, _, d, *_ in DOCSETS)[key]
-    nf2 = "。答えから計算した約39分などの値を除く" if key == "ringi" else ""
-    return f'''<p class="p prose-max">{E(desc)}</p>
-  <p class="p prose-max">{verdict}</p>
-  {examples}
-  <h4>スキルが書き手に聞いた3つ</h4>
-  <ol class="list prose-max">{qs}</ol>
-  <h4>{E(p["title"])}</h4>
-  <div class="ba"><div><h5>元の文書</h5>{"".join(quote(*x) for x in p["before"])}</div><div><h5>直した後</h5>{"".join(quote(*x) for x in p["after"])}</div></div>
-  <p class="p prose-max">{E(p["note"])}</p>
-  <p class="p prose-max">本編の字数 {fmt(t["P0"]["body"])} から {fmt(t["P1"]["body"])}(付録 {fmt(t["P1"]["app"])})。AI が勝手に足した数値・固有名詞は 0 件(スクリプトで確認{nf2})。</p>
-  {disclosure(f"別ファイルに出した確認事項 {len(t['kak'])} 件と、先頭の「決裁事項を小さくする案」", kak)}'''
-docs_html = tabset("doc", "4つの文書", [doc_body(k) for k, *_ in DOCSETS])
+    for _title, _desc, _b, _a in CHANGES[_k]:
+        assert _norm(_b) in _norm(_t["before"]), (_k, "before", _b[:20])
+        assert _norm(_a) in _norm(_t["after"]), (_k, "after", _a[:20])
 
-# ---------- もっと端的に ----------
-def bars_svg(rows, aria):
-    mx = max(sum(p.values()) for _, p in rows)
-    W = 1000; LBL = 150; BAR = W - LBL - 110; ROW = 46; H = ROW * len(rows) + 40
-    s = f'<svg viewBox="0 0 {W} {H}" class="fig bars" role="img" aria-label="{E(aria)}">'
-    for i, (name, p) in enumerate(rows):
-        y = 10 + i * ROW
-        s += f'<text x="0" y="{y+22}" class="ml">{E(name)}</text>'
-        x = LBL
-        for k, cls in (("body", "s-body"), ("app", "s-app")):
-            w = BAR * p[k] / mx
-            if w <= 0: continue
-            s += f'<rect x="{x}" y="{y}" width="{max(0,w-2)}" height="30" class="{cls}"/>'
-            if w > 70: s += f'<text x="{x+8}" y="{y+20}" class="bl {"inv" if cls=="s-body" else ""}">{fmt(p[k])}</text>'
-            x += w
-        s += f'<text x="{x+8}" y="{y+20}" class="mn">計 {fmt(sum(p.values()))}</text>'
-    y = 10 + len(rows) * ROW + 6
-    for j, (lab, cls) in enumerate((("本編(決裁者が読む)", "s-body"), ("付録", "s-app"))):
-        x = LBL + j * 230
-        s += f'<rect x="{x}" y="{y}" width="14" height="14" class="{cls}"/><text x="{x+20}" y="{y+12}" class="mn">{E(lab)}</text>'
-    return s + '</svg>'
-def _hname(h): return re.sub(r"^##\s*(?:\d+[.．]\s*)?", "", h).strip()
-def heading_cols(t):
-    before = [(_hname(h), nonspace(h) + nonspace(b)) for h, b in sections(t["before"]) if h]
-    after = [(_hname(h), nonspace(h) + nonspace(b), kind(h)) for h, b in sections(t["concise"]) if h]
-    def li(h, n): return f'<li>{E(h)} <span class="ln">{fmt(n)}字</span></li>'
-    nb = sum(1 for *_, k in after if k == "body"); na = sum(1 for *_, k in after if k == "app")
-    return f'<div class="keep"><div><h4>元の本編 {len(before)}節</h4><ol>{"".join(li(h, n) for h, n in before)}</ol></div><div><h4>端的にした本編 {nb}節</h4><ol>{"".join(li(h, n) for h, n, k in after if k == "body")}</ol><h4>付録 {na}節</h4><ul style="list-style:none;padding-left:0">{"".join(li(h, n) for h, n, k in after if k == "app")}</ul></div></div>'
-def concise_body(key):
+# ---------- 文書ごとのパネル ----------
+STEPS = [("1. 文書の中を検査", "logic"), ("2. 文書の外から問う", "somosomo"), ("3. 書き手に聞く", "3問"), ("4. 本文を直す", "fix"), ("5. 端的にする", "short"), ("6. 構成を組み直す", "rebuild")]
+def step_texts(t):
+    return [f"主張と根拠の対応、矛盾を{t['n_logic']}件指摘", f"前提、代案、覆る条件を{t['n_somo']}件問う", "答えが要る3問だけを聞く", "答えを本文に入れ、言い切りを根拠に合わせる", "決裁に要る根拠を本編に残し、残りは付録へ", "構成案を3つ出し、決裁事項を小さくする案も示す"]
+def tiles(key):
+    t = SETS[key]; o = OUTC[key]; ov = OV[key]
+    b0, b1, b2 = t["P0"]["body"], t["P1"]["body"], t["P_short"]["body"]
+    dec = TILE_DECIDE[key]
+    return f'''<div class="tiles">
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">{round((1 - b2 / b0) * 100)}%<small>短縮</small></div><p class="d">{fmt(b0)}字 → 直して {fmt(b1)}字 → 端的に {fmt(b2)}字</p></div>
+  <div class="tile"><p class="l">{E(dec[0])}</p><div class="v">{E(dec[1])}<small>{E(dec[2])}</small></div><p class="d">{E(dec[3])}</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">{t["n_logic"] + t["n_somo"]}<small>件</small></div><p class="d">論理の指摘{t["n_logic"]}件、前提への問い{t["n_somo"]}件。うち3問を書き手に聞き、残りは確認事項へ</p></div>
+  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">{len(t["kak"])}<small>件</small></div><p class="d">うち先に答える問いは3件。本文には書き込まない</p></div>
+</div>'''
+def bars(key):
     t = SETS[key]
-    return f'''<p class="p prose-max">本編は {fmt(t["P0"]["body"])} 字から {fmt(t["P3"]["body"])} 字(元の {t["P3"]["body"] / t["P0"]["body"]:.0%})になり、付録が {fmt(t["P3"]["app"])} 字付きました。</p>
-  <div class="bars-wrap">{bars_svg([("元の文書", t["P0"]), ("端的にした後", t["P3"])], "元の文書と端的にした後の字数を、本編と付録に分けた棒")}</div>
-  {disclosure("見出しは、こう分かれた", heading_cols(t))}'''
-concise_html = tabset("cc", "端的にした4つの文書", [concise_body(k) for k, *_ in DOCSETS])
-
-# ---------- 組み直す ----------
-def _field(body, names):
-    for n in names:
-        m = re.search(r"^\s*-?\s*\*{0,2}" + n + r"\*{0,2}\s*[:：](.+)$", body, re.M)
-        if m: return m.group(1).strip()
-    return ""
-def parse_plans(md):
-    plans = []
-    for m in re.finditer(r"^## (案[A-Z0-9０-９])\s*[:：]?\s*(.+?)$([\s\S]*?)(?=^## |\Z)", md, re.M):
-        key, title, body = m.group(1), m.group(2).strip(), m.group(3)
-        if re.match(r"^を?選んだ", title): continue
-        shrink = "小さくする" in title or "縮め" in title[:12]
-        chosen = bool(re.search(r"[(（](?:選んだ案|採用)[)）]", title))
-        title = re.sub(r"\s*[(（](?:採用|選んだ案|書き手が選ぶ案)[)）]\s*", "", title).strip()
-        title = re.sub(r"^頼む中身を(?:小さくする|保つ)案?\s*[:：]?\s*[(（]?", "", title).rstrip("）)")
-        plans.append(dict(key=key, title=title.replace("背骨にする", "中心に置く").replace("背骨", "中心"), shrink=shrink, chosen=chosen, claim=_field(body, ["主張"])))
-    tail = md[md.rindex("## 選んだ案"):] if "## 選んだ案" in md else md[md.rindex("を選んだ理由"):] if "を選んだ理由" in md else ""
-    mm = re.search(r"(案[A-Z0-9０-９])", tail)
-    chosen = mm.group(1) if mm else next((p["key"] for p in plans if p["chosen"]), None)
-    return plans, chosen
-def _clean(t):
-    t = re.sub(r"[(（](?:[SLRP]S?\d[\d\-・/、SLRP\s]*|somosomo\s*[^)）]*|logic\s*[^)）]*)[)）]", "", t)
-    return re.sub(r"\s{2,}", " ", t).replace("背骨", "中心").strip("、 ")
-for _k, _t in SETS.items():
-    _t["PLANS"], _t["CHOSEN"] = parse_plans(_t["plans_md"])
-    assert len(_t["PLANS"]) == 3 and _t["CHOSEN"] and any(p["shrink"] for p in _t["PLANS"]), (_k, [p["key"] for p in _t["PLANS"]], _t["CHOSEN"])
-def compute_moves(before_t, redesign_t, min_hits=2):
-    new = [(_hname(h), b) for h, b in sections(redesign_t) if h and kind(h) != "kak"]
+    rows = [("元の文書", t["P0"]["body"], ""), ("決裁者の目で見て直す", t["P1"]["body"], ""), ("もっと端的に", t["P_short"]["body"], ""), ("構成から組み直す", t["P_rebuild"]["body"], "k")]
+    mx = max(r[1] for r in rows)
+    out = "".join(f'<div class="bar"><span class="bl">{E(n)}</span><span class="tr"><span class="f {c}" style="width:{v / mx * 100:.1f}%"></span></span><span class="bv">{fmt(v)}字</span></div>' for n, v, c in rows)
+    return f'<div class="bars">{out}</div>'
+def asks_table(key):
+    rows = "".join(f'<tr><th scope="row">{E(q)}</th><td>{E(b)}</td><td>{E(a)}</td></tr>' for q, b, a in ASKS[key])
+    return f'<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody>{rows}</tbody></table></div>'
+def compute_moves(before_t, after_t, min_hits=2):
+    new = [(_hname(h), b) for h, b in sections(after_t) if h and kind(h) != "kak"]
     out = {}
     for h, body in sections(before_t):
         if not h: continue
@@ -352,44 +307,84 @@ def compute_moves(before_t, redesign_t, min_hits=2):
                 if ch in re.sub(r"[|*\s]", "", nb): hits[nh] = hits.get(nh, 0) + 1
         out[_hname(h)] = [nh for nh, n in sorted(hits.items(), key=lambda x: -x[1]) if n >= min_hits]
     return out
-def mapping_svg(t, moves):
-    L = [(_hname(h), nonspace(h) + nonspace(b)) for h, b in sections(t["before"]) if h]
-    R = [(_hname(h), nonspace(h) + nonspace(b), kind(h)) for h, b in sections(t["redesign"]) if h and kind(h) != "kak"]
-    before_names = {h for h, _ in L}
-    ROW = 34; TOP = 44; W = 1000; bw = 330; lx = 10; rx = W - bw - 10
-    H = TOP + max(len(L), len(R)) * ROW + 20
-    s = f'<svg viewBox="0 0 {W} {H}" class="fig map" role="img" aria-label="元の{len(L)}節が、組み直した後の本編と付録のどこへ移ったか">'
-    nb_ = sum(1 for _, _, k in R if k == "body"); na_ = sum(1 for _, _, k in R if k == "app")
-    s += f'<text x="{lx}" y="24" class="mh">元の本編 {len(L)}節 {fmt(t["P0"]["body"])}字</text>'
-    s += f'<text x="{rx}" y="24" class="mh">組み直した後 本編{nb_}節 {fmt(t["P2"]["body"])}字 + 付録{na_}節 {fmt(t["P2"]["app"])}字</text>'
-    ly = {}; ry = {}
-    for i, (h, n) in enumerate(L):
-        y = TOP + i * ROW; ly[h] = y + ROW / 2
-        s += f'<g class="src" data-src="{i}" tabindex="0" role="img" aria-label="{E(h)}の行き先を強調"><rect x="{lx}" y="{y+3}" width="{bw}" height="{ROW-6}" rx="4" class="mr"/>'
-        s += f'<text x="{lx+10}" y="{y+ROW/2+5}" class="ml">{E(h)}</text><text x="{lx+bw-10}" y="{y+ROW/2+5}" class="mn" text-anchor="end">{fmt(n)}</text></g>'
-    for i, (h, n, k) in enumerate(R):
-        y = TOP + i * ROW; ry[h] = (y + ROW / 2, i)
-        new = k == "body" and not any(h in b or b in h for b in before_names)
-        s += f'<g class="dst" data-dst="{i}"><rect x="{rx}" y="{y+3}" width="{bw}" height="{ROW-6}" rx="4" class="mr {k}{" new" if new else ""}"/>'
-        s += f'<text x="{rx+10}" y="{y+ROW/2+5}" class="ml">{E(h)}{"(新しい節)" if new else ""}</text><text x="{rx+bw-10}" y="{y+ROW/2+5}" class="mn" text-anchor="end">{fmt(n)}</text></g>'
-    x1, x2 = lx + bw, rx
-    for i, (h, _) in enumerate(L):
-        for d in moves.get(h, []):
-            if d not in ry: continue
-            y1 = ly[h]; y2, j = ry[d]; mx = (x1 + x2) / 2
-            s += f'<path d="M{x1},{y1} C{mx},{y1} {mx},{y2} {x2},{y2}" class="mv" data-src="{i}" data-dst="{j}"/>'
-    return s + '</svg>'
-def redesign_body(key):
+def sankey(key):
+    """元の節と組み直した節を、字数に比例した高さの箱で並べ、文の移り先を線でつなぐ。"""
     t = SETS[key]
-    shrink = next(p for p in t["PLANS"] if p["shrink"]); chosen = next(p for p in t["PLANS"] if p["key"] == t["CHOSEN"])
-    mapnote = '<p>節を押すと、移った先の節が強く表示されます。線は元の節の文の移り先です。</p>'
-    return f'''<p class="p prose-max">{chip("決裁事項を小さくする案", "blue", True)} <b>{E(shrink["title"])}</b></p><blockquote class="key"><p>{E(_clean(shrink["claim"]))}</p></blockquote>
-  <p class="p prose-max">{chip("この案で書いた", "gray")} <b>{E(chosen["title"])}</b></p><blockquote><p>{E(_clean(chosen["claim"]))}</p></blockquote>
-  <p class="p prose-max">本編は {fmt(t["P0"]["body"])} 字から {fmt(t["P2"]["body"])} 字になり、付録が {fmt(t["P2"]["app"])} 字付きました。</p>
-  {disclosure("元の節は、どこへ移ったか", mapnote + f'<div class="map-wrap">{mapping_svg(t, compute_moves(t["before"], t["redesign"]))}</div>')}'''
-redesign_html = tabset("rd", "組み直した4つの文書", [redesign_body(k) for k, *_ in DOCSETS])
-
-# ---------- 確かめたこと ----------
+    L = [(_hname(h), nonspace(h) + nonspace(b)) for h, b in sections(t["before"]) if h]
+    R = [(_hname(h), nonspace(h) + nonspace(b), kind(h)) for h, b in sections(t["rebuild"]) if h and kind(h) != "kak"]
+    moves = compute_moves(t["before"], t["rebuild"])
+    W = 1000; bw = 330; lx = 10; rx = W - bw - 10; GAP = 10; MINH = 34; MAXH = 120
+    def hpx(n, cap): return min(MAXH, max(MINH, n / 8)), n / 8 > MAXH
+    def col(items, x, cls_of):
+        y = 40; out = []; pos = {}
+        for i, it in enumerate(items):
+            h, n = it[0], it[1]; hh, capped = hpx(n, True)
+            pos[h] = (y, y + hh, i)
+            out.append(f'<g class="{cls_of(it)}" data-i="{i}"><rect x="{x}" y="{y}" width="{bw}" height="{hh:.0f}" rx="6" class="mr"/><text x="{x + 12}" y="{y + hh / 2 + 6:.0f}" class="ml">{E(h)}</text><text x="{x + bw - 12}" y="{y + hh / 2 + 6:.0f}" class="mn" text-anchor="end">{fmt(n)}字{"※" if capped else ""}</text></g>')
+            y += hh + GAP
+        return out, pos, y
+    lo, lp, ly = col(L, lx, lambda it: "src")
+    ro, rp, ry = col(R, rx, lambda it: "dst " + it[2])
+    H = max(ly, ry) + 10
+    s = f'<svg viewBox="0 0 {W} {H}" class="fig map" role="img" aria-label="元の{len(L)}節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例(※は縮めている)">'
+    s += f'<text x="{lx}" y="24" class="mh">元の文書 本編 {fmt(t["P0"]["body"])}字</text><text x="{rx}" y="24" class="mh">組み直した文書 本編 {fmt(t["P_rebuild"]["body"])}字 + 付録 {fmt(t["P_rebuild"]["app"])}字</text>'
+    for h, _ in L:
+        for d in moves.get(h, []):
+            if d not in rp: continue
+            y1 = (lp[h][0] + lp[h][1]) / 2; y2 = (rp[d][0] + rp[d][1]) / 2; mx = (lx + bw + rx) / 2
+            dashed = ' dashed' if rp[d][2] >= 0 and R[rp[d][2]][2] == "app" else ''
+            s += f'<path d="M{lx + bw},{y1:.0f} C{mx},{y1:.0f} {mx},{y2:.0f} {rx},{y2:.0f}" class="mv{dashed}" data-src="{lp[h][2]}" data-dst="{rp[d][2]}"/>'
+    return s + "".join(lo) + "".join(ro) + '</svg>'
+def changes_list(key):
+    items = "".join(f'<li><button type="button" class="chg" data-doc="{key}" data-b="{html.escape(b)}" data-a="{html.escape(a)}"><span class="num">{i + 1}</span><b>{E(ti)}</b><span>{E(d)}</span></button></li>' for i, (ti, d, b, a) in enumerate(CHANGES[key]))
+    return f'<ol class="changes">{items}</ol>'
+def viewer(key):
+    t = SETS[key]
+    docs = {"before": t["before"], "after": t["after"], "short": t["short"], "rebuild": t["rebuild"]}
+    tpl = "".join(f'<template id="t-{key}-{k}"><article>{md(v)}</article></template>' for k, v in docs.items())
+    # 節の対応(左の節 i → 右の各文書の節 j)
+    maps = {}
+    for k in ("after", "short", "rebuild"):
+        mv = compute_moves(t["before"], docs[k])
+        rh = [_hname(h) for h, _ in sections(docs[k]) if h]
+        maps[k] = [rh.index(mv[_hname(h)][0]) if h and mv.get(_hname(h)) and mv[_hname(h)][0] in rh else -1 for h, _ in sections(t["before"]) if h]
+    return f'''<div class="seg" role="group" aria-label="右に出す文書"><button type="button" data-r="after" aria-pressed="true">決裁者の目で見て直した後</button><button type="button" data-r="short">もっと端的にした後</button><button type="button" data-r="rebuild">構成から組み直した後</button></div>
+<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}'>
+  <div class="pane"><p class="cap">元の文書 <span class="ln">本編 {fmt(t["P0"]["body"])}字</span></p><div class="doc L" tabindex="0"></div></div>
+  <div class="pane"><p class="cap R-cap">直した後</p><div class="doc R" tabindex="0"></div></div>
+</div>{tpl}'''
+def doc_panel(key):
+    t = SETS[key]; desc = dict((k, d) for k, _, d, *_ in DOCSETS)[key]
+    steps = "".join(f'<li><b>{E(n)} <span class="chip" data-color="gray">{E(c)}</span></b><span>{E(x)}</span></li>' for (n, c), x in zip(STEPS, step_texts(t)))
+    qa = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"])
+    kak = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い(行番号は元の文書の行。「本文」は直した後の文書)</h4><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
+    return f'''<p class="p prose-max">{E(desc)}</p>
+<h3>ひとめで分かる変化</h3>
+{tiles(key)}
+<h3>スキルがしたこと</h3>
+<p class="p prose-max">文書の中で答えが出ることは黙って直し、書き手にしか答えられないことだけを聞きます。検査で出た問いのうち3問を書き手に聞き、残りと新たな問いを確認事項にまとめます。その先頭3件が先に答えるべき問いです。工程の名前は、頼むときのサブコマンドです(somosomo は「そもそも」から)。</p>
+<ol class="flow">{steps}</ol>
+<div class="twoc"><div><h4>工程ごとの本編の字数</h4>{bars(key)}</div><div>{asks_table(key)}</div></div>
+<h4>書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました(スキルの作者が事実の一覧を先に書き、AI はそれだけを見て答え、一覧にないことは「分からない」と答えます)。</p>
+<ol class="list prose-max">{qa}</ol>
+{disclosure(f"別ファイルに出した確認事項 {len(t['kak'])} 件と、先頭の「決裁事項を小さくする案」", kak)}
+<h3>構成がどう変わったか</h3>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は、元の節の文がどこへ移ったかを示します。点線は付録へ移ったものです。箱の高さは字数に比例します(※は高さを縮めています)。</p>
+<div class="map-wrap">{sankey(key)}</div>
+<h3>主な変更 {len(CHANGES[key])} 件</h3>
+<p class="p prose-max">番号を押すと、下の比較で左右の該当箇所へ移動します。</p>
+{changes_list(key)}
+<h3>左右に並べて読む</h3>
+<p class="p prose-max">片方をスクロールすると、対応する節が並ぶようにもう片方も動きます。主な変更の箇所には下線が付きます。右の文書は切り替えられます。</p>
+{viewer(key)}'''
+tabs_html = '<ul class="dads-tab__list" role="tablist" aria-label="4つの文書">' + "".join(
+    f'<li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-{i+1}" aria-selected="{"true" if i == 0 else "false"}" aria-controls="doc-panel-{i+1}" tabindex="{0 if i == 0 else -1}"><span>{E(l)}</span></button></li>'
+    for i, (k, l, *_) in enumerate(DOCSETS)) + '</ul>'
+def panel(prefix, i, body):
+    return f'<div class="dads-tab__panel" id="{prefix}-panel-{i}" role="tabpanel" aria-labelledby="{prefix}-tab-{i}" tabindex="0"{"" if i == 1 else " hidden"}>{body}</div>'
+doc_tabs = f'<div class="dads-tab" id="docs">{tabs_html}<div class="dads-tab__panels">{"".join(panel("doc", i + 1, doc_panel(k)) for i, (k, *_) in enumerate(DOCSETS))}</div></div>'
+# ---------- 確かめたこと(欠陥を仕込んだ文書) ----------
 def checked_html():
     rows = "".join(f'<tr><th scope="row">{E(DOC_LABEL[k])}</th><td>{E(READER[k])}</td><td>{E(V(OUTC[k]["元"]["verdict"]))}</td><td>{E(V(OUTC[k]["一括"]["verdict"]))}</td><td>{OV[k]["n"]} 件のうち {OV[k]["n"] - OV[k]["none"]} 件</td></tr>' for k, *_ in DOCSETS)
     assert HAVE_R46, "r46 系の summary がない"
@@ -398,28 +393,25 @@ def checked_html():
     rv_rows = table_rows("r46c")
     rv_q = sum(int(r["cells"][0]) for r in rv_rows); rv_q_doc = sum(int(r["cells"][1]) for r in rv_rows)
     uudd = [tuple(int(x) for x in r["cells"][2].split("/")) for r in rv_rows]
-    rv_used = sum(u[0] for u in uudd); rv_dfd = sum(u[2] for u in uudd); rv_drop = sum(u[3] for u in uudd)
+    rv_used = sum(u[0] for u in uudd); rv_drop = sum(u[3] for u in uudd)
     cc_ok = [(int(a), int(b)) for a, b in re.findall(r"満たした run: (\d+)/(\d+)", cc + cl)]
-    method = f'''<p>上司や顧客の役は別のセッションの Claude Opus 5.5 で、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事(OK、条件つきOK、判断の前に質問あり、却下)と指摘を3回ずつ返させました。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、テスト用の文書で、ある文書への指摘を無関係な別の文書の確認事項と照合した 42 組がすべて「ない」と判定されることで確認しました。</p>
-<p>テスト用の文書は、スキルの作者が欠陥(表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」など)を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、4本を3回ずつの {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd['kept']} 本で元のままでした。組み直した本編が元より長くなった回が制度企画で2本(いずれも元の 2% 以内)ありました。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ本編の各文が元の文書に対応することを条件に、{sum(a for a, _ in cc_ok)}/{sum(b for _, b in cc_ok)} 回で満たしました(満たさなかった1回は、丁寧にした本編が元の 110% を超えたもの)。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
+    method = f'''<p>上司や顧客の役は別のセッションの Claude Opus 5.5 で、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事(OK、条件つきOK、判断の前に質問あり、却下)と指摘を3回ずつ返させました。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、別の文書どうしを組み合わせた42組(ある文書への指摘と、無関係な文書の確認事項)で全部「ない」と出ることを確かめました。</p>
+<p>テスト用の文書は、スキルの作者が欠陥(表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」など)を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd['kept']} 本で元のままでした。組み直した本編が元より長くなった回が制度企画で2本(いずれも元の 2% 以内)ありました。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました(満たさなかった1回は、丁寧にした本編が元の 110% を超えたもの)。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
     return f'''<h3>上の4本で</h3>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>読む役</th><th>元の文書への返事</th><th>直した後への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
-  <p class="p prose-max">指摘 {OV_TOTAL} 件のうち、確認事項になかったものは {OV_NONE} 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは {OV_FIRST} 件で、残りは「そのほか」にありました。</p>
+  <p class="p prose-max">指摘 {OV_TOTAL} 件(同じ文書を3回読ませた合計)のうち、確認事項になかったものは {OV_NONE} 件。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは {OV_FIRST} 件で、残りは「そのほか」にありました。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
-  <div class="stats">
-    <div class="stat"><b>仕込んだ欠陥{DET["rows"]}か所を3回ずつ検査した計{DET["found"] + DET["partial"] + DET["missed"]}回のうち、問いにできた</b><div class="n">{DET["found"]}<small>回(見落とし {DET["missed"]})</small></div></div>
-    <div class="stat"><b>検査が元にない事実を持ち込んだ</b><div class="n">{DET["crossing"]}<small>件。欠陥のない4本で、ない欠陥を指摘したのは {sum(DET["false_clean"])} 件</small></div></div>
-    <div class="stat"><b>「決裁者の目で見て直す」が書き手に聞いた問い</b><div class="n">{rv_q}<small>件のうち、文書の中で答えが出るもの {rv_q_doc}。答えは改変せずに本文に入れ、落としたのは {rv_drop} 件</small></div></div>
-    <div class="stat"><b>「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</b><div class="n">{rw["fixed"] + rw["deferred"]}<small>回のうち {rw["fixed"] + rw["deferred"]}(残った {rw["remains"]})。本編が元より長くならなかったのは5本を3回ずつの {rw["n"]} 本中 {rw["not_longer"]} 本、元にない事実の持ち込みは {rw["crossing"]} 件</small></div></div>
+  <div class="tiles">
+    <div class="tile"><p class="l">仕込んだ欠陥{DET["rows"]}か所を3回ずつ検査した計{DET["found"] + DET["partial"] + DET["missed"]}回のうち、問いにできた</p><div class="v">{DET["found"]}<small>回</small></div><p class="d">見落とし {DET["missed"]}</p></div>
+    <div class="tile"><p class="l">検査が元にない事実を持ち込んだ</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で、ない欠陥を指摘したのは {sum(DET["false_clean"])} 件</p></div>
+    <div class="tile"><p class="l">「決裁者の目で見て直す」が書き手に聞いた問い(3本を3回ずつ、計{len(rv_rows)}回)</p><div class="v">{rv_q}<small>件</small></div><p class="d">文書の中で答えが出るもの {rv_q_doc}。答えは改変せずに本文に入れ、落としたのは {rv_drop} 件</p></div>
+    <div class="tile"><p class="l">「指摘を反映して直して」が仕込んだ欠陥を直すか確認事項に回した</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">残った {rw["remains"]}。本編が元より長くならなかったのは {rw["n"]} 本(5本×3回)中 {rw["not_longer"]} 本、元にない事実の持ち込み {rw["crossing"]} 件</p></div>
   </div>
   {disclosure("測り方と注", method)}'''
 
-# ---------- ページ ----------
-DOCS = {k: markdown.markdown(v, extensions=["tables"]) for k, v in
-        [("before", R0["before"]), ("after", R0["after"]), ("concise", R0["concise"]), ("redesign", R0["redesign"]), ("kak", R0["kak_md"]), ("logic", R0["logic"]), ("somosomo", R0["somo"])]}
-TEMPLATES = "".join(f'<template id="t-{k}"><article>{v}</article></template>' for k, v in DOCS.items())
-OLDER_LINKS = "".join(f'・<a href="{u}">{v}</a>' for v, u in OLDER)
+R = SETS["ringi"]
+OLDER_LINKS = ""
 page = f"""<!doctype html>
 <html lang="ja">
 <head>
@@ -436,56 +428,38 @@ page = f"""<!doctype html>
     <p class="toc-h">natural-japanese</p>
     <ol class="toc-list">
       <li><a href="#top">v{VER}</a></li>
-      <li><a href="#how">何をするか</a></li>
-      <li><a href="#examples">4つの文書の例</a></li>
-      <li><a href="#concise">もっと端的に</a></li>
-      <li><a href="#redesign">組み直す</a></li>
+      <li><a href="#docs-sec">4つの文書で見る</a></li>
+      <li><a href="#limits">言えること、言えないこと</a></li>
       <li><a href="#checked">確かめたこと</a></li>
-      <li><a href="#limits">苦手なこと</a></li>
+      <li><a href="#how">頼み方</a></li>
       <li><a href="#install">インストール</a></li>
-      <li><a href="#read">文書を読む</a></li>
     </ol>
   </div>
 </nav>
 
 <header class="hero" id="top"><div class="wrap">
-  <p class="ver"><small>v</small>{VER}</p>
-  <p class="meta">natural-japanese 2026年11月</p>
+  <p class="eye">natural-japanese v{VER} リリースノート 2026年11月</p>
   <h1>上司や顧客が聞いてくることを提出前に洗い出すスキル critical-thinking を追加しました</h1>
-  <p class="p lead">AI に稟議書や提案資料を書かせると、丁寧で穴のなさそうな文書ができます。それでも上司や顧客は「<mark>この数字は誰の分か</mark>」「<mark>空欄のままで判断できない</mark>」と聞いてきます。critical-thinking(Claude Code や ChatGPT に入れて使う指示書)に「決裁者の目で見て直して」と頼むと、文書の中で答えが出ることは黙って直し、書き手にしか答えられないことを3つ聞いて答えを本文に入れ、残りの問いを別ファイルの確認事項に残します。</p>
-  <p class="p lead">架空の文書4本を上司や顧客の役の AI に読ませて出た指摘 {OV_TOTAL} 件は、4本で計 {KAK_TOTAL} 件の確認事項の中にすべてありました。各文書の「先に答えるべき3件」(4本で12件)に入っていたのは {OV_FIRST} 件です。</p>
-  {hero_row()}
+  <p class="p lead">natural-japanese は、AI の書く日本語を自然にするスキルです。v2.0.0 では、文書の中身を検査する critical-thinking を加えました。AI に稟議書や提案資料を書かせると、丁寧で穴のなさそうな文書ができます。それでも上司や顧客は「<mark>この数字は誰の分か</mark>」「<mark>空欄のままで判断できない</mark>」と聞いてきます。critical-thinking(Claude Code や ChatGPT に読み込ませて使います)に「決裁者の目で見て直して」と頼むと、文書の中で答えが出ることは黙って直し、書き手にしか答えられないことを3つ聞いて答えを本文に入れ、残りの問いを別ファイルの確認事項に残します。</p>
+  <p class="p lead">下は、スキルなしの AI が書いた架空の稟議書に通した実演です。本編(付録を除いた本文){fmt(R["P0"]["body"])} 字が、直して {fmt(R["P1"]["body"])} 字、端的にして {fmt(R["P_short"]["body"])} 字になり、空欄だった時間単価と、週8件が部全体の数であることが本文に入りました。上司や顧客の役をさせた別の AI に4本の元の文書を読ませた指摘は、すべてこのスキルの確認事項に含まれていました。</p>
 </div></header>
 
 <main>
-<section class="block" id="how"><div class="wrap">
-  <h2 data-chip>何をするか</h2>
-  <p class="p prose-max">対象は、稟議書、企画書、提案資料、障害報告書のような、読んだ人に判断を求める文書です。同じリポジトリの natural-japanese は日本語の言い回しを直すスキルで、今回追加した critical-thinking は論の筋を見ます。箱を押すと説明が出ます。</p>
-  <div class="flow-wrap">{flow_svg()}</div>
-  <div class="nd-wrap">{node_desc}</div>
-  <ol class="flow-list">{flow_list}</ol>
+<section class="block" id="docs-sec"><div class="wrap">
+  <h2 data-chip>4つの文書で見る</h2>
+  <p class="p prose-max">どれもスキルなしの Claude Code(Opus 5.5)に短い依頼文から書かせた架空の文書で、書かせたままです。「決裁者の目で見て直して」のあとに「もっと端的に」「構成から組み直して」を続けました。問いと答え、確認事項の引用は出力のままです。</p>
+  {doc_tabs}
 </div></section>
 
-<section class="block" id="examples"><div class="wrap">
-  <h2 data-chip>4つの文書で、どう変わったか</h2>
-  <p class="p prose-max">どれもスキルなしの Claude Code(Opus 5.5)に書かせた架空の文書で、書かせたままです。「決裁者の目で見て直して」と頼み、スキルが聞いた3つに書き手が答えると、こう変わりました。書き手の答えは AI が返しました(スキルの作者が事実の一覧を先に書き、AI はそれだけを見て答え、一覧にないことは「分からない」と答えます)。上司や顧客の役の AI の返事(OK、条件つきOK、判断の前に質問あり、却下)は、4本とも元の時点で丁寧なのでほとんど変わりません。変わるのは指摘の中身で、元の文書への指摘は「空欄を埋めてから」「出どころを示して」が中心、直した後は「他の案と比べたか」のように書き手の判断を求めるものになります。文書ごとに1つずつ例を載せています。</p>
-  {docs_html}
-</div></section>
-
-<section class="block" id="concise"><div class="wrap">
-  <h2 data-chip>もっと端的に</h2>
-  <p class="p prose-max">「もっと端的に」と頼むと、決裁者が読む本編に主結論・決裁に要る根拠・費用・決裁事項だけを残し、裏づけと補足を付録に移します。事実・数値・事例は消さないので、「もっと丁寧に」と頼めば戻せます。</p>
-  {concise_html}
-</div></section>
-
-<section class="block" id="redesign"><div class="wrap">
-  <h2 data-chip>構成から組み直す</h2>
-  <p class="p prose-max">構成案を3つ出し、そのうち1つは必ず「決裁事項を小さくする案」です。選べるのは書き手だけです。この例ではスキルの作者は案を選ばず、スキルに任せたので、組み直した文書は決裁事項を変えない案で書いてあります。スキルには元の文書、検査の報告、書き手の答えを渡しました。3案のうち、小さくする案と書いた案の2つを載せています。</p>
-  <div class="keep">
-    <div><h4>保つ</h4><ul><li>事実と数値、出典</li><li>主結論と決裁事項</li><li>書き手の制約(開始時期、評価の時期、上限の額)</li></ul></div>
-    <div><h4>替えてよい</h4><ul><li>先頭に何を置くか</li><li>本編と付録の切り分け</li><li>申請の立て方(効果を言い切るか、確かめる試験にするか、判断を何回に分けるか)</li></ul></div>
-  </div>
-  {redesign_html}
+<section class="block" id="limits"><div class="wrap">
+  <h2 data-chip>この実演で言えること、言えないこと</h2>
+  <ul class="list prose-max">
+    <li>言えること: 上司や顧客の役の AI が元の文書に出した指摘は、4本とも、すべてスキルの確認事項にありました。直した後の文書への指摘は、「他の案と比べたか」のように書き手の判断を求めるものに変わります。</li>
+    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。読み手役の AI の返事(下の表)は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
+    <li>書き手に聞くのは3つまでなので、聞かなかった問いは確認事項に残ります。稟議書では{len(R["kak"])}件でした。</li>
+    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。下のテスト用の文書(欠陥を仕込んだ稟議書)では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
+    <li>文書の外の事実は調べに行きません。他社の事例が本当かは、問いにして返すだけです。検査は LLM の読みに頼るので、同じ文書をもう一度検査すると、指摘の数や言い方は揺れます。</li>
+  </ul>
 </div></section>
 
 <section class="block" id="checked"><div class="wrap">
@@ -493,20 +467,22 @@ page = f"""<!doctype html>
   {checked_html()}
 </div></section>
 
-<section class="block" id="limits"><div class="wrap">
-  <h2 data-chip>苦手なこと</h2>
-  <ul class="list prose-max">
-    <li>文書の外の事実は調べに行きません。他社の事例が本当かは、問いにして返すだけです。</li>
-    <li>書き手に聞くのは3つまでなので、聞かなかった問いは確認事項に残ります。稟議書の例では{len(R0["kak"])}件で、直した後も経営者役は「何もしない案や、人数を絞る案と比べたか」と聞いてきました。</li>
-    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。欠陥を仕込んだ稟議書では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
-    <li>検査は LLM の読みに頼るので、同じ文書をもう一度検査すると、指摘の数や言い方は揺れます。</li>
-    <li>本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じモデル(Claude Opus 5.5)です。</li>
-  </ul>
+<section class="block" id="how"><div class="wrap">
+  <h2 data-chip>頼み方</h2>
+  <p class="p prose-max">文書は Markdown かテキストのファイルで渡します。基本は「決裁者の目で見て直して」の1つで、工程を分けるときはサブコマンドか、同じ意味の言葉で頼みます。Claude Code では <code>/critical-thinking short 稟議書.md</code> のように、コマンドにサブコマンドとファイル名を続けます。「決裁者の目で見て直す」のあとには、次にできること(short / rebuild / ここで終える)が返答の最後に示されます。</p>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の頼み方</th><th>何をするか</th></tr></thead><tbody>
+    <tr><th scope="row">(なし)</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>検査から直しまでを1回で通す。書き手にしか答えられない問いを3つまで聞き、答えを本文に入れる</td></tr>
+    <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
+    <tr><th scope="row">somosomo(「そもそも」から)</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提・他の選択肢・覆る条件・利害と実行を問う</td></tr>
+    <tr><th scope="row">fix</th><td>「指摘を反映して直して」</td><td>検査の報告を本文に反映し、残りの問いを確認事項に出す</td></tr>
+    <tr><th scope="row">short / detail</th><td>「もっと端的に」「もっと丁寧に」</td><td>決裁に要る根拠だけを本編に残す / 裏づけと論拠を本編に戻す</td></tr>
+    <tr><th scope="row">rebuild</th><td>「構成から組み直して」</td><td>事実と決裁事項は保ち、構成案を3つ出す。1つは決裁事項を小さくする案</td></tr>
+  </tbody></table></div>
+  <div class="cmd"><code id="cmd2">/critical-thinking short 稟議書.md</code><button type="button" data-copy="cmd2">コピー</button></div>
 </div></section>
 
 <section class="block" id="install"><div class="wrap">
-  <h2 data-chip>インストールと頼み方</h2>
-  <p class="p prose-max">文書は Markdown かテキストのファイルで渡し、「稟議書.md を決裁者の目で見て直して」と頼みます。工程を分けるときは「筋が通っているか検査して」「前提から疑って」「指摘を反映して直して」「構成から組み直して」「もっと端的に」。</p>
+  <h2 data-chip>インストール</h2>
   <div class="dads-tab">
     <ul class="dads-tab__list" role="tablist" aria-label="使う環境">
       <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-1" aria-selected="true" aria-controls="env-panel-1" tabindex="0"><span>Claude Code など</span></button></li>
@@ -519,7 +495,7 @@ page = f"""<!doctype html>
       <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
         <p class="p">Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェント。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。critical-thinking は uv と Python がなくても動きます。</p>
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールと違い、critical-thinking に uv と Python は要りません。入れた直後は、セッションを開き直すか `/reload-plugins` で読み込みます。</p>
       </div>
       <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
         <ol class="steps">
@@ -542,30 +518,11 @@ page = f"""<!doctype html>
       </div>
     </div>
   </div>
-</div></section>
-
-<section class="block" id="read"><div class="wrap">
-  <h2 data-chip>文書を読む</h2>
-  <p class="p prose-max">架空の稟議書です。社名・人名・製品名は実在しません。4本の文書の全文は <a href="https://github.com/coji/natural-japanese/tree/main/release-notes/data/v2.0.0">リポジトリの release-notes/data/v2.0.0</a> にあります。</p>
-  <div class="seg" role="group" aria-label="表示">
-    <button type="button" data-m="side" aria-pressed="true">元 | 直した後</button>
-    <button type="button" data-m="side3">元 | 端的にした後</button>
-    <button type="button" data-m="side2">元 | 組み直した後</button>
-    <button type="button" data-m="kak">別ファイルの確認事項</button>
-    <button type="button" data-m="logic">筋を見る</button>
-    <button type="button" data-m="somosomo">前提を疑う</button>
-  </div>
-  <label class="sync" id="syncbox"><input type="checkbox" id="sync" checked> スクロールを同期</label>
-  <div class="viewer" id="viewer">
-    <div class="pane" id="paneL"><p class="cap">元の稟議書</p><div class="doc" tabindex="0"></div></div>
-    <div class="pane" id="paneR"><p class="cap">直した後</p><div class="doc" tabindex="0"></div></div>
-  </div>
-  {TEMPLATES}
+  <p class="p prose-max">4本の文書の全文(元・直した後・端的にした後・組み直した後・検査の報告・確認事項)は <a href="https://github.com/coji/natural-japanese/tree/main/release-notes/data/v2.0.0">リポジトリの release-notes/data/v2.0.0</a> にあります。社名・人名・製品名は実在しません。</p>
 </div></section>
 </main>
 
 <footer><div class="wrap">
-  <p>これまでのリリースノート <a href="{PREV[1]}">{PREV[0]}</a>{OLDER_LINKS}</p>
   <p>見た目は、デジタル庁デザインシステムの <a href="https://github.com/digital-go-jp/design-system-example-components-html">HTML 実装例</a>(MIT)に基づきます。</p>
   <p><a href="https://github.com/coji/natural-japanese">github.com/coji/natural-japanese</a></p>
 </div></footer>

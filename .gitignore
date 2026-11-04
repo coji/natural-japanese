@@ -111,4 +111,4 @@ corpus/experiments/skill-eval/*
 dev/ct-eval/runs/
 
 # ページの文書にスキルをかけたときの実行ログ(release-notes/run-v2.0.0.py)
-release-notes/data/*/log-*.txt
+release-notes/data/**/log-*.txt
