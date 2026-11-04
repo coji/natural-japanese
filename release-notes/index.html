@@ -298,7 +298,6 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
     <ol class="toc-list">
       <li><a href="#top">v2.0.0</a></li>
       <li><a href="#docs-sec">4つの文書で見る</a></li>
-      <li><a href="#limits">言えること、言えないこと</a></li>
       <li><a href="#checked">確かめたこと</a></li>
       <li><a href="#how">頼み方</a></li>
       <li><a href="#install">インストール</a></li>
@@ -2203,16 +2202,6 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <div class="map-wrap"><svg viewBox="0 0 1000 282.5" class="fig map" role="img" aria-label="元の5節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 1,246字</text><text x="660" y="24" class="mh">組み直した文書 本編 1,084字 + 付録 186字</text><path d="M340,60 C500.0,60 500.0,62 660,62" class="mv" data-src="0" data-dst="0"/><path d="M340,60 C500.0,60 500.0,110 660,110" class="mv" data-src="0" data-dst="1"/><path d="M340,106 C500.0,106 500.0,246 660,246" class="mv dashed" data-src="1" data-dst="4"/><path d="M340,150 C500.0,150 500.0,154 660,154" class="mv" data-src="2" data-dst="2"/><path d="M340,194 C500.0,194 500.0,110 660,110" class="mv" data-src="3" data-dst="1"/><path d="M340,238 C500.0,238 500.0,200 660,200" class="mv" data-src="4" data-dst="3"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="39" rx="6" class="mr"/><text x="22" y="66" class="ml">概要</text><text x="328" y="66" class="mn" text-anchor="end">312字</text></g><g class="src" data-i="1"><rect x="10" y="89.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="112" class="ml">経緯</text><text x="328" y="112" class="mn" text-anchor="end">196字</text></g><g class="src" data-i="2"><rect x="10" y="133.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="156" class="ml">原因</text><text x="328" y="156" class="mn" text-anchor="end">231字</text></g><g class="src" data-i="3"><rect x="10" y="177.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="200" class="ml">影響</text><text x="328" y="200" class="mn" text-anchor="end">197字</text></g><g class="src" data-i="4"><rect x="10" y="221.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="244" class="ml">再発防止策</text><text x="328" y="244" class="mn" text-anchor="end">253字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="43" rx="6" class="mr"/><text x="672" y="68" class="ml">概要</text><text x="978" y="68" class="mn" text-anchor="end">344字</text></g><g class="dst body" data-i="1"><rect x="660" y="93.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="116" class="ml">影響</text><text x="978" y="116" class="mn" text-anchor="end">144字</text></g><g class="dst body" data-i="2"><rect x="660" y="137.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="160" class="ml">原因と調査</text><text x="978" y="160" class="mn" text-anchor="end">239字</text></g><g class="dst body" data-i="3"><rect x="660" y="181.0" width="330" height="38" rx="6" class="mr"/><text x="672" y="206" class="ml">再発防止策</text><text x="978" y="206" class="mn" text-anchor="end">300字</text></g><g class="dst app" data-i="4"><rect x="660" y="228.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="252" class="ml">付録A 経緯</text><text x="978" y="252" class="mn" text-anchor="end">186字</text></g></svg></div></div></details></div></div></div>
 </div></section>
 
-<section class="block" id="limits"><div class="wrap">
-  <h2 data-chip>この実演で言えること、言えないこと</h2>
-  <ul class="list prose-max">
-    <li>言えること: 上司や顧客の役の AI が元の文書に出した指摘は、4本とも、すべてスキルの確認事項にありました。直した後の文書への指摘は、「他の案と比べたか」のように書き手の判断を求めるものに変わります。</li>
-    <li>言えないこと: 本物の上司や顧客では試していません。書き手の答え、直す側、読む役はすべて AI で、直す側と読む役は同じ Claude Opus 5.5 です。下の表にある読む役の返事は直す前からほぼ「条件つきOK」で、直してもほとんど変わりません。4本とも元から形は整っているためです。</li>
-    <li>書き手に聞くのは3つまでなので、聞かなかった問いは確認事項に残ります。稟議書では34件でした。</li>
-    <li>書き手の答えが本文に入ると、申請の弱さがそのまま見えます。下の表にはないテスト用の稟議書では、答えを入れた文書を経営者役が「最良の前提でも効果が費用を下回る」と差し戻しました。スキルはそのとき、確認事項の先頭に決裁事項を小さくする案を書いています。</li>
-    <li>文書の外の事実は調べに行きません。他社の事例が本当かは、問いにして返すだけです。検査は LLM の読みに頼るので、同じ文書をもう一度検査すると、指摘の数や言い方は揺れます。</li>
-  </ul>
-</div></section>
 
 <section class="block" id="checked"><div class="wrap">
   <h2 data-chip>確かめたこと</h2>
