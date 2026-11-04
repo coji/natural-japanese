@@ -33,14 +33,14 @@ HERE = Path(__file__).parent
 PROMPT = (HERE / "prompts" / "exec.txt").read_text()
 
 
-def one(label: str, name: str, src: Path, i: int, model: str) -> dict:
+def one(label: str, name: str, src: Path, i: int, model: str, prompt: str = PROMPT) -> dict:
     w = ev.RUNS / label / f"{name.replace(':', '_')}-{i}"
     w.mkdir(parents=True, exist_ok=True)
     doc = w / "doc.md"
     text = src.read_text()
     # 付録と確認事項は経営者も読めるので残す。改訂の印などはない前提
     doc.write_text(text)
-    ev.claude(PROMPT.replace("{FILE}", str(doc)), w, ["Read", "Write"], model, "medium", None, w / "log.txt", timeout=900)
+    ev.claude(prompt.replace("{FILE}", str(doc)), w, ["Read", "Write"], model, "medium", None, w / "log.txt", timeout=900)
     out = {"name": name, "i": i, "chars": ev._nonspace(text)}
     jp = w / "exec.json"
     if jp.exists():
@@ -110,7 +110,9 @@ def main() -> None:
     ap.add_argument("--repeat", type=int, default=3)
     ap.add_argument("--jobs", type=int, default=6)
     ap.add_argument("--model", default="claude-opus-5-5")
+    ap.add_argument("--prompt", default=None, help="読む人の役のプロンプト(既定 prompts/exec.txt = 経営者役。prompts/customer.txt = 提案を受け取る顧客役、prompts/boss.txt = 報告を受け取る上司役)")
     a = ap.parse_args()
+    prompt = Path(a.prompt).read_text() if a.prompt else PROMPT
     pairs = []
     for d in a.docs:
         n, p = d.split("=", 1)
@@ -119,7 +121,7 @@ def main() -> None:
     jobs = [(n, p, i) for n, p in pairs for i in range(1, a.repeat + 1)]
     results = []
     with ThreadPoolExecutor(max_workers=a.jobs) as ex:
-        for r in ex.map(lambda j: one(a.label, j[0], j[1], j[2], a.model), jobs):
+        for r in ex.map(lambda j: one(a.label, j[0], j[1], j[2], a.model, prompt), jobs):
             print(f"done {r['name']}-{r['i']} {r.get('exec', {}).get('verdict')}", file=sys.stderr)
             results.append(r)
     out = ev.RUNS / a.label
