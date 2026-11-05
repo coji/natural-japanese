@@ -327,26 +327,29 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
   <p class="eye">natural-japanese v2.0.0 リリースノート</p>
   <h1>AI の文書に、クリティカルシンキングを</h1>
   <p class="p lead">AI が書いた稟議書や企画書、提案書は、丁寧に見えて、決める人の問いに答えていないことがあります。<mark>根拠のない言い切り</mark>、<mark>よく見ると辻褄の合わない数字</mark>、そして<mark>論点がはっきりしないダラダラした文章</mark>。新しいスキル <code class="ic sk">critical-thinking</code> は、提出する前に決裁者の目で読み、文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れ、決裁に要る根拠だけを残して短くします。</p>
-  <p class="p lead">下は、架空の文書4本にかけた実演です。</p>
+  <p class="p lead">下は、架空の文書4本にかけた実演です。1回目は4本とも「このままでは差し戻されます」と宿題が返り、宿題を済ませると3本が通りました。</p>
 </div></header>
 
 <main>
 <section class="block" id="docs-sec"><div class="wrap">
   <h2 data-chip>4つの文書で見る</h2>
-  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。スキルを実行した結果で、手を入れずに載せています。</p>
+  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。スキルを2回実行した結果で、手を入れずに載せています。1回目は差し戻しと宿題が返り、宿題を済ませた書き手の答えで2回目を回しました。</p>
   <div class="dads-tab" id="docs"><ul class="dads-tab__list" role="tablist" aria-label="4つの文書"><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-1" aria-selected="true" aria-controls="doc-panel-1" tabindex="0"><span>稟議書</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-2" aria-selected="false" aria-controls="doc-panel-2" tabindex="-1"><span>社内の制度企画</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-3" aria-selected="false" aria-controls="doc-panel-3" tabindex="-1"><span>コンサルの提案資料</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-4" aria-selected="false" aria-controls="doc-panel-4" tabindex="-1"><span>障害報告書</span></button></li></ul><div class="dads-tab__panels"><div class="dads-tab__panel" id="doc-panel-1" role="tabpanel" aria-labelledby="doc-tab-1" tabindex="0"><p class="p prose-max">営業部の12名で、議事録を作る AI ツールを6か月、上限60万円で試験導入したいという社内の申請。読むのは経営会議。</p>
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
-  <div class="tile"><p class="l">本編の長さ</p><div class="v">51%<small>短縮</small></div><p class="d">3,299字 → 直して 2,808字 → 端的に 1,603字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">3<small>件</small></div><p class="d">元から明記あり。目安の30分の短縮では費用に見合わない、と添えた</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">42<small>件</small></div><p class="d">論理の指摘28件、前提への問い14件。うち3問を書き手に聞く</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">34<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">57%<small>短縮</small></div><p class="d">3,299字 → 直して 2,822字 → 端的に 1,428字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">31<small>件</small></div><p class="d">論理の指摘20件、前提への問い11件。うち3問を書き手に聞く</p></div>
 </div>
-<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
-<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
-<div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 7, 2, 3, 10, 4, 5, 12, 6]}'>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">返答の先頭は「このままでは差し戻されます」。決裁者の言葉で言えば、データの扱いの確認と2週間の測定は承認前に自分でできるのに、まだやっていない。時間単価3,500円では、参考値の30分でも費用を回収できない。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">データの扱いが社内規程に合うか</th><td>販売店から資料を取り寄せ、情報システム部門と突き合わせる</td><td>5章の情報漏えいの対策を、確認した結果の文に。合わなければ稟議を出さない</td></tr><tr><th scope="row">12名の議事録の作成時間を2週間記録する</th><td>営業担当12名の記録シート</td><td>2章の「約60分」を実測の平均に。平均が約39分を切るなら頼む中身を見直す</td></tr><tr><th scope="row">単価6,600円の税区分と、途中で人数を減らせるか</th><td>販売店</td><td>4章の「契約前に確認する」を結果に。回収の線を約39分か約43分に絞り、6.1の目安をそろえる</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 2, 3, 4, 10, 5, 6, 11, 7]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 3,299字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,808字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,822字</span></p><div class="doc R" tabindex="0"></div></div>
 </div><template id="t-ringi-before"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
 <table>
 <thead>
@@ -704,64 +707,101 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tbody>
 </table>
 <h4>1. 申請内容</h4>
-<p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。ただし、今ある参考値(1件30分の削減)では費用に見合わず、データの扱いが社内規程に合うかもまだ確かめていない。</p>
+<p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名のうち内勤寄りの3名を除く9名で、6か月間試験導入したい。</p>
 <ul>
 <li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
-<li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
+<li><strong>費用</strong>:月額の上限は8万円、6か月の総額は50万円以内。見込みは月額59,400円、6か月で356,400円</li>
 <li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
 </ul>
 <h4>2. 背景と課題</h4>
-<p>議事録作成にかかる時間は、1件60分が全件に当てはまるとすると、部全体で月約35時間、1人あたり月約3時間である。</p>
+<p>議事録の作成に、営業部全体で月に約32時間かかっている。</p>
 <ul>
-<li>顧客打ち合わせは営業部全体で週に平均8件(月に約35件)ある。1人あたりの件数ではなく、営業支援システムの訪問記録の直近6か月から出した。</li>
-<li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。60分は、先月ツールを試した担当者の普段の時間である。</li>
-<li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
-<li>部全体での平均作成時間はまだ測っていない。開始前に測定する予定で(付録E)、2週間あれば12名分を記録でき、承認の前に測ることもできる。</li>
+<li>営業部全体の顧客打ち合わせは週に平均8件、月に約35件である。営業支援システムの訪問記録の直近6か月から出した。</li>
+<li>営業担当12名の作成時間を、2週間で打ち合わせ16件分記録した。1件あたりの平均は55分、最短25分、最長110分である。</li>
+<li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
+<li>対象の9名の打ち合わせは、2週間で13件、月に約28件である。</li>
 </ul>
-<h4>3. 期待効果</h4>
-<p>費用に見合うのは、打ち合わせの全件で使い、1件あたり約39分以上減った場合で、今ある参考値の30分では届かない。</p>
-<p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。部全体で同じ効果が出るかどうかは、この試験導入で確かめる。</p>
-<p>月額費用79,200円を月あたりの削減時間で割ると、<strong>削減できる1時間あたりの費用</strong>になる。営業担当者の時間単価がこの金額を上回れば、費用は回収できる計算になる。時間単価は、経理部が社内の試算に使う標準単価の1時間3,500円である。</p>
+<h4>3. 導入するツール</h4>
+<p>導入するのは、月単位で解約でき、人数も増減できるクラウドサービスである。</p>
 <table>
 <thead>
 <tr>
-<th>1件あたりの削減時間</th>
-<th>月あたりの削減時間</th>
-<th>削減1時間あたりの費用</th>
-<th>時間単価3,500円で</th>
+<th>項目</th>
+<th>内容</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>15分</td>
-<td>約8.7時間</td>
-<td>約9,100円</td>
-<td>回収できない</td>
+<td>ツール名</td>
+<td>ミナトノート(クラウドサービス)</td>
 </tr>
 <tr>
-<td>30分(参考値)</td>
-<td>約17.3時間</td>
-<td>約4,600円</td>
-<td>回収できない</td>
+<td>主な機能</td>
+<td>打ち合わせ音声の文字起こし、要約</td>
 </tr>
 <tr>
-<td>45分</td>
-<td>約26時間</td>
-<td>約3,000円</td>
-<td>回収できる</td>
+<td>プラン</td>
+<td>1人あたり月額6,600円(税込)</td>
+</tr>
+<tr>
+<td>利用者</td>
+<td>営業部の営業担当9名</td>
+</tr>
+<tr>
+<td>社外の利用例</td>
+<td>同業のA社(従業員300名)が全社で導入している</td>
 </tr>
 </tbody>
 </table>
-<p>表は月約35件のすべてでツールを使った場合の値である(計算は付録C)。同意が得られず使えない打ち合わせがあれば、その分だけ削減時間は減り、1時間あたりの費用は上がる。単価が税抜の場合は費用がどの行も1割高くなり、約39分は約43分になる。比べているのは利用料だけで、同意の取得や記録などで増える時間は入れていない。</p>
-<h4>4. 費用</h4>
-<p>申請する上限は月額10万円、6か月合計60万円である。見込みは1人月額6,600円の12名分で、月額79,200円、6か月合計475,200円になる。</p>
+<p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
+<h4>4. 期待効果</h4>
+<h5>4.1 議事録作成時間の削減</h5>
+<p>1件あたりの作成時間がどこまで減るかを、この試験導入で確かめる。先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。</p>
+<h5>4.2 費用対効果の目安</h5>
+<p>1件あたり約36分減れば費用に見合うので、本導入へ進む線を36分とする。月額59,400円を、経理部が社内の試算に使う標準単価の1時間3,500円で割ると月約17時間になり、月約28件で割ると1件あたり約36分になる。</p>
+<p>参考値の30分では、月約14時間、金額にして49,000円で、月額に届かない。また、36分は月約28件のすべてでツールを使えたときの線で、同意が得られない打ち合わせがあれば、1件あたりに要る削減は大きくなる。</p>
+<h5>4.3 金額にしにくい効果</h5>
+<p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
 <ul>
-<li>単価6,600円が税込か税抜かは、契約前に確認する。税抜の場合でも月額は87,120円で、上限の範囲に収まる。</li>
-<li>上限と見込みの差額は、税区分や契約条件の確認結果に備えるためのものである。上限を超える支出は行わない。</li>
-<li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
+<li>発言が記録に残るため、聞き漏らしや顧客との認識違いを後から確認できること</li>
+<li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められること</li>
+<li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすいこと</li>
 </ul>
-<h4>5. リスクと対策</h4>
-<p>データの扱いが社内規程に合うかは、まだ確かめていない。情報システム部門には声をかけただけで、ミナトノートのデータの扱いの資料は取り寄せていない。問題があれば導入しない。</p>
+<h4>5. 費用</h4>
+<p>費用の見込みは月額59,400円、6か月で356,400円で、申請する上限の範囲に収まる。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>金額</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>単価(税込)</td>
+<td>6,600円/人・月</td>
+</tr>
+<tr>
+<td>人数</td>
+<td>9名</td>
+</tr>
+<tr>
+<td>月額(見込み)</td>
+<td>59,400円</td>
+</tr>
+<tr>
+<td>6か月合計(見込み)</td>
+<td>356,400円</td>
+</tr>
+<tr>
+<td><strong>申請する上限</strong></td>
+<td><strong>月額8万円、6か月合計50万円</strong></td>
+</tr>
+</tbody>
+</table>
+<p>上限を超える支出は行わない。機材などの上記以外の費用は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</p>
+<h4>6. リスクと対策</h4>
+<p>顧客情報の保存と扱いは、社内規程に合っていると情報システム部門が確認した。リスクごとの対策は次のとおり。</p>
 <table>
 <thead>
 <tr>
@@ -776,11 +816,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>顧客の同意が得られず、ツールを使える打ち合わせが少ない</td>
-<td>同意を得られた割合を毎月集計する。利用が少ない場合は、中間評価で人数の縮小を検討する</td>
+<td>同意を得られた割合を毎月集計する。利用が少ない場合は、中間評価で人数の縮小を検討する。ライセンスは月単位で減らせる</td>
 </tr>
 <tr>
 <td>クラウドに保存した顧客情報が漏れる</td>
-<td>契約の前に、情報管理担当者がデータの保存場所、AIの学習に使われるかどうか、保存期間と削除の方法、アクセス権の設定を確認する。社内規程に合っているかどうかを情報システム部門と確認し、問題があれば導入しない</td>
+<td>保存先は国内のデータセンターで、音声と文字起こしはAIの学習に使われない。録音と文字起こしは契約中は無期限で保存され、解約後は30日で削除される。社内規程は社外保存の期間に上限を置いていない。削除は依頼から30日以内で、アクセス権は管理者が設定できる</td>
 </tr>
 <tr>
 <td>文字起こしや要約に誤りがある</td>
@@ -788,17 +828,17 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>期待した効果が出ない</td>
-<td>3か月目の中間評価で効果を確かめ、見合わない場合は規模縮小か中止を判断する。中間評価は経営会議への報告としており、そこで判断するかは確認中である</td>
+<td>3か月目の中間評価で効果を確かめ、見合わない場合は規模縮小か中止を経営会議で判断する。月単位で解約でき、最低契約期間はないと販売店に確認した</td>
 </tr>
 <tr>
 <td>費用が想定を超える</td>
-<td>月額の上限を設け、ライセンス数を12名分に固定する(途中で減らせるかは確認中)。解約は月単位ででき、最低契約期間もないので、6か月で解約できる(販売店に確認済み)</td>
+<td>月額の上限を設け、ライセンス数は9名分より増やさない</td>
 </tr>
 </tbody>
 </table>
-<h4>6. 評価の方法</h4>
-<p>判断の中心は、作成時間の削減が費用に見合うかと、情報管理上の問題がないかの2つである。</p>
-<h5>6.1 評価の指標</h5>
+<h4>7. 評価の方法</h4>
+<p>作成時間が開始前より平均36分以上短くなり、情報管理上の問題がなければ、本導入へ進む。</p>
+<h5>7.1 評価の指標</h5>
 <table>
 <thead>
 <tr>
@@ -811,7 +851,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tr>
 <td>1件あたりの議事録作成時間</td>
 <td>記録シート(開始前と比較)</td>
-<td>開始前より平均30分短い。最低でも、3章の費用対効果が見合う水準で、全件で使う場合は約39分である。30分より長く、どちらを目安にするかは確認中である</td>
+<td>開始前より平均36分短い</td>
 </tr>
 <tr>
 <td>ツールの利用率</td>
@@ -831,62 +871,23 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tr>
 <td>費用</td>
 <td>請求額</td>
-<td>月額10万円以内</td>
+<td>月額8万円以内</td>
 </tr>
 </tbody>
 </table>
-<h5>6.2 判断の基準</h5>
+<h5>7.2 判断の基準</h5>
 <ul>
-<li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
-<li><strong>規模を縮小して続ける</strong>:1件あたりの時間は減っているが、利用率が低い場合(ライセンス数を減らすなど)</li>
-<li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
+<li><strong>本導入へ進む</strong>:作成時間が開始前より平均36分以上短くなり、情報管理上の問題がない場合</li>
+<li><strong>規模を縮小して続ける</strong>:平均36分以上短くなったが、利用率が目安を下回る場合。ライセンス数を減らすなどして続ける</li>
+<li><strong>中止する</strong>:短くなった時間が平均36分に届かず費用に見合わない場合、または情報管理上の重大な問題が起きた場合。情報管理上の重大な問題が起きたときは、期間の途中でも利用を止める</li>
 </ul>
-<h4>7. 決裁をお願いする事項</h4>
+<h4>8. 決裁をお願いする事項</h4>
 <ol>
-<li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
-<li>費用の上限を月額10万円、6か月合計60万円とすること</li>
+<li>「ミナトノート」を営業部の営業担当12名のうち内勤寄りの3名を除く9名で6か月間試験導入すること</li>
+<li>費用の上限を月額8万円、6か月合計50万円とすること</li>
 </ol>
 <p>以上</p>
-<h4>付録A 導入するツール</h4>
-<table>
-<thead>
-<tr>
-<th>項目</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ツール名</td>
-<td>ミナトノート(クラウドサービス)</td>
-</tr>
-<tr>
-<td>主な機能</td>
-<td>打ち合わせ音声の文字起こし、要約</td>
-</tr>
-<tr>
-<td>プラン</td>
-<td>1人あたり月額6,600円</td>
-</tr>
-<tr>
-<td>利用者</td>
-<td>営業部の営業担当12名</td>
-</tr>
-<tr>
-<td>社外の利用例</td>
-<td>同業のA社(従業員300名)が全社で導入している</td>
-</tr>
-</tbody>
-</table>
-<p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
-<h4>付録B 金額にしにくい効果</h4>
-<p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
-<ul>
-<li>録音した打ち合わせで、聞き漏らしや顧客との認識違いを後から確認できること</li>
-<li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められること</li>
-<li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすいこと</li>
-</ul>
-<h4>付録C 削減時間の計算</h4>
+<h4>付録A 費用対効果の試算</h4>
 <table>
 <thead>
 <tr>
@@ -896,25 +897,67 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </thead>
 <tbody>
 <tr>
-<td>月あたりの打ち合わせ件数</td>
-<td>約35件(週8件 × 52週 ÷ 12か月 = 約34.7件)</td>
+<td>月額</td>
+<td>59,400円</td>
 </tr>
 <tr>
-<td>1件あたりの削減時間</td>
-<td>30分(試行時の参考値)</td>
+<td>経理部が社内の試算に使う標準単価</td>
+<td>1時間3,500円</td>
 </tr>
 <tr>
-<td>月あたりの削減時間</td>
-<td>約17.3時間</td>
+<td>費用に見合う月あたりの削減時間</td>
+<td>約17時間</td>
 </tr>
 <tr>
-<td>6か月の削減時間</td>
-<td>約104時間</td>
+<td>対象の9名の月あたりの打ち合わせ件数</td>
+<td>約28件</td>
+</tr>
+<tr>
+<td>費用に見合う1件あたりの削減時間</td>
+<td>約36分</td>
 </tr>
 </tbody>
 </table>
-<p>費用に見合う水準は、月額費用を時間単価で割り、月の件数で割って求めた。税込の場合の月額79,200円では、月約22.6時間、1件あたり約39分になる。税抜の場合の月額87,120円では、月約24.9時間、1件あたり約43分になる。</p>
-<h4>付録D 実施体制</h4>
+<table>
+<thead>
+<tr>
+<th>1件あたりの削減時間</th>
+<th>月あたりの削減時間</th>
+<th>削減1時間あたりの費用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15分</td>
+<td>約7時間</td>
+<td>約8,500円</td>
+</tr>
+<tr>
+<td>30分(参考値)</td>
+<td>約14時間</td>
+<td>約4,200円</td>
+</tr>
+<tr>
+<td>36分(本導入へ進む線)</td>
+<td>約17時間</td>
+<td>約3,500円</td>
+</tr>
+<tr>
+<td>45分</td>
+<td>約21時間</td>
+<td>約2,800円</td>
+</tr>
+</tbody>
+</table>
+<p>2週間の記録の担当者別の件数は、2件以上が5名、1件が6名、0件が1名で、件数の少ない数名は内勤寄りの担当である。</p>
+<h4>付録B 測定の進め方</h4>
+<ol>
+<li><strong>開始前</strong>:記録した2週間分の議事録作成時間を、比較の基準とする。</li>
+<li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
+<li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
+<li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
+</ol>
+<h4>付録C 実施体制</h4>
 <table>
 <thead>
 <tr>
@@ -932,11 +975,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tr>
 <td>情報管理担当者</td>
 <td>【氏名】(1名)</td>
-<td>契約条件とデータの扱いの確認、利用ルールの整備と周知、録音データの管理状況の点検</td>
+<td>利用ルールの整備と周知、録音データの管理状況の点検</td>
 </tr>
 <tr>
 <td>利用者</td>
-<td>営業担当12名</td>
+<td>営業担当9名</td>
 <td>ツールの利用、作成時間と録音同意の記録、アンケートへの回答</td>
 </tr>
 <tr>
@@ -946,14 +989,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<h4>付録E 測定の進め方</h4>
-<ol>
-<li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
-<li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
-<li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
-<li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
-</ol>
-<h4>付録F スケジュール</h4>
+<h4>付録D スケジュール</h4>
 <table>
 <thead>
 <tr>
@@ -964,7 +1000,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tbody>
 <tr>
 <td>承認後〜開始前</td>
-<td>契約条件とデータの扱いの確認、同意取得の手順づくり、現在の作成時間の測定、利用者への説明会</td>
+<td>同意取得の手順づくり、利用者への説明会</td>
 </tr>
 <tr>
 <td>1〜3か月目</td>
@@ -986,31 +1022,37 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </table></article></template>
 <h3>主な変更 6 件</h3>
 <p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
-<ol class="changes"><li><button type="button" class="chg" data-doc="ringi" data-b="営業部の営業担当12名で6か月間試験導入したい。" data-a="今ある参考値(1件30分の削減)では費用に見合わず"><span class="num">1</span><b>前提の弱さを冒頭に</b><span>目安の30分の短縮では費用に見合わないことと、規程との突き合わせが済んでいないことを、申請の文に添えた</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="顧客打ち合わせが週に平均8件(月に約35件)ある。" data-a="営業支援システムの訪問記録の直近6か月から出した"><span class="num">2</span><b>書き手の答えを反映</b><span>週8件は部全体の数で、出どころは訪問記録</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="【 】円(人事・経理部門に確認して記入)" data-a="経理部が社内の試算に使う標準単価の1時間3,500円"><span class="num">3</span><b>空欄を埋める</b><span>時間単価が入った</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="参考値どおり1件あたり30分減った場合の削減時間は、次のとおり" data-a="今ある参考値の30分では届かない"><span class="num">4</span><b>計算して言い切りを直す</b><span>30分の参考値では回収できないと本文に書いた</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="担当者のメモの取り方に左右される。" data-a="担当者のメモの取り方に左右されると見ている"><span class="num">5</span><b>言い切りを根拠に合わせる</b><span>確かめていないことは見立てとして書く</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="試験導入の開始前に測定する(8章)" data-a="2週間あれば12名分を記録でき、承認の前に測ることもできる"><span class="num">6</span><b>測れることを示す</b><span>承認の前に2週間で測れる、という答えを入れた</span></button></li></ol>
+<ol class="changes"><li><button type="button" class="chg" data-doc="ringi" data-b="営業部の営業担当12名で6か月間試験導入したい。" data-a="営業部の営業担当12名のうち内勤寄りの3名を除く9名で、6か月間試験導入したい。"><span class="num">1</span><b>頼む中身を縮める</b><span>書き手の判断で12名から9名に。上限は60万円から50万円に</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="試験導入の開始前に測定する(8章)" data-a="営業担当12名の作成時間を、2週間で打ち合わせ16件分記録した。1件あたりの平均は55分"><span class="num">2</span><b>宿題の答えを入れる</b><span>測る予定だった作成時間が、2週間の実測になった</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="【 】円(人事・経理部門に確認して記入)" data-a="経理部が社内の試算に使う標準単価の1時間3,500円"><span class="num">3</span><b>空欄を埋める</b><span>時間単価が入った</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="参考値どおり1件あたり30分減った場合の削減時間は、次のとおり" data-a="1件あたり約36分減れば費用に見合うので、本導入へ進む線を36分とする"><span class="num">4</span><b>線を引き直す</b><span>30分の参考値では届かないので、本導入の線を36分に</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="社内規程に合っているかどうかを情報システム部門と確認し" data-a="顧客情報の保存と扱いは、社内規程に合っていると情報システム部門が確認した"><span class="num">5</span><b>宿題の答えを入れる</b><span>規程との突き合わせが、確認の結果になった</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="担当者のメモの取り方に左右される。" data-a="担当者のメモの取り方に左右されると見ている"><span class="num">6</span><b>言い切りを根拠に合わせる</b><span>確かめていないことは見立てとして書く</span></button></li></ol>
 <h3>どうやったか</h3>
 <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
-<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を28件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を14件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
-<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">3,299字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:85.1%"></span></span><span class="bv">2,808字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:48.6%"></span></span><span class="bv">1,603字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:77.2%"></span></span><span class="bv">2,546字</span></div></div>
-<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">時間単価はいくらか</th><td>空欄</td><td>経理部の標準単価 1時間3,500円。1件あたり約39分短縮できれば費用に見合う</td></tr><tr><th scope="row">週8件は部全体か、1人あたりか</th><td>書いていない</td><td>部全体。営業支援システムの訪問記録から</td></tr><tr><th scope="row">6か月で解約できるか</th><td>契約前に確認する</td><td>月単位で解約できると販売店に確認した</td></tr><tr><th scope="row">顧客は録音に同意するか</th><td>全件で使う前提の試算</td><td>見込みを出す材料がないと明記し、利用率の目安は空欄のまま確認事項へ</td></tr><tr><th scope="row">何もしない案や、数名で試す案と比べたか</th><td>書いていない</td><td>本文にはなく、確認事項に残る</td></tr></tbody></table></div>
-<h4>書き手に聞いた3問と答え</h4>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を20件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を11件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">3,299字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:85.5%"></span></span><span class="bv">2,822字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:43.3%"></span></span><span class="bv">1,428字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:63.0%"></span></span><span class="bv">2,079字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">週8件は部全体か、1人あたりか</th><td>書いていない</td><td>部全体。訪問記録から。12名の2週間の実測で、1件平均55分</td></tr><tr><th scope="row">時間単価はいくらか</th><td>空欄</td><td>経理部の標準単価 1時間3,500円。9名なら1件36分減れば費用に見合う</td></tr><tr><th scope="row">データの扱いは社内規程に合うか</th><td>契約前に確認する</td><td>情報システム部門が確認した。保存先は国内、AI の学習に使われない</td></tr><tr><th scope="row">12名全員に要るか</th><td>書いていない</td><td>内勤寄りの3名を除く9名、上限50万円に縮めた</td></tr><tr><th scope="row">顧客は録音に同意するか</th><td>全件で使う前提の試算</td><td>同意が得られない打ち合わせがあれば要る削減は大きくなる、と明記。利用率の目安は空欄のまま</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
 <p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
-<ol class="list prose-max"><li>「週に平均8件」(元の文書行20)は、営業担当12名の合計ですか、1人あたりですか。どの記録から出した平均ですか。12名の合計なら、議事録にかかる時間は全員で月約35時間、1人あたり月約3時間になり、削減できる時間の上限もそこで決まります。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>営業部全体で週8件です。1人あたりではありません。営業支援システムの訪問記録の直近6か月から出しました。部全体の議事録の作成時間は測っていないので、月約35時間、1人あたり月約3時間という数字が合っているかは分かりません。承認の前に測ることはでき、2週間あれば12名分を記録できます。</p></div></details></li><li>当社の営業担当者の時間単価(行62、空欄)はいくらですか。また、ミナトノートのデータの扱いが社内規程に合うか(行101)と、6か月で解約できるか(行104)は、分かっていますか。分かっているものは値や結果を、経営会議に出す前に確かめられないものはその理由を教えてください。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>時間単価は、経理部が社内の試算に使う標準単価の1時間3,500円です。社内規程に合うかは分かりません。突き合わせをまだしておらず、情報システム部門には声をかけただけで、ミナトノートのデータの扱いの資料は取り寄せていません。経営会議の前に確かめられるかどうかも分かりません。解約は、月単位でできて最低契約期間もないので、6か月で解約できます。販売店に確認済みです。</p></div></details></li><li>顧客のうち、どのくらいの割合が録音に同意すると見ていますか。そう見る材料(顧客に録音の可否を確かめた記録、打ち合わせの相手ごとの見込みなど)はありますか。月約17時間の試算は全件でツールを使う前提で(行47〜50)、利用率の目安は空欄です(行120)。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>分かりません。まだ顧客に聞いたことがないので、録音の可否を確かめた記録はありません。打ち合わせの相手ごとの見込みも分かりません。利用率の目安も分かりません。</p></div></details></li></ol>
-<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 34 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 12名・6か月・上限60万円の承認は今回求めず、2週間の作成時間の測定と、データの扱いと社内規程の突き合わせを先に済ませ、結果を見てから頼む。時間単価3,500円では参考値の30分でも費用に見合わず、規程に合わなければ導入しないためです。直した後の文書は頼む中身を元のまま保っているので、この案を選ぶなら1章と7章を書き換えます。</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>部全体の議事録の作成時間はどのくらいですか。週8件が部全体の件数と分かったので、全件60分なら全員で月約35時間、1人あたり月約3時間ですが、この数字が合っているかは測っていません。本文は「1件60分が全件に当てはまるとすると」の仮定で書きました。2週間で測れるなら、承認の前に測りますか(行20、行21、行23、行110)</li><li>ミナトノートのデータの扱いは社内規程に合いますか。経営会議の前に確かめられますか。資料の取り寄せと突き合わせがまだなので、本文は「確かめていない。問題があれば導入しない」と書きました(行101、行135)</li><li>顧客のどのくらいが録音に同意すると見ますか。利用率の目安はいくつにしますか。材料がないので、試算は全件で使う場合の値と明記し、利用率の欄は空欄のままです。空欄のままでは「利用率が低い場合」の線が引けません(行47〜50、行99、行100、行120、行128)</li></ol><h4>そのほか 31 件</h4><ul class="list"><li>目安の「開始前より平均30分短い」は、時間単価3,500円では費用に見合う水準(全件で使う場合で約39分、税抜なら約43分)に届きません。目安をどちらに置きますか。約39分は文書の式に3,500円を入れて計算した値で、書き手が決めた目安ではありません(行54、行119)</li><li>開始前の平均がまだ分からないのに、30分を目安にした理由は何ですか。測った結果、開始前の平均が60分より短かったら、目安はそのまま使いますか(行23、行41、行119)</li><li>行143 の承認は「確認で問題がなければ導入する」という意味ですか。問題が見つかったとき、導入しないと決めるのは誰ですか(行101、行135、行143)</li><li>3か月目に縮小や中止を決めるのは誰で、経営会議はその決定に関わりますか。途中で利用を止める判断は誰がしますか。本文には「確認中」と書いています(行16、行100、行103、行112、行129、行138)</li><li>ライセンス数の「固定」は増やさないという意味ですか。試験の途中で減らせますか。本文には「確認中」と書いています(行100、行104、行128)</li><li>減った時間は何に使われ、どの数字に表れますか。本文は「回収できる計算になる」と弱めました。経営会議が知りたいのは時間が減るかどうかではなく、減って何が変わるかではありませんか(行54、行119、行127、行129)</li><li>同意の取得と記録、説明会、録音データの点検で増える時間は、差し引かなくてよいですか。30分の削減は、ツールの出力を確認・修正する時間を含んでいますか(行41、行54、行91、行92、行99、行102、行135)</li><li>先月試した1件は顧客との打ち合わせでしたか。そうなら、そのときの同意とデータの扱いはどうなっていましたか(行41、行99、行101)</li><li>無料版と申請するプランで、作成時間に関わる機能に違いはありませんか(行31、行41)</li><li>試した1名・1件は、12名の打ち合わせをどのくらい代表していますか。打ち合わせの長さや相手で、作成時間と削減の幅は変わりませんか(行41、行119)</li><li>1件60分の内訳はどうなっていますか。書き起こし、整理、確認のどれにどれだけかかるかで、ツールで減らせる範囲が変わります。時間がかかる原因は議事録の作り方にある、という見方には何と答えますか(行21、行22)</li><li>議事録の正確さは、この試験で改善を確かめたい課題ですか、下げないように見張る条件ですか。「左右される」は誤りや差し戻しを見て言っていますか、作り方から考えたことですか。本文は「左右されると見ている」と推論の形にしました(行12、行22、行121)</li><li>品質の目安の「開始前」は、何で測った値ですか。開始前に記録するのは作成時間だけです(行110、行121、行135)</li><li>単価は税込ですか、税抜ですか。見込みと費用対効果の表は税込の場合の値で書き、税抜の場合は1割高いと本文に添えました。経営会議の前に確かめられますか(行15、行54、行58〜60、行82)</li><li>同業のA社の導入は、この申請のどの主張を支えていますか。従業員300名の全社導入と12名の試験を同じものとして読んでよいですか。この事実はどこから得ましたか。効果の根拠と読まれないよう付録に移しました(行33、行35)</li><li>A社への聞き取りをスケジュールに入れない理由はありますか(行35、行135)</li><li>なぜミナトノートを選んだのですか。A社の全社導入が理由ですか(行29〜33)</li><li>「費用に見合う」は1件あたりの話ですか、総額の話ですか。時間は減ったが利用率が低く総額で見合わないとき、縮小と中止のどちらを優先しますか。本文は縮小の条件を「1件あたりの時間は減っているが」としただけで、優先は決めていません(行127〜129)</li><li>同意なしの録音が1件起きたら、本導入・縮小・中止のどれに進みますか。どこからを重大と呼びますか(行122、行127、行129)</li><li>品質が目安を下回ったら、どの判断に進みますか。費用の指標と、付録Bの効果の確認結果は判断に使いますか(行66、行121、行123、行127〜129)</li><li>3か月目と6か月目に、どの数字がいくつなら止めますか。その線は試験を始める前に決まりますか(行103、行119、行120、行127〜129)</li><li>何もしない案、人数や期間を絞る案、別の手段と比べましたか。12名とする理由、6か月とする理由は何ですか。3か月目に中止まで判断できるなら、後の3か月で何を確かめますか(行12、行14、行100、行103、行128、行143、行144)</li><li>作成時間もアンケートもツールを使う12名の自己申告で、起案者が責任者として評価も報告します。この数字を経営会議はどう信じればよいですか(行6、行90、行92、行111、行113、行119、行121、行127)</li><li>本導入のときの人数と年間の費用を、経営会議は想定できますか。今回の承認は次の判断をどこまで縛りますか(行16、行127)</li><li>上限と見込みの差額は何に備えるものですか。用途は税区分と契約条件としていますが、機材なども上限の範囲で対応するとしています。文書が置いた上限の線を越える条件は想定していますか(行83、行84)</li><li>機材を想定していない根拠は何ですか。打ち合わせをどう録音するかは本文にありません(行84)</li><li>表の15分と45分の幅は、どこから取った値ですか(行58、行60)</li><li>起案日が空欄で、「先月」がいつか定まりません。12月開始に、開始前の準備と2週間の測定は間に合いますか。開始が遅れたとき、期間と上限はそのままですか。準備は誰がいつ終えますか(行5、行14、行21、行41、行110、行135)</li><li>相談先には法務担当がいますが、社内規程の確認の相手は情報システム部門だけです。法務の確認は要りませんか(行93、行101)</li><li>情報管理担当者と12名は、増える作業を自分の仕事だと分かっていますか。録音される顧客の側に利益はありますか(行91、行92)</li><li>提出前に埋める空欄が残っています。起案日、起案者と責任者の氏名、情報管理担当者の氏名、開始月の【2026年12月】、利用率の目安です(行5、行6、行14、行90、行91、行120)</li></ul></div></details>
+<ol class="list prose-max"><li>営業担当者の時間単価(人件費)はいくらですか。4.2の空欄の値です。単価が約4,600円を上回るかどうかが、参考値どおりの効果が出たときに費用を回収できるかの線になります。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>1時間3,500円です。経理部が社内の試算に使う標準単価です。</p></div></details></li><li>2章の「週に平均8件(月に約35件)」は、ツールを使う営業担当12名全員の合計ですか。先月試した1名の「約60分」のほかに、部全体の議事録作成時間について分かっていることはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>週8件は営業部全体の件数で、1人あたりではありません。営業支援システムの訪問記録の直近6か月から出しました。部全体の議事録の作成時間は測っていないので、分かっていることはありません。ただし承認の前に測ることはでき、2週間あれば12名分を記録できます。</p></div></details></li><li>ミナトノートの契約条件について、いま分かっていることを教えてください。6か月で解約できるか、途中で人数を減らせるか、単価6,600円は税込か税抜か、録音データの保存場所とAIの学習に使われるかどうか、社内規程に合っているか、の5点です。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>-6か月で解約できるか:できます。月単位で解約でき、最低契約期間はありません。販売店に確認済みです。-途中で人数を減らせるか:分かりません。-単価6,600円は税込か税抜か:分かりません。-録音データの保存場所とAIの学習に使われるかどうか:分かりません。ミナトノートのデータの扱いの資料は取り寄せていません。-社内規程に合っているか:分かりません。突き合わせをまだしていません。情報システム部門には声をかけただけです。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>データの扱いの資料を販売店から取り寄せ、データの保存場所、AIの学習に使われるかどうか、保存期間と削除の方法、アクセス権の設定を見て、社内規程に合っているかを情報システム部門と突き合わせる→5章の「クラウドに保存した顧客情報が漏れる」の対策を、確認した結果の文に書き換える。規程に合わなければ、5章の文のとおり導入しないので、この稟議は出さない。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>販売店から資料を取り寄せ、情報システム部門と突き合わせました。結果は次のとおりで、社内規程に合っていると情報システム部門が確認しました。-保存場所:国内のデータセンターです。-AIの学習:音声と文字起こしは学習に使われません。-保存期間:録音と文字起こしは、契約中は無期限で保存され、解約後は30日で削除されます。社内規程は社外保存の期間に上限を置いていません。-削除の方法:削除は依頼から30日以内です。-アクセス権:管理者が設定できます。</p></div></details></li><li>営業担当12名の議事録作成時間を2週間、打ち合わせ1件単位で記録シートに記録する→2章の「約60分」と「部全体での平均作成時間は、試験導入の開始前に測定する」を実測の平均の文に書き換え、付録Eと付録Fの「開始前の測定」を外す。平均が約39分を下回るなら、作成時間がなくなっても費用を回収できないので、頼む中身を見直す。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>12名の2週間、打ち合わせ16件を記録しました。1件あたりの平均は55分、最短25分、最長110分で、約39分を下回っていません。週8件のペースと合っていて、部全体では月あたり約32時間です。担当者別の件数は、2件以上が5名、1件が6名、0件が1名で、件数の少ない数名は内勤寄りの担当です。</p></div></details></li><li>単価6,600円が税込か税抜かと、途中で人数を減らせるかを販売店に聞く→4章の「契約前に確認する」の文を確認した結果に書き換え、3.2の約39分か約43分のどちらかに絞り、6.1の「開始前より平均30分短い」をその線に合わせて決める。回収の線は30分より上にあるので、いまの目安のままでは目安を満たしても費用を回収できない。人数を減らせないなら、5章と6.2の「人数の縮小」「ライセンス数を減らす」の文を書き直す。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>-税区分:6,600円は税込で、税抜は6,000円です。月額は税込79,200円のままです。-人数:ライセンスは月単位で増減できるので、途中で人数を減らせます。-回収の線:費用に見合う約39分を本導入の線にし、参考値の30分は目安から外すと決めました。ただし、この39分は12名のときの線です。内勤寄りの3名を外して9名で始める案を検討し、申請は9名・上限50万円(月額の上限8万円)に縮めます。9名分の月額は税込59,400円で、時間単価3,500円で割ると月約17時間です。2週間の記録で9名の打ち合わせは13件、月に約28件なので、1件あたり約36分減れば回収できます。そのため、9名で申請する本導入の線は36分にします。-約43分:約43分をどう扱うかは、分からないです。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 18 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> </p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>上限の値はこのままでよいか。月額上限8万円の6か月分は48万円で、総額の上限50万円に届かない。また、見込み356,400円との差は約14万円あり、元の文書の理由だった税区分と契約条件の確認は済んだので、本文からこの理由を外した。差額は何に備えるものか。</li><li>ツールの利用率の目安は何%か。7.1の空欄で、「規模を縮小して続ける」の線がこの値で決まる。</li><li>無料版のまま件数を増やして試せるか。判断の線の36分は、いまの平均55分を約65%縮める値で、1名・1件の試行は半分の30分だった。なぜ30分でも試す価値があるかを、決裁者は最初に聞くはずだ。</li></ol><h4>そのほか 15 件</h4><ul class="list"><li>平均55分は12名16件の値。対象の9名13件の平均はいくつか。比較の基準はどちらの値にするか</li><li>9名の打ち合わせ13件は、外す3名が3件という計算になる。担当者別の件数のうち少ない3名は0件、1件、1件の計2件で、この3名を外すなら14件になる。外す3名の件数は3件で合っているか</li><li>約43分は、単価が税抜だったときの線で、税込と分かったので本文には書いていない。別の意味で使っていたなら教えてほしい</li><li>顧客が録音に同意する割合の見込みはあるか。36分は月約28件のすべてで使えたときの線</li><li>減った時間は何に使うのか。残業が減るのか、別の仕事に回るのか。本文は時間単価で換算して費用と比べているだけで、金額が戻るとは書いていない</li><li>解くべき課題は作成の時間か、議事録の正確さか。正確さの問題が実際に起きた事例はあるか</li><li>無料版を続ける案、何もしない案、人数を変える案と比べた記録はあるか</li><li>中間評価で誰が何を決めるのか。本文は、規模縮小か中止を経営会議で判断する形にそろえた。違うなら教えてほしい</li><li>議事録の品質と費用は指標にあるが、判断の基準に出てこない。品質が下がったときや費用が上限に近づいたときは、どの判断になるのか。品質の開始前の値はあるか</li><li>月額上限8万円を超えるのは何が起きたときか。本文は、超える場合は改めて申請すると書いている</li><li>A社の例は何を支えるために置いているか。聞き取りは開始前にやる作業か。付録Dの開始前の項目には入っていない</li><li>作成時間の記録は、ツールを使う本人の自己申告でよいか</li><li>責任者と起案者は同じ営業部長で、判断案も同じ人が出す。評価する人と申請する人が同じでよいか</li><li>情報管理担当者は誰か。付録Cで氏名が空欄。起案日と起案者の氏名も空欄のまま</li><li>契約内容を法務担当にも確認したか。答えにあるのは販売店と情報システム部門の確認だけ</li></ul></div></details>
 <h4>構成がどう変わったか</h4>
 <p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
-<div class="map-wrap"><svg viewBox="0 0 1000 749.5" class="fig map" role="img" aria-label="元の10節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 3,299字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,546字 + 付録 2,000字</text><path d="M340,57 C500.0,57 500.0,59 660,59" class="mv" data-src="0" data-dst="0"/><path d="M340,57 C500.0,57 500.0,287 660,287" class="mv" data-src="0" data-dst="3"/><path d="M340,101 C500.0,101 500.0,108 660,108" class="mv" data-src="1" data-dst="1"/><path d="M340,145 C500.0,145 500.0,668 660,668" class="mv dashed" data-src="2" data-dst="10"/><path d="M340,215 C500.0,215 500.0,197 660,197" class="mv" data-src="3" data-dst="2"/><path d="M340,215 C500.0,215 500.0,712 660,712" class="mv dashed" data-src="3" data-dst="11"/><path d="M340,215 C500.0,215 500.0,482 660,482" class="mv dashed" data-src="3" data-dst="7"/><path d="M340,286 C500.0,286 500.0,334 660,334" class="mv" data-src="4" data-dst="4"/><path d="M340,330 C500.0,330 500.0,618 660,618" class="mv dashed" data-src="5" data-dst="9"/><path d="M340,389 C500.0,389 500.0,552 660,552" class="mv dashed" data-src="6" data-dst="8"/><path d="M340,389 C500.0,389 500.0,197 660,197" class="mv" data-src="6" data-dst="2"/><path d="M340,389 C500.0,389 500.0,287 660,287" class="mv" data-src="6" data-dst="3"/><path d="M340,468 C500.0,468 500.0,425 660,425" class="mv dashed" data-src="7" data-dst="6"/><path d="M340,468 C500.0,468 500.0,287 660,287" class="mv" data-src="7" data-dst="3"/><path d="M340,468 C500.0,468 500.0,197 660,197" class="mv" data-src="7" data-dst="2"/><path d="M340,533 C500.0,533 500.0,618 660,618" class="mv dashed" data-src="8" data-dst="9"/><path d="M340,577 C500.0,577 500.0,379 660,379" class="mv" data-src="9" data-dst="5"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">申請内容</text><text x="328" y="63" class="mn" text-anchor="end">248字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="34" rx="6" class="mr"/><text x="22" y="107" class="ml">背景と課題</text><text x="328" y="107" class="mn" text-anchor="end">191字</text></g><g class="src" data-i="2"><rect x="10" y="128" width="330" height="34" rx="6" class="mr"/><text x="22" y="151" class="ml">導入するツール</text><text x="328" y="151" class="mn" text-anchor="end">193字</text></g><g class="src" data-i="3"><rect x="10" y="172" width="330" height="86" rx="6" class="mr"/><text x="22" y="221" class="ml">期待効果</text><text x="328" y="221" class="mn" text-anchor="end">691字</text></g><g class="src" data-i="4"><rect x="10" y="268.375" width="330" height="35" rx="6" class="mr"/><text x="22" y="292" class="ml">費用</text><text x="328" y="292" class="mn" text-anchor="end">280字</text></g><g class="src" data-i="5"><rect x="10" y="313.375" width="330" height="34" rx="6" class="mr"/><text x="22" y="336" class="ml">実施体制</text><text x="328" y="336" class="mn" text-anchor="end">202字</text></g><g class="src" data-i="6"><rect x="10" y="357.375" width="330" height="63" rx="6" class="mr"/><text x="22" y="395" class="ml">リスクと対策</text><text x="328" y="395" class="mn" text-anchor="end">506字</text></g><g class="src" data-i="7"><rect x="10" y="430.625" width="330" height="75" rx="6" class="mr"/><text x="22" y="474" class="ml">評価の方法</text><text x="328" y="474" class="mn" text-anchor="end">603字</text></g><g class="src" data-i="8"><rect x="10" y="516.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="539" class="ml">スケジュール</text><text x="328" y="539" class="mn" text-anchor="end">182字</text></g><g class="src" data-i="9"><rect x="10" y="560.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="583" class="ml">決裁をお願いする事項</text><text x="328" y="583" class="mn" text-anchor="end">81字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="38" rx="6" class="mr"/><text x="672" y="65" class="ml">申請内容</text><text x="978" y="65" class="mn" text-anchor="end">304字</text></g><g class="dst body" data-i="1"><rect x="660" y="88.0" width="330" height="39" rx="6" class="mr"/><text x="672" y="114" class="ml">背景と課題</text><text x="978" y="114" class="mn" text-anchor="end">312字</text></g><g class="dst body" data-i="2"><rect x="660" y="137.0" width="330" height="120" rx="6" class="mr"/><text x="672" y="203" class="ml">試験で確かめること</text><text x="978" y="203" class="mn" text-anchor="end">1,125字※</text></g><g class="dst body" data-i="3"><rect x="660" y="267.0" width="330" height="39" rx="6" class="mr"/><text x="672" y="293" class="ml">判断の基準</text><text x="978" y="293" class="mn" text-anchor="end">315字</text></g><g class="dst body" data-i="4"><rect x="660" y="316.375" width="330" height="36" rx="6" class="mr"/><text x="672" y="340" class="ml">費用</text><text x="978" y="340" class="mn" text-anchor="end">288字</text></g><g class="dst body" data-i="5"><rect x="660" y="362.375" width="330" height="34" rx="6" class="mr"/><text x="672" y="385" class="ml">決裁をお願いする事項</text><text x="978" y="385" class="mn" text-anchor="end">80字</text></g><g class="dst app" data-i="6"><rect x="660" y="406.375" width="330" height="38" rx="6" class="mr"/><text x="672" y="431" class="ml">付録A 測定の進め方と指標</text><text x="978" y="431" class="mn" text-anchor="end">303字</text></g><g class="dst app" data-i="7"><rect x="660" y="454.25" width="330" height="55" rx="6" class="mr"/><text x="672" y="488" class="ml">付録B 費用対効果の計算</text><text x="978" y="488" class="mn" text-anchor="end">442字</text></g><g class="dst app" data-i="8"><rect x="660" y="519.5" width="330" height="64" rx="6" class="mr"/><text x="672" y="558" class="ml">付録C リスクと対策</text><text x="978" y="558" class="mn" text-anchor="end">514字</text></g><g class="dst app" data-i="9"><rect x="660" y="593.75" width="330" height="48" rx="6" class="mr"/><text x="672" y="624" class="ml">付録D 実施体制とスケジュール</text><text x="978" y="624" class="mn" text-anchor="end">382字</text></g><g class="dst app" data-i="10"><rect x="660" y="651.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="674" class="ml">付録E 導入するツール</text><text x="978" y="674" class="mn" text-anchor="end">194字</text></g><g class="dst app" data-i="11"><rect x="660" y="695.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="718" class="ml">付録F 金額にしにくい効果</text><text x="978" y="718" class="mn" text-anchor="end">165字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-2" role="tabpanel" aria-labelledby="doc-tab-2" tabindex="0" hidden><p class="p prose-max">人事企画が、内勤180名を対象に週1日の在宅勤務制度を来年4月から始めたいという企画。昨年の離職率12%を業界平均の8%に近づけたい。全社250名で、差はおよそ10名。読むのは経営会議。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 698.125" class="fig map" role="img" aria-label="元の10節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 3,299字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,079字 + 付録 1,348字</text><path d="M340,57 C500.0,57 500.0,60 660,60" class="mv" data-src="0" data-dst="0"/><path d="M340,101 C500.0,101 500.0,155 660,155" class="mv" data-src="1" data-dst="2"/><path d="M340,145 C500.0,145 500.0,441 660,441" class="mv dashed" data-src="2" data-dst="8"/><path d="M340,215 C500.0,215 500.0,485 660,485" class="mv dashed" data-src="3" data-dst="9"/><path d="M340,215 C500.0,215 500.0,109 660,109" class="mv" data-src="3" data-dst="1"/><path d="M340,215 C500.0,215 500.0,397 660,397" class="mv dashed" data-src="3" data-dst="7"/><path d="M340,286 C500.0,286 500.0,199 660,199" class="mv" data-src="4" data-dst="3"/><path d="M340,330 C500.0,330 500.0,617 660,617" class="mv dashed" data-src="5" data-dst="12"/><path d="M340,389 C500.0,389 500.0,529 660,529" class="mv dashed" data-src="6" data-dst="10"/><path d="M340,389 C500.0,389 500.0,244 660,244" class="mv" data-src="6" data-dst="4"/><path d="M340,468 C500.0,468 500.0,298 660,298" class="mv" data-src="7" data-dst="5"/><path d="M340,468 C500.0,468 500.0,573 660,573" class="mv dashed" data-src="7" data-dst="11"/><path d="M340,533 C500.0,533 500.0,661 660,661" class="mv dashed" data-src="8" data-dst="13"/><path d="M340,577 C500.0,577 500.0,353 660,353" class="mv" data-src="9" data-dst="6"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">申請内容</text><text x="328" y="63" class="mn" text-anchor="end">248字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="34" rx="6" class="mr"/><text x="22" y="107" class="ml">背景と課題</text><text x="328" y="107" class="mn" text-anchor="end">191字</text></g><g class="src" data-i="2"><rect x="10" y="128" width="330" height="34" rx="6" class="mr"/><text x="22" y="151" class="ml">導入するツール</text><text x="328" y="151" class="mn" text-anchor="end">193字</text></g><g class="src" data-i="3"><rect x="10" y="172" width="330" height="86" rx="6" class="mr"/><text x="22" y="221" class="ml">期待効果</text><text x="328" y="221" class="mn" text-anchor="end">691字</text></g><g class="src" data-i="4"><rect x="10" y="268.375" width="330" height="35" rx="6" class="mr"/><text x="22" y="292" class="ml">費用</text><text x="328" y="292" class="mn" text-anchor="end">280字</text></g><g class="src" data-i="5"><rect x="10" y="313.375" width="330" height="34" rx="6" class="mr"/><text x="22" y="336" class="ml">実施体制</text><text x="328" y="336" class="mn" text-anchor="end">202字</text></g><g class="src" data-i="6"><rect x="10" y="357.375" width="330" height="63" rx="6" class="mr"/><text x="22" y="395" class="ml">リスクと対策</text><text x="328" y="395" class="mn" text-anchor="end">506字</text></g><g class="src" data-i="7"><rect x="10" y="430.625" width="330" height="75" rx="6" class="mr"/><text x="22" y="474" class="ml">評価の方法</text><text x="328" y="474" class="mn" text-anchor="end">603字</text></g><g class="src" data-i="8"><rect x="10" y="516.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="539" class="ml">スケジュール</text><text x="328" y="539" class="mn" text-anchor="end">182字</text></g><g class="src" data-i="9"><rect x="10" y="560.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="583" class="ml">決裁をお願いする事項</text><text x="328" y="583" class="mn" text-anchor="end">81字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="39" rx="6" class="mr"/><text x="672" y="66" class="ml">申請内容</text><text x="978" y="66" class="mn" text-anchor="end">314字</text></g><g class="dst body" data-i="1"><rect x="660" y="89.25" width="330" height="39" rx="6" class="mr"/><text x="672" y="115" class="ml">確かめること</text><text x="978" y="115" class="mn" text-anchor="end">310字</text></g><g class="dst body" data-i="2"><rect x="660" y="138.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="161" class="ml">現状</text><text x="978" y="161" class="mn" text-anchor="end">264字</text></g><g class="dst body" data-i="3"><rect x="660" y="182.0" width="330" height="35" rx="6" class="mr"/><text x="672" y="205" class="ml">費用と解約</text><text x="978" y="205" class="mn" text-anchor="end">278字</text></g><g class="dst body" data-i="4"><rect x="660" y="226.75" width="330" height="34" rx="6" class="mr"/><text x="672" y="250" class="ml">情報管理</text><text x="978" y="250" class="mn" text-anchor="end">254字</text></g><g class="dst body" data-i="5"><rect x="660" y="270.75" width="330" height="55" rx="6" class="mr"/><text x="672" y="304" class="ml">判断の基準</text><text x="978" y="304" class="mn" text-anchor="end">443字</text></g><g class="dst body" data-i="6"><rect x="660" y="336.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="359" class="ml">決裁をお願いする事項</text><text x="978" y="359" class="mn" text-anchor="end">94字</text></g><g class="dst app" data-i="7"><rect x="660" y="380.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="403" class="ml">付録A 費用対効果の試算</text><text x="978" y="403" class="mn" text-anchor="end">206字</text></g><g class="dst app" data-i="8"><rect x="660" y="424.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="447" class="ml">付録B 導入するツール</text><text x="978" y="447" class="mn" text-anchor="end">197字</text></g><g class="dst app" data-i="9"><rect x="660" y="468.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="491" class="ml">付録C 金額にしにくい効果</text><text x="978" y="491" class="mn" text-anchor="end">165字</text></g><g class="dst app" data-i="10"><rect x="660" y="512.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="535" class="ml">付録D そのほかのリスクと対策</text><text x="978" y="535" class="mn" text-anchor="end">252字</text></g><g class="dst app" data-i="11"><rect x="660" y="556.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="579" class="ml">付録E 測定の進め方</text><text x="978" y="579" class="mn" text-anchor="end">184字</text></g><g class="dst app" data-i="12"><rect x="660" y="600.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="623" class="ml">付録F 実施体制</text><text x="978" y="623" class="mn" text-anchor="end">187字</text></g><g class="dst app" data-i="13"><rect x="660" y="644.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="667" class="ml">付録G スケジュール</text><text x="978" y="667" class="mn" text-anchor="end">157字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-2" role="tabpanel" aria-labelledby="doc-tab-2" tabindex="0" hidden><p class="p prose-max">人事企画が、内勤180名を対象に週1日の在宅勤務制度を来年4月から始めたいという企画。昨年の離職率12%を業界平均の8%に近づけたい。全社250名で、差はおよそ10名。読むのは経営会議。</p>
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
-  <div class="tile"><p class="l">本編の長さ</p><div class="v">47%<small>短縮</small></div><p class="d">2,894字 → 直して 2,840字 → 端的に 1,547字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>件</small></div><p class="d">4月開始の承認から、方針の承認と準備の着手に変わった</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">41<small>件</small></div><p class="d">論理の指摘29件、前提への問い12件。うち3問を書き手に聞く</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">33<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は5つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">40%<small>短縮</small></div><p class="d">2,894字 → 直して 2,893字 → 端的に 1,726字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">40<small>件</small></div><p class="d">論理の指摘25件、前提への問い15件。うち3問を書き手に聞く</p></div>
 </div>
-<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
-<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">返答の先頭は「このままでは差し戻されます」。決裁者の言葉で言えば、VPN の利用状況とコストの集計は、承認の前に確かめられる。柔軟性のなさを挙げた内勤の退職者は7名と分かり、ノートPCだけで約900万円かかるので、なぜ見合うのかの説明も要る。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">柔軟性のなさを挙げた内勤7名が、週1日の在宅で辞めずに済んだ人か</th><td>昨年の退職者アンケートの自由記述</td><td>1章の「理由と考えています」の文に人数を</td></tr><tr><th scope="row">退職者1名あたりの採用・育成コスト</th><td>人事部の集計。付議の前に間に合うか先に確かめる</td><td>3章の「X 円」を金額に。4章の約900万円が離職者の何名分かを書く</td></tr><tr><th scope="row">外勤の方などの、多い日の VPN 同時接続</th><td>情報システム部</td><td>2章の「なお」の文を件数に。まとめの「利用が大きくない限り」を外す</td></tr><tr><th scope="row">部署ごとの内勤の人数と、いちばん多い曜日の在宅勤務者</th><td>人事部の人員の記録</td><td>2章の「1日あたり36名」のあとに、多い曜日の人数と100件に対する余りを</td></tr><tr><th scope="row">在宅勤務手当の年間の総額</th><td>1日250円 × 人数 × 年間の利用日数</td><td>4章の手当の文のあとに総額を</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
 <div class="viewer" data-doc="kikaku" data-maps='{"after": [0, 1, 2, 3, 7, 5, 6]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 2,894字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,840字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,893字</span></p><div class="doc R" tabindex="0"></div></div>
 </div><template id="t-kikaku-before"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
 <p>人事部 人事企画担当
 経営会議 付議資料</p>
@@ -1241,14 +1283,14 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <hr />
 <h4>本日お諮りしたいこと</h4>
 <ol>
-<li>内勤の従業員180名を対象に、週1日の在宅勤務制度を作る方針を承認いただくこと（開始は <strong>2027年4月</strong> を目標とします）</li>
-<li>規程と費用の準備を始めること。就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手します</li>
+<li>内勤の従業員180名を対象に、週1日の在宅勤務制度を <strong>2027年4月から</strong> 始めること</li>
+<li>準備として、就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手すること</li>
 </ol>
-<p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。開始日も、その最終案で改めて決めていただきます。</p>
+<p>規程の条文や費用の確定額といった制度の詳細は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。費用は、ノートPCの購入に約570万円、在宅勤務手当を設ける場合に年間約216万円を見込んでいます。</p>
 <hr />
 <h4>1. 背景と目的</h4>
 <h5>現状</h5>
-<p>当社の離職率は業界平均より4ポイント高く、在宅勤務がないことは「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます。</p>
+<p>在宅勤務がないことは、退職者の一部にとって「辞める理由」になっており、「選ばれない理由」にもなっていると考えます。</p>
 <table>
 <thead>
 <tr>
@@ -1260,8 +1302,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tbody>
 <tr>
 <td>昨年の離職率</td>
-<td>12%（250名規模で31名。内勤19名、外勤など12名）</td>
-<td>業界平均 8%（当社の規模に当てはめると年間およそ20名）</td>
+<td>12%。250名規模で、退職者は31名</td>
+<td>業界平均 8%。当社の規模に当てはめると年間およそ20名</td>
 </tr>
 <tr>
 <td>在宅勤務制度</td>
@@ -1270,22 +1312,22 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>退職者アンケート</td>
-<td>回答者は22名。「働き方の柔軟性のなさ」が退職理由の上位で、挙げたのは9名（うち内勤7名）。自由記述で在宅勤務に触れたのは4名</td>
+<td>回答した22名のうち9名が「働き方の柔軟性のなさ」を挙げ、退職理由の2位。1位は給与の11名</td>
 <td>—</td>
 </tr>
 </tbody>
 </table>
-<p>業界平均との差は、人数にすると年間でおよそ10名です。</p>
+<p>業界平均との差は、人数にすると年間でおよそ10名です。昨年の退職者31名のうち、内勤は19名、外勤などは12名でした。柔軟性のなさを挙げた9名のうち内勤は7名です。</p>
+<p>9名のうち5名は、通院や送り迎えのための在宅のように、週1日の在宅勤務で応えられる中身を書いていて、そのうち内勤は4名です。残りの4名は時短や時差出勤を求めていて、在宅勤務では応えられません。</p>
 <h5>目的</h5>
-<p>在宅勤務は、退職理由のうち働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。在宅勤務だけで離職率が業界平均まで下がるとは考えていません。</p>
 <ul>
 <li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
-<li><strong>採用力の向上</strong>：求人で在宅勤務の制度を示せるようにし、応募や内定承諾で見劣りしないようにする</li>
+<li><strong>採用力の向上</strong>：求人で競合と同じく在宅勤務制度があると示せるようにし、応募や内定承諾で見劣りしないようにする</li>
 </ul>
+<p>在宅勤務だけで離職率が業界平均まで下がるとは考えていません。退職理由のうち、働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。</p>
 <hr />
 <h4>2. 制度の内容</h4>
 <h5>基本の設計</h5>
-<p>週1日まで、曜日は部署ごとの割り当てで始めます。</p>
 <table>
 <thead>
 <tr>
@@ -1296,7 +1338,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tbody>
 <tr>
 <td>対象者</td>
-<td>内勤の従業員180名（試用期間中の者は除く）</td>
+<td>内勤の従業員180名。試用期間中の者は除く</td>
 </tr>
 <tr>
 <td>日数</td>
@@ -1304,54 +1346,57 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>曜日</td>
-<td>部署ごとに割り当てる（後述の「曜日の割り当て」を参照）</td>
+<td>部署ごとに割り当てる</td>
+</tr>
+<tr>
+<td>勤務場所</td>
+<td>自宅に限る。カフェ等は情報管理の観点から認めない</td>
 </tr>
 </tbody>
 </table>
-<p>当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。日数を最初から増やさず、確実に回る形で始めることを優先します。</p>
+<p>競合は週1〜2日です。当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。最初から大きく始めず、確実に回る形で始めることを優先します。</p>
 <h5>曜日の割り当て</h5>
-<p>部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者が上限を大きく下回る</strong>ようにします。</p>
-<p>情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。</p>
-<p>外勤の方などがふだんからVPNを使っている場合は、その分も上限に含めて考える必要があります。現在の利用状況は情報システム部に確認中です。</p>
+<p>部署ごとに曜日を割り当てれば、VPNの同時接続は、いちばん多い曜日でも上限の100件に収まります。</p>
+<p>対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。そのため、内勤の8部署それぞれに在宅勤務の曜日を割り当てます。</p>
+<p>在宅勤務者がいちばん多い曜日は、2部署が重なる水曜の44名です。外勤など内勤以外のふだんの同時接続は最大で約40件なので、足すと84件で、上限に対して16件の余りがあります。</p>
 <h5>公平性への配慮</h5>
-<p>対象外となる70名（内勤以外の従業員）には、業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。不公平だという声が出る可能性があるためです。</p>
+<p>内勤以外の従業員70名は対象外になるので、不公平だという声が出る可能性があります。業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、時差出勤や休暇の取りやすさの改善のような、対象外の職種に向けた施策を別途検討します。</p>
 <hr />
-<h4>3. 期待効果と費用</h4>
-<h5>期待効果</h5>
-<p>見込む効果は離職の抑制と採用力の向上で、次の指標で測ります。</p>
+<h4>3. 期待効果</h4>
 <table>
 <thead>
 <tr>
 <th>効果</th>
-<th>見込み</th>
+<th>内容</th>
 <th>測り方</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>離職の抑制</td>
-<td>制度が退職者の求めていた柔軟性に応えられれば、柔軟性のなさを理由とした退職が減る</td>
+<td>柔軟性のなさを理由とした退職が減る</td>
 <td>離職率、退職者アンケートでの理由の順位と割合</td>
 </tr>
 <tr>
 <td>採用力の向上</td>
-<td>求人で在宅勤務の制度を示せるようになり、応募や内定承諾で見劣りしにくくなる</td>
+<td>求人で在宅勤務制度があると示せる</td>
 <td>応募数、内定承諾率、面接辞退の理由</td>
 </tr>
 <tr>
-<td>付随する効果</td>
+<td>定着と満足度</td>
 <td>通勤負担が減り、育児や介護との両立がしやすくなる</td>
 <td>従業員アンケート</td>
 </tr>
 </tbody>
 </table>
-<p>業界平均との差（年間およそ10名）のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
-<h5>費用</h5>
-<p>いま概算が出ている費用は、ノートPCの追加購入費の約900万円です。内勤180名のうち約60名がデスクトップPCで、1台の購入費が約15万円なので、60台すべてを買う場合の金額です。在宅勤務手当は、設ける場合は1日あたり250円を想定しています。手当の要否と年間の総額、通勤手当の扱いは、2月の最終案で示します。</p>
-<p>効果を金額で示すには、退職者1名あたりの採用・育成コストが必要です。これは現在、人事部で集計中で、2月までに出ます。離職者が年に1名減るごとに、このコスト1名分の削減になります。</p>
+<h5>費用との比較</h5>
+<p>ノートPCの購入と手当の1年分を合わせた費用は約786万円で、離職者およそ4.4名分です。</p>
+<p>退職者1名あたりの採用・育成コストは約180万円で、採用費と教育期間の人件費を合わせた内勤の平均です。離職者が年に1名減るごとに約180万円の削減になります。</p>
+<p>ノートPCを持っていないデスクトップPCの人は、内勤180名のうち約60名です。60台すべては買わず、まず希望者に限って配ります。在宅勤務を希望すると答えた112名のうちデスクトップの人は38名なので、1台約15万円で38台、約570万円です。離職者およそ3.2名分にあたります。</p>
+<p>在宅勤務手当は、設ける場合は1日あたり250円を想定しています。180名全員が48週使う計算で年間約216万円、離職者およそ1.2名分です。</p>
+<p>業界平均との差のおよそ10名のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
 <hr />
 <h4>4. 懸念と対策</h4>
-<p>VPNの上限と対象外の従業員の不公平感には、次のとおり手を打ちます。労働時間の管理、情報セキュリティ、業務の滞りやコミュニケーションの低下、評価への不安の対策は付録に載せています。</p>
 <table>
 <thead>
 <tr>
@@ -1361,18 +1406,23 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </thead>
 <tbody>
 <tr>
-<td><strong>VPNの同時接続数の上限（100）</strong></td>
-<td>部署ごとに曜日を割り当て、1日あたりの在宅勤務者が上限を大きく下回るように保つ。試行期間中に、実際の接続数の最大値を測る</td>
+<td><strong>VPNの同時接続数の上限100件</strong></td>
+<td>部署ごとに曜日を割り当て、上限を超えないように保つ。試行期間中に、実際の接続数の最大値を測る</td>
 </tr>
 <tr>
-<td><strong>対象外の従業員の不公平感</strong></td>
-<td>2章の「公平性への配慮」のとおり、説明と別施策の検討で対応する</td>
+<td><strong>就業規則の改定が必要</strong></td>
+<td>在宅勤務規程を新設し、就業規則に位置づける。従業員代表の意見を聴いたうえで、労働基準監督署に届け出る。社会保険労務士に条文を確認してもらう</td>
+</tr>
+<tr>
+<td><strong>費用</strong></td>
+<td>在宅勤務手当として通信費・光熱費を補助するかどうかと、通勤手当の扱いを決める。確定額は2月の最終案で示す</td>
 </tr>
 </tbody>
 </table>
+<p>そのほかの懸念と対策は付録Aに、制度の設計の残りの項目は付録Bに載せています。</p>
 <hr />
 <h4>5. 進め方</h4>
-<p>2027年4月の開始を目標とした予定です。</p>
+<p>2027年4月の開始に向けた予定です。</p>
 <table>
 <thead>
 <tr>
@@ -1383,7 +1433,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tbody>
 <tr>
 <td>2026年11月</td>
-<td>経営会議で方針と準備の着手を承認（本日）</td>
+<td>本日の経営会議で方針を承認</td>
 </tr>
 <tr>
 <td>2026年11月〜12月</td>
@@ -1391,11 +1441,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>2027年1月〜2月</td>
-<td>1〜2部署（30名程度）で試行。VPNの接続数、業務への影響、利用者の声を確認</td>
+<td>1〜2部署の30名程度で試行。VPNの接続数、業務への影響、利用者の声を確認</td>
 </tr>
 <tr>
 <td>2027年2月</td>
-<td>試行の結果を受けて最終案を経営会議に付議（規程・費用・運用ルール・開始日）</td>
+<td>試行の結果を受けて、規程・費用・運用ルールの最終案を経営会議に付議</td>
 </tr>
 <tr>
 <td>2027年2月〜3月</td>
@@ -1403,7 +1453,7 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>2027年4月</td>
-<td>内勤180名で開始（目標）</td>
+<td>内勤180名で開始</td>
 </tr>
 <tr>
 <td>2027年10月</td>
@@ -1411,19 +1461,49 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<p>就業規則の改定が必要です。在宅勤務規程を新設し、就業規則に位置づけます。社会保険労務士に条文を確認してもらい、従業員代表の意見を聴いたうえで、労働基準監督署に届け出ます。</p>
-<p>試行期間中の扱い（暫定的なルールが必要かどうか）は、社会保険労務士に確認したうえで決めます。</p>
+<p>試行期間中に暫定的なルールが必要かどうかは、社会保険労務士に確認したうえで決めます。</p>
 <hr />
 <h4>まとめ</h4>
 <ul>
-<li>当社の離職率は業界平均より4ポイント高く、退職者アンケートの回答者22名のうち9名が働き方の柔軟性のなさを理由に挙げています</li>
-<li>競合2社はすでに在宅勤務を導入しており、採用でも見劣りするおそれがあります</li>
-<li>週1日・曜日の割り当て制で始めれば、均等に分かれた場合の在宅勤務者は1日36名で、VPNの上限100件を下回ります。ふだんの利用分は確認中です</li>
-<li>本日は方針と準備の着手を承認いただき、試行の結果を踏まえて2月に、開始日を含む最終案をお諮りします</li>
+<li>当社の離職率は業界平均より4ポイント高く、退職理由では給与に次いで働き方の柔軟性のなさが挙がっています</li>
+<li>競合はすでに在宅勤務を導入しており、採用でも見劣りしていると考えます</li>
+<li>週1日・曜日の割り当て制で始めれば、VPNはいちばん多い曜日でも84件で、上限の100件に収まります</li>
+<li>費用はノートPCの約570万円と、手当を設ける場合の年間約216万円で、合わせて離職者およそ4.4名分です</li>
+<li>本日は方針の承認をいただき、試行の結果を踏まえて2月に最終案をお諮りします</li>
 </ul>
 <hr />
-<h4>付録</h4>
-<h5>制度の運用</h5>
+<h4>付録A 懸念と対策の残り</h4>
+<table>
+<thead>
+<tr>
+<th>懸念</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>労働時間の管理</strong></td>
+<td>勤怠システムでの打刻を必須とする。在宅勤務日の時間外労働は事前申請制にする</td>
+</tr>
+<tr>
+<td><strong>情報セキュリティ</strong></td>
+<td>会社貸与のPCのみ使用可とし、VPN経由で接続する。紙の書類の持ち出しは原則禁止とする。運用ルールは情報システム部と作る</td>
+</tr>
+<tr>
+<td><strong>業務の滞りやコミュニケーションの低下</strong></td>
+<td>在宅勤務日でも連絡がつく手段として、チャットとオンライン会議を決めておく。部署ごとに、在宅でできる業務とできない業務を整理する</td>
+</tr>
+<tr>
+<td><strong>評価への不安</strong></td>
+<td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
+</tr>
+<tr>
+<td><strong>対象外の従業員の不公平感</strong></td>
+<td>2章の「公平性への配慮」のとおり、説明と別施策の検討で対応する</td>
+</tr>
+</tbody>
+</table>
+<h4>付録B 基本の設計の残り</h4>
 <table>
 <thead>
 <tr>
@@ -1441,69 +1521,46 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>通常の勤務時間と同じ。始業・終業は勤怠システムで打刻する</td>
 </tr>
 <tr>
-<td>勤務場所</td>
-<td>自宅に限る（カフェ等は情報管理の観点から認めない）</td>
-</tr>
-<tr>
 <td>業務上の必要</td>
 <td>会議や来客などで出社が必要な日は、上長が日を変更できる</td>
 </tr>
 </tbody>
 </table>
-<h5>懸念ごとの対策</h5>
-<table>
-<thead>
-<tr>
-<th>懸念</th>
-<th>対策</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>労働時間の管理</td>
-<td>勤怠システムでの打刻を必須とする。在宅勤務日の時間外労働は事前申請制にする</td>
-</tr>
-<tr>
-<td>情報セキュリティ</td>
-<td>会社貸与のPCのみ使用可とし、VPN経由で接続する。紙の書類の持ち出しは原則禁止とする。運用ルールは情報システム部と作る</td>
-</tr>
-<tr>
-<td>業務の滞りやコミュニケーションの低下</td>
-<td>在宅勤務日でも連絡がつく手段（チャット、オンライン会議）を決めておく。部署ごとに、在宅でできる業務とできない業務を整理する</td>
-</tr>
-<tr>
-<td>評価への不安</td>
-<td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
-</tr>
-</tbody>
-</table></article></template>
+<h4>付録C 費用の計算の前提</h4>
+<p>在宅勤務手当の年間約216万円は、1日250円、180名、週1日、48週を掛けた値です。48週は、人事部の勤怠の記録で年間の所定労働週数として使っている値です。</p></article></template>
 <h3>主な変更 5 件</h3>
 <p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
-<ol class="changes"><li><button type="button" class="chg" data-doc="kikaku" data-b="準備として、就業規則の改定" data-a="作る方針を承認いただくこと"><span class="num">1</span><b>決めることを明記</b><span>本日は方針の承認と準備の着手</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="2月の経営会議で最終案としてお諮りします。" data-a="開始日も、その最終案で改めて決めていただきます"><span class="num">2</span><b>開始日の扱い</b><span>開始日は2月の最終案で決める</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="退職理由の上位" data-a="挙げたのは9名（うち内勤7名）"><span class="num">3</span><b>書き手の答えを反映</b><span>退職理由の上位、が人数になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="250名規模で年間およそ30名" data-a="250名規模で31名。内勤19名、外勤など12名"><span class="num">4</span><b>数字の内訳</b><span>およそ30名が、内訳つきの31名になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="「辞める理由」と「選ばれない理由」の両方になっていると考えます" data-a="「辞める理由」の一部で、「選ばれない理由」にもなりうると考えます"><span class="num">5</span><b>言い切りを根拠に合わせる</b><span>採用の側は材料がないので「なりうる」に</span></button></li></ol>
+<ol class="changes"><li><button type="button" class="chg" data-doc="kikaku" data-b="現在の利用状況は情報システム部に確認中です" data-a="外勤など内勤以外のふだんの同時接続は最大で約40件なので、足すと84件で、上限に対して16件の余りがあります"><span class="num">1</span><b>宿題の答えを入れる</b><span>VPN の確認中が、曜日ごとの最大人数と余りの数字になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="これは現在、人事部で集計中です" data-a="ノートPCの購入と手当の1年分を合わせた費用は約786万円で、離職者およそ4.4名分です"><span class="num">2</span><b>宿題の答えを入れる</b><span>集計中だったコストが金額になり、費用と比べられた</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="仮にこのコストを1名あたり X 円とすると" data-a="退職者1名あたりの採用・育成コストは約180万円で"><span class="num">3</span><b>仮の X を実額に</b><span>X 円が約180万円に</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="「働き方の柔軟性のなさ」が退職理由の上位" data-a="そのうち内勤は4名です"><span class="num">4</span><b>宿題の答えを入れる</b><span>退職理由の上位、が人数になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="5日に均等に分かれれば1日あたり36名です" data-a="在宅勤務者がいちばん多い曜日は、2部署が重なる水曜の44名です"><span class="num">5</span><b>宿題の答えを入れる</b><span>均等に分かれれば、が実際の割り当てになった</span></button></li></ol>
 <h3>どうやったか</h3>
 <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
-<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を29件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を12件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
-<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,894字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:98.1%"></span></span><span class="bv">2,840字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:53.5%"></span></span><span class="bv">1,547字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:78.0%"></span></span><span class="bv">2,256字</span></div></div>
-<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">本日決めるのは何か</th><td>2027年4月から始めること</td><td>制度を作る方針の承認と準備の着手。開始日は2月の最終案で決める</td></tr><tr><th scope="row">辞めた人のうち、何名が対象か</th><td>「退職理由の上位」</td><td>回答者22名のうち9名、内勤7名</td></tr><tr><th scope="row">離職率の差は何名か</th><td>年間およそ30名</td><td>31名。内勤19名、外勤など12名</td></tr><tr><th scope="row">在宅勤務で何が変わるとしているか</th><td>辞める理由と、応募者に選ばれない理由の両方が変わる、と言い切り</td><td>辞める理由の一部。在宅勤務だけで業界平均まで下がるとは考えていない</td></tr><tr><th scope="row">VPN は足りるか</th><td>上限100件、外勤の利用は確認中</td><td>確認中のまま。確認事項に残る</td></tr></tbody></table></div>
-<h4>書き手に聞いた3問と答え</h4>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を25件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を15件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,894字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,893字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:59.6%"></span></span><span class="bv">1,726字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:71.3%"></span></span><span class="bv">2,063字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">VPN は足りるか</th><td>上限100件、外勤の利用は確認中</td><td>外勤などの最大約40件と、いちばん多い曜日の44名で84件。16件の余り</td></tr><tr><th scope="row">効果を金額で言えるか</th><td>退職者1名あたりのコストは集計中、X 円</td><td>1名あたり約180万円。費用の約786万円は離職者およそ4.4名分</td></tr><tr><th scope="row">辞めた人のうち何名に効くか</th><td>「退職理由の上位」</td><td>週1日の在宅で応えられる中身を書いた内勤は4名</td></tr><tr><th scope="row">費用はいくらか</th><td>事前に確認が必要、と列挙</td><td>ノートPC 38台で約570万円、手当は年間約216万円</td></tr><tr><th scope="row">本日決めるのは何か</th><td>2027年4月から始めること</td><td>方針の承認と準備の着手。開始日は2月の最終案で決める</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
 <p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
-<ol class="list prose-max"><li>昨年の退職者およそ30名のうち、「働き方の柔軟性のなさ」を理由に挙げた人は何名で、そのうち今回の対象になる内勤は何名ですか。また、その人たちが求めていた柔軟性は、週1日で曜日は部署の割り当てという今回の制度で応えられる中身でしたか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>退職者は31名(内勤19名、外勤など12名)で、退職者アンケートの回答者は22名です。「働き方の柔軟性のなさ」を挙げたのは9名で、そのうち内勤は7名です。自由記述で在宅勤務に触れたのは4名です。その人たちが求めていた柔軟性が今回の制度で応えられる中身だったかどうかは、分かりません。</p></div></details></li><li>費用と効果について、いま分かる概算を教えてください。ノートPCの追加購入費、在宅勤務手当の年間総額、退職者1名あたりの採用・育成コストは、それぞれおよそいくらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>ノートPCの追加購入費は、内勤180名のうち約60名がデスクトップPCで、1台の購入費が約15万円なので、60台すべてを買うなら約900万円です。在宅勤務手当は1日あたり250円を想定していますが、年間総額は分かりません。退職者1名あたりの採用・育成コストも分かりません。人事部で集計中で、2月までには出ます。</p></div></details></li><li>本日の経営会議で決めてもらうのは「2027年4月の開始」そのものだと読みましたが、合っていますか。それとも「方針と準備の着手」までを決めてもらい、開始するかどうかは2月の最終案で決めますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>決めてもらうのは、在宅勤務制度を作る方針の承認と、規程と費用の準備を始めてよいかどうかです。4月開始は目標で、2月の最終案で開始日を改めて決めてもらう形でもかまいません。</p></div></details></li></ol>
-<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 33 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 本日は準備の着手（就業規則の改定、接続環境の調整、一部部署での試行）だけを頼み、制度を作る方針は、費用の総額と採用・育成コストが出たあと、2月の最終案で諮る。柔軟性を挙げた内勤は7名、自由記述で在宅勤務に触れたのは4名で、差のおよそ10名に届かず、費用はノートPCだけで約900万円あるため。本文は、書き手の答えのとおり「方針の承認と準備の着手」を頼む形のままにしています。選ぶのは書き手です。</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>週1日、曜日は部署の割り当て、上長の承認つき、上長が日を変更できる、という制度は、辞めた人が求めていた柔軟性に応えられますか。日を自分で選べることだったのか、働く場所だったのか、時間だったのか、答えは「分からない」でした。本文は「応えられれば」と仮定の形にしています。「柔軟性のなさ」は辞めるときに言いやすい理由で、本当の理由は別にある、という読みにも答えられますか。辞めなかった人との比較はありますか。</li><li>費用は効果に見合いますか。手当の年間総額と採用・育成コストは「分からない」でした。年間総額は1日250円に年間の利用日数を掛ければ出るので、利用日数の見込みを決めれば本日の資料にも概算を載せられます。約900万円は何名分の離職で回収できますか。どの金額を超えたら2月に引き返しますか。</li><li>業界平均との差は、対象の内勤の中で生じていますか。退職者の内訳から計算すると、内勤は180名中19名で約11%、内勤以外は70名中12名で約17%で、対象外の側のほうが高くなります（この率は本文に書いていません）。差のおよそ10名のうちどれだけがこの施策の範囲で、残りには誰が何で手を打ちますか。経営会議が決めたいのは「在宅勤務を入れるか」ですか、「離職率をどう下げるか」ですか。</li></ol><h4>そのほか 30 件</h4><ul class="list"><li>答えの「規程と費用の準備」に試行は出てきませんでしたが、元の文書が決裁事項に入れていたので、本文では準備に含めたままです。試行を本日の決裁から外す意図はありますか。</li><li>本日の承認で動く費用（社会保険労務士への相談、試行の準備など）はいくらですか。試行の部署にデスクトップPCの人がいたら、PCはどうしますか。</li><li>試行で何が起きたら開始を延ばしますか。2月の経営会議で最終案が通らなかったらどうなりますか。試行の結果を見て止める余地は日程の中にありますか。</li><li>2027年10月の判断に「やめる」は入りますか。規程を新設して始めたあと、元に戻すには誰の同意が要りますか。</li><li>どの指標がどこまで動けばよいかの目標値はありますか。10月の「見直しを判断」と「運用が安定したら」は、それぞれ何を基準に決めますか。離職率は年間の数字ですが、半年の時点の値を何と比べますか。</li><li>試行と効果は誰が評価しますか。起案者の人事部が評価すると、判断する人と制度を通したい人が同じになります。従業員アンケートと利用者の声は、制度の利益を受ける人の自己申告です。離職率は在宅勤務以外の理由でも動きますが、制度の効果と分けて読めますか。</li><li>2月の経営会議には、試行のどこまでの結果を載せますか（試行は1月〜2月、付議も2月です）。</li><li>自由記述で在宅勤務に触れた4名のうち、内勤は何名ですか。アンケートに答えなかった9名の退職理由は分かりますか。「上位」は何位ですか。</li><li>差の「およそ10名」は元の文書のままです。12%と8%の差から出した値で、退職者31名から20名を引くと11名になります。どちらで示しますか。</li><li>業界平均の8%と競合2社の制度は、何を出典にした、いつの数字ですか。業界平均は、内勤と内勤以外の割合が当社に近い会社の数字ですか。</li><li>競合は全部で何社で、2社はそれぞれ週何日ですか。週2日の競合に対して「同じ条件」とは言えないので、本文は「求人で在宅勤務の制度を示せる」としました。</li><li>応募数、内定承諾率、面接辞退の理由の現状はどうなっていますか。数字がないので、本文は「見劣りするおそれ」としています。</li><li>通勤負担が減り、育児や介護と両立しやすくなる、の根拠は何ですか。週1回の決まった曜日で足りますか。</li><li>何もしない案、対象や開始時期を変える案とは比べましたか。時差出勤や休暇の取りやすさは、内勤の「柔軟性のなさ」に対する手としても比べましたか。</li><li>本人の希望に任せる形を退けた理由はVPNだけです。柔軟性という目的の軸でも比べましたか。「確実に回る形」は、週2日では何が回らないという判断ですか。</li><li>ふだんのVPN利用は何件ですか。均等に分かれた36名でも、ふだんの利用が64件を超えると上限を超えます。内勤以外の70名が同時に使えば106件です。週2日にすると均等でも1日72名で、ふだんの利用に残る余裕は28件です。</li><li>在宅勤務者1名につき接続は1件という前提でよいですか。上限を超えたときの扱いはどうしますか。部署の人数で割り当てたとき、曜日ごとの人数は何名になりますか。</li><li>曜日の割り当てはVPNのために要りますか。180名全員が月曜と金曜に分かれても1日90名で、100を下回ります。どの程度の偏りを想定していますか。ふだんの利用がいくつなら割り当てが要りますか。</li><li>「上限を大きく下回る」は何件までのことですか。</li><li>試行の30名は全員が同じ日でも30件です。測った最大値から、180名のときの余裕をどう読み取りますか。</li><li>180名は試用期間中の者を含む数ですか。含むなら対象は180名より少なく、対象外は70名より多くなります。含まないなら、250名の中で試用期間中の者はどう数えますか。</li><li>デスクトップPCの約60名の分は、60台すべてを買いますか。開始の時点でPCがない人や、在宅でできる業務がない人はどう扱いますか。内勤の中に在宅が難しい人がいた場合も、「業務の性質」の説明で通りますか。</li><li>曜日を割り当てるのに、前週までに何を申請しますか。日を変更した人は別の部署の曜日に入りますが、その分は「上限を大きく下回る」の中に入っていますか。</li><li>部署ごとの割り当ては、部署の全員が同じ日に在宅という意味ですか。来客や会議のある日に誰が残りますか。</li><li>承認、日の変更、時間外の事前申請、業務の整理は管理職の仕事と読めますが、管理職向けの説明は開始直前の2月〜3月です。部署長は、自分の仕事だと分かりますか。</li><li>試行期間中の扱いの確認しだいで、試行の時期は動きますか。試行は1月からですが、意見聴取と届出は2月〜3月です。</li><li>最終案の規程を諮る時点で、従業員代表の意見は聴き終わっていますか。意見を受けて規程が変わったら、経営会議にもう一度かけますか。</li><li>対象外の職種に向けた施策の「提案」は、誰がいつ決めますか。本日の決裁事項には入っていません。</li><li>対象外の70名の離職が増えたら、全社の離職率はどう読みますか。70名は文書を読んで、自分の扱いが分かりますか。</li><li>「定着と満足度」は目的に入りません。本文では「付随する効果」と呼びましたが、3つ目の目的として立てますか。</li></ul></div></details>
+<ol class="list prose-max"><li>昨年の退職者およそ30名のうち、退職者アンケートで「働き方の柔軟性のなさ」を理由に挙げた人は何名で、そのうち在宅勤務の対象になる内勤の人は何名ですか(アンケートに回答した人数も教えてください)。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>昨年の退職者は31名(内勤19名、外勤など12名)です。退職者アンケートの回答者は22名で、「働き方の柔軟性のなさ」を挙げたのは9名、そのうち内勤は7名です。</p></div></details></li><li>退職者1名あたりの採用・育成コストと、導入にかかる費用(ノートPCを持っていない人数と追加購入の費用、在宅勤務手当を設ける場合の想定額)は、それぞれいくらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>退職者1名あたりの採用・育成コストは分かりません。人事部で集計中で、2月までには出ます。ノートPCを持っていないのは、内勤180名のうちデスクトップPCの約60名です(情報システム部の台帳で確認しました)。1台の購入費は約15万円なので、全員分を買うと約900万円です。在宅勤務手当は1日あたり250円を想定しています。手当の年間などの総額は分かりません。</p></div></details></li><li>外勤の方などのいまのVPNの同時接続は、多い日でどのくらいですか。部署ごとの内勤の人数で曜日を割り当てると、在宅勤務者がいちばん多い曜日は何名になりますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>VPNの同時接続は分かりません。情報システム部に聞いていますが、まだ答えをもらっていません。部署ごとの内勤の人数も分からないので、在宅勤務者がいちばん多い曜日の人数も分かりません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>柔軟性のなさを挙げた内勤7名の中身を読む。昨年の退職者アンケートで内勤の7名が書いた内容を見て、週1日の在宅勤務があれば辞めなかったと読める人が何名かを数える。答えが出たら、1章の現状の「理由と考えています」の文に、その人数を書く。少なければ、同じ節の最初の文の「辞める理由」を書き直す。。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>内勤7名のうち、週1日の在宅勤務で応えられる中身(通院や送り迎えのための在宅)を書いていたのは4名です。9名全体では5名です。9名のうち残り4名は時短や時差出勤を求めていて、在宅勤務では応えられません。私の手元にあるのは「応えられる中身を書いていた」という読み取りまでで、「在宅勤務があれば辞めなかった」と本人が書いていたかどうかは分かりません。なお、退職理由の順位では、「働き方の柔軟性のなさ」は22名中9名で2位、1位は給与で11名です。</p></div></details></li><li>退職者1名あたりの採用・育成コストを出す。人事部の集計を見る。書き手の答えでは2月までに出る見込みなので、付議の前に間に合うかを先に確かめる。答えが出たら、3章の「X円」を金額に置き換え、4章の約900万円が離職者の何名分に当たるかを書く。。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>人事部の集計は終わっていて、約180万円が最終値です。採用費と教育期間の人件費を合わせた内勤の平均です。約900万円を約180万円で割ると、離職者5名分です。ただし、ノートPCはまず希望者に限って配るので、購入費は38台で約570万円になります。</p></div></details></li><li>外勤の方などのいまのVPN同時接続を聞き出す。情報システム部に、多い日の同時接続の件数を聞く。答えが出たら、2章の曜日の割り当ての「なお」の文を件数の文に書き換え、まとめの「利用が大きくない限り」の条件を外す。。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>情報システム部に確認しました。外勤など内勤以外のふだんの同時接続は、最大で約40件です。内勤180名が週1日なら1日36名で、合計76件となり、上限100件に収まります。</p></div></details></li><li>部署ごとの内勤の人数を出す。人事部の人員の記録を見て、部署ごとに曜日を割り当てる。答えが出たら、2章の「均等に分かれれば1日あたり36名」のあとに、在宅勤務者がいちばん多い曜日の人数を書き、3の件数と足して100件に対する余りを書く。。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>人事部の人員の記録で、内勤180名は8部署です。部署ごとに曜日を割り当てると、在宅勤務者がいちばん多い曜日は44名で、2部署が重なる水曜です。外勤などの約40件を足すと84件で、上限100件に対して16件の余りです。部署ごとの人数の内訳と、各部署をどの曜日に割り当てたかは分かりません。</p></div></details></li><li>在宅勤務手当の年間の総額を計算する。1日あたり250円に、対象の人数と年間の利用日数を掛ける。答えが出たら、4章の手当の文のあとに総額を書く。。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>約216万円です。計算は1日250円×180名×週1日×48週です。48週は、人事部の勤怠の記録で年間の所定労働週数として使っている値です。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 30 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> </p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>「在宅勤務があれば辞めなかった」と本人が書いていたかは分からない、との答えでした。本文は「応えられる中身を書いていた」までにとどめ、辞めなかったとは書いていません。一方で、費用の約786万円は離職者およそ4.4名分で、応えられる中身を書いていた内勤は4名です。4名全員が辞めなかったとしても約720万円で、ノートPCと手当の1年分には届きません。経営会議で「費用に見合うのか」と聞かれたら、どう答えるのか。</li><li>本日の承認で4月の開始まで決まるのか。付議事項は「2027年4月から始めること」、まとめと進め方の表は「方針の承認」と書いていて、本文はどちらも元の文のままです。2月の最終案で止める、または延ばす余地はあるのか。2月に修正や持ち越しになったとき、2〜3月の意見聴取と届出、説明会は4月に間に合うのか。</li><li>試行でどんな結果が出たら、4月の開始を止める、または遅らせるのか。VPN、業務への影響、利用者の声のそれぞれの線はどこか。離職率と採用の指標は、いくつになれば成功で、いくつなら見直すのか。半年の時点で年間の離職率の変化は読めるのか。2027年10月の見直しは日数の話で、縮小や取りやめも含むのか。</li></ol><h4>そのほか 27 件</h4><ul class="list"><li>昨年の退職者の内訳を人数で割ると、内勤は19名÷180名でおよそ11%、外勤などは12名÷70名でおよそ17%です。業界平均との差の多くは、施策の対象でない人たちの分ではないか。差のうち内勤の分は何名か。本文には人数だけを書き、割合は書いていません。</li><li>差のおよそ10名は12%と8%の差から出した数で、退職者31名から20名を引くと11名になる。本文はおよそ10名のままにしたが、これでよいか。</li><li>柔軟性のなさを挙げた外勤などの2名と、アンケートに回答しなかった9名は、どう読むのか。</li><li>1位の給与の11名と、時短や時差出勤を求めていた4名には、どう対応するのか。決裁者が決めたいのは「在宅勤務を入れるか」か、「離職率の4ポイントの差をどう縮めるか」か。後者の中で在宅勤務はどれだけを担うのか。</li><li>離職率は全社の数字で測るのか、内勤の数字で測るのか。対象外の70名の不公平感が離職として出たとき、全社の離職率はどう読むのか。</li><li>定着と満足度は目的に入っていないが、効果の表にはある。目的に入れるのか。「両立がしやすくなる」は何から来ているのか。</li><li>競合に在宅勤務があることは、当社の応募や内定承諾を実際に下げているのか。「見劣りしている」は何の測定から来ているのか。本文は「考えます」に改めた。</li><li>曜日が部署で決まり、前週に申請し、上長が日を変えられる制度は、競合の週1〜2日と求人の上で同じと言えるのか。週2日の競合がある場合はどうか。本文は「在宅勤務制度があると示せる」に改めた。</li><li>業界平均8%と競合2社の制度は、何を出どころにした数字か。業界平均は、当社と同じ規模と職種構成との比較と言えるのか。競合2社の週1〜2日は、1社ずつの日数か、2社とも週1〜2日か。</li><li>試用期間中の者を除くことは、採用の条件として見たときにどう説明するのか。</li><li>手当の約216万円は180名全員が48週使う計算で、ノートPCの38台は希望者112名を前提にしている。費用の見積もりはどちらの人数に揃えるのか。本文は答えのとおり、それぞれの計算のままにした。</li><li>在宅勤務を希望すると答えた112名は、いつ、誰に聞いた数か。希望しなかった68名は対象のままで、デスクトップの22名が後から希望したらノートPCはどうするのか。</li><li>手当を設けるのか。通勤手当の扱いはどうするのか。</li><li>試行の部署で使うノートPCと手当の費用は、2月の最終案の前に発生するのか。本日の承認に含むのか。2月の承認から購入して、38台は4月に間に合うのか。</li><li>ノートPCの購入は1回限りの費用として見てよいか。</li><li>退職理由の内訳や費用は今回そろったが、11月に諮らなければならない理由は何か。</li><li>何もしない案、範囲を変える案、試行の結果を見てから開始を諮る案とは比べたか。時差出勤や休暇の取りやすさの改善は、内勤の柔軟性の問題にも当たるのか。</li><li>水曜の44名の内訳になる部署ごとの人数と、各部署をどの曜日に割り当てたかは分からない、との答えでした。経営会議で聞かれたら説明できるのか。</li><li>上長が日を変えたとき、変更先が割り当て外の曜日になっても上限に収まるのか。余りの16件で足りるのか。曜日を部署ごとに割り当てるのに、前週までに何を申請するのか。</li><li>30名程度の試行で測る接続数の最大値から、180名に広げたときの最大値が言えるのか。</li><li>曜日の割り当て、部署ごとの業務の整理、申請の承認、日の変更は、誰がやるのか。上長が日を変えられるとき、利用が少ない部署が出ても効果として測れるのか。</li><li>「運用が安定したら」「確実に回る形」は、何をもって判断するのか。</li><li>180名は、試用期間中の者を除いたあとの数か、前の数か。前の数なら、除かれる人は対象外の70名とは別に何名いるのか。</li><li>対象外の職種に向けた施策の検討は、本日の付議事項に入れるのか。本文は「提案します」を、懸念と対策の表の「別施策の検討で対応する」に合わせて「別途検討します」にした。誰がいつまでに検討するのか。</li><li>試行が規程も暫定ルールも未定のまま始まる順番でよいか。試行は2月まで続くが、2月の経営会議に出す試行の結果はどの時点までのものか。</li><li>2027年10月の報告で、人事部が自部門の施策を自部門の数字で評価することを、経営会議はどう受け取るのか。</li><li>「就業規則の改定」「在宅勤務規程を新設」「規程の原案」は同じものを指すか。「外勤の方など」「外勤など」「内勤以外の従業員」は同じ人たちか。</li></ul></div></details>
 <h4>構成がどう変わったか</h4>
 <p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
-<div class="map-wrap"><svg viewBox="0 0 1000 504.75" class="fig map" role="img" aria-label="元の7節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 2,894字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,256字 + 付録 578字</text><path d="M340,57 C500.0,57 500.0,57 660,57" class="mv" data-src="0" data-dst="0"/><path d="M340,110 C500.0,110 500.0,124 660,124" class="mv" data-src="1" data-dst="1"/><path d="M340,191 C500.0,191 500.0,208 660,208" class="mv" data-src="2" data-dst="2"/><path d="M340,191 C500.0,191 500.0,411 660,411" class="mv dashed" data-src="2" data-dst="5"/><path d="M340,191 C500.0,191 500.0,280 660,280" class="mv" data-src="2" data-dst="3"/><path d="M340,266 C500.0,266 500.0,124 660,124" class="mv" data-src="3" data-dst="1"/><path d="M340,266 C500.0,266 500.0,411 660,411" class="mv dashed" data-src="3" data-dst="5"/><path d="M340,338 C500.0,338 500.0,411 660,411" class="mv dashed" data-src="4" data-dst="5"/><path d="M340,415 C500.0,415 500.0,342 660,342" class="mv" data-src="5" data-dst="4"/><path d="M340,415 C500.0,415 500.0,280 660,280" class="mv" data-src="5" data-dst="3"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">本日お諮りしたいこと</text><text x="328" y="63" class="mn" text-anchor="end">163字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="53" rx="6" class="mr"/><text x="22" y="116" class="ml">背景と目的</text><text x="328" y="116" class="mn" text-anchor="end">424字</text></g><g class="src" data-i="2"><rect x="10" y="147.0" width="330" height="89" rx="6" class="mr"/><text x="22" y="197" class="ml">制度の内容</text><text x="328" y="197" class="mn" text-anchor="end">711字</text></g><g class="src" data-i="3"><rect x="10" y="245.875" width="330" height="40" rx="6" class="mr"/><text x="22" y="272" class="ml">期待効果</text><text x="328" y="272" class="mn" text-anchor="end">324字</text></g><g class="src" data-i="4"><rect x="10" y="296.375" width="330" height="84" rx="6" class="mr"/><text x="22" y="344" class="ml">懸念と対策</text><text x="328" y="344" class="mn" text-anchor="end">670字</text></g><g class="src" data-i="5"><rect x="10" y="390.125" width="330" height="51" rx="6" class="mr"/><text x="22" y="421" class="ml">進め方</text><text x="328" y="421" class="mn" text-anchor="end">405字</text></g><g class="src" data-i="6"><rect x="10" y="450.75" width="330" height="34" rx="6" class="mr"/><text x="22" y="474" class="ml">まとめ</text><text x="328" y="474" class="mn" text-anchor="end">160字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="34" rx="6" class="mr"/><text x="672" y="63" class="ml">本日お諮りしたいこと</text><text x="978" y="63" class="mn" text-anchor="end">213字</text></g><g class="dst body" data-i="1"><rect x="660" y="84" width="330" height="81" rx="6" class="mr"/><text x="672" y="130" class="ml">方針の理由</text><text x="978" y="130" class="mn" text-anchor="end">648字</text></g><g class="dst body" data-i="2"><rect x="660" y="175.0" width="330" height="66" rx="6" class="mr"/><text x="672" y="214" class="ml">制度の案</text><text x="978" y="214" class="mn" text-anchor="end">528字</text></g><g class="dst body" data-i="3"><rect x="660" y="251.0" width="330" height="58" rx="6" class="mr"/><text x="672" y="286" class="ml">未確定の材料</text><text x="978" y="286" class="mn" text-anchor="end">461字</text></g><g class="dst body" data-i="4"><rect x="660" y="318.625" width="330" height="46" rx="6" class="mr"/><text x="672" y="348" class="ml">進め方</text><text x="978" y="348" class="mn" text-anchor="end">369字</text></g><g class="dst app" data-i="5"><rect x="660" y="374.75" width="330" height="72" rx="6" class="mr"/><text x="672" y="417" class="ml">付録</text><text x="978" y="417" class="mn" text-anchor="end">578字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-3" role="tabpanel" aria-labelledby="doc-tab-3" tabindex="0" hidden><p class="p prose-max">コンサルティング会社が食品卸の北都フーズに、営業支援システムの導入支援を提案する資料。3か月の診断と6か月の導入支援で、2,700万円。読むのは先方の営業本部長と経営会議。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 623.875" class="fig map" role="img" aria-label="元の7節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 2,894字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,063字 + 付録 1,261字</text><path d="M340,57 C500.0,57 500.0,57 660,57" class="mv" data-src="0" data-dst="0"/><path d="M340,110 C500.0,110 500.0,116 660,116" class="mv" data-src="1" data-dst="1"/><path d="M340,110 C500.0,110 500.0,409 660,409" class="mv dashed" data-src="1" data-dst="7"/><path d="M340,191 C500.0,191 500.0,462 660,462" class="mv dashed" data-src="2" data-dst="8"/><path d="M340,191 C500.0,191 500.0,57 660,57" class="mv" data-src="2" data-dst="0"/><path d="M340,266 C500.0,266 500.0,409 660,409" class="mv dashed" data-src="3" data-dst="7"/><path d="M340,266 C500.0,266 500.0,116 660,116" class="mv" data-src="3" data-dst="1"/><path d="M340,338 C500.0,338 500.0,529 660,529" class="mv dashed" data-src="4" data-dst="9"/><path d="M340,415 C500.0,415 500.0,319 660,319" class="mv" data-src="5" data-dst="5"/><path d="M340,468 C500.0,468 500.0,365 660,365" class="mv" data-src="6" data-dst="6"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">本日お諮りしたいこと</text><text x="328" y="63" class="mn" text-anchor="end">163字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="53" rx="6" class="mr"/><text x="22" y="116" class="ml">背景と目的</text><text x="328" y="116" class="mn" text-anchor="end">424字</text></g><g class="src" data-i="2"><rect x="10" y="147.0" width="330" height="89" rx="6" class="mr"/><text x="22" y="197" class="ml">制度の内容</text><text x="328" y="197" class="mn" text-anchor="end">711字</text></g><g class="src" data-i="3"><rect x="10" y="245.875" width="330" height="40" rx="6" class="mr"/><text x="22" y="272" class="ml">期待効果</text><text x="328" y="272" class="mn" text-anchor="end">324字</text></g><g class="src" data-i="4"><rect x="10" y="296.375" width="330" height="84" rx="6" class="mr"/><text x="22" y="344" class="ml">懸念と対策</text><text x="328" y="344" class="mn" text-anchor="end">670字</text></g><g class="src" data-i="5"><rect x="10" y="390.125" width="330" height="51" rx="6" class="mr"/><text x="22" y="421" class="ml">進め方</text><text x="328" y="421" class="mn" text-anchor="end">405字</text></g><g class="src" data-i="6"><rect x="10" y="450.75" width="330" height="34" rx="6" class="mr"/><text x="22" y="474" class="ml">まとめ</text><text x="328" y="474" class="mn" text-anchor="end">160字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="34" rx="6" class="mr"/><text x="672" y="63" class="ml">本日お諮りしたいこと</text><text x="978" y="63" class="mn" text-anchor="end">276字</text></g><g class="dst body" data-i="1"><rect x="660" y="84.5" width="330" height="64" rx="6" class="mr"/><text x="672" y="122" class="ml">課題の大きさ</text><text x="978" y="122" class="mn" text-anchor="end">508字</text></g><g class="dst body" data-i="2"><rect x="660" y="158.0" width="330" height="44" rx="6" class="mr"/><text x="672" y="186" class="ml">費用</text><text x="978" y="186" class="mn" text-anchor="end">351字</text></g><g class="dst body" data-i="3"><rect x="660" y="211.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="235" class="ml">VPNの上限</text><text x="978" y="235" class="mn" text-anchor="end">144字</text></g><g class="dst body" data-i="4"><rect x="660" y="255.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="279" class="ml">2月にお諮りすること</text><text x="978" y="279" class="mn" text-anchor="end">207字</text></g><g class="dst body" data-i="5"><rect x="660" y="299.875" width="330" height="38" rx="6" class="mr"/><text x="672" y="325" class="ml">進め方</text><text x="978" y="325" class="mn" text-anchor="end">302字</text></g><g class="dst body" data-i="6"><rect x="660" y="347.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="371" class="ml">まとめ</text><text x="978" y="371" class="mn" text-anchor="end">238字</text></g><g class="dst app" data-i="7"><rect x="660" y="391.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="415" class="ml">付録A 目的と効果</text><text x="978" y="415" class="mn" text-anchor="end">254字</text></g><g class="dst app" data-i="8"><rect x="660" y="435.625" width="330" height="53" rx="6" class="mr"/><text x="672" y="468" class="ml">付録B 制度の内容の残り</text><text x="978" y="468" class="mn" text-anchor="end">423字</text></g><g class="dst app" data-i="9"><rect x="660" y="498.5" width="330" height="61" rx="6" class="mr"/><text x="672" y="535" class="ml">付録C 懸念と対策</text><text x="978" y="535" class="mn" text-anchor="end">491字</text></g><g class="dst app" data-i="10"><rect x="660" y="569.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="593" class="ml">付録D 費用の計算の前提</text><text x="978" y="593" class="mn" text-anchor="end">93字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-3" role="tabpanel" aria-labelledby="doc-tab-3" tabindex="0" hidden><p class="p prose-max">コンサルティング会社が食品卸の北都フーズに、営業支援システムの導入支援を提案する資料。3か月の診断と6か月の導入支援で、2,700万円。読むのは先方の営業本部長と経営会議。</p>
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
-  <div class="tile"><p class="l">本編の長さ</p><div class="v">50%<small>短縮</small></div><p class="d">4,701字 → 直して 4,695字 → 端的に 2,352字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">1<small>件</small></div><p class="d">9か月・2,700万円のご契約。3か月目で止められることを要点に書き足した</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">39<small>件</small></div><p class="d">論理の指摘27件、前提への問い12件。うち3問を書き手に聞く</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">30<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">差し戻し</div><p class="d">宿題の答えで前提が崩れ、2回目も差し戻し。縮小案を添える</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">66%<small>短縮</small></div><p class="d">4,701字 → 直して 4,267字 → 端的に 1,614字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">31<small>件</small></div><p class="d">論理の指摘23件、前提への問い8件。うち3問を書き手に聞く</p></div>
 </div>
-<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
-<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
-<div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 2, 3, 4, 8, 6, 7]}'>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">返答の先頭は「このままでは差し戻されます」。決裁者の言葉で言えば、失注の件数も理由も、本部長に聞けば台帳と話から出せる。確かめないまま2,700万円を頼まれている。3か月目に止めたときの費用も基準も書かれていない。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">失った2社の理由と時期、台帳にある失注の件数と金額</th><td>営業本部長。経営会議の前に数字を出してもらえるかも聞く</td><td>1章の「2社を失った」を件数と金額に</td></tr><tr><th scope="row">3か月目に止めたとき、900万円で終わる契約にできるか</th><td>自社で契約条件を決める人</td><td>要点の表と5章に、止めたときの支払いを1文で</td></tr><tr><th scope="row">3か月目の判断の基準</th><td>書き手が決める</td><td>5章の継続判断の次に、基準を1文で</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題の答えで、頼む中身の前提が崩れました。2回目も差し戻しで、頼む中身を小さくする案を添えています。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 2, 3, 4, 7, 8, 6]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 4,701字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap">直した後 <span class="ln">本編 4,695字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 4,267字</span></p><div class="doc R" tabindex="0"></div></div>
 </div><template id="t-teian-before"><article><h3>営業部門デジタル化支援のご提案</h3>
 <p>北都フーズ株式会社 御中</p>
 <p>2026年11月
@@ -1777,8 +1834,8 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 〇〇コンサルティング株式会社</p>
 <hr />
 <h4>本提案の要点</h4>
-<p>当社は、営業担当30名の顧客訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
-<p>訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。担当者が異動・退職するとき、顧客の情報は後任に十分引き継がれないおそれがあります。営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、失注の理由、件数、金額は現状診断で確認します。</p>
+<p>御社の営業担当30名の顧客訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。昨年は異動・退職した4名の担当顧客38社のうち2社、年間約1,200万円の取引を、担当交代のあとに失いました。記録が個人の手元にあることが、この失注につながっていると当社は見ています。</p>
+<p>当社は、この訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
 <table>
 <thead>
 <tr>
@@ -1789,11 +1846,11 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <tbody>
 <tr>
 <td>期間</td>
-<td>9か月(現状診断 3か月+SFA 導入・定着支援 6か月)</td>
+<td>9か月。現状診断が3か月、SFA 導入・定着支援が6か月</td>
 </tr>
 <tr>
 <td>費用</td>
-<td>月額300万円、総額2,700万円(SFA のライセンス費は別途)</td>
+<td>月額300万円、総額2,700万円。SFA のライセンス費は別途</td>
 </tr>
 <tr>
 <td>期待効果</td>
@@ -1801,46 +1858,46 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 <tr>
 <td>判断の区切り</td>
-<td>現状診断が終わる3か月目の時点で、診断結果をもとに導入フェーズへ進むかどうかをご判断いただけます</td>
+<td>現状診断が終わる3か月目の時点で、診断結果をもとに導入フェーズへ進むかどうかをご判断いただけます。進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h4>1. 現状の課題</h4>
 <h5>顧客の情報が担当者個人のもとにある</h5>
-<p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
-<h5>異動・退職の引き継ぎでの失注</h5>
-<p>営業本部長からは、引き継ぎで2社を失ったとうかがっています。資料では確かめておらず、その2社の時期や理由もうかがっていません。</p>
-<p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。情報が届かなかった失注と、前任者との関係が切れて起きた失注がどのくらい混じっているか、その件数と金額はどの程度かは、現状診断で具体的に確認します。</p>
+<p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知るには、本人に聞くことが多いと見ています。</p>
+<h5>異動・退職で失注が起きている</h5>
+<p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすいと見ています。</p>
+<p>営業本部長に見せていただいた台帳では、昨年の異動・退職は4名で、その担当顧客は合計38社でした。このうち2社からは、担当が替わった直後に「前任者と話していた条件が引き継がれていない」と言われ、翌年の取引がなくなりました。失った取引は合計で年間約1,200万円です。ほかに5社で取引が半分以下に減り、減少分は合計で年間約900万円でした。</p>
+<p>失注の定義は、御社とご相談して「担当交代の翌年に取引がなくなった顧客」とします。この定義では、昨年の失注は2社です。どのような情報が抜けたことで失注に至ったのかは、現状診断で具体的に確認します。</p>
 <h5>今後、引き継ぎの機会は増えていく</h5>
 <p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
 <hr />
 <h4>2. ご提案内容</h4>
 <p>支援は2つのフェーズで進めます。</p>
 <h5>フェーズ1 現状診断(3か月)</h5>
-<p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けやすくします。</p>
+<p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けます。</p>
 <ul>
 <li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
 <li>引き継ぎ失注の分析:過去の異動・退職で担当が替わった顧客を洗い出し、失注の件数・金額・原因を整理します</li>
 <li>営業担当・管理職へのヒアリング:日々の業務の流れ、記録や報告にかけている手間、新しいツールへの不安や要望をうかがいます</li>
 <li>新人の立ち上がりの実態把握:独り立ちまでにかかっている期間と、その間に困っていることを確認します</li>
 <li>SFA の要件整理と製品選定の支援:記録すべき項目を絞り込み、候補となる製品を比較して選定をお手伝いします</li>
-<li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標の定義・目標値を決めます</li>
+<li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標・目標値を決めます</li>
 </ul>
-<p>フェーズ1の成果物として、診断報告書、効果の試算、SFA の要件と製品比較(候補製品ごとの見積もりを含む)、導入計画書(効果目標を含む)をお渡しします。</p>
+<p>フェーズ1の成果物として、診断報告書、効果の試算、SFA の要件と製品比較、効果目標を含む導入計画書をお渡しします。</p>
 <h5>フェーズ2 SFA 導入・定着支援(6か月)</h5>
 <p>フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。</p>
 <ul>
 <li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
 <li>既存データの移行:Excel の記録のうち、どの顧客のどの情報を移すかを決め、移行を支援します</li>
 <li>試行導入:一部の営業担当に先行して使っていただき、使いにくい点を直してから全体に広げます</li>
-<li>引き継ぎルールの整備:異動・退職の際に SFA に何を残し、後任者が何を確認するかを決め、社内のルールとして定めます</li>
 <li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
+<li>引き継ぎルールの整備:異動・退職の際に SFA に何を残し、後任者が何を確認するかを決め、社内のルールとして定めます</li>
 <li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
 </ul>
 <h5>現場で使われ続けるための工夫</h5>
-<p>当社は、営業担当が記録を入れ続けることを最も重要な課題と考え、4つの工夫を組み込んでいます。SFA は、入れただけでは効果を見込めません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。</p>
-<p>御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました。ただし、これは支援の終了後も入力が続くかを確かめたものではありません。</p>
+<p>SFA は、入れただけでは効果が出ません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。当社はこの点を導入で最も重要な課題と考え、次の4つの工夫を組み込んでいます。</p>
 <ol>
 <li>
 <p>入力項目を最小限に絞る
@@ -1848,37 +1905,62 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </li>
 <li>
 <p>ベテランの担当者に試行段階から参加していただく
-   試行メンバーには、若手だけでなくベテランの方にも入っていただきます。現場の第一線にいる方の意見を設定に反映し、実際に使える仕組みに近づけます。また、試行を経験した方が、全体展開の際に周囲へ使い方を伝える役割を担えます。</p>
+   試行メンバーには、若手だけでなくベテランの方にも入っていただきます。現場の第一線にいる方の意見を設定に反映し、実際に使える仕組みに近づけます。試行を経験した方は、全体展開の際に周囲へ使い方を伝える役割を担えます。記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
 </li>
 <li>
-<p>代わりにできる日報や報告は入力に置き換える
+<p>入力することが本人の手間を減らす形にする
    現在の日報や上長への報告がどのように作られているかを診断で確認し、SFA への入力で代わりにできるものは置き換えます。Excel と SFA の二重入力が生じないようにします。</p>
 </li>
 <li>
 <p>一人ひとりに合わせて支援する
-   集合研修だけで終わらせず、操作に不安のある方には個別にサポートします。全体展開の後も入力状況を確認し、記録が止まっている方には早めに声をかけます。ベテランの方に記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
+   集合研修だけで終わらせず、操作に不安のある方には個別にサポートします。全体展開の後も入力状況を確認し、記録が止まっている方には早めに声をかけます。</p>
 </li>
 </ol>
 <hr />
 <h4>3. 期待効果</h4>
 <h5>引き継ぎによる失注の削減</h5>
-<p>失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます。顧客ごとの訪問履歴や商談の経緯が SFA に記録され続ければ、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、前任者の Excel と口頭の説明に頼る引き継ぎを改めます。</p>
+<p>顧客ごとの訪問履歴や商談の経緯が SFA にまとまるため、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、口頭説明だけに頼る引き継ぎをなくし、情報の抜け落ちによる失注を減らせると見込んでいます。</p>
 <h5>新人の立ち上がり期間の短縮</h5>
-<p>SFA に記録がたまれば、新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できると見込みます。上長も新人の訪問状況を SFA で確認でき、つまずきに早く気づいて助言しやすくなります。</p>
+<p>新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できます。上長も新人の訪問状況を SFA で確認できるため、つまずきに早く気づいて助言できます。</p>
 <h5>同じ規模の食品卸での事例</h5>
 <p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。</p>
-<p>ただし、受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません。B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
+<p>ただし、B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
 <h5>効果の測り方</h5>
-<p>引き継ぎ顧客の失注率と新人の独り立ちまでの期間は、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。失注率の定義も御社と決めます。SFA の入力率は、導入後の定着を確かめる指標です。指標の内容は付録Bのとおりです。</p>
+<p>次の指標を使い、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。失注は担当交代の翌年の取引で見るため、失注率の結果がそろうのは支援の終了後になります。</p>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>内容</th>
+<th>確認の目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>引き継ぎ顧客の失注率</td>
+<td>担当が替わった顧客のうち、担当交代の翌年に取引がなくなった割合</td>
+<td>引き継ぎ失注の削減</td>
+</tr>
+<tr>
+<td>新人の独り立ちまでの期間</td>
+<td>入社または配属から、単独で顧客を担当するまでの期間</td>
+<td>立ち上がり期間の短縮</td>
+</tr>
+<tr>
+<td>SFA の入力率</td>
+<td>訪問のうち、SFA に記録された割合</td>
+<td>現場への定着</td>
+</tr>
+</tbody>
+</table>
 <h5>投資額に見合う効果の判断</h5>
-<p>3か月目の継続判断は、効果の試算をもとに行っていただけます。引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
+<p>引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
 <blockquote>
 <p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
 </blockquote>
-<p>現時点で当社は御社の失注件数や取引額の資料を持っていません。台帳があると営業本部長からうかがっていますが、まだ拝見していないため、本資料では金額での試算を控えています。フェーズ1の最初の1か月で、過去の引き継ぎ実績から改善幅を除く数字を算出します。改善幅は効果目標とあわせて決めるため、ライセンス費の見積もりもそろう3か月目に、投資額に見合う効果が見込めるかをご報告します。</p>
+<p>昨年の実績では、担当が替わった38社のうち失注は2社で、失った取引は年間約1,200万円です。失注をすべて防げた場合の効果が、この年間約1,200万円にあたります。フェーズ1の最初の1か月で過去の引き継ぎ実績から式の数字を算出し、投資額に見合う効果が見込めるかをご報告します。3か月目の継続判断は、この試算をもとに行っていただけます。</p>
 <hr />
 <h4>4. 費用</h4>
-<p>当社の支援費用は月額300万円です。</p>
 <table>
 <thead>
 <tr>
@@ -1905,16 +1987,81 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
+<p>当社の支援費用は月額300万円です。</p>
 <p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
 <hr />
 <h4>5. 進め方</h4>
-<p>月ごとの作業は付録Aにまとめています。</p>
 <h5>3か月目の継続判断</h5>
-<p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
+<p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。判断は営業本部長にお願いする想定です。進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
+<p>月ごとの作業は付録A、体制と御社へのお願いは付録Bにまとめています。</p>
+<hr />
+<h4>6. 今後の進め方</h4>
+<ol>
+<li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
+<li>経営会議で、9か月・総額2,700万円の支援の発注をご審議いただきます</li>
+<li>ご承認後、フェーズ1の契約を締結し、キックオフを行います。フェーズ2の契約は、3か月目の報告のあとに結びます</li>
+</ol>
+<hr />
+<h4>付録A スケジュール</h4>
+<table>
+<thead>
+<tr>
+<th>月</th>
+<th>フェーズ</th>
+<th>主な作業</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1か月目</td>
+<td>現状診断</td>
+<td>キックオフ、訪問記録の実態調査、引き継ぎ失注の分析と効果の試算</td>
+</tr>
+<tr>
+<td>2か月目</td>
+<td>現状診断</td>
+<td>営業担当・管理職へのヒアリング、新人の立ち上がりの実態把握</td>
+</tr>
+<tr>
+<td>3か月目</td>
+<td>現状診断</td>
+<td>SFA の要件整理と製品選定、導入計画と効果目標の策定、<strong>継続のご判断</strong></td>
+</tr>
+<tr>
+<td>4か月目</td>
+<td>導入・定着</td>
+<td>SFA の初期設定、既存データの移行</td>
+</tr>
+<tr>
+<td>5か月目</td>
+<td>導入・定着</td>
+<td>一部の営業担当での試行導入</td>
+</tr>
+<tr>
+<td>6か月目</td>
+<td>導入・定着</td>
+<td>試行の振り返りと設定の見直し、引き継ぎルールの策定</td>
+</tr>
+<tr>
+<td>7か月目</td>
+<td>導入・定着</td>
+<td>全体展開、研修</td>
+</tr>
+<tr>
+<td>8か月目</td>
+<td>導入・定着</td>
+<td>定着支援として入力状況の確認と個別サポート</td>
+</tr>
+<tr>
+<td>9か月目</td>
+<td>導入・定着</td>
+<td>効果測定、運用体制の引き渡し</td>
+</tr>
+</tbody>
+</table>
+<h4>付録B 体制</h4>
 <h5>進捗のご報告</h5>
 <p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
-<hr />
-<h4>6. 体制</h4>
 <h5>当社の体制</h5>
 <table>
 <thead>
@@ -1947,130 +2094,42 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <ul>
 <li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
 <li>窓口のご担当者:社内の日程調整や資料のご提供をお願いする方を1名</li>
-<li>試行メンバー:フェーズ2の試行導入に参加いただく営業担当を数名(ベテランの方を含めて)</li>
+<li>試行メンバー:フェーズ2の試行導入に参加いただく営業担当を、ベテランの方を含めて数名</li>
 <li>ヒアリングへのご協力:営業担当・管理職の方に、1人あたり1時間程度のお時間</li>
-<li>研修と記録:営業担当30名と管理職の方の研修へのご参加と、営業担当の方の毎日の記録</li>
-</ul>
-<hr />
-<h4>7. 今後の進め方</h4>
-<ol>
-<li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
-<li>経営会議でご審議いただきます</li>
-<li>ご承認後、契約を締結し、キックオフを行います</li>
-</ol>
-<p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の式のうち年間に担当が替わる顧客数を本資料に追加できます。ご検討いただけますと幸いです。</p>
-<hr />
-<h4>付録A 月ごとの作業</h4>
-<table>
-<thead>
-<tr>
-<th>月</th>
-<th>フェーズ</th>
-<th>主な作業</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1か月目</td>
-<td>現状診断</td>
-<td>キックオフ、訪問記録の実態調査、引き継ぎ失注の分析</td>
-</tr>
-<tr>
-<td>2か月目</td>
-<td>現状診断</td>
-<td>営業担当・管理職へのヒアリング、新人の立ち上がりの実態把握</td>
-</tr>
-<tr>
-<td>3か月目</td>
-<td>現状診断</td>
-<td>SFA の要件整理と製品選定、導入計画と効果目標の策定、効果の試算のご報告、<strong>継続のご判断</strong></td>
-</tr>
-<tr>
-<td>4か月目</td>
-<td>導入・定着</td>
-<td>SFA の初期設定、既存データの移行</td>
-</tr>
-<tr>
-<td>5か月目</td>
-<td>導入・定着</td>
-<td>一部の営業担当での試行導入</td>
-</tr>
-<tr>
-<td>6か月目</td>
-<td>導入・定着</td>
-<td>試行の振り返りと設定の見直し、引き継ぎルールの策定</td>
-</tr>
-<tr>
-<td>7か月目</td>
-<td>導入・定着</td>
-<td>全体展開、研修</td>
-</tr>
-<tr>
-<td>8か月目</td>
-<td>導入・定着</td>
-<td>定着支援(入力状況の確認、個別サポート)</td>
-</tr>
-<tr>
-<td>9か月目</td>
-<td>導入・定着</td>
-<td>効果測定、運用体制の引き渡し</td>
-</tr>
-</tbody>
-</table>
-<h4>付録B 効果を測る指標</h4>
-<table>
-<thead>
-<tr>
-<th>指標</th>
-<th>内容</th>
-<th>確認の目的</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>引き継ぎ顧客の失注率</td>
-<td>担当が替わった顧客のうち、一定期間内に失注した割合</td>
-<td>引き継ぎ失注の削減</td>
-</tr>
-<tr>
-<td>新人の独り立ちまでの期間</td>
-<td>入社(配属)から、単独で顧客を担当するまでの期間</td>
-<td>立ち上がり期間の短縮</td>
-</tr>
-<tr>
-<td>SFA の入力率</td>
-<td>訪問のうち、SFA に記録された割合</td>
-<td>現場への定着</td>
-</tr>
-</tbody>
-</table></article></template>
+</ul></article></template>
 <h3>主な変更 5 件</h3>
 <p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
-<ol class="changes"><li><button type="button" class="chg" data-doc="teian" data-b="御社ではこの引き継ぎの場面で実際に失注が起きています" data-a="営業本部長からは、引き継ぎで2社を失ったとうかがっています"><span class="num">1</span><b>出どころを示す</b><span>失注は聞いた話で、資料では確かめていない</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="情報の抜け落ちによる失注を減らせます" data-a="失注の原因が情報の抜け落ちであれば、その分の失注は減らせると見込みます"><span class="num">2</span><b>言い切りを見込みに</b><span>原因が情報の抜け落ちなら、の条件を付けた</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="同業・同規模の会社で、営業記録の共有が成果につながった例です" data-a="受注率が上がった原因が営業記録の共有かどうかは、この数字からは言えません"><span class="num">3</span><b>事例の限界を書く</b><span>B社の受注率の原因は言えない</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="当社はこの点を最も重要な課題と考え" data-a="営業担当3名にうかがったところ、2名は賛成、1名は入力の手間を心配されていました"><span class="num">4</span><b>書き手の答えを反映</b><span>現場3名の声を事実として入れ、続くかは未確認と添えた</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="次の指標を使い、導入前後を比べて効果を確認します" data-a="SFA の入力率は、導入後の定着を確かめる指標です"><span class="num">5</span><b>指標を分ける</b><span>失注率で効果を測り、入力率は定着の指標にした</span></button></li></ol>
+<ol class="changes"><li><button type="button" class="chg" data-doc="teian" data-b="御社ではこの引き継ぎの場面で実際に失注が起きています" data-a="昨年は異動・退職した4名の担当顧客38社のうち2社、年間約1,200万円の取引を、担当交代のあとに失いました"><span class="num">1</span><b>台帳の数字を入れる</b><span>聞いた話だった失注が、件数と金額になった</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="導入フェーズへ進むかどうかをご判断いただけます" data-a="進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません"><span class="num">2</span><b>止めたときの支払いを明記</b><span>3か月目で止めれば900万円で終わる</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="本資料では金額での試算を控えています" data-a="失注をすべて防げた場合の効果が、この年間約1,200万円にあたります"><span class="num">3</span><b>効果の上限を書く</b><span>失注をすべて防いでも年間約1,200万円、と自分で書く</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="同業・同規模の会社で、営業記録の共有が成果につながった例です" data-a="B社と同じ数字をお約束するものではなく"><span class="num">4</span><b>事例の限界を書く</b><span>B社と指標が違うことを明記</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="次の指標を使い、導入前後を比べて効果を確認します" data-a="失注は担当交代の翌年の取引で見るため"><span class="num">5</span><b>指標を分ける</b><span>失注率で効果を測り、入力率は定着の指標にした</span></button></li></ol>
 <h3>どうやったか</h3>
 <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
-<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を27件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を12件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
-<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">4,701字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:99.9%"></span></span><span class="bv">4,695字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:50.0%"></span></span><span class="bv">2,352字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:88.6%"></span></span><span class="bv">4,166字</span></div></div>
-<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">失注が起きているとは、何を根拠に</th><td>「実際に失注が起きています」と言い切り</td><td>営業本部長から2社と聞いただけで、資料では確かめていない、と明記</td></tr><tr><th scope="row">営業担当は入力を続けるか</th><td>4つの工夫を並べる</td><td>3名に聞いて2名賛成・1名が手間を心配。続くかは確かめていない、と明記</td></tr><tr><th scope="row">B社の事例は当てはまるか</th><td>成果につながった例、と紹介</td><td>受注率が上がった原因は営業記録の共有かどうか言えない、と明記</td></tr><tr><th scope="row">効果は何で測るか</th><td>指標を列挙</td><td>失注率と新人の独り立ち期間で測り、入力率は定着の指標と分ける</td></tr></tbody></table></div>
-<h4>書き手に聞いた3問と答え</h4>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を23件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を8件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">4,701字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:90.8%"></span></span><span class="bv">4,267字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:34.3%"></span></span><span class="bv">1,614字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:64.7%"></span></span><span class="bv">3,043字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">失注はどのくらい起きているか</th><td>「実際に失注が起きています」と言い切り</td><td>台帳で確かめた。担当交代38社のうち2社、年間約1,200万円</td></tr><tr><th scope="row">3か月目で止めたら、いくらで終わるか</th><td>書いていない</td><td>フェーズ1の900万円で終わり、1,800万円は発生しない、と明記</td></tr><tr><th scope="row">投資に見合うか</th><td>台帳を見ていないので試算を控える、と明記</td><td>失注をすべて防いでも年間約1,200万円、と書いたうえで試算は診断で出す</td></tr><tr><th scope="row">B社の事例は当てはまるか</th><td>成果につながった例、と紹介</td><td>指標が違い、同じ数字は約束しない、と明記</td></tr><tr><th scope="row">効果は何で測るか</th><td>指標を列挙</td><td>失注率と独り立ち期間で測り、入力率は定着の指標と分ける</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
 <p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
-<ol class="list prose-max"><li>「御社ではこの引き継ぎの場面で実際に失注が起きています」(元の文書行33)は、北都フーズの方から聞いた話ですか、資料で見たことですか。過去1〜2年に担当替えのあとで失った顧客の件数や取引額について、分かっていることがあれば教えてください。あわせて、ここでの「失注」は取引の停止と減少のどちらを指しますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>聞いた話です。営業本部長が「引き継ぎで2社失った」と話したのを聞いただけで、資料では確かめていません。台帳はあると営業本部長から聞いていますが、見せてもらっていません。失った顧客の件数と取引額は、この「2社」という発言のほかは分かりません。その2社がいつの話かも分かりません。「失注」が取引の停止と減少のどちらを指すかも分かりません。失注率の定義は決めておらず、御社と決めることにしています。</p></div></details></li><li>失注した顧客ごとの理由を、北都フーズの方から聞いていますか。情報が後任に届かなかった失注と、情報は届いたのに前任者との関係が切れて起きた失注は、それぞれどのくらい混じっていると見ていますか(元の文書行12、33、37)。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>聞いていません。営業本部長が話した2社についても理由は聞いておらず、失注の理由を確かめた記録もありません。情報が届かなかった失注と関係が切れて起きた失注がどのくらい混じっているかは、分かりません。</p></div></details></li><li>営業担当30名の毎日の入力(元の文書行71)が支援の終了後も続くと見込む材料はありますか。当社の過去の支援で、支援が終わってしばらく経ったあとの入力率の記録や、4つの工夫(元の文書行73〜83)を実際に試した結果があれば教えてください。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>分かりません。支援の終了後も入力が続くと見込む材料、過去の支援での入力率の記録、4つの工夫を試した結果は、いずれも私の手元の事実にはありません。入力に関して知っているのは、営業担当3名に話を聞いて、2名が賛成、1名が入力の手間を心配していたことだけです。これは支援の終了後の入力が続くかどうかを確かめたものではありません。</p></div></details></li></ol>
-<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 30 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 経営会議に頼むのを現状診断の3か月・900万円だけに縮め、SFA 導入・定着支援の6か月・1,800万円は診断の結果を見てから改めて頼む。分かっている失注は営業本部長の「2社」という発言だけで、理由も、入力が続く材料もないため。本文は頼む中身を保ったまま直しているので、この案を採るかは書き手が決める。</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>失注の大きさは、契約の前に確かめられないか(行12、33、50、121、192)。分かっているのは、営業本部長の「引き継ぎで2社失った」という発言だけです。その2社がいつの話か、件数と取引額、「失注」が取引の停止と減少のどちらを指すかは分かっていません。台帳を見ないままでは、失注の金額が2,700万円とライセンス費に届くかを言えません。経営会議の前に台帳を見られますか。過去の実績が残っていなければ、1か月目の算出と3か月目の判断は立ちません。本文では2社の発言をそのまま書き、失注の定義は御社と決めると書きました。</li><li>担当替えの失注は、本当に情報の抜け落ちから起きているのか(行12、14、33、93)。2社の理由も、情報が届かなかった失注と関係が切れて起きた失注の混じり具合も、分かっていません。原因は記録の場所(個人の Excel)と記録の有無(記録に残っていない経緯や約束事)のどちらですか。書く場所が SFA に変われば、記録に残っていないことも書かれるようになりますか。本文では効果を「原因が情報の抜け落ちであれば」の仮定の形にしました。</li><li>30名の毎日の入力が支援の終了後も続くと見込む材料はあるか(行71、73〜83、85)。材料、過去の支援での入力率の記録、4つの工夫を試した結果は、いずれも手元にありません。分かっているのは、営業担当3名のうち2名が賛成、1名が入力の手間を心配しているという話だけで、本文にはそのまま書きました。入力するのはベテランで得をするのは後任、新人、上長です。上長に訪問状況が見えることは本人の負担にならないか、数年で退職するベテランが入力を続ける理由は「お伝えしていきます」のほかにあるか、日報の置き換えがどこまでできるかは診断の前に分かるのかも、確かめたいところです。</li></ol><h4>そのほか 27 件</h4><ul class="list"><li>経営会議が承認するのは2,700万円か、フェーズ1の900万円か。「ご承認後、契約を締結」の契約の対象は9か月全体か、3か月分か(行19、21、189、190)。</li><li>1,800万円分の継続判断は、営業本部長が一人で決めてよいものとして書いているのか(行179)。</li><li>3か月目に進まないと判断したとき、支払いは900万円で終わるのか(行21、130)。</li><li>経営会議が決めたいのは「SFA を入れるか」か、「引き継ぎの失注をどう止めるか」か。この提案が持ち上がった経緯、営業本部長の決裁権限、経営会議の決裁基準はどうなっているか(行1、14、189、190)。</li><li>「見合う」の基準は何か。年間の効果と一度に払う投資額を何年分で比べるのか。新人の効果は判断に入れるのか。試算がどの水準なら進むと勧めるのか(行21、121、157)。</li><li>何が出たら進まないのか。どの数字がどこまで下がれば、提案が成り立たないと見ているのか(行21、157)。</li><li>ライセンス費は支援が終わったあとも続く費用か。それを足した額でも結論は変わらないのか。候補製品の価格帯と、北都フーズが求める回収年数はどれくらいか(行19、131、135)。</li><li>式の残り2項のうち、失注率の改善幅と1顧客あたりの年間取引額は、どこから取って概算を追加するのか。本文では、行192で教えてもらう数字で埋まるのは年間に担当が替わる顧客数の1項だけだと書き直しました(行119、121、192)。</li><li>改善幅は過去の実績からは出ません。本文では効果目標とあわせて決める形にし、投資額に見合うかの報告を、行157と同じ3か月目に揃えました。この読みでよいか。別の算出の仕方を考えていたか(行54、107、121、145、147)。</li><li>SFA を入れる案は何と比べて選んだのか。何もしない案、Excel のまま引き継ぎルールだけを整える案、対象を絞って小さく始める案、自前でやる案と比べたか。比べたなら、記録は文書に出せるか(行14、47、66)。</li><li>診断の結論が「SFA は要らない」となる余地はどのくらいあるか。そのとき、製品選定と導入計画の作業分の費用はどう扱うのか(行47、53、54、157)。</li><li>判断の材料を作るのも、効果目標を決めるのも、結果を測るのも、続けば1,800万円を受ける当社である。北都フーズは「率直にご報告します」のほかに、何でその内容を確かめられるのか(行54、67、130、157)。</li><li>製品選定を支援する当社と SFA ベンダーの間に、取引上の関係はあるか(行53、62)。</li><li>フェーズ1だけで終えられる契約の形はあるか。成果物を他社に渡してよいか(行21、56)。</li><li>「平均年齢が高い」とは何歳か。数年のうちに退職する人は何名ほどか。抵抗の予想は、年齢のほかに何から来ているのか(行37、71)。</li><li>全体展開は7か月目で、それより前に辞める人の分は Excel の移行でしか残らない。「長年かけて築いてきた」関係や知見は、導入のあとに日々の訪問記録を積むことで残るのか(行37、63、151)。</li><li>関係や知見は訪問記録と同じものとして扱ってよいのか。入力項目を絞ったあと、それらはどこに残るのか(行37、63、74、93)。</li><li>新人の立ち上がりは課題の節にない。短縮が要るほど、いまの立ち上がりは長いのか。課題だと言っているのは北都フーズの誰か。主に目指す効果として挙げる根拠はどこにあるか(行20、52、95、97、103)。</li><li>全体展開は7か月目、効果測定は9か月目で、間は2か月ほどである。配属から独り立ちまでの期間は、この2か月で導入後の値が出るのか。失注率の「一定期間」はどれだけの長さで、その期間の内に導入後の値は出るのか(行107、111、112、151、153)。</li><li>何がどうなれば「使われ続ける状態」とするのか。定着支援に充てているのは8か月目の1か月だけで足りるのか。9か月目に届いていないとき、引き渡しと費用はどう扱うのか(行14、60、71、152、153)。</li><li>支援が終わったあとの運用は、北都フーズの誰が持つのか。依頼の一覧に運用の担当はない(行67、177〜182)。</li><li>北都フーズが過去に入れた業務ツールの定着状況や、営業の評価で記録がどう扱われているかは分かるか(行71)。</li><li>本文では「営業記録の共有が成果につながった例」という言い切りを外した。指標も違うなら、この事例は期待効果のどの主張を支えているのか。載せておく理由はあるか(行101、103)。</li><li>B社は当社の支援先か。数字の出どころはどこか。SFA を入れても受注率が上がらなかった同業の例は見ているか(行101、103)。</li><li>当社の体制の主な担当に、既存データの移行と効果測定が見当たらない。誰が持つのか(行63、67、172、173)。</li><li>どの情報を移すかを決めるのは御社か当社か。依頼の一覧に、研修への参加と毎日の記録は足したが、この決定は足していない。経営会議が見る御社側の負荷は、これでよいか(行63、177〜182)。</li><li>月額は9か月とも300万円である。診断の月と定着の月で、3名の稼働は同じなのか(行133)。</li></ul></div></details>
+<ol class="list prose-max"><li>「御社ではこの引き継ぎの場面で実際に失注が起きています」(行12、33)は、誰から聞いた、どの話をもとに書きましたか。顧客の数、件数、金額など、いま分かっていることがあれば教えてください。また、過去の失注の数字を、経営会議の前に北都フーズから出してもらえそうですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>営業本部長が「引き継ぎで2社失った」と話したのを聞いたのがもとです。その2社の失注理由は聞いておらず、理由を確かめた記録もありません。失注の件数と金額は分かりません。御社の台帳を見せてもらっていないためです。ほかに分かっているのは、営業本部長の話で去年の異動と退職が合わせて4名だったことだけで、担当が替わった顧客の数は聞いていません。営業本部長によれば台帳はありますが、経営会議の前に数字を出してもらえるかどうかは分かりません。</p></div></details></li><li>3か月目に「進まない」と判断された場合、契約はどうなりますか。900万円で終えられて、残りの1,800万円は発生しないという条件ですか。契約は9か月で一括ですか、フェーズごとに分けますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>3か月目で止められる形にしてあります。ただし、先方の経営会議にかけるのは9か月分の契約です。フェーズ1だけの契約にすることもでき、その場合も900万円は変わりません。9か月分の契約を結んだうえで3か月目に止めた場合に、900万円で終わり残りの1,800万円が発生しないという条件になるのかは分かりません。なお、3か月目の判断の基準は決めておらず、御社の営業本部長が判断する想定です。</p></div></details></li><li>この文書で決めてもらうのは「9か月・総額2,700万円の支援を発注するか」だと読みました。違いますか。まず3か月・900万円の現状診断だけを決めてもらう形に変えるお考えはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>その読みのとおりです。決めてもらうのは、9か月・2,700万円の支援を当社に発注するかです。フェーズ1だけの契約にもできますが、まず3か月・900万円だけを決めてもらう形に変える考えがあるかどうかは分かりません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>引き継ぎで失った2社の失注理由と時期、台帳にある引き継ぎ失注の件数と金額、担当が替わった顧客の数、取引額を、営業本部長に聞く。経営会議の前に数字を出してもらえるかも、ここで聞く→答えが出たら、1章「引き継ぎの場面での失注」の「2社を失った」を件数と金額に書き換え、理由が分かった分は「どのような情報が抜けたことで失注に至ったのか」の文を分かったことに置き換える。3章「投資額に見合う効果の判断」の「本資料では金額での試算を控えています」を、式に数字を入れた概算に置き換える。理由が記録の抜けでなければ、「本提案の要点」の「失注につながっていると当社は見ています」を取り下げ、下の「頼む中身を小さくする案」に切り替えるかを決める。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>営業本部長に台帳を見せてもらいました。結果は次のとおりです。-失注理由:2社は、担当が替わった直後に先方から「前任者と話していた条件が引き継がれていない」と言われて失注しました。これが記録の抜けによるものかどうかは分かりません。-時期:去年の異動・退職にともなう担当交代の直後で、翌年の取引がなくなっています。それ以上詳しい時期は分かりません。-引き継ぎ失注の件数と金額:2社、合計で年間約1,200万円です。失注の定義は、先方と相談して「担当交代の翌年に取引がなくなった顧客」とします。-失注以外の減少:取引が半分以下に減ったのが5社で、減少分の合計は年間約900万円です。-担当が替わった顧客の数:去年の異動・退職4名の担当顧客で、合計38社です。-取引額:上の2社と5社の金額のほかは分かりません。38社全体の取引額は分かりません。-経営会議の前に数字を出してもらえるか:分かりません。-「頼む中身を小さくする案」に切り替えるか:決めたかどうかは分かりません。</p></div></details></li><li>9か月分の契約を結んだうえで3か月目に止めたとき、900万円で終わり、残りの1,800万円が発生しない条件にできるかを、自社で契約条件を決める人に確かめる→発生しないなら、「本提案の要点」の表の「判断の区切り」と5章「3か月目の継続判断」に、進まない場合は900万円で終わり1,800万円は発生しないことを書く。発生するなら、9か月分の契約のまま出すか、フェーズ1だけの契約に変えるかを決める。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>3か月目で止めた場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。ただし形は、9か月分を1本で結ぶのではなく、契約を2つに分け、フェーズ2は3か月目の報告のあとに結びます。誰に確かめたかは分かりません。</p></div></details></li><li>3か月目の判断の基準を決める。どの数字がどの線を下回ったら進まないのかを、書き手が決める→5章「3か月目の継続判断」の「フェーズ2へ進むかどうかをご判断いただけます」の次に、その基準を一文で書く。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>基準は決めていません。御社の営業本部長が判断する想定です。どの数字がどの線を下回ったら進まないのかは分かりません。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 16 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 経営会議で決めてもらう内容を、フェーズ1の3か月・900万円の現状診断だけにし、フェーズ2は3か月目の報告のあとに決めてもらう。年間約1,200万円の失注が総額2,700万円とライセンス費に見合うかが、まだ言えないためである。選ぶのは書き手で、本文は9か月・総額2,700万円のまま直した。</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>経営会議にかけるのは9か月分の契約という答えと、契約は2つに分けてフェーズ2は3か月目の報告のあとに結ぶという答えの両方がありました。本文は、審議するのは9か月・総額2,700万円の支援の発注で、結ぶ契約はまずフェーズ1だけ、と読んで書きました。この読みで合っていますか。</li><li>2社の「前任者と話していた条件が引き継がれていない」は、記録に残っていなかったのですか。記録にはあったのに伝わらなかったのですか。本文は、記録が個人の手元にあることが失注につながっていると「当社は見ています」と書き、どの情報が抜けたのかは現状診断で確認する形にしました。</li><li>失注は担当交代の翌年の取引で見るので、9か月目の効果測定では結果が出ません。全体展開は7か月目なので、新人の独り立ちまでの期間も9か月目までに結果が出るとは限りません。この2つの指標は、いつ、誰が測りますか。</li></ol><h4>そのほか 13 件</h4><ul class="list"><li>取引が半分以下に減った5社は、担当交代が理由ですか。本文は失注に含めず、事実だけを書きました。</li><li>38社全体の取引額はいくらですか。式の「1顧客あたりの年間取引額」の算出に要ります。</li><li>昨年より前の異動・退職の件数、失注の件数と金額はどうでしたか。台帳の数字は昨年の1年分で、この年が多い年か少ない年かが分かりません。</li><li>3か月目で止めたら900万円で終わるという条件は、自社で契約条件を決める人に確かめましたか。答えでは、誰に確かめたかが分かりませんでした。</li><li>1,800万円のフェーズ2に進むかを決めるのは、営業本部長でよいですか。発注は経営会議が審議するので、御社の決裁の範囲に収まるかを確認してください。</li><li>上長は日報や報告で何を見ていますか。本文は「本人に聞くことが多いと見ています」と見込みの形に変えました。</li><li>新人の立ち上がりは、誰から聞いた課題ですか。独り立ちまでの期間が長いという話はありますか。期待効果にありますが、1章の課題にはありません。</li><li>「平均年齢が高く」の数字はありますか。今後数年で退職する人数と担当顧客の数はどのくらいですか。</li><li>B社の受注率が上がった理由は、営業記録の共有だと分かっていますか。分からないので「営業記録の共有が成果につながった例です」の文を外しました。分かっているなら戻せます。B社の事例の出典も確認してください。</li><li>何もしない案、範囲を変える案、自前でやる案とは比べましたか。比べたなら、比べた記録は文書に出せますか。引き継ぎルールの整備は SFA の導入が前提ですか。</li><li>ライセンス費はいくらを超えたら提案が成り立たなくなりますか。経営会議は総額が分からないまま審議することになります。</li><li>進むかどうかの材料はすべて当社が作り、進めば当社が1,800万円を受注します。材料の中立さを、読み手は何で確かめられますか。</li><li>記録を入れる30名にとって、何が得になりますか。入力率が上がらなかったときに、誰が何をしますか。</li></ul></div></details>
 <h4>構成がどう変わったか</h4>
 <p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
-<div class="map-wrap"><svg viewBox="0 0 1000 902.875" class="fig map" role="img" aria-label="元の8節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 4,701字</text><text x="660" y="24" class="mh">組み直した文書 本編 4,166字 + 付録 1,214字</text><path d="M340,65 C500.0,65 500.0,70 660,70" class="mv" data-src="0" data-dst="0"/><path d="M340,131 C500.0,131 500.0,144 660,144" class="mv" data-src="1" data-dst="1"/><path d="M340,231 C500.0,231 500.0,375 660,375" class="mv" data-src="2" data-dst="4"/><path d="M340,231 C500.0,231 500.0,678 660,678" class="mv dashed" data-src="2" data-dst="9"/><path d="M340,231 C500.0,231 500.0,220 660,220" class="mv" data-src="2" data-dst="2"/><path d="M340,358 C500.0,358 500.0,822 660,822" class="mv dashed" data-src="3" data-dst="12"/><path d="M340,358 C500.0,358 500.0,468 660,468" class="mv" data-src="3" data-dst="5"/><path d="M340,358 C500.0,358 500.0,778 660,778" class="mv dashed" data-src="3" data-dst="11"/><path d="M340,358 C500.0,358 500.0,288 660,288" class="mv" data-src="3" data-dst="3"/><path d="M340,442 C500.0,442 500.0,527 660,527" class="mv" data-src="4" data-dst="6"/><path d="M340,504 C500.0,504 500.0,729 660,729" class="mv dashed" data-src="5" data-dst="10"/><path d="M340,504 C500.0,504 500.0,288 660,288" class="mv" data-src="5" data-dst="3"/><path d="M340,504 C500.0,504 500.0,580 660,580" class="mv" data-src="5" data-dst="7"/><path d="M340,575 C500.0,575 500.0,580 660,580" class="mv" data-src="6" data-dst="7"/><path d="M340,575 C500.0,575 500.0,866 660,866" class="mv dashed" data-src="6" data-dst="13"/><path d="M340,627 C500.0,627 500.0,632 660,632" class="mv" data-src="7" data-dst="8"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="50" rx="6" class="mr"/><text x="22" y="71" class="ml">本提案の要点</text><text x="328" y="71" class="mn" text-anchor="end">400字</text></g><g class="src" data-i="1"><rect x="10" y="100.0" width="330" height="61" rx="6" class="mr"/><text x="22" y="137" class="ml">現状の課題</text><text x="328" y="137" class="mn" text-anchor="end">491字</text></g><g class="src" data-i="2"><rect x="10" y="171.375" width="330" height="120" rx="6" class="mr"/><text x="22" y="237" class="ml">ご提案内容</text><text x="328" y="237" class="mn" text-anchor="end">1,471字※</text></g><g class="src" data-i="3"><rect x="10" y="301.375" width="330" height="114" rx="6" class="mr"/><text x="22" y="364" class="ml">期待効果</text><text x="328" y="364" class="mn" text-anchor="end">910字</text></g><g class="src" data-i="4"><rect x="10" y="425.125" width="330" height="34" rx="6" class="mr"/><text x="22" y="448" class="ml">費用</text><text x="328" y="448" class="mn" text-anchor="end">232字</text></g><g class="src" data-i="5"><rect x="10" y="469.125" width="330" height="71" rx="6" class="mr"/><text x="22" y="510" class="ml">進め方</text><text x="328" y="510" class="mn" text-anchor="end">566字</text></g><g class="src" data-i="6"><rect x="10" y="549.875" width="330" height="50" rx="6" class="mr"/><text x="22" y="581" class="ml">体制</text><text x="328" y="581" class="mn" text-anchor="end">401字</text></g><g class="src" data-i="7"><rect x="10" y="610.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="633" class="ml">今後の進め方</text><text x="328" y="633" class="mn" text-anchor="end">178字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="60" rx="6" class="mr"/><text x="672" y="76" class="ml">本提案の要点</text><text x="978" y="76" class="mn" text-anchor="end">476字</text></g><g class="dst body" data-i="1"><rect x="660" y="109.5" width="330" height="68" rx="6" class="mr"/><text x="672" y="150" class="ml">現状の課題</text><text x="978" y="150" class="mn" text-anchor="end">544字</text></g><g class="dst body" data-i="2"><rect x="660" y="187.5" width="330" height="64" rx="6" class="mr"/><text x="672" y="226" class="ml">フェーズ1 現状診断(3か月)</text><text x="978" y="226" class="mn" text-anchor="end">514字</text></g><g class="dst body" data-i="3"><rect x="660" y="261.75" width="330" height="52" rx="6" class="mr"/><text x="672" y="294" class="ml">3か月目の継続判断</text><text x="978" y="294" class="mn" text-anchor="end">417字</text></g><g class="dst body" data-i="4"><rect x="660" y="323.875" width="330" height="102" rx="6" class="mr"/><text x="672" y="381" class="ml">フェーズ2 SFA 導入・定着支援(6か月)</text><text x="978" y="381" class="mn" text-anchor="end">818字</text></g><g class="dst body" data-i="5"><rect x="660" y="436.125" width="330" height="64" rx="6" class="mr"/><text x="672" y="474" class="ml">期待効果</text><text x="978" y="474" class="mn" text-anchor="end">514字</text></g><g class="dst body" data-i="6"><rect x="660" y="510.375" width="330" height="34" rx="6" class="mr"/><text x="672" y="533" class="ml">費用</text><text x="978" y="533" class="mn" text-anchor="end">232字</text></g><g class="dst body" data-i="7"><rect x="660" y="554.375" width="330" height="50" rx="6" class="mr"/><text x="672" y="586" class="ml">体制</text><text x="978" y="586" class="mn" text-anchor="end">404字</text></g><g class="dst body" data-i="8"><rect x="660" y="614.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="638" class="ml">今後の進め方</text><text x="978" y="638" class="mn" text-anchor="end">195字</text></g><g class="dst app" data-i="9"><rect x="660" y="658.875" width="330" height="38" rx="6" class="mr"/><text x="672" y="684" class="ml">付録A SFA 導入・定着支援の作業</text><text x="978" y="684" class="mn" text-anchor="end">308字</text></g><g class="dst app" data-i="10"><rect x="660" y="707.375" width="330" height="44" rx="6" class="mr"/><text x="672" y="735" class="ml">付録B 月ごとの作業</text><text x="978" y="735" class="mn" text-anchor="end">348字</text></g><g class="dst app" data-i="11"><rect x="660" y="760.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="784" class="ml">付録C 効果を測る指標</text><text x="978" y="784" class="mn" text-anchor="end">170字</text></g><g class="dst app" data-i="12"><rect x="660" y="804.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="828" class="ml">付録D 同じ規模の食品卸での事例</text><text x="978" y="828" class="mn" text-anchor="end">233字</text></g><g class="dst app" data-i="13"><rect x="660" y="848.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="872" class="ml">付録E 当社の体制</text><text x="978" y="872" class="mn" text-anchor="end">155字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-4" role="tabpanel" aria-labelledby="doc-tab-4" tabindex="0" hidden><p class="p prose-max">情報システム部の運用チームが、受注管理システムが1時間半止まった障害を、情報システム部長と営業本部長に報告する文書。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 826.625" class="fig map" role="img" aria-label="元の8節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 4,701字</text><text x="660" y="24" class="mh">組み直した文書 本編 3,043字 + 付録 1,965字</text><path d="M340,65 C500.0,65 500.0,71 660,71" class="mv" data-src="0" data-dst="0"/><path d="M340,131 C500.0,131 500.0,142 660,142" class="mv" data-src="1" data-dst="1"/><path d="M340,131 C500.0,131 500.0,658 660,658" class="mv dashed" data-src="1" data-dst="9"/><path d="M340,231 C500.0,231 500.0,575 660,575" class="mv dashed" data-src="2" data-dst="8"/><path d="M340,231 C500.0,231 500.0,444 660,444" class="mv" data-src="2" data-dst="6"/><path d="M340,231 C500.0,231 500.0,384 660,384" class="mv" data-src="2" data-dst="5"/><path d="M340,231 C500.0,231 500.0,658 660,658" class="mv dashed" data-src="2" data-dst="9"/><path d="M340,358 C500.0,358 500.0,226 660,226" class="mv" data-src="3" data-dst="2"/><path d="M340,358 C500.0,358 500.0,658 660,658" class="mv dashed" data-src="3" data-dst="9"/><path d="M340,442 C500.0,442 500.0,340 660,340" class="mv" data-src="4" data-dst="4"/><path d="M340,504 C500.0,504 500.0,717 660,717" class="mv dashed" data-src="5" data-dst="10"/><path d="M340,504 C500.0,504 500.0,296 660,296" class="mv" data-src="5" data-dst="3"/><path d="M340,504 C500.0,504 500.0,778 660,778" class="mv dashed" data-src="5" data-dst="11"/><path d="M340,575 C500.0,575 500.0,778 660,778" class="mv dashed" data-src="6" data-dst="11"/><path d="M340,627 C500.0,627 500.0,504 660,504" class="mv" data-src="7" data-dst="7"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="50" rx="6" class="mr"/><text x="22" y="71" class="ml">本提案の要点</text><text x="328" y="71" class="mn" text-anchor="end">400字</text></g><g class="src" data-i="1"><rect x="10" y="100.0" width="330" height="61" rx="6" class="mr"/><text x="22" y="137" class="ml">現状の課題</text><text x="328" y="137" class="mn" text-anchor="end">491字</text></g><g class="src" data-i="2"><rect x="10" y="171.375" width="330" height="120" rx="6" class="mr"/><text x="22" y="237" class="ml">ご提案内容</text><text x="328" y="237" class="mn" text-anchor="end">1,471字※</text></g><g class="src" data-i="3"><rect x="10" y="301.375" width="330" height="114" rx="6" class="mr"/><text x="22" y="364" class="ml">期待効果</text><text x="328" y="364" class="mn" text-anchor="end">910字</text></g><g class="src" data-i="4"><rect x="10" y="425.125" width="330" height="34" rx="6" class="mr"/><text x="22" y="448" class="ml">費用</text><text x="328" y="448" class="mn" text-anchor="end">232字</text></g><g class="src" data-i="5"><rect x="10" y="469.125" width="330" height="71" rx="6" class="mr"/><text x="22" y="510" class="ml">進め方</text><text x="328" y="510" class="mn" text-anchor="end">566字</text></g><g class="src" data-i="6"><rect x="10" y="549.875" width="330" height="50" rx="6" class="mr"/><text x="22" y="581" class="ml">体制</text><text x="328" y="581" class="mn" text-anchor="end">401字</text></g><g class="src" data-i="7"><rect x="10" y="610.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="633" class="ml">今後の進め方</text><text x="328" y="633" class="mn" text-anchor="end">178字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="61" rx="6" class="mr"/><text x="672" y="77" class="ml">本提案の要点</text><text x="978" y="77" class="mn" text-anchor="end">490字</text></g><g class="dst body" data-i="1"><rect x="660" y="111.25" width="330" height="62" rx="6" class="mr"/><text x="672" y="148" class="ml">昨年の失注</text><text x="978" y="148" class="mn" text-anchor="end">497字</text></g><g class="dst body" data-i="2"><rect x="660" y="183.375" width="330" height="86" rx="6" class="mr"/><text x="672" y="232" class="ml">投資額に見合う効果の判断</text><text x="978" y="232" class="mn" text-anchor="end">687字</text></g><g class="dst body" data-i="3"><rect x="660" y="279.25" width="330" height="34" rx="6" class="mr"/><text x="672" y="302" class="ml">3か月目の継続判断</text><text x="978" y="302" class="mn" text-anchor="end">213字</text></g><g class="dst body" data-i="4"><rect x="660" y="323.25" width="330" height="34" rx="6" class="mr"/><text x="672" y="346" class="ml">費用</text><text x="978" y="346" class="mn" text-anchor="end">232字</text></g><g class="dst body" data-i="5"><rect x="660" y="367.25" width="330" height="34" rx="6" class="mr"/><text x="672" y="390" class="ml">ご提案内容</text><text x="978" y="390" class="mn" text-anchor="end">196字</text></g><g class="dst body" data-i="6"><rect x="660" y="411.25" width="330" height="66" rx="6" class="mr"/><text x="672" y="450" class="ml">現場で使われ続けるための工夫</text><text x="978" y="450" class="mn" text-anchor="end">526字</text></g><g class="dst body" data-i="7"><rect x="660" y="487.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="510" class="ml">今後の進め方</text><text x="978" y="510" class="mn" text-anchor="end">150字</text></g><g class="dst app" data-i="8"><rect x="660" y="531.0" width="330" height="89" rx="6" class="mr"/><text x="672" y="581" class="ml">付録A 作業の項目</text><text x="978" y="581" class="mn" text-anchor="end">711字</text></g><g class="dst app" data-i="9"><rect x="660" y="629.875" width="330" height="55" rx="6" class="mr"/><text x="672" y="664" class="ml">付録B 背景の補足</text><text x="978" y="664" class="mn" text-anchor="end">443字</text></g><g class="dst app" data-i="10"><rect x="660" y="695.25" width="330" height="43" rx="6" class="mr"/><text x="672" y="723" class="ml">付録C スケジュール</text><text x="978" y="723" class="mn" text-anchor="end">345字</text></g><g class="dst app" data-i="11"><rect x="660" y="748.375" width="330" height="58" rx="6" class="mr"/><text x="672" y="784" class="ml">付録D 体制</text><text x="978" y="784" class="mn" text-anchor="end">466字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-4" role="tabpanel" aria-labelledby="doc-tab-4" tabindex="0" hidden><p class="p prose-max">情報システム部の運用チームが、受注管理システムが1時間半止まった障害を、情報システム部長と営業本部長に報告する文書。</p>
 <h3>ひとめで分かる変化</h3>
 <div class="tiles">
-  <div class="tile"><p class="l">本編の長さ</p><div class="v">29%<small>短縮</small></div><p class="d">1,246字 → 直して 1,248字 → 端的に 889字</p></div>
-  <div class="tile"><p class="l">決めてもらうこと</p><div class="v">2<small>件</small></div><p class="d">元の報告には書かれていなかった</p></div>
-  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">24<small>件</small></div><p class="d">論理の指摘16件、前提への問い8件。うち3問を書き手に聞く</p></div>
-  <div class="tile"><p class="l">書き手に残した確認事項</p><div class="v">29<small>件</small></div><p class="d">うち先に答える問いは3件。確認事項は本文に書かず、別ファイルに出す</p></div>
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">30%<small>短縮</small></div><p class="d">1,246字 → 直して 1,202字 → 端的に 874字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">19<small>件</small></div><p class="d">論理の指摘8件、前提への問い11件。うち3問を書き手に聞く</p></div>
 </div>
-<h3><span class="wide">左右</span><span class="narrow">上下</span>に並べて読む</h3>
-<p class="p prose-max"><span class="wide">左が元の文書、右が直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が直した後です。</span></p>
-<div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 1, 2, 3, 4]}'>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">返答の先頭は「このままでは差し戻されます」。決裁者の言葉で言えば、止まり方の確認と再起動後のメモリ使用量の整理は、了承を頼む前に運用チームが手元の記録でできる。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">再起動後のメモリ使用量の数値と推移</th><td>運用チームが1時間ごとに見てきた記録</td><td>概要の「再発はありません」のあとに数値と推移を1文で</td></tr><tr><th scope="row">止まり方が全面的だったか断続的だったか</th><td>入力の成功と失敗の時刻が分かる記録</td><td>概要の「確認中です」を分かった止まり方に</td></tr><tr><th scope="row">この注文をふだん入力するのは営業か顧客か</th><td>営業本部</td><td>概要の「顧客に再入力を頼み」を、誰が何をしたかの文に</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 4, 1, 2, 3]}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 1,246字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap">直した後 <span class="ln">本編 1,248字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 1,202字</span></p><div class="doc R" tabindex="0"></div></div>
 </div><template id="t-postmortem-before"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
@@ -2141,11 +2200,43 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <p>宛先:情報システム部長、営業本部長
 作成:情報システム部 運用チーム</p>
 <h4>概要</h4>
-<p>決めていただきたいことが2つあります。再発防止の3つの方向でよいかと、受注検索の改修が障害の原因かどうかの調査に1週間かけてよいかです。</p>
-<p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。この間に入力できた注文もあり、止まり方が全面的か断続的かは確認中です。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためと見ています。サーバーを再起動し、11:50 ごろに復旧しました。</p>
-<p>この時間帯に営業が入力した注文約300件のうち約40件が入力に失敗し、営業が顧客に再入力を頼みました。入力し直すのが営業か顧客かは確認中です。顧客からの問い合わせはありませんでした。</p>
-<p>メモリが上限に達した原因は確定しておらず、前日の夕方に本番へ反映した受注検索の改修を疑っています。改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。</p>
-<h4>経緯</h4>
+<p>情報システム部長に決めていただきたいのは、再発防止の3つの方向でよいかと、受注検索の改修が原因かどうかの調査に1週間かけてよいかの2つです。営業本部長には報告のみです。</p>
+<p>10月21日(火)の 10:05 から、受注管理システムの Web 画面の応答が極端に遅くなりました。受注管理システムの処理を動かすアプリケーションサーバーのメモリが上限に達していて、サーバーを再起動し、11:50 ごろに復旧しました。</p>
+<p>注文約40件が入力に失敗し、10月22日までに全件を入力し直しました。</p>
+<p>メモリが上限に達した理由は、まだ確定していません。前日に反映した受注検索の改修を疑っています。改修は切り戻しておらず、10月28日の時点で再発はありません。</p>
+<h4>原因</h4>
+<p>直接の原因は、アプリケーションサーバーのメモリが上限に達したことだと見ています。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
+<p>メモリが上限に達した理由は確定していません。疑っているのは前日の夕方に反映した受注検索の改修ですが、根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。1週間の調査は、運用チームの担当者2名が検証環境で改修の前後のメモリ使用量を比べるもので、10月29日に始めて11月5日に終えます。</p>
+<p>改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、使用率は再起動直後が45%、その後1週間は60〜70%で推移し、増え続けてはいません。</p>
+<h4>影響</h4>
+<p>この時間帯に営業が入力した注文は約300件で、そのうち約13%の約40件が入力に失敗しました。失敗した分は、営業が顧客に聞き直して入力し直しました。納期の遅れが出ていないことは営業本部に確認しました。顧客からの問い合わせはありませんでしたが、約40件の分は顧客に聞き直しの手間をかけています。</p>
+<p>残りの約260件は入力できています。アクセスログでは、応答に30秒以上かかったリクエストが全体の約8割で、全面停止ではありませんでした。</p>
+<h4>再発防止策</h4>
+<p>次の3つの方向を考えています。中身、担当、期限は、調査の結果が出てから改めて出したいと考えています。</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>今回の障害との関係</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>改修のメモリ使用量の確認</td>
+<td>受注検索の改修がメモリ上限到達の原因かどうかを判断する材料になる</td>
+</tr>
+<tr>
+<td>監視のしきい値の見直し</td>
+<td>しきい値は通知を出す基準の値で、今回、運用チームが調べ始めたきっかけは 10:15 の通知だった</td>
+</tr>
+<tr>
+<td>レビュー体制の強化</td>
+<td>今回の改修のレビューは1人で行った。体制が障害につながったかは、改修が原因かどうかが分かるまで判断できない</td>
+</tr>
+</tbody>
+</table>
+<p>調査の結果によっては、ほかの2つの策の中身も変わることがあります。</p>
+<h4>付録:経緯</h4>
 <table>
 <thead>
 <tr>
@@ -2159,8 +2250,12 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 <td>受注検索の改修を本番に反映した。レビューは1人で行った</td>
 </tr>
 <tr>
+<td>10月21日 10:05</td>
+<td>Web 画面の応答が極端に遅くなり始めた。11:50 までのリクエストは、全体の約8割の応答に30秒以上かかり、残りの約2割は数秒で返っていた</td>
+</tr>
+<tr>
 <td>10月21日 10:15</td>
-<td>監視の通知が出て、運用チームが調べた。メモリが上限に達していた</td>
+<td>監視の通知が出て、運用チームが調べた。アプリケーションサーバーのメモリが上限に達していた</td>
 </tr>
 <tr>
 <td>10月21日 11:05</td>
@@ -2172,60 +2267,33 @@ table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0
 </tr>
 </tbody>
 </table>
-<p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p>
-<h4>原因</h4>
-<p>直接の原因は、メモリが上限に達したことと見ています。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
-<p>メモリが上限に達した理由は確定していません。改修を疑う根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。半年前に1度、同じサーバーのメモリで通知が出たことがあります。そのときは再起動で収まり、原因は調べていません。</p>
-<h4>影響</h4>
-<p>入力に失敗した約40件は、この時間帯の注文約300件の約13%です。約40件の分は、顧客に再入力の手間をかけています。残りの約260件は入力できています。</p>
-<h4>再発防止策</h4>
-<p>次の3つの方向でよいかの了承をお願いします。具体的な内容、担当、期限は、調査の結果が出てから改めて出します。</p>
-<table>
-<thead>
-<tr>
-<th>再発防止策</th>
-<th>今回の障害との関係</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>改修のメモリ使用量の確認</td>
-<td>改修がメモリの使用量を増やしたかは、まだ確かめていない</td>
-</tr>
-<tr>
-<td>監視のしきい値(通知を出す基準の値)の見直し</td>
-<td>今回、運用チームが調べ始めたきっかけは 10:15 の通知だった</td>
-</tr>
-<tr>
-<td>レビュー体制の強化</td>
-<td>今回の改修のレビューは1人で行った。障害との関係は、改修が原因かどうかが分かるまで判断できない</td>
-</tr>
-</tbody>
-</table>
-<p>1つ目の確認は改修が原因かどうかを判断する材料になり、結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template>
+<p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p></article></template>
 <h3>主な変更 6 件</h3>
 <p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
-<ol class="changes"><li><button type="button" class="chg" data-doc="postmortem" data-b="受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー" data-a="決めていただきたいことが2つあります"><span class="num">1</span><b>決めることを明記</b><span>共有で終わる報告が、2つの判断を頼む報告になった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="改修が原因だとは確かめられていません。" data-a="改修は切り戻しておらず、本番に残っています"><span class="num">2</span><b>書き手の答えを反映</b><span>改修は本番に残っていて、再発はない</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="根拠は反映と障害の時期が近いことだけで" data-a="半年前に1度、同じサーバーのメモリで通知が出たことがあります"><span class="num">3</span><b>書き手の答えを反映</b><span>半年前にも同じ通知があった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="メモリが上限に達したためで、サーバーを再起動し" data-a="メモリが上限に達したためと見ています"><span class="num">4</span><b>言い切りを根拠に合わせる</b><span>原因は「と見ています」に</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません" data-a="次の3つの方向でよいかの了承をお願いします"><span class="num">5</span><b>頼む形にする</b><span>対策は了承を頼み、中身は調査のあとに</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでした" data-a="入力し直すのが営業か顧客かは確認中です"><span class="num">6</span><b>食い違いを見せる</b><span>再入力するのが誰かは確認中と書いた</span></button></li></ol>
+<ol class="changes"><li><button type="button" class="chg" data-doc="postmortem" data-b="受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー" data-a="情報システム部長に決めていただきたいのは、再発防止の3つの方向でよいかと"><span class="num">1</span><b>決めることを明記</b><span>共有で終わる報告が、情報システム部長に2つの判断を頼む報告になった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="全面的だったのか断続的だったのかは確認中" data-a="応答に30秒以上かかったリクエストが全体の約8割で、全面停止ではありませんでした"><span class="num">2</span><b>宿題の答えを入れる</b><span>止まり方は確認中から、約8割が30秒超に</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="改修が原因だとは確かめられていません" data-a="使用率は再起動直後が45%、その後1週間は60〜70%で推移し、増え続けてはいません"><span class="num">3</span><b>宿題の答えを入れる</b><span>再起動後のメモリの値が入った</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="営業が顧客に再入力を頼みました" data-a="営業が顧客に聞き直して入力し直しました"><span class="num">4</span><b>宿題の答えを入れる</b><span>再入力したのは営業、と分かった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません" data-a="運用チームの担当者2名が検証環境で改修の前後のメモリ使用量を比べるもので、10月29日に始めて11月5日に終えます"><span class="num">5</span><b>調査の担当と期限</b><span>検討中だった調査に、担当2名と終える日が付いた</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="メモリが上限に達したためで、サーバーを再起動し" data-a="メモリが上限に達したことだと見ています"><span class="num">6</span><b>言い切りを根拠に合わせる</b><span>原因は「と見ています」に</span></button></li></ol>
 <h3>どうやったか</h3>
 <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
-<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を16件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を8件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
-<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:99.8%"></span></span><span class="bv">1,246字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">1,248字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:71.2%"></span></span><span class="bv">889字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:86.9%"></span></span><span class="bv">1,084字</span></div></div>
-<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">何を決めてほしいのか</th><td>書いていない</td><td>2つ。再発防止の3つの方向と、調査に1週間かけてよいか</td></tr><tr><th scope="row">疑っている改修は今も本番か</th><td>書いていない</td><td>切り戻しておらず、本番に残っている。再起動後は再発なし</td></tr><tr><th scope="row">改修を疑う根拠は</th><td>時期が近いことだけ</td><td>同じ。半年前にも同じサーバーで通知が出た、を追加</td></tr><tr><th scope="row">止まり方は全面か断続か</th><td>確認中</td><td>確認中のまま</td></tr><tr><th scope="row">対策の担当と期限は</th><td>まだ決まっていない</td><td>調査の結果が出てから改めて出す、と頼む形に</td></tr></tbody></table></div>
-<h4>書き手に聞いた3問と答え</h4>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を8件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を11件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">1,246字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:96.5%"></span></span><span class="bv">1,202字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:70.1%"></span></span><span class="bv">874字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:92.5%"></span></span><span class="bv">1,153字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">何を決めてほしいのか</th><td>書いていない</td><td>情報システム部長に2つ。再発防止の方向と、調査の1週間。営業本部長には報告のみ</td></tr><tr><th scope="row">止まり方は全面か断続か</th><td>確認中</td><td>約8割の要求が30秒以上かかった。全面停止ではない</td></tr><tr><th scope="row">再起動後に再発していないか</th><td>再発なし、とだけ</td><td>使用率は再起動直後45%、その後1週間は60〜70%で安定</td></tr><tr><th scope="row">調査の担当と期限は</th><td>まだ決まっていない</td><td>運用チームの2名が検証環境で比べ、11月5日に終える</td></tr><tr><th scope="row">再入力したのは誰か</th><td>書いていない</td><td>営業が顧客に聞き直して入力し直した。納期の遅れはない</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
 <p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
-<ol class="list prose-max"><li>受注検索の改修は、いま本番でどうなっていますか(残している、切り戻した、など)。再起動のあとのメモリ使用量は見ていますか。見ているなら、どの時点までどんな状態で、同じ障害は起きていませんか。この答えが、「今も同じことが起きうるのか」に報告書で答える材料になります。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。メモリ使用量の具体的な値は分かりません。</p></div></details></li><li>この報告書は、部長お二人への共有で終わる文書だと読みました。この読みで合っていますか。お二人に了承や指示をもらいたいことがあるなら、それは何で、どちらの部長に求めるものですか(3つの再発防止策について、今後の確認の進め方について、など)。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>共有で終わる文書ではありません。決めてもらいたいことは2つあります。1つ目は、再発防止の3つの方向でよいかの了承です。2つ目は、改修が原因かどうかの調査に1週間かけてよいかです。防止策の中身・担当・期限は、調査の結果が出てから改めて出したいと考えています。どちらの部長に求めるものかは分かりません。</p></div></details></li><li>改修を疑う根拠は「反映と障害の時期が近いこと」だけですが、10月20日の反映より前に、同じサーバーでメモリが問題になったことはありますか。また、前日までに改修のほかに変わったものはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>半年前に1度、同じサーバーのメモリで通知が出たことがあります。そのときは再起動で収まり、原因は調べていません。前日までに改修のほかに変わったものがあるかは分かりません。</p></div></details></li></ol>
-<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 29 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 今回決めてもらうのを「調査に1週間かけてよいか」の1点に絞り、再発防止の3つの方向の了承は調査の結果が出てから改めて頼む。半年前にも同じサーバーのメモリで通知が出ていて、改修が原因でないと分かれば、レビュー体制の強化は今回の障害と結びつかなくなるため。本文は頼む中身を保ったまま直してあり、選ぶのは書き手。</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>2つの判断は、情報システム部長と営業本部長のどちらに求めるものか。本文は宛先の2人に向けた形のまま書いている。</li><li>前日までに、受注検索の改修のほかに変わったものはあるか。分からないままだと、「時期が近い」という改修への疑いの根拠が確かめられない。</li><li>再起動後に1時間ごとに見ているメモリ使用量の具体的な値は、どこで確かめられるか。本文は「10月28日の時点で再発はありません」までしか書いていない。改修を本番に残したまま、同じ障害が起きないと言える材料はあるか。</li></ol><h4>そのほか 26 件</h4><ul class="list"><li>文書の作成日や報告日はいつか。本文には日付がなく、「確定していません」「確認中」がいつの時点の話か、読み手に分からない。10月28日の時点で、と書いたのは再発の有無だけである。</li><li>「改修が原因かどうかの調査」と、再発防止の1つ目「改修のメモリ使用量の確認」は同じものか。本文は、この2つの関係を言い切っていない。同じものなら、調査と対策を同じ表に並べたまま了承を求めてよいか。</li><li>調査の1週間は、いつから数えるのか。誰が調査するのか。</li><li>確認の結果しだいで策の中身が変わるなら、確認の前に3つの方向の了承を求める意味は何か。</li><li>調査が終わる前に同じ障害が起きたらどうするのか。調査しても原因が分からなかったら、どの時点で何を決めるのか。原因と判断する条件と、原因ではないと判断する条件は何か。</li><li>改修がメモリの使用量を増やしたと確かめられれば、上限到達の原因と言えるのか。</li><li>障害の発生から報告までの間に、手元の記録で確かめられたことはどれか。確かめられるのに未着手のものはあるか。確認に使える記録はいつの分まで残っているか。</li><li>メモリの上限到達が応答の停止を起こしたことと、再起動が復旧をもたらしたことは、順番のほかに何で確かめたのか。再起動から復旧までに約45分ある。本文は「見ています」の形にした。</li><li>半年前の通知と今回は、同じ現象と言えるか。反映の前後のメモリ使用量の記録は残っているか。</li><li>改修が原因でないと分かったら、次に何を疑うのか。そのとき、監視のしきい値の見直しとレビュー体制の強化は残るのか。</li><li>レビューの体制が障害につながったか判断できないのに、レビュー体制の強化を再発防止の方向として挙げる理由は何か。</li><li>レビューが1人だったのは今回だけか、ふだんからか。1人では足りないと言える理由は何か。</li><li>今の監視のしきい値のどこに問題があったと考えているのか。調べた時点でメモリはすでに上限に達していたが、見直すと何が防げるのか。</li><li>改修の確認の結果で、監視のしきい値の見直しの中身はどう変わるのか。</li><li>3つのほかに、改修を元に戻す案、原因が分かるまで何もしない案、止まってから戻るまでの時間を縮める案は検討したか。比べたのなら、その記録は文書に出せるか。</li><li>3つの方向は、それぞれ誰がやり、誰が確かめるのか。レビュー体制は運用チームが変えられるものか。受注検索の改修を作った人とレビューした人はどの部署で、この報告を知っているか。</li><li>3つの方向は原因に応じて考えた策というより、原因が未確定という報告に策の形を添えたものだ、という反論にどう答えるか。今の時点で言えるのは「調査中」までではないか。</li><li>通知から再起動までの50分と、再起動から復旧までの約45分を、長いと見ているのか、問題ないと見ているのか。50分と約45分の内訳は分かるか。本当の問題は止まっていた時間のほうだ、という反論にどう答えるか。</li><li>「1時間半ほど」は、通知の 10:15 を止まり始めとして数えた長さか。止まり始めの時刻は何から確かめたのか。</li><li>止まり方は全面的だったのか断続的だったのか。「1時間半ほど応答しなくなりました」は、確認が終わったあとも同じ言い方で書けるか。本文では、概要に確認中と書いた。</li><li>再入力するのは営業か顧客か。元の文書は「営業が入力した注文」を「顧客が再入力」する形になっている。本文では、概要に確認中と書いた。</li><li>「この時間帯」はいつからいつまでか。約40件の失敗が今回の障害によるものだというのは、確かめた事実か、時間帯が重なることからの推論か。</li><li>約260件は、入力された注文を確かめた結果か、約300件から約40件を引いた値か。</li><li>約40件は入力し直されたのか。処理の遅れはなかったか。</li><li>影響は営業の入力だけか。Web 画面を使う入力以外の業務や、営業以外の人への影響はないか。画面が止まっている間に入力を見送った注文は数えているか。</li><li>約300件と約40件は、誰がどこから数えた数字か。運用チームの外の人が確かめた部分はあるか。</li></ul></div></details>
+<ol class="list prose-max"><li>疑っている受注検索の改修は、いま本番で動いたままですか、元に戻しましたか。再起動のあと、メモリの使用量はどう動いていますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>切り戻していません。改修は本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。使用量の具体的な数値や推移は分かりません。</p></div></details></li><li>入力に失敗した約40件は、全件が入力し直されたことを確かめましたか。文書には「営業が入力した注文」と「顧客に再入力を頼みました」の両方がありますが、この注文をシステムに入力するのは営業と顧客のどちらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>営業が電話で顧客に再入力を頼み、10月22日までに全件入力し直しました。納期の遅れが出ていないことは営業本部に確認しました。この注文をふだんシステムに入力するのが営業と顧客のどちらかは分かりません。</p></div></details></li><li>この報告で情報システム部長と営業本部長に求めるのは、「再発防止策の中身は、改修のメモリ使用量を確かめてから決める」という進め方の了承だと読みました。違いますか。ほかに2人に決めてもらうことはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>少し違います。決めてもらうことは、再発防止の3つの方向でよいかの了承と、改修が原因かどうかの調査に1週間かけてよいかの2つです。防止策の中身・担当・期限は、調査の結果が出てから改めて出します。調査は、検証環境で改修の前後のメモリ使用量を比べる予定で、まだ始めていません。1週間あればできる見込みです。ほかに決めてもらうことはありません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>再起動後のメモリ使用量の数値と推移を調べる。運用チームが1時間ごとに見てきた記録を見る→概要の「再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません」のあとに、数値と推移を1文で足す。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>使用率は再起動直後が45%で、その後1週間は60〜70%で推移し、増え続けてはいません。</p></div></details></li><li>止まり方が全面的だったのか断続的だったのかを調べる。入力の成功と失敗の時刻が分かる記録を見る→概要の「止まり方が全面的だったのか断続的だったのかは確認中です」を分かった止まり方に置き換え、同じ段落の前にある「Web画面が1時間半ほど応答しなくなりました」も、それに合う言い方にそろえる。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>アクセスログを調べました。10:05から11:50のあいだ、応答に30秒以上かかった要求が全体の約8割で、残りの約2割は数秒で返っていました。全面停止ではなく、ほとんどの要求が極端に遅くなった状態でした。入力の成功と失敗の時刻ごとの内訳は分かりません。</p></div></details></li><li>この注文をふだんシステムに入力するのが営業か顧客かを営業本部に聞く→営業なら、概要の「営業が電話で顧客に再入力を頼み」を、顧客に何を頼んだのかが分かる文に直す。顧客なら、概要の「営業が入力した注文」を顧客が入力した注文に直す。調べた結果を教えてください<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>ふだんの入力を営業と顧客のどちらがするのかは分かりません。確認できているのは今回の約40件についてだけで、営業に確認したところ、営業が顧客に聞き直して営業が入力し直しており、顧客自身の入力はありません。顧客には聞き直しをしたのであって、顧客が再入力したのではありません。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>別ファイルに出した確認事項 16 件と、先頭の「決裁事項を小さくする案」</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> </p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list"><li>改修を切り戻さずに本番に残している理由は、本文にありません。決裁者に聞かれたら、どう答えますか。調査が終わる11月5日までに再発したときの扱いは決まっていますか。</li><li>改修を疑う根拠は「反映と障害の時期が近いことだけ」と書いています。反映の前後でメモリ使用量がどう動いたかと、同じ時期に本番で変わったものがほかにないかは、手元の監視の記録と変更の記録で分かりますか。</li><li>聞いて分からなかったことが2つあります。この注文をふだん入力するのは営業と顧客のどちらか、入力の成功と失敗の時刻ごとの内訳はどうかです。どちらも今回の2つの決めごとを左右しないので、本文は書き手の答えの範囲で書きました。報告の相手から聞かれたら答えられますか。</li></ol><h4>そのほか 13 件</h4><ul class="list"><li>再起動から復旧までに約45分かかった理由は何ですか。本文は、メモリの上限到達を「直接の原因と見ている」と書いていますが、再起動のあとすぐには直っていません。</li><li>通知から再起動までの50分は、何にかかった時間ですか。再発防止の3つの方向は、この時間も再起動のあとの約45分も扱っていません。</li><li>改修が原因でなかったとき、3つの方向のどれが残りますか。本文は「ほかの2つの策の中身も変わることがあります」としか書いていません。</li><li>原因が分かる前に「レビュー体制の強化」の方向を了承してもらう理由は何ですか。本文は、体制が障害につながったかは判断できないと書いています。</li><li>監視のしきい値を見直すと、今回の何が防げますか。本文に書いてあるのは、10:15 の通知がきっかけだったという事実だけです。</li><li>ふだんのレビューは何人で行っていますか。今回の1人がふだんの運用なのか例外なのかで、「強化」の意味が変わります。</li><li>改修を元に戻す案と残す案を比べた記録はありますか。</li><li>3つの方向のうち、レビュー体制を決める人は宛先の中にいますか。実行する人は誰を想定していますか。</li><li>過去に同じサーバーで、同じ通知が出たことはありますか。</li><li>調査の開始日は10月29日ですが、了承が必要な期限が本文にありません。この報告を出す日と、いつまでに了承が要るかを書くかどうかを決めてください。報告書には作成日もありません。</li><li>入力の失敗のほかに、検索や参照など、受注管理システムのほかの業務への影響はありましたか。</li><li>「顧客からの問い合わせはありませんでした」は、顧客への影響の物差しになりますか。聞き直しの手間をかけた顧客への対応は決まっていますか。</li><li>3つの方向の並びは、調査、検知、開発の工程と切り口がそろっていません。「改修のメモリ使用量の確認」は調査そのものなので、決めごとの2つが重なっています。このまま並べますか。</li></ul></div></details>
 <h4>構成がどう変わったか</h4>
 <p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
-<div class="map-wrap"><svg viewBox="0 0 1000 282.5" class="fig map" role="img" aria-label="元の5節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 1,246字</text><text x="660" y="24" class="mh">組み直した文書 本編 1,084字 + 付録 186字</text><path d="M340,60 C500.0,60 500.0,62 660,62" class="mv" data-src="0" data-dst="0"/><path d="M340,60 C500.0,60 500.0,110 660,110" class="mv" data-src="0" data-dst="1"/><path d="M340,106 C500.0,106 500.0,246 660,246" class="mv dashed" data-src="1" data-dst="4"/><path d="M340,150 C500.0,150 500.0,154 660,154" class="mv" data-src="2" data-dst="2"/><path d="M340,194 C500.0,194 500.0,110 660,110" class="mv" data-src="3" data-dst="1"/><path d="M340,238 C500.0,238 500.0,200 660,200" class="mv" data-src="4" data-dst="3"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="39" rx="6" class="mr"/><text x="22" y="66" class="ml">概要</text><text x="328" y="66" class="mn" text-anchor="end">312字</text></g><g class="src" data-i="1"><rect x="10" y="89.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="112" class="ml">経緯</text><text x="328" y="112" class="mn" text-anchor="end">196字</text></g><g class="src" data-i="2"><rect x="10" y="133.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="156" class="ml">原因</text><text x="328" y="156" class="mn" text-anchor="end">231字</text></g><g class="src" data-i="3"><rect x="10" y="177.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="200" class="ml">影響</text><text x="328" y="200" class="mn" text-anchor="end">197字</text></g><g class="src" data-i="4"><rect x="10" y="221.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="244" class="ml">再発防止策</text><text x="328" y="244" class="mn" text-anchor="end">253字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="43" rx="6" class="mr"/><text x="672" y="68" class="ml">概要</text><text x="978" y="68" class="mn" text-anchor="end">344字</text></g><g class="dst body" data-i="1"><rect x="660" y="93.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="116" class="ml">影響</text><text x="978" y="116" class="mn" text-anchor="end">144字</text></g><g class="dst body" data-i="2"><rect x="660" y="137.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="160" class="ml">原因と調査</text><text x="978" y="160" class="mn" text-anchor="end">239字</text></g><g class="dst body" data-i="3"><rect x="660" y="181.0" width="330" height="38" rx="6" class="mr"/><text x="672" y="206" class="ml">再発防止策</text><text x="978" y="206" class="mn" text-anchor="end">300字</text></g><g class="dst app" data-i="4"><rect x="660" y="228.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="252" class="ml">付録A 経緯</text><text x="978" y="252" class="mn" text-anchor="end">186字</text></g></svg></div></div></details></div></div></div>
+<div class="map-wrap"><svg viewBox="0 0 1000 316.875" class="fig map" role="img" aria-label="元の5節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 1,246字</text><text x="660" y="24" class="mh">組み直した文書 本編 1,153字 + 付録 282字</text><path d="M340,60 C500.0,60 500.0,57 660,57" class="mv" data-src="0" data-dst="0"/><path d="M340,106 C500.0,106 500.0,279 660,279" class="mv dashed" data-src="1" data-dst="5"/><path d="M340,150 C500.0,150 500.0,101 660,101" class="mv" data-src="2" data-dst="1"/><path d="M340,150 C500.0,150 500.0,191 660,191" class="mv" data-src="2" data-dst="3"/><path d="M340,194 C500.0,194 500.0,235 660,235" class="mv" data-src="3" data-dst="4"/><path d="M340,238 C500.0,238 500.0,146 660,146" class="mv" data-src="4" data-dst="2"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="39" rx="6" class="mr"/><text x="22" y="66" class="ml">概要</text><text x="328" y="66" class="mn" text-anchor="end">312字</text></g><g class="src" data-i="1"><rect x="10" y="89.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="112" class="ml">経緯</text><text x="328" y="112" class="mn" text-anchor="end">196字</text></g><g class="src" data-i="2"><rect x="10" y="133.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="156" class="ml">原因</text><text x="328" y="156" class="mn" text-anchor="end">231字</text></g><g class="src" data-i="3"><rect x="10" y="177.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="200" class="ml">影響</text><text x="328" y="200" class="mn" text-anchor="end">197字</text></g><g class="src" data-i="4"><rect x="10" y="221.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="244" class="ml">再発防止策</text><text x="328" y="244" class="mn" text-anchor="end">253字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="34" rx="6" class="mr"/><text x="672" y="63" class="ml">概要</text><text x="978" y="63" class="mn" text-anchor="end">255字</text></g><g class="dst body" data-i="1"><rect x="660" y="84" width="330" height="34" rx="6" class="mr"/><text x="672" y="107" class="ml">原因の調査</text><text x="978" y="107" class="mn" text-anchor="end">260字</text></g><g class="dst body" data-i="2"><rect x="660" y="128" width="330" height="36" rx="6" class="mr"/><text x="672" y="152" class="ml">再発防止策</text><text x="978" y="152" class="mn" text-anchor="end">285字</text></g><g class="dst body" data-i="3"><rect x="660" y="173.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="197" class="ml">障害の内容</text><text x="978" y="197" class="mn" text-anchor="end">128字</text></g><g class="dst body" data-i="4"><rect x="660" y="217.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="241" class="ml">影響</text><text x="978" y="241" class="mn" text-anchor="end">168字</text></g><g class="dst app" data-i="5"><rect x="660" y="261.625" width="330" height="35" rx="6" class="mr"/><text x="672" y="285" class="ml">付録:経緯</text><text x="978" y="285" class="mn" text-anchor="end">282字</text></g></svg></div></div></details></div></div></div>
 </div></section>
 
 
 <section class="block" id="checked"><div class="wrap">
   <h2 data-chip>確かめたこと</h2>
   <h3>上の4本で</h3>
-  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>直した後への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody><tr><th scope="row">稟議書</th><td>経営者</td><td>条件つきOK</td><td>条件つきOK</td><td>10 件のうち 10 件</td></tr><tr><th scope="row">社内の制度企画</th><td>経営者</td><td>条件つきOK</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr><tr><th scope="row">コンサルの提案資料</th><td>提案を受け取る会社の役員</td><td>条件つきOK</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr><tr><th scope="row">障害報告書</th><td>報告を受け取る上司</td><td>判断の前に質問あり</td><td>条件つきOK</td><td>8 件のうち 8 件</td></tr></tbody></table></div>
-  <p class="p prose-max">想定した読み手の AI が4本に出した指摘は、各文書3回の合計で 34 件。確認事項になかったものは 0 件。各文書の先に答えるべき3件、計12件に入っていたのは 6 件で、残りは「そのほか」にありました。</p>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>1回目への返事</th><th>2回目への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody><tr><th scope="row">稟議書</th><td>経営者</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>14 件のうち 11 件</td></tr><tr><th scope="row">社内の制度企画</th><td>経営者</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>16 件のうち 16 件</td></tr><tr><th scope="row">コンサルの提案資料</th><td>提案を受け取る会社の役員</td><td>条件つきOK</td><td>却下</td><td>却下</td><td>9 件のうち 9 件</td></tr><tr><th scope="row">障害報告書</th><td>報告を受け取る上司</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>14 件のうち 14 件</td></tr></tbody></table></div>
+  <p class="p prose-max">想定した読み手の AI が4本に出した指摘は、各文書3回の合計で 53 件。確認事項になかったものは 3 件で、どれも稟議書の時間単価です。1回目に書き手が答えて本文に入ったので、確認事項には残っていません。1回目の確認事項の先頭にある「出す前にやること」と「先に答える問い」に入っていたのは 25 件で、残りは「そのほか」にありました。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
