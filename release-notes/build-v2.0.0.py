@@ -161,6 +161,8 @@ def load_outcome(label, group):
     return out
 OUTC = {"ringi": load_outcome("o14-exec", "ringi"), "kikaku": load_outcome("o14-kikaku", "kikaku"),
         "teian": load_outcome("o14-customer", "teian"), "postmortem": load_outcome("o14-boss", "postmortem")}
+# 提案資料の2回目は、ページに出す縮小版(o15)への返事に差し替える
+OUTC["teian"]["2回目"] = load_outcome("o15-customer", "teian")["2回目"]
 def load_overlap(label, name):
     rs = json.loads((RUNS / label / "results.json").read_text())
     r = next(x for x in rs if x["name"] == name)
@@ -487,7 +489,7 @@ def checked_html():
     return f'''<h3>上の4本で</h3>
   <p class="p prose-max">想定した読み手を演じる AI に、元の文書、1回目、2回目をそれぞれ渡し、返事と指摘を返させました。右端は、元の文書への指摘のうち、スキルが1回目に出した確認事項がすでに拾っていた数です。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>1回目への返事</th><th>2回目への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
-  <p class="p prose-max">読み手役の AI が元の文書に出した指摘は、1本につき3回の試行で合計 {OV_TOTAL} 件。うち {OV_TOTAL - OV_NONE} 件は、スキルが1回目に出した確認事項にすでに入っていました({OV_FIRST} 件は宿題と「先に答えるべき問い」に、残りは「そのほか」に)。入っていなかった {OV_NONE} 件はどれも稟議書の時間単価で、1回目に書き手が答えて本文に入ったので、確認事項には残っていません。コンサルからの提案資料は、元の文書が失注を言い切っていたため通りかけ、台帳の数字と効果の上限を正直に書いた2回目は却下になりました。決裁事項を小さくした版を別に出したのはそのためです。</p>
+  <p class="p prose-max">読み手役の AI が元の文書に出した指摘は、1本につき3回の試行で合計 {OV_TOTAL} 件。うち {OV_TOTAL - OV_NONE} 件は、スキルが1回目に出した確認事項にすでに入っていました。{OV_FIRST} 件は宿題と「先に答えるべき問い」に、残りは「そのほか」にです。入っていなかった {OV_NONE} 件はどれも稟議書の時間単価で、1回目に書き手が答えて本文に入ったので、確認事項には残っていません。コンサルからの提案資料は、元の文書は失注を言い切っていたため「フェーズ1だけなら」と通りかけました。台帳の数字と効果の上限を正直に書くと2,700万円のままでは却下で、決裁事項を900万円の診断だけに小さくした版は3回中2回が条件つきOKでした。表の2回目はその版への返事です。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
