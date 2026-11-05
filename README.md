@@ -35,18 +35,22 @@ AI が書いた技術記事と PR の説明文を「読みやすくして」と�
 
 ## 使い方
 
+Claude Code・Cursor・Codex など、[skills](https://github.com/vercel-labs/skills) が対応するエージェントでは、次のコマンドでインストールできます。
+
 ```bash
 npx skills add coji/natural-japanese
 ```
+
+画面の案内に従って、インストールするスキルと利用するエージェントを選んでください。詳しくは [skills CLI の説明](https://github.com/vercel-labs/skills/blob/main/docs/commands.md#skills-add) を参照してください。
 
 あとは、エージェントに「読みやすくして」「議事録にして」「AI っぽいところを直して」のように頼むだけです。書き換えずに自然さの点数(0〜100)と理由だけを知りたいときは、`/natural-japanese score <ファイル>` を使います。
 
 バージョンごとの変更点は [Releases](https://github.com/coji/natural-japanese/releases) にあります。
 
 <details>
-<summary>ほかの入れ方(Cursor・ChatGPT・Codex、Claude Code プラグイン、手動)</summary>
+<summary>ほかの入れ方(プラグイン・AGENTS.md 経由・手動)</summary>
 
-Cursor:
+Cursorプラグインとして入れる場合:
 
 Cursor Marketplace での公開は審査待ちです。公開後は Marketplace で `natural-japanese` を探してインストールできます。公開前にローカルで試す場合は、リポジトリのルートで次を実行します。
 
@@ -59,7 +63,7 @@ cp -R skills ~/.cursor/plugins/local/natural-japanese/
 
 そのあと Cursor を再起動するか、`Developer: Reload Window` を実行してください。Customize を開くと、`natural-japanese` が Skills に表示されます。
 
-ChatGPT・Codex など(`AGENTS.md` を経由して使う):
+`AGENTS.md` を経由してスキルを読み込ませる場合は、[OpenSkills](https://github.com/numman-ali/openskills) も使えます。
 
 ```bash
 npx openskills install coji/natural-japanese
