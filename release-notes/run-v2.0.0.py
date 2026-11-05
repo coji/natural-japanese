@@ -2,15 +2,17 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyyaml"]
 # ///
-"""ページの例の文書(release-notes/data/v2.0.0/<文書>/doc.md)に、いまの作業ツリーの critical-thinking を一通りかける。
+"""ページの例の文書(release-notes/data/v2.0.0/<文書>/doc.md)に、いまの作業ツリーの critical-thinking を `full` で2回かける。
   uv run --with pyyaml release-notes/run-v2.0.0.py ringi teian kikaku postmortem
-doc.md・brief.txt・writer.json は残し、それ以外の出力を作り直す。頼み方の文は dev/ct-eval/eval.py の PROMPTS と同じ。
-出力: report-logic.md, report-somosomo.md, doc.md.logic.yaml, questions.md, answers.md, doc-review.md, doc-review.確認事項.md,
-      plans.md, doc-redesign.md, doc-redesign.確認事項.md, doc-concise.md, doc-concise.確認事項.md。実行ログ log-*.txt は同じ場所に残るが git には入れない(.gitignore)。
-組み直す・端的は、同じ場所に answers.md がある状態で回るので、書き手の答えも読める
+1回目(pass1/)は writer.json の事実しか知らない書き手の答えで回り、返答は差し戻しと宿題になる。
+2回目(pass2/)は writer2.json(宿題を済ませて分かったことを足した事実)で回る。
+各 pass の中身: doc.md のコピー、writer.json、questions.md、answers.md、doc.review.md、doc.確認事項.md、doc.review.short.md、
+doc.review.plans.md、doc.review.rebuild.md、それぞれの確認事項、report-logic.md、report-somosomo.md、YAML、reply.md(最後の返答)。
+実行ログ log-*.txt は残るが git には入れない(.gitignore)。
 """
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -20,29 +22,41 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "dev" / "ct-eval
 import eval as ev  # noqa: E402
 
 DATA = Path(__file__).resolve().parent / "data" / "v2.0.0"
-KEEP = {"doc.md", "brief.txt", "writer.json"}
-TOOLS = ev.REWRITE_TOOLS
+TOOLS = ev.REWRITE_TOOLS + ["Skill"]
 MODEL, EFFORT = "claude-opus-5-5", "high"
+FULL = "/critical-thinking full doc.md"
+
+
+def full(d: Path, plugin: Path, log: str) -> None:
+    lp = d / f"log-{log}.txt"
+    ev.claude(FULL, d, TOOLS, MODEL, EFFORT, plugin, lp)
+    # 最後の返答は stream-json の result イベントにある
+    for line in reversed(lp.read_text().splitlines()):
+        if line.startswith("{") and '"type":"result"' in line.replace(" ", ""):
+            try:
+                (d / "reply.md").write_text(json.loads(line).get("result", ""))
+            except json.JSONDecodeError:
+                pass
+            break
+
+
+def one_pass(src: Path, w: Path, writer: str, plugin: Path) -> None:
+    if w.exists():
+        shutil.rmtree(w)
+    w.mkdir()
+    shutil.copy(src / "doc.md", w / "doc.md")
+    shutil.copy(src / writer, w / "writer.json")
+    full(w, plugin, "full1")  # answers.md がないので questions.md を書いて止まる
+    if (w / "questions.md").exists():
+        ev.claude(ev.WRITER_PROMPT.format(file="doc.md"), w, ev.WRITER_TOOLS, MODEL, "medium", None, w / "log-writer.txt")
+        if (w / "answers.md").exists():
+            full(w, plugin, "full2")
 
 
 def run(d: Path, plugin: Path) -> str:
-    for p in d.iterdir():
-        if p.name not in KEEP:
-            p.unlink()
-    f = "doc.md"
-    def go(name: str, prompt: str) -> None:
-        ev.claude(prompt, d, TOOLS, MODEL, EFFORT, plugin, d / f"log-{name}.txt")
-    go("logic", ev.PROMPTS["logic"].format(file=f).replace("report.md", "report-logic.md"))
-    go("somosomo", ev.PROMPTS["somosomo"].format(file=f).replace("report.md", "report-somosomo.md"))
-    rv = ev.PROMPTS["review"].format(file=f).replace("source-after.md", "doc-review.md").replace("source.確認事項.md", "doc-review.確認事項.md")
-    go("review1", rv)
-    if (d / "questions.md").exists():
-        ev.claude(ev.WRITER_PROMPT.format(file=f), d, ev.WRITER_TOOLS, MODEL, "medium", None, d / "log-writer.txt")
-        if (d / "answers.md").exists():
-            go("review2", rv)
-    go("redesign", ev.PROMPTS["redesign"].format(file=f).replace("source-after.md", "doc-redesign.md").replace("source.確認事項.md", "doc-redesign.確認事項.md"))
-    go("concise", ev.PROMPTS["concise"].format(file=f).replace("source-after.md", "doc-concise.md").replace("source.確認事項.md", "doc-concise.確認事項.md"))
-    return f"done {d.name}: " + ", ".join(sorted(p.name for p in d.iterdir() if p.name not in KEEP and not p.name.startswith("log-")))
+    one_pass(d, d / "pass1", "writer.json", plugin)
+    one_pass(d, d / "pass2", "writer2.json", plugin)
+    return f"done {d.name}: " + ", ".join(sorted(p.name for p in (d / "pass2").iterdir() if not p.name.startswith("log-")))
 
 
 def main() -> None:
