@@ -1,7 +1,7 @@
 # AGENTS.md
 
-このリポジトリは [`natural-japanese`](./skills/natural-japanese/SKILL.md) という Agent Skill を配布するためのものです。
-スキル本体は `skills/natural-japanese/` にあり、`SKILL.md` と `references/`・`scripts/`・`assets/` で構成されます。
+このリポジトリは2つの Agent Skill を配布するためのものです。日本語を直す [`natural-japanese`](./skills/natural-japanese/SKILL.md) と、文書の論旨を決裁者の目で検査して直す [`critical-thinking`](./skills/critical-thinking/SKILL.md) です。
+スキル本体は `skills/<名前>/` にあり、`SKILL.md` と `references/`・`scripts/` で構成されます(natural-japanese はさらに `assets/` を持ちます)。
 
 ## このスキルについて
 
@@ -14,6 +14,20 @@
 - 書く前に読み手・主メッセージ・見出しを決め、書くときは SKILL.md §2 の12の原則に沿う
 
 規則と工程はすべて [`SKILL.md`](./skills/natural-japanese/SKILL.md) にあります。`references/` には、文書タイプ別の型(`doctypes/`)、診断モードの採点方法(`diagnose.md`)、lint が使えない環境向けの手順(`manual-checklist.md`)だけを置いています。
+
+## critical-thinking について
+
+提案書・稟議書・企画書・報告書の「考え」を、決裁者の目で検査して直すスキルです。基本の入口は「決裁者の目で見て直して」の1つで、サブコマンドでは `full`、サブコマンドなしも同じです。検査から直しまでを1回で通し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作ります。確認事項は文書の中に書かず、`<文書名>.確認事項.md` に出します。検査の工程は2つに分かれていて、分けて使うこともできます。
+
+- `logic`:文書の中で筋が通っているか。論理構造を `<ファイル>.logic.yaml` に書き出し(主結論・決裁事項・制約・論点(論証/記述)・根拠の重み・論拠。あとの工程はこの YAML を足場にする)、矛盾・根拠のない主張・事実と推論の混在・並列の漏れやねじれ・どこにも対応しない文を、行番号つきの問いで返す
+- `somosomo`:文書の外から前提を疑う。logic の YAML を足場に、前提・問いそのもの・他の選択肢・覆る条件・利害と実行を問う。各指摘は「問い・倒れる場所(行番号)・要る材料の種類」の3点で、代替案の中身や文書にない事実は書かない
+
+規則は [`skills/critical-thinking/SKILL.md`](./skills/critical-thinking/SKILL.md) と `references/logic.md`・`references/somosomo.md` にあります。YAML の漏れは `scripts/coverage.py` で機械的に確かめます。検査は LLM の読みに頼るため、lint のような再現性はありません。その揺れと誤検知は `dev/ct-eval/eval.py`(欠陥を仕込んだ架空の稟議書・障害報告書・提案資料・制度企画と、欠陥のない対の文書に複数回かける評価ハーネス。素材は `dev/ct-eval/fixtures/`)で測ります。「指摘を反映して直す」工程も同じハーネスの `rewrite` モードで測ります(本文に印を埋めない、改訂の経緯を書かない、元より長くしない、書き手の代わりに決めない)。「構成から組み直す」工程は `redesign` モードで測ります(rewrite の検査に加えて、構成案が2つ以上ある、そのうち1つは頼む中身を小さくする案である、主結論と決裁事項が元と同じ、論の背骨が替わった)。「もっと端的に」「もっと丁寧に」は `concise` / `detailed` モードで測ります(logic の YAML の深さで本編の長さを決める。主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応するか)。「決裁者の目で見て直す」の一括経路は `review` モードで測ります(書き手だけが知る事実を持つ模擬書き手に3つまでの問いを答えさせ、答えが改変なく本文に入ったか、文書の中で答えが出る問いを人に聞いていないかを見る)。規則の合否とは別に、成果物が読む人にとって良くなったかは `dev/ct-eval/outcome.py`(文書を受け取る側の役の AI に文書を1本だけ渡し、返事・指摘(聞きたいことと、条件つきOK・却下の理由)・読んだ字数を返させる。役は素材ごとに `--prompt` で変える。稟議・制度企画は経営者役、提案資料は提案を受け取る会社の役員役、障害報告は報告を受け取る上司役)で測り、その指摘がスキルの確認事項にどれだけ入っているかは `dev/ct-eval/overlap.py` で数えます。スキルの指示を変えたら手で回してください。
+
+```bash
+uv run skills/critical-thinking/scripts/coverage.py path/to/doc.md   # logic の YAML が文書の全行を拾っているか
+uv run dev/ct-eval/eval.py --repeat 3                                 # 評価ハーネス(claude を呼ぶ。CI には入れない)
+```
 
 ## openskills 経由で読み込む場合
 

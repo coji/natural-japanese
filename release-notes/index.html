@@ -2,698 +2,2463 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>natural-japanese v1.6.1</title>
-<meta name="description" content="AI の書く文章から、何を指すのか分からない言葉が減りました。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>natural-japanese v2.0.0:AI の文書に、クリティカルシンキングを</title>
+<meta name="description" content="AI が書いた稟議書や企画書、提案書を、提出する前に決裁者の目で読んで直す Agent Skill、critical-thinking を追加しました。文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れます。">
+<meta property="og:title" content="natural-japanese v2.0.0:AI の文書に、クリティカルシンキングを">
+<meta property="og:description" content="AI が書いた稟議書や企画書、提案書を、提出する前に決裁者の目で読んで直す Agent Skill、critical-thinking を追加しました。">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-
-:root {
-  --ink: #141414;
-  --ground: #ffffff;
-  --line: #009e8f;
-  --line-ink: #00756a;
-  --caution: #f2c400;
-  --rail: 6px;
-  --dot: 26px;
-  --gutter: clamp(16px, 5vw, 64px);
+:root{
+  --color-primitive-blue-50:#e8f1fe;--color-primitive-blue-100:#d9e6ff;--color-primitive-blue-200:#c5d7fb;--color-primitive-blue-300:#9db7f9;--color-primitive-blue-400:#7096f8;--color-primitive-blue-500:#4979f5;--color-primitive-blue-600:#3460fb;--color-primitive-blue-700:#264af4;--color-primitive-blue-800:#0031d8;--color-primitive-blue-900:#0017c1;--color-primitive-blue-1000:#00118f;--color-primitive-blue-1100:#000071;--color-primitive-blue-1200:#000060;
+  --color-primitive-green-50:#e6f5ec;--color-primitive-green-600:#259d63;--color-primitive-green-800:#197a4b;--color-primitive-green-900:#115a36;
+  --color-primitive-yellow-300:#ffd43d;
+  --color-primitive-orange-800:#c74700;
+  --color-primitive-magenta-900:#8b008b;
+  --color-neutral-white:#ffffff;--color-neutral-black:#000000;
+  --color-neutral-solid-gray-50:#f2f2f2;--color-neutral-solid-gray-100:#e6e6e6;--color-neutral-solid-gray-200:#cccccc;--color-neutral-solid-gray-300:#b3b3b3;--color-neutral-solid-gray-400:#999999;--color-neutral-solid-gray-420:#949494;--color-neutral-solid-gray-500:#7f7f7f;--color-neutral-solid-gray-536:#767676;--color-neutral-solid-gray-600:#666666;--color-neutral-solid-gray-700:#4d4d4d;--color-neutral-solid-gray-800:#333333;--color-neutral-solid-gray-900:#1a1a1a;
+  --font-family-sans:"Noto Sans JP",-apple-system,BlinkMacSystemFont,sans-serif;--font-family-mono:"Noto Sans Mono",monospace;
+  --elevation-1:0 2px 8px 1px rgba(0,0,0,.1),0 1px 5px 0 rgba(0,0,0,.3);
+  --color-key-50:var(--color-primitive-blue-50);--color-key-100:var(--color-primitive-blue-100);--color-key-200:var(--color-primitive-blue-200);--color-key-400:var(--color-primitive-blue-400);--color-key-900:var(--color-primitive-blue-900);--color-key-1000:var(--color-primitive-blue-1000);
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 24px; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body {
-  margin: 0;
-  background: var(--ground);
-  color: var(--ink);
-  font: 400 17px/1.85 "LINE Seed JP", "Hiragino Sans", sans-serif;
-  font-feature-settings: "palt" 1;
-  line-break: strict;
-  word-break: auto-phrase;
-  text-autospace: normal;
-  -webkit-text-size-adjust: 100%;
-}
-::selection { background: var(--line); color: #fff; }
-a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 4px; text-decoration-color: var(--line); }
-a:hover { text-decoration-color: var(--ink); }
-:focus-visible { outline: 3px solid var(--caution); outline-offset: 3px; }
-p { margin: 0; }
+*{box-sizing:border-box}
+html{scrollbar-gutter:stable;font-family:var(--font-family-sans);scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--color-neutral-white);color:var(--color-neutral-solid-gray-800);font-weight:normal;font-size:calc(16 / 16 * 1rem);line-height:1.7;letter-spacing:.02em;overflow-wrap:anywhere;line-break:strict;text-autospace:normal;text-spacing-trim:trim-start}
+@media (min-width:48rem){body{font-size:calc(17 / 16 * 1rem)}}
+p{margin:0}
 
-/* 駅名標の帯 */
-.band {
-  background: var(--ink);
-  color: #fff;
-  border-bottom: 14px solid var(--line);
-}
-.band-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 22px var(--gutter);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.code {
-  flex: none;
-  width: 64px; height: 64px;
-  border: 7px solid var(--line);
-  border-radius: 50%;
-  background: #fff;
-  color: var(--ink);
-  display: grid; place-items: center;
-  font: 800 20px/1 "LINE Seed JP", sans-serif;
-  letter-spacing: -.02em;
-}
-.name { font: 800 clamp(24px, 3vw, 34px)/1.15 "LINE Seed JP", sans-serif; }
-.name span { display: block; font: 400 14px/1.5 "LINE Seed JP", sans-serif; letter-spacing: .08em; margin-top: 4px; }
-.band nav { margin-left: auto; display: flex; gap: 6px 22px; flex-wrap: wrap; font-size: 15px; }
-.band nav a { color: #fff; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
-.band nav a:hover, .band nav a[aria-current="true"] { border-bottom-color: var(--line); }
+/* リンク(global.css) */
+a:any-link{color:var(--color-primitive-blue-1000);text-decoration:underline;text-decoration-thickness:calc(1 / 16 * 1rem);text-underline-offset:calc(3 / 16 * 1rem)}
+a:visited{color:var(--color-primitive-magenta-900)}
+@media (hover:hover){a:hover{color:var(--color-primitive-blue-900);text-decoration-thickness:calc(3 / 16 * 1rem)}}
+a:active{color:var(--color-primitive-orange-800);text-decoration-thickness:calc(1 / 16 * 1rem)}
+:focus-visible{outline:calc(4 / 16 * 1rem) solid var(--color-neutral-black);outline-offset:calc(2 / 16 * 1rem);border-radius:calc(4 / 16 * 1rem);box-shadow:0 0 0 calc(2 / 16 * 1rem) var(--color-primitive-yellow-300)}
 
-/* 最初の画面 */
-.lead-wrap {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: clamp(40px, 7vw, 80px) var(--gutter) 0;
-  display: grid;
-  grid-template-columns: minmax(220px, 300px) 1fr;
-  gap: clamp(32px, 5vw, 72px);
-}
-.ver {
-  font: 800 clamp(76px, 10.5vw, 148px)/.86 "LINE Seed JP", sans-serif;
-  letter-spacing: -.035em;
-  margin: 0;
-}
-.ver-meta { margin-top: 18px; font-size: 15px; line-height: 1.7; }
-.hl { color: inherit; background: linear-gradient(transparent 58%, var(--caution) 58%); padding: 0 1px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.hl.ok { background: linear-gradient(transparent 58%, #8ed5cc 58%); }
-.lead { font: 700 clamp(22px, 2.3vw, 30px)/1.55 "LINE Seed JP", sans-serif; max-width: 26em; margin: 0; }
-.sub { margin-top: 16px; max-width: 38em; }
+/* 幅と余白。ブレークポイントは 768px の1つ */
+.wrap{max-width:calc(960 / 16 * 1rem);margin:0 auto;padding:0 calc(16 / 16 * 1rem)}
+@media (min-width:48rem){.wrap{padding:0 calc(32 / 16 * 1rem)}}
 
-/* 前後の文 */
-.pairs { margin-top: 36px; border-top: 3px solid var(--ink); }
-.pair-head, .pair {
-  display: grid;
-  grid-template-columns: 12em 1fr 1fr;
-  border-bottom: 1px solid var(--ink);
-}
-.pair-head > div { padding: 12px 18px; font-weight: 700; font-size: 15px; }
-.pair > div { padding: 18px; }
-.pair-head > div:first-child, .pair > div:first-child { padding-left: 0; }
-.pair .k { font-size: 15px; line-height: 1.7; }
-.pair .k strong { display: block; font: 800 18px/1.4 "LINE Seed JP", sans-serif; margin-bottom: 4px; }
-.tag { display: inline-flex; align-items: center; gap: 8px; }
-.mark {
-  flex: none;
-  display: inline-block;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  border: 4px solid var(--ink);
-  vertical-align: -3px;
-}
-.mark.new { border-color: var(--line); background: var(--line); }
-.pair .old em, .pair .new em { font-style: normal; text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px; text-decoration-skip-ink: none; }
-.pair .old em { text-decoration-color: var(--caution); }
-.pair .new em { text-decoration-color: var(--line); }
-.pair .cell-tag { display: none; }
-.pairs-note { margin-top: 14px; font-size: 15px; line-height: 1.75; max-width: 46em; }
+/* 目次 */
+.toc{position:sticky;top:0;z-index:5;background:var(--color-neutral-white);border-bottom:1px solid var(--color-neutral-solid-gray-420)}
+.toc-inner{max-width:calc(960 / 16 * 1rem);margin:0 auto;padding:0 calc(16 / 16 * 1rem);display:flex;align-items:center;gap:calc(16 / 16 * 1rem)}
+@media (min-width:48rem){.toc-inner{padding:0 calc(32 / 16 * 1rem)}}
+.toc-h{margin:0;font-weight:bold;font-size:calc(16 / 16 * 1rem);flex:none}
+.toc-list{list-style:none;margin:0;padding:0;display:flex;gap:calc(4 / 16 * 1rem);overflow-x:auto;scrollbar-width:none}
+.toc-list::-webkit-scrollbar{display:none}
+.toc-list li{flex:none}
+.toc-list a{display:block;padding:calc(12 / 16 * 1rem) calc(8 / 16 * 1rem);border-bottom:calc(4 / 16 * 1rem) solid transparent;color:var(--color-neutral-solid-gray-800);text-decoration:none;font-size:calc(16 / 16 * 1rem);white-space:nowrap;line-height:1.2}
+.toc-list a[aria-current=location]{font-weight:bold;border-bottom-color:var(--color-key-900)}
+@media (hover:hover){.toc-list a:hover{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}}
 
-/* 路線図の線と駅 */
-.route {
-  max-width: 1280px;
-  margin: clamp(56px, 8vw, 104px) auto 0;
-  padding: 0 var(--gutter);
-  display: grid;
-  grid-template-columns: minmax(220px, 300px) 1fr;
-  gap: clamp(32px, 5vw, 72px);
-}
-.route > .stations {
-  grid-column: 2;
-  position: relative;
-  padding-left: 44px;
-}
-.stations section > * { max-width: 40em; }
-.stations::before {
-  content: "";
-  position: absolute;
-  left: calc((var(--dot) - var(--rail)) / 2);
-  top: 12px; bottom: 0;
-  width: var(--rail);
-  background: var(--line);
-}
-section { position: relative; padding-bottom: clamp(48px, 6vw, 72px); }
-section::before {
-  content: "";
-  position: absolute;
-  left: -44px; top: 6px;
-  width: var(--dot); height: var(--dot);
-  border-radius: 50%;
-  background: #fff;
-  border: 6px solid var(--line);
-  box-sizing: border-box;
-  transition: background-color .4s cubic-bezier(.16, 1, .3, 1), transform .4s cubic-bezier(.16, 1, .3, 1);
-}
-section.here::before { background: var(--ink); border-color: var(--ink); transform: scale(1.15); }
-h2 { font: 800 clamp(24px, 2.4vw, 30px)/1.3 "LINE Seed JP", sans-serif; margin: 0 0 20px; letter-spacing: .01em; }
-section h3 { font: 800 19px/1.4 "LINE Seed JP", sans-serif; margin: 40px 0 12px; }
-section p + p, section p + ul, section ul + p, section .table-wrap + p, section p + .table-wrap, section .cmd + p { margin-top: 16px; }
-ul { margin: 0; padding-left: 1.2em; }
-li + li { margin-top: 10px; }
-li::marker { color: var(--line); }
+/* 見出し(prose.css) */
+h1,h2,h3,h4{color:var(--color-neutral-solid-gray-800);text-wrap:pretty}
+h1{margin:0 0 calc(32 / 16 * 1rem);font-weight:bold;font-size:calc(28 / 16 * 1rem);line-height:1.5;letter-spacing:.01em}
+@media (min-width:48rem){h1{margin-bottom:calc(48 / 16 * 1rem);font-size:calc(45 / 16 * 1rem);line-height:1.4;letter-spacing:0}}
+h2{margin:calc(40 / 16 * 1rem) 0 calc(24 / 16 * 1rem);font-weight:bold;font-size:calc(24 / 16 * 1rem);line-height:1.5;letter-spacing:.02em}
+@media (min-width:48rem){h2{margin-top:calc(64 / 16 * 1rem);font-size:calc(32 / 16 * 1rem)}}
+h3{margin:calc(32 / 16 * 1rem) 0 calc(16 / 16 * 1rem);font-weight:bold;font-size:calc(22 / 16 * 1rem);line-height:1.5;letter-spacing:.02em}
+@media (min-width:48rem){h3{margin:calc(48 / 16 * 1rem) 0 calc(24 / 16 * 1rem);font-size:calc(24 / 16 * 1rem)}}
+h4{margin:calc(24 / 16 * 1rem) 0 calc(16 / 16 * 1rem);font-weight:bold;font-size:calc(18 / 16 * 1rem);line-height:1.6;letter-spacing:.02em}
+@media (min-width:48rem){h4{margin-top:calc(40 / 16 * 1rem);font-size:calc(20 / 16 * 1rem);line-height:1.5}}
+/* 見出しのチップ(heading.css data-chip) */
+h2[data-chip]{position:relative;padding-left:calc(1em / 3 + .5em)}
+h2[data-chip]::before{position:absolute;top:.2em;bottom:.1em;left:0;width:calc(1em / 3);background-color:var(--color-key-900);content:""}
+@supports (top:1lh){h2[data-chip]::before{top:calc(.5lh - .45em);bottom:calc(.5lh - .55em)}}
 
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 16px; line-height: 1.6; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--ink); vertical-align: baseline; }
-thead th { border-bottom: 3px solid var(--ink); font-weight: 700; font-size: 15px; }
-th:first-child, td:first-child { padding-left: 0; }
-td.n { white-space: nowrap; }
-td.n b { font: 800 26px/1 "LINE Seed JP", sans-serif; margin-right: 2px; }
-td.n small { font-size: 14px; }
-.notes { font-size: 15px; line-height: 1.8; }
+/* 段落・リスト(prose.css) */
+.p{margin:calc(16 / 16 * 1rem) 0}
+@media (min-width:48rem){.p{margin-bottom:calc(24 / 16 * 1rem)}}
+.prose-max{max-width:40em}
+ul.list,ol.list{margin:calc(16 / 16 * 1rem) 0;padding-left:calc(32 / 16 * 1rem)}
+@media (min-width:48rem){ul.list,ol.list{margin:calc(24 / 16 * 1rem) 0}}
+.list>li+li{margin-top:calc(8 / 16 * 1rem)}
 
-.lead-wrap > div, .route > .stations, .cmd code { min-width: 0; }
+/* 引用(prose.css blockquote) */
+blockquote{margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);border-left:calc(8 / 16 * 1rem) solid var(--color-neutral-solid-gray-536);padding:calc(8 / 16 * 1rem) 0 calc(8 / 16 * 1rem) calc(24 / 16 * 1rem)}
+blockquote>*:first-child{margin-top:0}blockquote>*:last-child{margin-bottom:0}
+blockquote.key{border-left-color:var(--color-key-900)}
+blockquote em{font-style:normal;font-weight:bold;text-decoration:underline;text-decoration-color:var(--color-primitive-green-800);text-decoration-thickness:calc(3 / 16 * 1rem);text-underline-offset:calc(3 / 16 * 1rem)}
+.ln{color:var(--color-neutral-solid-gray-700);font-variant-numeric:tabular-nums}
 
-/* スクロールに合わせて今の節を示す目次 */
-.toc { grid-column: 1; grid-row: 1; align-self: start; position: sticky; top: 32px; }
-.toc p { font-weight: 700; font-size: 14px; letter-spacing: .08em; margin-bottom: 12px; }
-.toc ol { list-style: none; margin: 0; padding: 0; border-left: 3px solid var(--ink); }
-.toc li + li { margin-top: 0; }
-.toc a {
-  display: block;
-  padding: 8px 0 8px 16px;
-  margin-left: -3px;
-  border-left: 6px solid transparent;
-  text-decoration: none;
-  font-size: 15px;
-  line-height: 1.5;
-  transition: border-color .3s cubic-bezier(.16, 1, .3, 1);
-}
-.toc a:hover { border-left-color: var(--ink); }
-.toc a[aria-current="true"] { border-left-color: var(--line); font-weight: 700; }
+/* チップラベル(chip-label.css) */
+.chip{display:inline-grid;grid-template-columns:auto auto;align-items:baseline;align-content:center;min-height:calc(32 / 16 * 1rem);border-radius:calc(8 / 16 * 1rem);padding:calc(3 / 16 * 1rem) calc(7 / 16 * 1rem);font-weight:normal;font-size:calc(16 / 16 * 1rem);line-height:1;letter-spacing:.02em;border:1px solid var(--_non-text);background:var(--color-neutral-white);color:var(--_text);vertical-align:middle;white-space:nowrap}
+.chip[data-color=gray]{--_non-text:var(--color-neutral-solid-gray-700);--_text:var(--color-neutral-solid-gray-800)}
+.chip[data-color=blue]{--_non-text:var(--color-primitive-blue-700);--_text:var(--color-primitive-blue-700)}
+.chip[data-color=green]{--_non-text:var(--color-primitive-green-800);--_text:var(--color-primitive-green-800)}
+.chip[data-fill]{background:var(--_non-text);color:var(--color-neutral-white)}
 
-/* 表から開く相談文 */
-th .open {
-  font: inherit; font-weight: 700; color: inherit; background: none; border: 0; padding: 4px 0; cursor: pointer;
-  text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 2px; text-underline-offset: 6px;
-}
-th .open:hover { text-decoration-color: var(--ink); }
-th .open[aria-expanded="true"] { background: var(--ink); color: #fff; padding: 4px 10px; margin-left: -10px; text-decoration: none; }
-.hint { font-size: 15px; }
-.doc-sum { padding: 14px 16px; border-bottom: 1px solid var(--ink); font-size: 15px; font-weight: 700; }
-.viewer { margin-top: 24px; border: 3px solid var(--ink); max-width: none !important; }
-.viewer[hidden] { display: none; }
-.viewer-head { display: flex; align-items: center; gap: 16px; background: var(--ink); color: #fff; padding: 12px 16px; }
-.viewer-head h3 { margin: 0; font: 700 17px/1.4 "LINE Seed JP", sans-serif; flex: 1; }
-.viewer-close { font: 700 14px/1 "LINE Seed JP", sans-serif; color: #fff; background: none; border: 2px solid #fff; padding: 8px 12px; cursor: pointer; }
-.viewer-close:hover { background: #fff; color: var(--ink); }
-.flags { width: 100%; border-collapse: collapse; font-size: 14.5px; line-height: 1.7; }
-.flags th, .flags td { padding: 12px 14px; border-bottom: 1px solid var(--ink); vertical-align: top; text-align: left; }
-.flags thead th { font-size: 13px; border-bottom-width: 2px; background: none; }
-.flags td:first-child { width: 26%; font-weight: 700; }
-.flags td:first-child span { display: block; font-weight: 400; font-size: 12.5px; }
-.st { display: inline-block; font: 700 12px/1.6 "LINE Seed JP", sans-serif; padding: 0 7px; margin-right: 6px; border: 2px solid var(--ink); }
-.st.fixed { background: var(--line-ink); border-color: var(--line-ink); color: #fff; }
-.st.kept { background: var(--caution); border-color: var(--caution); }
-.st.removed { border-style: dashed; }
-.diff-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 16px; border-bottom: 1px solid var(--ink); }
-.diff-head p { font-size: 14px; flex: 1 1 18em; }
-.seg { display: flex; border: 2px solid var(--ink); }
-.seg button { font: 700 14px/1 "LINE Seed JP", sans-serif; padding: 9px 12px; background: none; border: 0; cursor: pointer; color: var(--ink); }
-.seg button + button { border-left: 2px solid var(--ink); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
-.doc { max-height: 70vh; overflow: auto; font-size: 14.5px; line-height: 1.8; padding: 12px 18px 24px; }
-.doc > * { margin: 0 0 10px; max-width: none; }
-.doc h1, .doc h2, .doc h3 { font: 800 16px/1.5 "LINE Seed JP", sans-serif; margin: 18px 0 8px; }
-.doc h1 { font-size: 18px; margin-top: 4px; }
-.doc ul.md, .doc ol.md { padding-left: 1.4em; }
-.doc .md li + li { margin-top: 4px; }
-.doc table { font-size: 13.5px; line-height: 1.6; margin: 4px 0 14px; }
-.doc th, .doc td { padding: 6px 8px; border-bottom: 1px solid var(--ink); }
-.doc thead th { border-bottom-width: 2px; }
-.doc th:first-child, .doc td:first-child { padding-left: 0; }
-.doc pre { font: 400 12.5px/1.6 ui-monospace, "SF Mono", Menlo, monospace; background: #f4f4f4; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.doc pre::before { content: "図(mermaid)"; display: block; font: 700 12px/1.6 "LINE Seed JP", sans-serif; margin-bottom: 4px; }
-.doc code { font: 400 .92em ui-monospace, "SF Mono", Menlo, monospace; background: #f4f4f4; padding: 0 3px; }
-.doc ins { text-decoration: none; background: #c9ece8; }
-.doc del { text-decoration: line-through; text-decoration-thickness: 2px; color: #6b1d1d; background: #fbe3e3; }
-.doc p.gone-line { margin: 0 0 10px; }
-@media (max-width: 860px) {
-  .flags thead { display: none; }
-  .flags tr { display: block; border-bottom: 1px solid var(--ink); padding: 10px 0; }
-  .flags td { display: block; border: 0; padding: 4px 14px; width: auto !important; }
-  .flags td[data-v]::before { content: attr(data-v); display: block; font-size: 12px; font-weight: 700; }
-}
+/* 表(prose.css table) */
+table.tbl{margin:calc(16 / 16 * 1rem) 0;width:100%;border-collapse:collapse;font-size:calc(14 / 16 * 1rem);line-height:1.7;letter-spacing:.02em}
+@media (min-width:48rem){table.tbl{margin:calc(24 / 16 * 1rem) 0;font-size:calc(16 / 16 * 1rem)}}
+table.tbl thead{background:var(--color-neutral-solid-gray-100)}
+table.tbl th{border-bottom:1px solid var(--color-neutral-black);background:var(--color-neutral-solid-gray-100);padding:calc(12 / 16 * 1rem) calc(8 / 16 * 1rem);vertical-align:baseline;text-align:left;font-weight:bold}
+table.tbl td{border-bottom:1px solid var(--color-neutral-solid-gray-420);padding:calc(12 / 16 * 1rem) calc(8 / 16 * 1rem);vertical-align:baseline;text-align:left}
+@media (min-width:48rem){table.tbl th,table.tbl td{padding:calc(20 / 16 * 1rem) calc(16 / 16 * 1rem)}}
+.tbl-wrap{overflow-x:auto}
+
+/* 区切り(divider.css) */
+section.block{padding:0 0 calc(40 / 16 * 1rem);border-bottom:1px solid var(--color-neutral-solid-gray-420)}
+@media (min-width:48rem){section.block{padding-bottom:calc(64 / 16 * 1rem)}}
+
+/* ディスクロージャー(disclosure.css)と、ブロックの details(prose.css) */
+.dsc{margin:calc(16 / 16 * 1rem) 0}
+.dsc summary{display:flex;align-items:start;justify-content:start;gap:calc(8 / 16 * 1rem);width:fit-content;cursor:default;list-style-type:none;font-weight:bold}
+.dsc summary::marker{content:""}.dsc summary::-webkit-details-marker{display:none}
+@media (hover:hover){.dsc summary:hover{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}}
+.dsc summary svg{flex-shrink:0;margin-top:calc((1lh - 24px) / 2);color:var(--color-key-1000)}
+.dsc[open] summary svg{rotate:180deg}
+.dsc-body{padding-left:calc(32 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0}
+details.box{margin:calc(16 / 16 * 1rem) 0;border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);padding:calc(16 / 16 * 1rem)}
+details.box>summary{cursor:default;font-weight:bold}
+details.box[open]>summary{margin-bottom:calc(16 / 16 * 1rem)}
+
+/* タブ(tab.css) */
+.dads-tab{position:relative;z-index:0;display:flex;flex-direction:column;margin:calc(24 / 16 * 1rem) 0}
+.dads-tab__list{position:relative;z-index:0;margin:calc(-6 / 16 * 1rem);overflow:hidden;display:flex;flex-wrap:wrap;padding:calc(7 / 16 * 1rem) calc(6 / 16 * 1rem) calc(6 / 16 * 1rem) calc(7 / 16 * 1rem);list-style:none}
+.dads-tab__list>li{margin:0;display:contents}
+.dads-tab__list::after{position:relative;flex-grow:1;border:0 solid var(--color-neutral-solid-gray-420);content:"";margin-left:-1px;width:1px;border-bottom-width:1px}
+.dads-tab__tab{isolation:isolate;appearance:none;margin:-1px 0 0 -1px;display:flex;border:1px solid var(--color-neutral-solid-gray-420);background:var(--color-neutral-white);padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-align:left;cursor:default;position:relative}
+.dads-tab__tab::before{content:"";position:absolute;bottom:6px;width:100%;border:0 solid var(--color-neutral-white)}
+.dads-tab__tab>span{position:relative;display:flex;flex-grow:1;align-items:center;border:0 solid var(--color-neutral-solid-gray-50);border-top-width:5px;padding:calc(16 / 16 * 1rem);font-size:calc(16 / 16 * 1rem);line-height:1.2;letter-spacing:0}
+.dads-tab__tab>span::before{content:"";position:absolute;top:-6px;right:0;left:0;height:6px}
+.dads-tab__tab[aria-selected=true]>span{font-weight:bold}
+.dads-tab__tab[aria-selected=true]:not(:focus-visible)::before{border-bottom-width:1px}
+.dads-tab__tab[aria-selected=true]>span::before{background:var(--color-key-900)}
+@media (hover:hover){.dads-tab__tab:not([aria-selected=true]):hover{background:var(--color-neutral-solid-gray-50)}.dads-tab__tab:not([aria-selected=true]):hover>span{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}.dads-tab__tab:not([aria-selected=true]):hover>span::before{background:var(--color-neutral-solid-gray-420)}}
+.dads-tab__tab:focus-visible{overflow:hidden;z-index:1}
+.dads-tab__panels{flex-grow:1;display:flex;flex-direction:column}
+.dads-tab__panel{border:solid var(--color-neutral-solid-gray-420);border-width:0 1px 1px;background:var(--color-neutral-white);padding:calc(16 / 16 * 1rem)}
+@media (min-width:48rem){.dads-tab__panel{padding:calc(24 / 16 * 1rem)}}
+.dads-tab__panel>:first-child{margin-top:0}
+
+/* ファーストビュー */
+.hero{padding:calc(32 / 16 * 1rem) 0 calc(40 / 16 * 1rem);border-bottom:1px solid var(--color-neutral-solid-gray-420)}
+.hero .ver{margin:0;font-weight:bold;font-size:calc(48 / 16 * 1rem);line-height:1.4;letter-spacing:0;color:var(--color-key-900);font-variant-numeric:tabular-nums}
+@media (min-width:48rem){.hero .ver{font-size:calc(64 / 16 * 1rem)}}
+.hero .ver small{font-size:.5em;font-weight:bold;margin-right:.1em}
+.hero .meta{margin:calc(8 / 16 * 1rem) 0 calc(32 / 16 * 1rem)}
+.hero h1{margin-bottom:calc(24 / 16 * 1rem);max-width:24em}
+.lead{max-width:40em}
+mark{background:var(--color-key-50);color:inherit;padding:0 .1em;box-shadow:inset 0 calc(-2 / 16 * 1rem) 0 var(--color-key-900)}
+.cmp{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(24 / 16 * 1rem) 0 0}
+@media (min-width:60rem){.cmp{grid-template-columns:1fr 1fr 1fr;gap:calc(24 / 16 * 1rem)}}
+.cmp h4{margin:0 0 calc(8 / 16 * 1rem)}
+.cmp blockquote{margin:0}
+.cmp .ans{margin-top:calc(12 / 16 * 1rem)}
+
+/* 数字の並び */
+.stats{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(24 / 16 * 1rem) 0}
+@media (min-width:48rem){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);padding:calc(16 / 16 * 1rem)}
+.stat b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
+.stat .n{font-weight:bold;font-size:calc(32 / 16 * 1rem);line-height:1.5;letter-spacing:.01em;color:var(--color-key-900);font-variant-numeric:tabular-nums}
+.stat .n small{font-size:calc(16 / 16 * 1rem);font-weight:normal;color:var(--color-neutral-solid-gray-800);margin-left:calc(4 / 16 * 1rem)}
+
+/* 前後の対比 */
+.ba{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0}
+@media (min-width:48rem){.ba{grid-template-columns:1fr 1fr;gap:calc(24 / 16 * 1rem)}}
+.ba h5{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;font-size:calc(16 / 16 * 1rem);line-height:1.7;letter-spacing:.02em}
+.ba blockquote{margin:0 0 calc(8 / 16 * 1rem)}
+
+/* 保つ/替えてよい */
+.keep{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0}
+@media (min-width:48rem){.keep{grid-template-columns:1fr 1fr;gap:calc(24 / 16 * 1rem)}}
+.keep>div{border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);padding:calc(16 / 16 * 1rem)}
+.keep h4{margin:0 0 calc(8 / 16 * 1rem)}
+.keep ul{margin:0;padding-left:calc(24 / 16 * 1rem)}
+
+/* 流れ図 */
+.fig{width:100%;height:auto;display:block;font-family:var(--font-family-sans)}
+.fig text{fill:var(--color-neutral-solid-gray-800);font-size:16px}
+.flow .bx{fill:var(--color-neutral-white);stroke:var(--color-neutral-solid-gray-420);stroke-width:1.5}
+.flow .k .bx{stroke:var(--color-key-900);stroke-width:2}
+.flow .q .bx,.flow .src .bx{fill:var(--color-neutral-solid-gray-50);stroke:var(--color-neutral-solid-gray-800)}
+.flow .bt{font-size:20px;font-weight:bold}
+.flow .bs{font-size:14px;fill:var(--color-neutral-solid-gray-700)}
+.flow .ar{fill:none;stroke:var(--color-neutral-solid-gray-700);stroke-width:1.5}.flow .ar.dashed{stroke-dasharray:6 5}
+.flow .node{cursor:pointer}
+@media (hover:hover){.flow .node:hover .bx{fill:var(--color-key-50)}}
+.flow .node[aria-pressed=true] .bx{fill:var(--color-key-900);stroke:var(--color-key-900)}
+.flow .node[aria-pressed=true] text{fill:var(--color-neutral-white)}
+.nd{margin-top:calc(16 / 16 * 1rem);border-left:calc(8 / 16 * 1rem) solid var(--color-key-900);padding:calc(8 / 16 * 1rem) 0 calc(8 / 16 * 1rem) calc(24 / 16 * 1rem);max-width:44em}
+.nd b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
+.flow-list{display:none;list-style:none;margin:0;padding:0}
+.flow-list li{margin:0 0 calc(8 / 16 * 1rem)}
+@media (max-width:47.99rem){.flow-wrap,.nd-wrap{display:none}.flow-list{display:block}}
+.bars .s-body{fill:var(--color-key-900)}.bars .s-app{fill:var(--color-key-400)}
+.bars .bl{font-size:14px;font-variant-numeric:tabular-nums}.bars .bl.inv{fill:var(--color-neutral-white)}
+.bars .mn{font-size:14px;fill:var(--color-neutral-solid-gray-700);font-variant-numeric:tabular-nums}.bars .ml{font-size:16px}
+.bars-wrap,.map-wrap{overflow-x:auto}
+.map .mh{font-size:16px;font-weight:bold}
+.map .mr{fill:var(--color-neutral-white);stroke:var(--color-neutral-solid-gray-420)}
+.map .mr.body{stroke:var(--color-key-900);stroke-width:1.5}
+.map .mr.app{fill:var(--color-neutral-solid-gray-50)}
+.map .mr.new{stroke:var(--color-key-900);stroke-dasharray:4 3}
+.map .ml{font-size:15px}.map .mn{font-size:14px;fill:var(--color-neutral-solid-gray-700);font-variant-numeric:tabular-nums}
+.map .mv{fill:none;stroke:var(--color-key-400);stroke-width:1.5;opacity:.8}
+.map.hl .mv{opacity:.12}.map.hl .mv.on{opacity:1;stroke:var(--color-key-900);stroke-width:2.5}
+.map.hl .dst .mr,.map.hl .dst text{opacity:.35}.map.hl .dst.on .mr,.map.hl .dst.on text{opacity:1}
+.map .src:hover .mr,.map .src.on .mr{fill:var(--color-key-50);stroke:var(--color-key-900)}
+@media (max-width:47.99rem){.map{min-width:720px}.bars{min-width:640px}}
 
 /* コマンド */
-.cmd {
-  display: flex;
-  align-items: stretch;
-  margin-top: 4px;
-  background: var(--ink);
-  color: #fff;
-  max-width: 34em;
-}
-.cmd code { flex: 1; padding: 16px 20px; font: 400 16px/1.5 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto; white-space: nowrap; }
-.cmd button {
-  flex: none;
-  border: 0;
-  border-left: 1px solid #fff;
-  background: var(--line-ink);
-  color: #fff;
-  font: 700 15px/1 "LINE Seed JP", sans-serif;
-  padding: 0 20px;
-  cursor: pointer;
-  min-width: 7.5em;
-}
-.cmd button:hover { background: #005a52; }
+.cmd{display:flex;align-items:center;gap:calc(12 / 16 * 1rem);background:var(--color-neutral-solid-gray-800);color:var(--color-neutral-solid-gray-50);border-radius:calc(8 / 16 * 1rem);padding:calc(12 / 16 * 1rem) calc(16 / 16 * 1rem);font-family:var(--font-family-mono);font-size:calc(14 / 16 * 1rem);line-height:1.5;letter-spacing:0;margin:calc(8 / 16 * 1rem) 0 calc(16 / 16 * 1rem);max-width:44em}
+@media (min-width:48rem){.cmd{font-size:calc(16 / 16 * 1rem)}}
+.cmd code{flex:1;overflow:auto;white-space:nowrap;font-family:inherit}
+.cmd button{appearance:none;border:1px solid var(--color-neutral-white);background:transparent;color:var(--color-neutral-white);border-radius:calc(4 / 16 * 1rem);padding:calc(4 / 16 * 1rem) calc(12 / 16 * 1rem);font:inherit;font-family:var(--font-family-sans);cursor:pointer;min-height:calc(32 / 16 * 1rem)}
+.steps{margin:calc(8 / 16 * 1rem) 0 calc(16 / 16 * 1rem);padding-left:calc(32 / 16 * 1rem);max-width:44em}
 
-footer {
-  margin-top: 24px;
-  background: var(--ink);
-  color: #fff;
-  border-top: 14px solid var(--line);
-}
-.foot-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px var(--gutter) 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 40px;
-  font-size: 15px;
-}
-footer a { color: #fff; }
-.foot-inner p:first-child { flex-basis: 100%; }
+/* 文書ビューア */
+.seg{display:flex;flex-wrap:wrap;gap:calc(8 / 16 * 1rem);margin:0 0 calc(16 / 16 * 1rem)}
+.seg button{appearance:none;border:1px solid var(--color-neutral-solid-gray-420);background:var(--color-neutral-white);color:var(--color-neutral-solid-gray-800);font:inherit;font-size:calc(16 / 16 * 1rem);line-height:1;padding:calc(10 / 16 * 1rem) calc(16 / 16 * 1rem);border-radius:calc(8 / 16 * 1rem);cursor:pointer;min-height:calc(44 / 16 * 1rem)}
+.seg button[aria-pressed=true]{background:var(--color-key-900);border-color:var(--color-key-900);color:var(--color-neutral-white);font-weight:bold}
+@media (hover:hover){.seg button:hover:not([aria-pressed=true]){background:var(--color-neutral-solid-gray-50);text-decoration:underline}}
+.sync{display:inline-flex;align-items:center;gap:calc(6 / 16 * 1rem);margin-bottom:calc(16 / 16 * 1rem)}
+.viewer{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem)}
+@media (min-width:48rem){.viewer{grid-template-columns:1fr 1fr}.viewer.single{grid-template-columns:1fr}}
+.pane{border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);overflow:hidden;background:var(--color-neutral-white)}
+.pane .cap{font-weight:bold;padding:calc(8 / 16 * 1rem) calc(16 / 16 * 1rem);border-bottom:1px solid var(--color-neutral-solid-gray-420);background:var(--color-neutral-solid-gray-100);margin:0}
+.pane .doc{height:min(80vh,900px);overflow:auto;overscroll-behavior:contain}
+[hidden]{display:none!important}
+footer{padding:calc(32 / 16 * 1rem) 0 calc(64 / 16 * 1rem)}
+footer p{margin:0 0 calc(8 / 16 * 1rem)}
 
-@media (max-width: 860px) {
-  .lead-wrap, .route { grid-template-columns: 1fr; }
-  .route > .stations { grid-column: 1; }
-  .toc {
-    top: 0; z-index: 2;
-    margin: 0 calc(var(--gutter) * -1);
-    padding: 0 var(--gutter);
-    background: var(--ground);
-    border-bottom: 3px solid var(--ink);
-    overflow-x: auto;
-  }
-  .toc p { display: none; }
-  .toc ol { display: flex; gap: 20px; border-left: 0; white-space: nowrap; }
-  .toc a { padding: 12px 0 9px; margin: 0; border-left: 0; border-bottom: 4px solid transparent; }
-  .toc a:hover { border-bottom-color: var(--ink); }
-  .toc a[aria-current="true"] { border-bottom-color: var(--line); }
-  .ver-meta { margin-top: 10px; }
-  .band nav { margin-left: 0; flex-basis: 100%; }
-  .pair-head { display: none; }
-  .pair { grid-template-columns: 1fr; padding: 16px 0; }
-  .pair > div { padding: 6px 0; }
-  .pair .cell-tag { display: inline-flex; font-weight: 700; font-size: 14px; margin-right: 6px; }
-}
-@media (max-width: 520px) {
-  body { font-size: 16px; }
-  .code { width: 52px; height: 52px; border-width: 6px; font-size: 17px; }
-  .route > .stations { padding-left: 36px; }
-  section::before { left: -36px; }
-  :root { --dot: 22px; --rail: 5px; }
-  th, td { padding: 10px 10px; }
-  td.n b { font-size: 22px; }
-  .cmd { flex-direction: column; }
-  .cmd code { font-size: 13.5px; padding: 14px 16px; }
-  .cmd button { border-left: 0; border-top: 1px solid #fff; padding: 12px; }
-}
+.doc{padding:calc(24 / 16 * 1rem) calc(16 / 16 * 1rem) calc(64 / 16 * 1rem);color:var(--color-neutral-solid-gray-800)}
+@media (min-width:48rem){.doc{padding:calc(24 / 16 * 1rem) calc(32 / 16 * 1rem) calc(64 / 16 * 1rem)}}
+.doc article{max-width:40em}
+.doc h3{font-size:calc(24 / 16 * 1rem);line-height:1.5;margin:0 0 calc(24 / 16 * 1rem)}
+.doc h4{font-size:calc(20 / 16 * 1rem);line-height:1.5;margin:calc(48 / 16 * 1rem) 0 calc(12 / 16 * 1rem);padding-top:calc(16 / 16 * 1rem);border-top:1px solid var(--color-neutral-solid-gray-420)}
+.doc h5{font-size:calc(18 / 16 * 1rem);line-height:1.6;margin:calc(28 / 16 * 1rem) 0 calc(8 / 16 * 1rem)}
+.doc h6{font-size:calc(16 / 16 * 1rem);margin:calc(20 / 16 * 1rem) 0 calc(6 / 16 * 1rem)}
+.doc p{margin:0 0 1em}
+.doc ul,.doc ol{padding-left:calc(32 / 16 * 1rem);margin:0 0 1em}
+.doc li{margin:.3em 0}
+.doc hr{border:0;border-top:1px solid var(--color-neutral-solid-gray-420);margin:calc(32 / 16 * 1rem) 0}
+.doc table{border-collapse:collapse;width:100%;margin:0 0 1.2em;font-size:calc(14 / 16 * 1rem);line-height:1.6;font-variant-numeric:tabular-nums}
+@media (min-width:48rem){.doc table{font-size:calc(16 / 16 * 1rem)}}
+.doc th,.doc td{border-bottom:1px solid var(--color-neutral-solid-gray-420);padding:calc(8 / 16 * 1rem) calc(10 / 16 * 1rem);text-align:left;vertical-align:top}
+.doc th{background:var(--color-neutral-solid-gray-100);font-weight:bold;border-bottom-color:var(--color-neutral-black)}
+.doc code{font-family:var(--font-family-mono);font-size:.92em;background:var(--color-neutral-solid-gray-50);padding:1px 4px;border-radius:calc(4 / 16 * 1rem)}
+
+/* 本文の中のコマンド */
+code.ic{font-family:var(--font-family-mono);font-size:.92em;background:var(--color-neutral-solid-gray-50);border:1px solid var(--color-neutral-solid-gray-420);padding:calc(2 / 16 * 1rem) calc(6 / 16 * 1rem);border-radius:calc(4 / 16 * 1rem);white-space:nowrap}
+code.ic .ck{color:var(--color-key-900);font-weight:bold}
+code.ic .cs{color:var(--color-primitive-green-800);font-weight:bold}
+code.ic .cf{color:var(--color-neutral-solid-gray-800)}
+code.ic.sk{color:var(--color-key-900);font-weight:bold;font-size:.95em}
+/* 触れる部分は 44px 以上 */
+.dsc summary{min-height:calc(44 / 16 * 1rem);align-items:center;padding:calc(6 / 16 * 1rem) 0}
+.cmd button{min-height:calc(44 / 16 * 1rem)}
+/* 48rem 未満では左右でなく上下に積むので、言い方を替える */
+.wide{display:none}.narrow{display:inline}
+@media (min-width:48rem){.wide{display:inline}.narrow{display:none}}
+.p{font-variant-numeric:tabular-nums}
+.eye{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold;color:var(--color-key-900)}
+/* 数字のタイル */
+.tiles{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem);margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem)}
+@media (min-width:48rem){.tiles{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:60rem){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{border:1px solid var(--color-neutral-solid-gray-420);border-radius:calc(8 / 16 * 1rem);padding:calc(16 / 16 * 1rem)}
+.tile .l{margin:0 0 calc(8 / 16 * 1rem);font-weight:bold}
+@media (min-width:48rem){.tile .l{min-height:calc(2 * 1.7em)}}
+.tile .v{font-weight:bold;font-size:calc(32 / 16 * 1rem);line-height:1.5;letter-spacing:.01em;color:var(--color-key-900);font-variant-numeric:tabular-nums}
+@media (min-width:48rem){.tile .v{font-size:calc(36 / 16 * 1rem);line-height:1.4}}
+.tile .v small{font-size:calc(16 / 16 * 1rem);font-weight:bold;color:var(--color-neutral-solid-gray-800);margin-left:calc(6 / 16 * 1rem)}
+.tile .d{margin:calc(4 / 16 * 1rem) 0 0}
+/* 工程の横並び */
+.flow{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:calc(16 / 16 * 1rem) 0 0;border-top:calc(4 / 16 * 1rem) solid var(--color-key-900);display:grid;grid-template-columns:1fr;gap:calc(12 / 16 * 1rem)}
+@media (min-width:48rem){.flow{grid-template-columns:repeat(3,1fr);gap:calc(16 / 16 * 1rem)}}
+@media (min-width:75rem){.flow{grid-template-columns:repeat(6,1fr)}}
+.flow li{padding-right:calc(12 / 16 * 1rem)}
+.flow li b{display:block;margin-bottom:calc(4 / 16 * 1rem)}
+.flow li .chip{min-height:calc(26 / 16 * 1rem);padding:calc(1 / 16 * 1rem) calc(8 / 16 * 1rem);margin-left:calc(4 / 16 * 1rem);font-size:calc(16 / 16 * 1rem)}
+.twoc{display:grid;grid-template-columns:1fr;gap:calc(24 / 16 * 1rem)}
+.twoc h4{margin-top:0}
+.twoc>div{min-width:0}
+/* 字数の棒 */
+.cbars{display:grid;gap:calc(8 / 16 * 1rem)}
+.bar{display:grid;grid-template-columns:minmax(5em,11em) minmax(4em,1fr) 4.5em;align-items:center;gap:calc(8 / 16 * 1rem)}
+.bar .bl{font-size:calc(16 / 16 * 1rem)}
+.bar .tr{display:block;height:calc(20 / 16 * 1rem);background:var(--color-neutral-solid-gray-50);border-radius:calc(4 / 16 * 1rem);overflow:hidden}
+.bar .f{display:block;height:100%;background:var(--color-key-400)}
+.bar .f.k{background:var(--color-key-900)}
+.bar .bv{text-align:right;font-variant-numeric:tabular-nums}
+table.tbl th[scope=row]{min-width:7em}
+table.tbl caption{text-align:left;font-weight:bold;padding:calc(8 / 16 * 1rem) 0}
+/* 主な変更 */
+.changes{list-style:none;margin:calc(16 / 16 * 1rem) 0 calc(24 / 16 * 1rem);padding:0;display:grid;grid-template-columns:1fr;gap:0}
+.chg{appearance:none;background:none;border:0;border-bottom:1px solid var(--color-neutral-solid-gray-420);width:100%;text-align:left;padding:calc(12 / 16 * 1rem) 0;display:grid;grid-template-columns:auto 10em 1fr;gap:calc(12 / 16 * 1rem);align-items:start;font:inherit;color:inherit;cursor:pointer}
+.chg .num{display:inline-grid;place-items:center;width:calc(28 / 16 * 1rem);height:calc(28 / 16 * 1rem);border-radius:calc(624.9375rem);background:var(--color-key-900);color:var(--color-neutral-white);font-weight:bold;font-variant-numeric:tabular-nums}
+@media (hover:hover){.chg:hover b{text-decoration:underline;text-underline-offset:calc(3 / 16 * 1rem)}}
+/* 左右に並べて読む */
+.viewer{display:grid;grid-template-columns:1fr;gap:calc(16 / 16 * 1rem)}
+@media (min-width:48rem){.viewer{grid-template-columns:1fr 1fr}}
+.pane .cap .ln{font-weight:normal;margin-left:calc(8 / 16 * 1rem)}
+.doc td:first-child,.doc th:first-child{min-width:4.5em}
+.doc table+hr{display:none}
+.doc mark.chg-b{background:none;box-shadow:none;text-decoration:underline dashed;text-decoration-color:var(--color-neutral-solid-gray-536);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
+.doc mark.chg-a{background:none;box-shadow:none;text-decoration:underline solid;text-decoration-color:var(--color-key-900);text-decoration-thickness:2px;text-underline-offset:calc(3 / 16 * 1rem)}
+.doc mark.on{background:var(--color-primitive-yellow-300)}
+.map .mv.dashed{stroke:var(--color-neutral-solid-gray-420);stroke-dasharray:6 5}
+.map .dst.body .mr{fill:var(--color-key-50);stroke:var(--color-key-900);stroke-width:1.5}
+.map .dst.app .mr{fill:var(--color-neutral-white);stroke:var(--color-key-900);stroke-dasharray:4 3}
+.map .ml{font-weight:bold}
 </style>
 </head>
 <body>
-
-<header class="band">
-  <div class="band-inner">
-    <div class="code" aria-hidden="true">NJ</div>
-    <div class="name">natural-japanese<span>仕事の日本語を読みやすく書く・直す Agent Skill</span></div>
-    <nav aria-label="このページの節">
-      <a href="#changes">何が変わったか</a>
-      <a href="#checked">確かめたこと</a>
-      <a href="#limits">苦手なこと</a>
-      <a href="#install">インストール</a>
-    </nav>
+<nav class="toc" aria-label="目次">
+  <div class="toc-inner">
+    <p class="toc-h">natural-japanese</p>
+    <ol class="toc-list">
+      <li><a href="#top">v2.0.0</a></li>
+      <li><a href="#docs-sec">4つの文書で見る</a></li>
+      <li><a href="#checked">確かめたこと</a></li>
+      <li><a href="#how">使い方</a></li>
+      <li><a href="#install">インストール</a></li>
+    </ol>
   </div>
-</header>
+</nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <p class="eye">natural-japanese v2.0.0 リリースノート</p>
+  <h1>AI の文書に、クリティカルシンキングを</h1>
+  <p class="p lead">AI が書いた稟議書や企画書、提案書は、丁寧に見えて、決める人の問いに答えていないことがあります。<mark>根拠のない言い切り</mark>、<mark>よく見ると辻褄の合わない数字</mark>、そして<mark>論点がはっきりしないダラダラした文章</mark>。natural-japanese に同梱した新しいスキル <code class="ic sk">critical-thinking</code> は、提出する前に決裁者の目で読み、文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れ、決裁に要る根拠だけを残して短くします。</p>
+  <p class="p lead">下は、架空の文書4本にかけた実演です。1回目は4本とも「このままでは差し戻されます」の判定と、出す前に調べておくことの一覧が返りました。このページではその一覧を宿題と呼びます。宿題を済ませると、3本が「このまま出せます」になりました。</p>
+</div></header>
 
 <main>
-  <div class="lead-wrap">
-    <div>
-      <h1 class="ver" aria-label="v1.6.1">1.6.1</h1>
-      <p class="ver-meta">2026年10月<br>ひとつ前は <a href="https://6c8j7oke3x.artifactshare.link/">v1.6.0</a></p>
-    </div>
-    <div>
-      <p class="lead">AI の書く文章から、<mark class="hl">何を指すのか分からない言葉</mark>が減りました。</p>
-      <p class="sub">AI は、何が起きるのかを「<mark class="hl">効く</mark>」「<mark class="hl">届く</mark>」「<mark class="hl">動く</mark>」のような抽象的な短い言葉で済ませて書きがちです。たとえば「Figma の値がボタンに<mark class="hl">届く</mark>まで」と書かれても、デザイナーには、値がどうなるのかが分かりません。書いた AI には意味が分かっていても、読む人は中身を推測しなければなりません。v1.6.1 のスキルを使うと、AI が「<mark class="hl">届く</mark>」を「<mark class="hl ok">反映される</mark>」に変えるなど、何が起きるのかが分かる言い方に直すことが増えました。</p>
-      <p class="sub">AI がスキルなしで書いた、ほかの部署の担当者に宛てた相談文を、<span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0</span> と <span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1</span> のスキルで、それぞれ「読みやすくして」と頼んで直させました。同じ箇所を並べると、v1.6.0 はどれも元の文のまま残していました。</p>
+<section class="block" id="docs-sec"><div class="wrap">
+  <h2 data-chip>4つの文書で見る</h2>
+  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。書き手の役も別の AI で、スキルの作者が用意した事実の一覧だけを見て答えます。1回目の宿題にその AI が答え、答えを入れて2回目を回しました。出力は手直しせずに載せています。</p>
+  <div class="dads-tab" id="docs"><ul class="dads-tab__list" role="tablist" aria-label="4つの文書"><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-1" aria-selected="true" aria-controls="doc-panel-1" tabindex="0"><span>稟議書</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-2" aria-selected="false" aria-controls="doc-panel-2" tabindex="-1"><span>社内の制度企画</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-3" aria-selected="false" aria-controls="doc-panel-3" tabindex="-1"><span>コンサルからの提案資料</span></button></li><li><button type="button" class="dads-tab__tab" role="tab" id="doc-tab-4" aria-selected="false" aria-controls="doc-panel-4" tabindex="-1"><span>障害報告書</span></button></li></ul><div class="dads-tab__panels"><div class="dads-tab__panel" id="doc-panel-1" role="tabpanel" aria-labelledby="doc-tab-1" tabindex="0"><p class="p prose-max">営業部の12名で、議事録を作る AI ツールを6か月、上限60万円で試験導入したいという社内の申請。読むのは経営会議。</p>
+<h3>ひとめで分かる変化</h3>
+<div class="tiles">
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">57%<small>短縮</small></div><p class="d">3,299字 → 直して 2,822字 → 端的に 1,428字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">31<small>件</small></div><p class="d">論理の指摘20件、前提への問い11件。うち3問を書き手に聞く</p></div>
+</div>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">スキルの返答は「このままでは差し戻されます」から始まります。理由は次のとおりです。データの扱いの確認と2週間の測定は承認前に自分でできるのに、まだやっていない。時間単価3,500円では、参考値の30分でも費用を回収できない。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">データの扱いが社内規程に合うか</th><td>販売店から資料を取り寄せ、情報システム部門と突き合わせる</td><td>5章の情報漏えいの対策を、確認した結果の文に。合わなければ稟議を出さない</td></tr><tr><th scope="row">12名の議事録の作成時間を2週間記録する</th><td>営業担当12名の記録シート</td><td>2章の「約60分」を実測の平均に。平均が約39分を切るなら頼む中身を見直す</td></tr><tr><th scope="row">単価6,600円の税区分と、途中で人数を減らせるか</th><td>販売店</td><td>4章の「契約前に確認する」を結果に。回収の線を約39分か約43分に絞り、6.1の目安をそろえる</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="ringi" data-maps='{"after": [0, 1, 2, 3, 4, 10, 5, 6, 11, 7]}'>
+  <div class="pane"><p class="cap">元の文書 <span class="ln">本編 3,299字</span></p><div class="doc L" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,822字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-ringi-before"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起案日</td>
+<td>2026年【 】月【 】日</td>
+</tr>
+<tr>
+<td>起案者</td>
+<td>営業部長 【氏名】</td>
+</tr>
+<tr>
+<td>提出先</td>
+<td>経営会議</td>
+</tr>
+<tr>
+<td>件名</td>
+<td>議事録作成支援ツール「ミナトノート」の試験導入(6か月)</td>
+</tr>
+</tbody>
+</table>
+<h4>1. 申請内容</h4>
+<p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名で6か月間試験導入したい。</p>
+<ul>
+<li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
+<li><strong>費用</strong>:月額の上限は10万円、6か月の総額は60万円以内(見込みは475,200円)</li>
+<li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
+</ul>
+<h4>2. 背景と課題</h4>
+<ul>
+<li>営業部では、顧客打ち合わせが週に平均8件(月に約35件)ある。</li>
+<li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。先月ツールを試した担当者の場合、普段は1件あたり約60分かかっている。</li>
+<li>手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右される。</li>
+<li>部全体での平均作成時間はまだ測っていない。試験導入の開始前に測定する(8章)。</li>
+</ul>
+<h4>3. 導入するツール</h4>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ツール名</td>
+<td>ミナトノート(クラウドサービス)</td>
+</tr>
+<tr>
+<td>主な機能</td>
+<td>打ち合わせ音声の文字起こし、要約</td>
+</tr>
+<tr>
+<td>プラン</td>
+<td>1人あたり月額6,600円</td>
+</tr>
+<tr>
+<td>利用者</td>
+<td>営業部の営業担当12名</td>
+</tr>
+<tr>
+<td>社外の利用例</td>
+<td>同業のA社(従業員300名)が全社で導入している</td>
+</tr>
+</tbody>
+</table>
+<p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
+<h4>4. 期待効果</h4>
+<h5>4.1 議事録作成時間の削減</h5>
+<p>先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。部全体で同じ効果が出るかどうかは、この試験導入で確かめる。</p>
+<p>参考値どおり1件あたり30分減った場合の削減時間は、次のとおり。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>月あたりの打ち合わせ件数</td>
+<td>約35件(週8件 × 52週 ÷ 12か月)</td>
+</tr>
+<tr>
+<td>1件あたりの削減時間</td>
+<td>30分(試行時の参考値)</td>
+</tr>
+<tr>
+<td>月あたりの削減時間</td>
+<td>約17時間</td>
+</tr>
+<tr>
+<td>6か月の削減時間</td>
+<td>約104時間</td>
+</tr>
+</tbody>
+</table>
+<h5>4.2 費用対効果の目安</h5>
+<p>月額費用79,200円を月あたりの削減時間で割ると、<strong>削減できる1時間あたりの費用</strong>になる。営業担当者の時間単価(人件費)がこの金額を上回れば、費用は回収できる。</p>
+<table>
+<thead>
+<tr>
+<th>1件あたりの削減時間</th>
+<th>月あたりの削減時間</th>
+<th>削減1時間あたりの費用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15分</td>
+<td>約9時間</td>
+<td>約9,100円</td>
+</tr>
+<tr>
+<td>30分(参考値)</td>
+<td>約17時間</td>
+<td>約4,600円</td>
+</tr>
+<tr>
+<td>45分</td>
+<td>約26時間</td>
+<td>約3,000円</td>
+</tr>
+</tbody>
+</table>
+<p>当社の営業担当者の時間単価:【 】円(人事・経理部門に確認して記入)</p>
+<h5>4.3 金額にしにくい効果(試験期間中に確認)</h5>
+<p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
+<ul>
+<li>発言が記録に残るため、聞き漏らしや顧客との認識違いを後から確認できる</li>
+<li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められる</li>
+<li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすい</li>
+</ul>
+<h4>5. 費用</h4>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>金額</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>単価</td>
+<td>6,600円/人・月</td>
+</tr>
+<tr>
+<td>人数</td>
+<td>12名</td>
+</tr>
+<tr>
+<td>月額(見込み)</td>
+<td>79,200円</td>
+</tr>
+<tr>
+<td>6か月合計(見込み)</td>
+<td>475,200円</td>
+</tr>
+<tr>
+<td><strong>申請する上限</strong></td>
+<td><strong>月額10万円、6か月合計60万円</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>単価6,600円が税込か税抜かは、契約前に確認する。税抜の場合でも月額は87,120円で、上限の範囲に収まる。</li>
+<li>上限と見込みの差額は、税区分や契約条件の確認結果に備えるためのものである。上限を超える支出は行わない。</li>
+<li>上記以外の費用(機材など)は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</li>
+</ul>
+<h4>6. 実施体制</h4>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>担当</th>
+<th>主な業務</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>責任者</td>
+<td>営業部長 【氏名】</td>
+<td>全体の管理、中間評価・最終評価の報告</td>
+</tr>
+<tr>
+<td>情報管理担当者</td>
+<td>【氏名】(1名)</td>
+<td>契約条件とデータの扱いの確認、利用ルールの整備と周知、録音データの管理状況の点検</td>
+</tr>
+<tr>
+<td>利用者</td>
+<td>営業担当12名</td>
+<td>ツールの利用、作成時間と録音同意の記録、アンケートへの回答</td>
+</tr>
+<tr>
+<td>相談先</td>
+<td>情報システム部門、法務担当</td>
+<td>セキュリティと契約内容の確認</td>
+</tr>
+</tbody>
+</table>
+<h4>7. リスクと対策</h4>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>録音について顧客の同意を得ないまま録音してしまう</td>
+<td>録音の前に、必ず顧客の同意を得る。同意を求める手順と文面を統一し、同意を得たことを記録に残す。同意が得られない打ち合わせでは録音せず、従来どおり手書きで議事録を作る</td>
+</tr>
+<tr>
+<td>顧客の同意が得られず、ツールを使える打ち合わせが少ない</td>
+<td>同意を得られた割合を毎月集計する。利用が少ない場合は、中間評価で人数の縮小を検討する</td>
+</tr>
+<tr>
+<td>クラウドに保存した顧客情報が漏れる</td>
+<td>契約の前に、情報管理担当者がデータの保存場所、AIの学習に使われるかどうか、保存期間と削除の方法、アクセス権の設定を確認する。社内規程に合っているかどうかを情報システム部門と確認し、問題があれば導入しない</td>
+</tr>
+<tr>
+<td>文字起こしや要約に誤りがある</td>
+<td>ツールの出力をそのまま議事録にせず、担当者が必ず確認・修正してから確定する</td>
+</tr>
+<tr>
+<td>期待した効果が出ない</td>
+<td>3か月目の中間評価で効果を確かめ、見合わない場合は規模縮小か中止を判断する</td>
+</tr>
+<tr>
+<td>費用が想定を超える</td>
+<td>月額の上限を設け、ライセンス数を12名分に固定する。6か月で解約できるかなど、契約期間と中途解約の条件を契約前に確認する</td>
+</tr>
+</tbody>
+</table>
+<h4>8. 評価の方法</h4>
+<h5>8.1 測定の進め方</h5>
+<ol>
+<li><strong>開始前(2週間)</strong>:現在の議事録作成時間を、担当者ごとに打ち合わせ1件単位で記録し、比較の基準とする。</li>
+<li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
+<li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
+<li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
+</ol>
+<h5>8.2 評価の指標</h5>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>測定方法</th>
+<th>目安(案)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1件あたりの議事録作成時間</td>
+<td>記録シート(開始前と比較)</td>
+<td>開始前より平均30分短い。最低でも、4.2の費用対効果が見合う水準</td>
+</tr>
+<tr>
+<td>ツールの利用率</td>
+<td>記録シート(利用した件数 ÷ 打ち合わせ件数)</td>
+<td>【 】%以上</td>
+</tr>
+<tr>
+<td>議事録の品質</td>
+<td>利用者アンケート、上長による確認</td>
+<td>開始前と同等以上</td>
+</tr>
+<tr>
+<td>情報管理</td>
+<td>情報管理担当者による点検</td>
+<td>情報漏えい・同意なしの録音が0件</td>
+</tr>
+<tr>
+<td>費用</td>
+<td>請求額</td>
+<td>月額10万円以内</td>
+</tr>
+</tbody>
+</table>
+<h5>8.3 判断の基準</h5>
+<ul>
+<li><strong>本導入へ進む</strong>:作成時間の削減が費用に見合い、情報管理上の問題がない場合</li>
+<li><strong>規模を縮小して続ける</strong>:効果は出ているが、利用率が低い場合(ライセンス数を減らすなど)</li>
+<li><strong>中止する</strong>:削減効果が費用に見合わない場合、または情報管理上の重大な問題が起きた場合(この場合は期間の途中でも利用を止める)</li>
+</ul>
+<h4>9. スケジュール</h4>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>承認後〜開始前</td>
+<td>契約条件とデータの扱いの確認、同意取得の手順づくり、現在の作成時間の測定、利用者への説明会</td>
+</tr>
+<tr>
+<td>1〜3か月目</td>
+<td>運用開始、利用状況と費用を毎月確認</td>
+</tr>
+<tr>
+<td>3か月目末</td>
+<td>中間評価、経営会議へ報告</td>
+</tr>
+<tr>
+<td>4〜6か月目</td>
+<td>運用を続ける(中間評価の結果に応じて見直す)</td>
+</tr>
+<tr>
+<td>6か月目末</td>
+<td>最終評価、判断案を経営会議へ提出</td>
+</tr>
+</tbody>
+</table>
+<h4>10. 決裁をお願いする事項</h4>
+<ol>
+<li>「ミナトノート」を営業部の営業担当12名で6か月間試験導入すること</li>
+<li>費用の上限を月額10万円、6か月合計60万円とすること</li>
+</ol>
+<p>以上</p></article></template><template id="t-ringi-after"><article><h3>稟議書:議事録作成支援ツール「ミナトノート」の試験導入について</h3>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起案日</td>
+<td>2026年【 】月【 】日</td>
+</tr>
+<tr>
+<td>起案者</td>
+<td>営業部長 【氏名】</td>
+</tr>
+<tr>
+<td>提出先</td>
+<td>経営会議</td>
+</tr>
+<tr>
+<td>件名</td>
+<td>議事録作成支援ツール「ミナトノート」の試験導入(6か月)</td>
+</tr>
+</tbody>
+</table>
+<h4>1. 申請内容</h4>
+<p>顧客打ち合わせの議事録作成にかかる時間を減らすため、音声の文字起こしと要約を行うクラウドツール「ミナトノート」を、営業部の営業担当12名のうち内勤寄りの3名を除く9名で、6か月間試験導入したい。</p>
+<ul>
+<li><strong>期間</strong>:承認後の【2026年12月】から6か月</li>
+<li><strong>費用</strong>:月額の上限は8万円、6か月の総額は50万円以内。見込みは月額59,400円、6か月で356,400円</li>
+<li><strong>進め方</strong>:試験期間中に効果と情報管理の状況を測定する。3か月目に中間評価、6か月目に最終評価を行い、本導入・規模縮小・中止のいずれにするかを経営会議で改めて判断する</li>
+</ul>
+<h4>2. 背景と課題</h4>
+<p>議事録の作成に、営業部全体で月に約32時間かかっている。</p>
+<ul>
+<li>営業部全体の顧客打ち合わせは週に平均8件、月に約35件である。営業支援システムの訪問記録の直近6か月から出した。</li>
+<li>営業担当12名の作成時間を、2週間で打ち合わせ16件分記録した。1件あたりの平均は55分、最短25分、最長110分である。</li>
+<li>担当者は打ち合わせ後、手書きメモをもとに議事録を作成している。手書きメモと記憶をもとに作るため、議事録の正確さは担当者のメモの取り方に左右されると見ている。</li>
+<li>対象の9名の打ち合わせは、2週間で13件、月に約28件である。</li>
+</ul>
+<h4>3. 導入するツール</h4>
+<p>導入するのは、月単位で解約でき、人数も増減できるクラウドサービスである。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ツール名</td>
+<td>ミナトノート(クラウドサービス)</td>
+</tr>
+<tr>
+<td>主な機能</td>
+<td>打ち合わせ音声の文字起こし、要約</td>
+</tr>
+<tr>
+<td>プラン</td>
+<td>1人あたり月額6,600円(税込)</td>
+</tr>
+<tr>
+<td>利用者</td>
+<td>営業部の営業担当9名</td>
+</tr>
+<tr>
+<td>社外の利用例</td>
+<td>同業のA社(従業員300名)が全社で導入している</td>
+</tr>
+</tbody>
+</table>
+<p>A社での効果や運用上の注意点については、可能であれば開始前に聞き取りを行い、運用ルールづくりに活かす。</p>
+<h4>4. 期待効果</h4>
+<h5>4.1 議事録作成時間の削減</h5>
+<p>1件あたりの作成時間がどこまで減るかを、この試験導入で確かめる。先月、営業2課の担当者1名が無料版を1件の打ち合わせで試したところ、議事録の作成時間が普段の60分から30分に減った。ただし、この結果は1名・1件だけのものであり、参考値にとどまる。</p>
+<h5>4.2 費用対効果の目安</h5>
+<p>1件あたり約36分減れば費用に見合うので、本導入へ進む線を36分とする。月額59,400円を、経理部が社内の試算に使う標準単価の1時間3,500円で割ると月約17時間になり、月約28件で割ると1件あたり約36分になる。</p>
+<p>参考値の30分では、月約14時間、金額にして49,000円で、月額に届かない。また、36分は月約28件のすべてでツールを使えたときの線で、同意が得られない打ち合わせがあれば、1件あたりに要る削減は大きくなる。</p>
+<h5>4.3 金額にしにくい効果</h5>
+<p>次の効果も見込まれるが、まだ確かめられていないため、試験期間中に利用者アンケートで確認する。</p>
+<ul>
+<li>発言が記録に残るため、聞き漏らしや顧客との認識違いを後から確認できること</li>
+<li>議事録が早くできあがり、顧客へのフォローや社内共有を早く始められること</li>
+<li>担当者が交代するとき、過去の打ち合わせ内容を引き継ぎやすいこと</li>
+</ul>
+<h4>5. 費用</h4>
+<p>費用の見込みは月額59,400円、6か月で356,400円で、申請する上限の範囲に収まる。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>金額</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>単価(税込)</td>
+<td>6,600円/人・月</td>
+</tr>
+<tr>
+<td>人数</td>
+<td>9名</td>
+</tr>
+<tr>
+<td>月額(見込み)</td>
+<td>59,400円</td>
+</tr>
+<tr>
+<td>6か月合計(見込み)</td>
+<td>356,400円</td>
+</tr>
+<tr>
+<td><strong>申請する上限</strong></td>
+<td><strong>月額8万円、6か月合計50万円</strong></td>
+</tr>
+</tbody>
+</table>
+<p>上限を超える支出は行わない。機材などの上記以外の費用は想定していない。必要になった場合も上限の範囲で対応し、超える場合は改めて申請する。</p>
+<h4>6. リスクと対策</h4>
+<p>顧客情報の保存と扱いは、社内規程に合っていると情報システム部門が確認した。リスクごとの対策は次のとおり。</p>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>録音について顧客の同意を得ないまま録音してしまう</td>
+<td>録音の前に、必ず顧客の同意を得る。同意を求める手順と文面を統一し、同意を得たことを記録に残す。同意が得られない打ち合わせでは録音せず、従来どおり手書きで議事録を作る</td>
+</tr>
+<tr>
+<td>顧客の同意が得られず、ツールを使える打ち合わせが少ない</td>
+<td>同意を得られた割合を毎月集計する。利用が少ない場合は、中間評価で人数の縮小を検討する。ライセンスは月単位で減らせる</td>
+</tr>
+<tr>
+<td>クラウドに保存した顧客情報が漏れる</td>
+<td>保存先は国内のデータセンターで、音声と文字起こしはAIの学習に使われない。録音と文字起こしは契約中は無期限で保存され、解約後は30日で削除される。社内規程は社外保存の期間に上限を置いていない。削除は依頼から30日以内で、アクセス権は管理者が設定できる</td>
+</tr>
+<tr>
+<td>文字起こしや要約に誤りがある</td>
+<td>ツールの出力をそのまま議事録にせず、担当者が必ず確認・修正してから確定する</td>
+</tr>
+<tr>
+<td>期待した効果が出ない</td>
+<td>3か月目の中間評価で効果を確かめ、見合わない場合は規模縮小か中止を経営会議で判断する。月単位で解約でき、最低契約期間はないと販売店に確認した</td>
+</tr>
+<tr>
+<td>費用が想定を超える</td>
+<td>月額の上限を設け、ライセンス数は9名分より増やさない</td>
+</tr>
+</tbody>
+</table>
+<h4>7. 評価の方法</h4>
+<p>作成時間が開始前より平均36分以上短くなり、情報管理上の問題がなければ、本導入へ進む。</p>
+<h5>7.1 評価の指標</h5>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>測定方法</th>
+<th>目安(案)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1件あたりの議事録作成時間</td>
+<td>記録シート(開始前と比較)</td>
+<td>開始前より平均36分短い</td>
+</tr>
+<tr>
+<td>ツールの利用率</td>
+<td>記録シート(利用した件数 ÷ 打ち合わせ件数)</td>
+<td>【 】%以上</td>
+</tr>
+<tr>
+<td>議事録の品質</td>
+<td>利用者アンケート、上長による確認</td>
+<td>開始前と同等以上</td>
+</tr>
+<tr>
+<td>情報管理</td>
+<td>情報管理担当者による点検</td>
+<td>情報漏えい・同意なしの録音が0件</td>
+</tr>
+<tr>
+<td>費用</td>
+<td>請求額</td>
+<td>月額8万円以内</td>
+</tr>
+</tbody>
+</table>
+<h5>7.2 判断の基準</h5>
+<ul>
+<li><strong>本導入へ進む</strong>:作成時間が開始前より平均36分以上短くなり、情報管理上の問題がない場合</li>
+<li><strong>規模を縮小して続ける</strong>:平均36分以上短くなったが、利用率が目安を下回る場合。ライセンス数を減らすなどして続ける</li>
+<li><strong>中止する</strong>:短くなった時間が平均36分に届かず費用に見合わない場合、または情報管理上の重大な問題が起きた場合。情報管理上の重大な問題が起きたときは、期間の途中でも利用を止める</li>
+</ul>
+<h4>8. 決裁をお願いする事項</h4>
+<ol>
+<li>「ミナトノート」を営業部の営業担当12名のうち内勤寄りの3名を除く9名で6か月間試験導入すること</li>
+<li>費用の上限を月額8万円、6か月合計50万円とすること</li>
+</ol>
+<p>以上</p>
+<h4>付録A 費用対効果の試算</h4>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>月額</td>
+<td>59,400円</td>
+</tr>
+<tr>
+<td>経理部が社内の試算に使う標準単価</td>
+<td>1時間3,500円</td>
+</tr>
+<tr>
+<td>費用に見合う月あたりの削減時間</td>
+<td>約17時間</td>
+</tr>
+<tr>
+<td>対象の9名の月あたりの打ち合わせ件数</td>
+<td>約28件</td>
+</tr>
+<tr>
+<td>費用に見合う1件あたりの削減時間</td>
+<td>約36分</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>1件あたりの削減時間</th>
+<th>月あたりの削減時間</th>
+<th>削減1時間あたりの費用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15分</td>
+<td>約7時間</td>
+<td>約8,500円</td>
+</tr>
+<tr>
+<td>30分(参考値)</td>
+<td>約14時間</td>
+<td>約4,200円</td>
+</tr>
+<tr>
+<td>36分(本導入へ進む線)</td>
+<td>約17時間</td>
+<td>約3,500円</td>
+</tr>
+<tr>
+<td>45分</td>
+<td>約21時間</td>
+<td>約2,800円</td>
+</tr>
+</tbody>
+</table>
+<p>2週間の記録の担当者別の件数は、2件以上が5名、1件が6名、0件が1名で、件数の少ない数名は内勤寄りの担当である。</p>
+<h4>付録B 測定の進め方</h4>
+<ol>
+<li><strong>開始前</strong>:記録した2週間分の議事録作成時間を、比較の基準とする。</li>
+<li><strong>試験期間中</strong>:打ち合わせごとに、議事録の作成時間と、録音の同意を得られたかどうかを記録シートに記入する。</li>
+<li><strong>3か月目末</strong>:中間評価を行い、結果を経営会議に報告する。</li>
+<li><strong>6か月目末</strong>:最終評価を行い、本導入・規模縮小・中止の判断案を経営会議に提出する。</li>
+</ol>
+<h4>付録C 実施体制</h4>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>担当</th>
+<th>主な業務</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>責任者</td>
+<td>営業部長 【氏名】</td>
+<td>全体の管理、中間評価・最終評価の報告</td>
+</tr>
+<tr>
+<td>情報管理担当者</td>
+<td>【氏名】(1名)</td>
+<td>利用ルールの整備と周知、録音データの管理状況の点検</td>
+</tr>
+<tr>
+<td>利用者</td>
+<td>営業担当9名</td>
+<td>ツールの利用、作成時間と録音同意の記録、アンケートへの回答</td>
+</tr>
+<tr>
+<td>相談先</td>
+<td>情報システム部門、法務担当</td>
+<td>セキュリティと契約内容の確認</td>
+</tr>
+</tbody>
+</table>
+<h4>付録D スケジュール</h4>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>承認後〜開始前</td>
+<td>同意取得の手順づくり、利用者への説明会</td>
+</tr>
+<tr>
+<td>1〜3か月目</td>
+<td>運用開始、利用状況と費用を毎月確認</td>
+</tr>
+<tr>
+<td>3か月目末</td>
+<td>中間評価、経営会議へ報告</td>
+</tr>
+<tr>
+<td>4〜6か月目</td>
+<td>運用を続ける(中間評価の結果に応じて見直す)</td>
+</tr>
+<tr>
+<td>6か月目末</td>
+<td>最終評価、判断案を経営会議へ提出</td>
+</tr>
+</tbody>
+</table></article></template>
+<h3>主な変更 6 件</h3>
+<p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
+<ol class="changes"><li><button type="button" class="chg" data-doc="ringi" data-b="営業部の営業担当12名で6か月間試験導入したい。" data-a="営業部の営業担当12名のうち内勤寄りの3名を除く9名で、6か月間試験導入したい。"><span class="num">1</span><b>頼む中身を縮める</b><span>書き手の判断で12名から9名に。上限は60万円から50万円に</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="試験導入の開始前に測定する(8章)" data-a="営業担当12名の作成時間を、2週間で打ち合わせ16件分記録した。1件あたりの平均は55分"><span class="num">2</span><b>宿題の答えを入れる</b><span>測る予定だった作成時間が、2週間の実測になった</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="【 】円(人事・経理部門に確認して記入)" data-a="経理部が社内の試算に使う標準単価の1時間3,500円"><span class="num">3</span><b>空欄を埋める</b><span>時間単価が入った</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="参考値どおり1件あたり30分減った場合の削減時間は、次のとおり" data-a="1件あたり約36分減れば費用に見合うので、本導入へ進む線を36分とする"><span class="num">4</span><b>線を引き直す</b><span>30分の参考値では届かないので、本導入の線を36分に</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="社内規程に合っているかどうかを情報システム部門と確認し" data-a="顧客情報の保存と扱いは、社内規程に合っていると情報システム部門が確認した"><span class="num">5</span><b>宿題の答えを入れる</b><span>規程との突き合わせが、確認の結果になった</span></button></li><li><button type="button" class="chg" data-doc="ringi" data-b="担当者のメモの取り方に左右される。" data-a="担当者のメモの取り方に左右されると見ている"><span class="num">6</span><b>言い切りを根拠に合わせる</b><span>確かめていないことは見立てとして書く</span></button></li></ol>
+<h3>どうやったか</h3>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、後述の使い方で指定できるサブコマンド名です。3は full に含まれ、単独では呼べません。somosomo は「そもそも」からの名前です。</p>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を20件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を11件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">3,299字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:85.5%"></span></span><span class="bv">2,822字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:43.3%"></span></span><span class="bv">1,428字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:63.0%"></span></span><span class="bv">2,079字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">週8件は部全体か、1人あたりか</th><td>書いていない</td><td>部全体。訪問記録から。12名の2週間の実測で、1件平均55分</td></tr><tr><th scope="row">時間単価はいくらか</th><td>空欄</td><td>経理部の標準単価 1時間3,500円。9名なら1件36分減れば費用に見合う</td></tr><tr><th scope="row">データの扱いは社内規程に合うか</th><td>契約前に確認する</td><td>情報システム部門が確認した。保存先は国内、AI の学習に使われない</td></tr><tr><th scope="row">12名全員に要るか</th><td>書いていない</td><td>内勤寄りの3名を除く9名、上限50万円に縮めた</td></tr><tr><th scope="row">顧客は録音に同意するか</th><td>全件で使う前提の試算</td><td>同意が得られない打ち合わせがあるぶん必要な削減時間は増える、と明記。利用率の目安は空欄のまま</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
+<ol class="list prose-max"><li>営業担当者の時間単価(人件費)はいくらですか。4.2の空欄の値です。単価が約4,600円を上回るかどうかが、参考値どおりの効果が出たときに費用を回収できるかの線になります。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>1時間3,500円です。経理部が社内の試算に使う標準単価です。</p></div></details></li><li>2章の「週に平均8件(月に約35件)」は、ツールを使う営業担当12名全員の合計ですか。先月試した1名の「約60分」のほかに、部全体の議事録作成時間について分かっていることはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>週8件は営業部全体の件数で、1人あたりではありません。営業支援システムの訪問記録の直近6か月から出しました。部全体の議事録の作成時間は測っていないので、分かっていることはありません。ただし承認の前に測ることはでき、2週間あれば12名分を記録できます。</p></div></details></li><li>ミナトノートの契約条件について、いま分かっていることを教えてください。6か月で解約できるか、途中で人数を減らせるか、単価6,600円は税込か税抜か、録音データの保存場所とAIの学習に使われるかどうか、社内規程に合っているか、の5点です。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>-6か月で解約できるか:できます。月単位で解約でき、最低契約期間はありません。販売店に確認済みです。-途中で人数を減らせるか:分かりません。-単価6,600円は税込か税抜か:分かりません。-録音データの保存場所とAIの学習に使われるかどうか:分かりません。ミナトノートのデータの扱いの資料は取り寄せていません。-社内規程に合っているか:分かりません。突き合わせをまだしていません。情報システム部門には声をかけただけです。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>データの扱いの資料を販売店から取り寄せ、データの保存場所、AIの学習に使われるかどうか、保存期間と削除の方法、アクセス権の設定を見て、社内規程に合っているかを情報システム部門と突き合わせる→5章の「クラウドに保存した顧客情報が漏れる」の対策を、確認した結果の文に書き換える。規程に合わなければ、5章の文のとおり導入しないので、この稟議は出さない。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>販売店から資料を取り寄せ、情報システム部門と突き合わせました。結果は次のとおりで、社内規程に合っていると情報システム部門が確認しました。-保存場所:国内のデータセンターです。-AIの学習:音声と文字起こしは学習に使われません。-保存期間:録音と文字起こしは、契約中は無期限で保存され、解約後は30日で削除されます。社内規程は社外保存の期間に上限を置いていません。-削除の方法:削除は依頼から30日以内です。-アクセス権:管理者が設定できます。</p></div></details></li><li>営業担当12名の議事録作成時間を2週間、打ち合わせ1件単位で記録シートに記録する→2章の「約60分」と「部全体での平均作成時間は、試験導入の開始前に測定する」を実測の平均の文に書き換え、付録Eと付録Fの「開始前の測定」を外す。平均が約39分を下回るなら、作成時間がなくなっても費用を回収できないので、頼む中身を見直す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>12名の2週間、打ち合わせ16件を記録しました。1件あたりの平均は55分、最短25分、最長110分で、約39分を下回っていません。週8件のペースと合っていて、部全体では月あたり約32時間です。担当者別の件数は、2件以上が5名、1件が6名、0件が1名で、件数の少ない数名は内勤寄りの担当です。</p></div></details></li><li>単価6,600円が税込か税抜かと、途中で人数を減らせるかを販売店に聞く→4章の「契約前に確認する」の文を確認した結果に書き換え、3.2の約39分か約43分のどちらかに絞り、6.1の「開始前より平均30分短い」をその線に合わせて決める。回収の線は30分より上にあるので、いまの目安のままでは目安を満たしても費用を回収できない。人数を減らせないなら、5章と6.2の「人数の縮小」「ライセンス数を減らす」の文を書き直す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>-税区分:6,600円は税込で、税抜は6,000円です。月額は税込79,200円のままです。-人数:ライセンスは月単位で増減できるので、途中で人数を減らせます。-回収の線:費用に見合う約39分を本導入の線にし、参考値の30分は目安から外すと決めました。ただし、この39分は12名のときの線です。内勤寄りの3名を外して9名で始める案を検討し、申請は9名・上限50万円(月額の上限8万円)に縮めます。9名分の月額は税込59,400円で、時間単価3,500円で割ると月約17時間です。2週間の記録で9名の打ち合わせは13件、月に約28件なので、1件あたり約36分減れば回収できます。そのため、9名で申請する本導入の線は36分にします。-約43分:約43分をどう扱うかは、分からないです。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>スキルが本文とは別のファイルに出した確認事項 18 件</span></summary><div class="dsc-body"><h4>先に答えるべき問い</h4><p class="p">「本文」は直した後の文書を指します。</p><ol class="list"><li>上限の値はこのままでよいか。月額上限8万円の6か月分は48万円で、総額の上限50万円に届かない。また、見込み356,400円との差は約14万円あり、元の文書の理由だった税区分と契約条件の確認は済んだので、本文からこの理由を外した。差額は何に備えるものか。</li><li>ツールの利用率の目安は何%か。7.1の空欄で、「規模を縮小して続ける」の線がこの値で決まる。</li><li>無料版のまま件数を増やして試せるか。判断の線の36分は、いまの平均55分を約65%縮める値で、1名・1件の試行は半分の30分だった。なぜ30分でも試す価値があるかを、決裁者は最初に聞くはずだ。</li></ol><h4>そのほか 15 件</h4><ul class="list"><li>平均55分は12名16件の値。対象の9名13件の平均はいくつか。比較の基準はどちらの値にするか</li><li>9名の打ち合わせ13件は、外す3名が3件という計算になる。担当者別の件数のうち少ない3名は0件、1件、1件の計2件で、この3名を外すなら14件になる。外す3名の件数は3件で合っているか</li><li>約43分は、単価が税抜だったときの線で、税込と分かったので本文には書いていない。別の意味で使っていたなら教えてほしい</li><li>顧客が録音に同意する割合の見込みはあるか。36分は月約28件のすべてで使えたときの線</li><li>減った時間は何に使うのか。残業が減るのか、別の仕事に回るのか。本文は時間単価で換算して費用と比べているだけで、金額が戻るとは書いていない</li><li>解くべき課題は作成の時間か、議事録の正確さか。正確さの問題が実際に起きた事例はあるか</li><li>無料版を続ける案、何もしない案、人数を変える案と比べた記録はあるか</li><li>中間評価で誰が何を決めるのか。本文は、規模縮小か中止を経営会議で判断する形にそろえた。違うなら教えてほしい</li><li>議事録の品質と費用は指標にあるが、判断の基準に出てこない。品質が下がったときや費用が上限に近づいたときは、どの判断になるのか。品質の開始前の値はあるか</li><li>月額上限8万円を超えるのは何が起きたときか。本文は、超える場合は改めて申請すると書いている</li><li>A社の例は何を支えるために置いているか。聞き取りは開始前にやる作業か。付録Dの開始前の項目には入っていない</li><li>作成時間の記録は、ツールを使う本人の自己申告でよいか</li><li>責任者と起案者は同じ営業部長で、判断案も同じ人が出す。評価する人と申請する人が同じでよいか</li><li>情報管理担当者は誰か。付録Cで氏名が空欄。起案日と起案者の氏名も空欄のまま</li><li>契約内容を法務担当にも確認したか。答えにあるのは販売店と情報システム部門の確認だけ</li></ul></div></details>
+<h4>構成がどう変わったか</h4>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 698.125" class="fig map" role="img" aria-label="元の10節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 3,299字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,079字 + 付録 1,348字</text><path d="M340,57 C500.0,57 500.0,60 660,60" class="mv" data-src="0" data-dst="0"/><path d="M340,101 C500.0,101 500.0,155 660,155" class="mv" data-src="1" data-dst="2"/><path d="M340,145 C500.0,145 500.0,441 660,441" class="mv dashed" data-src="2" data-dst="8"/><path d="M340,215 C500.0,215 500.0,485 660,485" class="mv dashed" data-src="3" data-dst="9"/><path d="M340,215 C500.0,215 500.0,109 660,109" class="mv" data-src="3" data-dst="1"/><path d="M340,215 C500.0,215 500.0,397 660,397" class="mv dashed" data-src="3" data-dst="7"/><path d="M340,286 C500.0,286 500.0,199 660,199" class="mv" data-src="4" data-dst="3"/><path d="M340,330 C500.0,330 500.0,617 660,617" class="mv dashed" data-src="5" data-dst="12"/><path d="M340,389 C500.0,389 500.0,529 660,529" class="mv dashed" data-src="6" data-dst="10"/><path d="M340,389 C500.0,389 500.0,244 660,244" class="mv" data-src="6" data-dst="4"/><path d="M340,468 C500.0,468 500.0,298 660,298" class="mv" data-src="7" data-dst="5"/><path d="M340,468 C500.0,468 500.0,573 660,573" class="mv dashed" data-src="7" data-dst="11"/><path d="M340,533 C500.0,533 500.0,661 660,661" class="mv dashed" data-src="8" data-dst="13"/><path d="M340,577 C500.0,577 500.0,353 660,353" class="mv" data-src="9" data-dst="6"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">申請内容</text><text x="328" y="63" class="mn" text-anchor="end">248字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="34" rx="6" class="mr"/><text x="22" y="107" class="ml">背景と課題</text><text x="328" y="107" class="mn" text-anchor="end">191字</text></g><g class="src" data-i="2"><rect x="10" y="128" width="330" height="34" rx="6" class="mr"/><text x="22" y="151" class="ml">導入するツール</text><text x="328" y="151" class="mn" text-anchor="end">193字</text></g><g class="src" data-i="3"><rect x="10" y="172" width="330" height="86" rx="6" class="mr"/><text x="22" y="221" class="ml">期待効果</text><text x="328" y="221" class="mn" text-anchor="end">691字</text></g><g class="src" data-i="4"><rect x="10" y="268.375" width="330" height="35" rx="6" class="mr"/><text x="22" y="292" class="ml">費用</text><text x="328" y="292" class="mn" text-anchor="end">280字</text></g><g class="src" data-i="5"><rect x="10" y="313.375" width="330" height="34" rx="6" class="mr"/><text x="22" y="336" class="ml">実施体制</text><text x="328" y="336" class="mn" text-anchor="end">202字</text></g><g class="src" data-i="6"><rect x="10" y="357.375" width="330" height="63" rx="6" class="mr"/><text x="22" y="395" class="ml">リスクと対策</text><text x="328" y="395" class="mn" text-anchor="end">506字</text></g><g class="src" data-i="7"><rect x="10" y="430.625" width="330" height="75" rx="6" class="mr"/><text x="22" y="474" class="ml">評価の方法</text><text x="328" y="474" class="mn" text-anchor="end">603字</text></g><g class="src" data-i="8"><rect x="10" y="516.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="539" class="ml">スケジュール</text><text x="328" y="539" class="mn" text-anchor="end">182字</text></g><g class="src" data-i="9"><rect x="10" y="560.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="583" class="ml">決裁をお願いする事項</text><text x="328" y="583" class="mn" text-anchor="end">81字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="39" rx="6" class="mr"/><text x="672" y="66" class="ml">申請内容</text><text x="978" y="66" class="mn" text-anchor="end">314字</text></g><g class="dst body" data-i="1"><rect x="660" y="89.25" width="330" height="39" rx="6" class="mr"/><text x="672" y="115" class="ml">確かめること</text><text x="978" y="115" class="mn" text-anchor="end">310字</text></g><g class="dst body" data-i="2"><rect x="660" y="138.0" width="330" height="34" rx="6" class="mr"/><text x="672" y="161" class="ml">現状</text><text x="978" y="161" class="mn" text-anchor="end">264字</text></g><g class="dst body" data-i="3"><rect x="660" y="182.0" width="330" height="35" rx="6" class="mr"/><text x="672" y="205" class="ml">費用と解約</text><text x="978" y="205" class="mn" text-anchor="end">278字</text></g><g class="dst body" data-i="4"><rect x="660" y="226.75" width="330" height="34" rx="6" class="mr"/><text x="672" y="250" class="ml">情報管理</text><text x="978" y="250" class="mn" text-anchor="end">254字</text></g><g class="dst body" data-i="5"><rect x="660" y="270.75" width="330" height="55" rx="6" class="mr"/><text x="672" y="304" class="ml">判断の基準</text><text x="978" y="304" class="mn" text-anchor="end">443字</text></g><g class="dst body" data-i="6"><rect x="660" y="336.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="359" class="ml">決裁をお願いする事項</text><text x="978" y="359" class="mn" text-anchor="end">94字</text></g><g class="dst app" data-i="7"><rect x="660" y="380.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="403" class="ml">付録A 費用対効果の試算</text><text x="978" y="403" class="mn" text-anchor="end">206字</text></g><g class="dst app" data-i="8"><rect x="660" y="424.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="447" class="ml">付録B 導入するツール</text><text x="978" y="447" class="mn" text-anchor="end">197字</text></g><g class="dst app" data-i="9"><rect x="660" y="468.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="491" class="ml">付録C 金額にしにくい効果</text><text x="978" y="491" class="mn" text-anchor="end">165字</text></g><g class="dst app" data-i="10"><rect x="660" y="512.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="535" class="ml">付録D そのほかのリスクと対策</text><text x="978" y="535" class="mn" text-anchor="end">252字</text></g><g class="dst app" data-i="11"><rect x="660" y="556.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="579" class="ml">付録E 測定の進め方</text><text x="978" y="579" class="mn" text-anchor="end">184字</text></g><g class="dst app" data-i="12"><rect x="660" y="600.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="623" class="ml">付録F 実施体制</text><text x="978" y="623" class="mn" text-anchor="end">187字</text></g><g class="dst app" data-i="13"><rect x="660" y="644.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="667" class="ml">付録G スケジュール</text><text x="978" y="667" class="mn" text-anchor="end">157字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-2" role="tabpanel" aria-labelledby="doc-tab-2" tabindex="0" hidden><p class="p prose-max">人事企画が、内勤180名を対象に週1日の在宅勤務制度を来年4月から始めたいという企画。昨年の離職率12%を業界平均の8%に近づけたい。全社250名で、差はおよそ10名。読むのは経営会議。</p>
+<h3>ひとめで分かる変化</h3>
+<div class="tiles">
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は5つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">40%<small>短縮</small></div><p class="d">2,894字 → 直して 2,893字 → 端的に 1,726字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">40<small>件</small></div><p class="d">論理の指摘25件、前提への問い15件。うち3問を書き手に聞く</p></div>
+</div>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">スキルの返答は「このままでは差し戻されます」から始まります。理由は次のとおりです。VPN の利用状況とコストの集計は、承認の前に確かめられる。柔軟性のなさを挙げた内勤の退職者は7名と分かり、ノートPCだけで約900万円かかるので、なぜ見合うのかの説明も要る。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">柔軟性のなさを挙げた内勤7名が、週1日の在宅で辞めずに済んだ人か</th><td>昨年の退職者アンケートの自由記述</td><td>1章の「理由と考えています」の文に人数を</td></tr><tr><th scope="row">退職者1名あたりの採用・育成コスト</th><td>人事部の集計。付議の前に間に合うか先に確かめる</td><td>3章の「X 円」を金額に。4章の約900万円が離職者の何名分かを書く</td></tr><tr><th scope="row">外勤の方などの、多い日の VPN 同時接続</th><td>情報システム部</td><td>2章の「なお」の文を件数に。まとめの「利用が大きくない限り」を外す</td></tr><tr><th scope="row">部署ごとの内勤の人数と、いちばん多い曜日の在宅勤務者</th><td>人事部の人員の記録</td><td>2章の「1日あたり36名」のあとに、多い曜日の人数と100件に対する余りを</td></tr><tr><th scope="row">在宅勤務手当の年間の総額</th><td>1日250円 × 人数 × 年間の利用日数</td><td>4章の手当の文のあとに総額を</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="kikaku" data-maps='{"after": [0, 1, 2, 3, 7, 5, 6]}'>
+  <div class="pane"><p class="cap">元の文書 <span class="ln">本編 2,894字</span></p><div class="doc L" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 2,893字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-kikaku-before"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
+<p>人事部 人事企画担当
+経営会議 付議資料</p>
+<hr />
+<h4>本日お諮りしたいこと</h4>
+<ol>
+<li>内勤の従業員180名を対象に、週1日の在宅勤務制度を <strong>2027年4月から</strong> 始めること</li>
+<li>準備として、就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手すること</li>
+</ol>
+<p>制度の詳細（規程の条文、費用の確定額）は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。</p>
+<hr />
+<h4>1. 背景と目的</h4>
+<h5>現状</h5>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>当社</th>
+<th>比較対象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>昨年の離職率</td>
+<td>12%（250名規模で年間およそ30名）</td>
+<td>業界平均 8%（当社の規模に当てはめると年間およそ20名）</td>
+</tr>
+<tr>
+<td>在宅勤務制度</td>
+<td>なし</td>
+<td>競合2社は週1〜2日を導入済み</td>
+</tr>
+<tr>
+<td>退職者アンケート</td>
+<td>「働き方の柔軟性のなさ」が退職理由の上位</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>業界平均との差は、人数にすると年間でおよそ10名です。退職者自身が柔軟性のなさを理由に挙げていること、競合がすでに制度を持っていることから、在宅勤務がないことは「辞める理由」と「選ばれない理由」の両方になっていると考えます。</p>
+<h5>目的</h5>
+<ul>
+<li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
+<li><strong>採用力の向上</strong>：求人で競合と同じ条件を示せるようにし、応募や内定承諾で見劣りしないようにする</li>
+</ul>
+<p>在宅勤務だけで離職率が業界平均まで下がるとは考えていません。退職理由のうち、働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。</p>
+<hr />
+<h4>2. 制度の内容</h4>
+<h5>基本の設計</h5>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>対象者</td>
+<td>内勤の従業員180名（試用期間中の者は除く）</td>
+</tr>
+<tr>
+<td>日数</td>
+<td>週1日まで。翌週への繰り越しはしない</td>
+</tr>
+<tr>
+<td>曜日</td>
+<td>部署ごとに割り当てる（後述の「曜日の割り当て」を参照）</td>
+</tr>
+<tr>
+<td>申請</td>
+<td>前週までに上長へ申請し、上長が承認する</td>
+</tr>
+<tr>
+<td>勤務時間</td>
+<td>通常の勤務時間と同じ。始業・終業は勤怠システムで打刻する</td>
+</tr>
+<tr>
+<td>勤務場所</td>
+<td>自宅に限る（カフェ等は情報管理の観点から認めない）</td>
+</tr>
+<tr>
+<td>業務上の必要</td>
+<td>会議や来客などで出社が必要な日は、上長が日を変更できる</td>
+</tr>
+</tbody>
+</table>
+<p>競合は週1〜2日です。当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。最初から大きく始めず、確実に回る形で始めることを優先します。</p>
+<h5>曜日の割り当て</h5>
+<p>情報システム部によると、VPNの同時接続は <strong>100件が上限</strong> です。</p>
+<p>対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。そのため、部署ごとに在宅勤務の曜日を割り当て、<strong>どの曜日も1日あたりの在宅勤務者が上限を大きく下回る</strong>ようにします。</p>
+<p>なお、外勤の方などがふだんからVPNを使っている場合は、その分も上限に含めて考える必要があります。現在の利用状況は情報システム部に確認中です。</p>
+<h5>公平性への配慮</h5>
+<p>対象外となる70名（内勤以外の従業員）からは、不公平だという声が出る可能性があります。業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、対象外の職種に向けた施策（たとえば時差出勤や休暇の取りやすさの改善）を、別途検討することを提案します。</p>
+<hr />
+<h4>3. 期待効果</h4>
+<table>
+<thead>
+<tr>
+<th>効果</th>
+<th>内容</th>
+<th>測り方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>離職の抑制</td>
+<td>柔軟性のなさを理由とした退職が減る</td>
+<td>離職率、退職者アンケートでの理由の順位と割合</td>
+</tr>
+<tr>
+<td>採用力の向上</td>
+<td>求人の条件で競合と並ぶ</td>
+<td>応募数、内定承諾率、面接辞退の理由</td>
+</tr>
+<tr>
+<td>定着と満足度</td>
+<td>通勤負担が減り、育児や介護との両立がしやすくなる</td>
+<td>従業員アンケート</td>
+</tr>
+</tbody>
+</table>
+<h5>数字で示すために必要な情報</h5>
+<p>効果を金額で示すには、退職者1名あたりの採用・育成コストが必要です。これは現在、人事部で集計中です。</p>
+<p>仮にこのコストを1名あたり X 円とすると、離職者が年に1名減るごとに X 円の削減になります。業界平均との差（年間およそ10名）のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
+<hr />
+<h4>4. 懸念と対策</h4>
+<table>
+<thead>
+<tr>
+<th>懸念</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VPNの同時接続数の上限（100）</strong></td>
+<td>部署ごとに曜日を割り当て、1日あたりの在宅勤務者を上限よりも十分少なく保つ。試行期間中に、実際の接続数の最大値を測る</td>
+</tr>
+<tr>
+<td><strong>就業規則の改定が必要</strong></td>
+<td>在宅勤務規程を新設し、就業規則に位置づける。従業員代表の意見を聴いたうえで、労働基準監督署に届け出る。社会保険労務士に条文を確認してもらう</td>
+</tr>
+<tr>
+<td><strong>労働時間の管理</strong></td>
+<td>勤怠システムでの打刻を必須とする。在宅勤務日の時間外労働は事前申請制にする</td>
+</tr>
+<tr>
+<td><strong>情報セキュリティ</strong></td>
+<td>会社貸与のPCのみ使用可とし、VPN経由で接続する。紙の書類の持ち出しは原則禁止とする。運用ルールは情報システム部と作る</td>
+</tr>
+<tr>
+<td><strong>業務の滞りやコミュニケーションの低下</strong></td>
+<td>在宅勤務日でも連絡がつく手段（チャット、オンライン会議）を決めておく。部署ごとに、在宅でできる業務とできない業務を整理する</td>
+</tr>
+<tr>
+<td><strong>評価への不安</strong></td>
+<td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
+</tr>
+<tr>
+<td><strong>対象外の従業員の不公平感</strong></td>
+<td>2章の「公平性への配慮」のとおり、説明と別施策の検討で対応する</td>
+</tr>
+<tr>
+<td><strong>費用</strong></td>
+<td>通信費・光熱費の補助（在宅勤務手当）の要否、通勤手当の扱いを決める。金額は2月の最終案で示す</td>
+</tr>
+</tbody>
+</table>
+<h5>事前に確認が必要なこと</h5>
+<ul>
+<li>内勤180名のうち、持ち出せるPC（ノートPC）を持っていない人の数と、追加購入の費用</li>
+<li>外勤の方などによる、現在のVPNの利用状況</li>
+<li>在宅勤務手当を設ける場合の金額と、年間の総額</li>
+</ul>
+<hr />
+<h4>5. 進め方</h4>
+<p>2027年4月の開始に向けた予定です。</p>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026年11月</td>
+<td>経営会議で方針を承認（本日）</td>
+</tr>
+<tr>
+<td>2026年11月〜12月</td>
+<td>規程の原案を作成。情報システム部とVPN・PC・セキュリティのルールを調整。社会保険労務士に相談</td>
+</tr>
+<tr>
+<td>2027年1月〜2月</td>
+<td>1〜2部署（30名程度）で試行。VPNの接続数、業務への影響、利用者の声を確認</td>
+</tr>
+<tr>
+<td>2027年2月</td>
+<td>試行の結果を受けて最終案を経営会議に付議（規程・費用・運用ルール）</td>
+</tr>
+<tr>
+<td>2027年2月〜3月</td>
+<td>従業員代表への意見聴取、労働基準監督署への届出。管理職向け説明会、全従業員向け説明会</td>
+</tr>
+<tr>
+<td>2027年4月</td>
+<td>全社（内勤180名）で開始</td>
+</tr>
+<tr>
+<td>2027年10月</td>
+<td>半年の時点で、利用状況・離職率・採用の指標を経営会議に報告し、日数などの見直しを判断</td>
+</tr>
+</tbody>
+</table>
+<p>試行期間中の扱い（暫定的なルールが必要かどうか）は、社会保険労務士に確認したうえで決めます。</p>
+<hr />
+<h4>まとめ</h4>
+<ul>
+<li>当社の離職率は業界平均より4ポイント高く、退職者は働き方の柔軟性のなさを理由に挙げています</li>
+<li>競合はすでに在宅勤務を導入しており、採用でも見劣りしています</li>
+<li>週1日・曜日の割り当て制で始めれば、VPNの上限の範囲内で運用できる見込みです</li>
+<li>本日は方針の承認をいただき、試行の結果を踏まえて2月に最終案をお諮りします</li>
+</ul></article></template><template id="t-kikaku-after"><article><h3>在宅勤務制度（週1日）導入の企画</h3>
+<p>人事部 人事企画担当
+経営会議 付議資料</p>
+<hr />
+<h4>本日お諮りしたいこと</h4>
+<ol>
+<li>内勤の従業員180名を対象に、週1日の在宅勤務制度を <strong>2027年4月から</strong> 始めること</li>
+<li>準備として、就業規則の改定、情報システム部との接続環境の調整、一部部署での試行に着手すること</li>
+</ol>
+<p>規程の条文や費用の確定額といった制度の詳細は、本日の承認を受けて詰め、2月の経営会議で最終案としてお諮りします。費用は、ノートPCの購入に約570万円、在宅勤務手当を設ける場合に年間約216万円を見込んでいます。</p>
+<hr />
+<h4>1. 背景と目的</h4>
+<h5>現状</h5>
+<p>在宅勤務がないことは、退職者の一部にとって「辞める理由」になっており、「選ばれない理由」にもなっていると考えます。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>当社</th>
+<th>比較対象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>昨年の離職率</td>
+<td>12%。250名規模で、退職者は31名</td>
+<td>業界平均 8%。当社の規模に当てはめると年間およそ20名</td>
+</tr>
+<tr>
+<td>在宅勤務制度</td>
+<td>なし</td>
+<td>競合2社は週1〜2日を導入済み</td>
+</tr>
+<tr>
+<td>退職者アンケート</td>
+<td>回答した22名のうち9名が「働き方の柔軟性のなさ」を挙げ、退職理由の2位。1位は給与の11名</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>業界平均との差は、人数にすると年間でおよそ10名です。昨年の退職者31名のうち、内勤は19名、外勤などは12名でした。柔軟性のなさを挙げた9名のうち内勤は7名です。</p>
+<p>9名のうち5名は、通院や送り迎えのための在宅のように、週1日の在宅勤務で応えられる中身を書いていて、そのうち内勤は4名です。残りの4名は時短や時差出勤を求めていて、在宅勤務では応えられません。</p>
+<h5>目的</h5>
+<ul>
+<li><strong>離職の抑制</strong>：柔軟性のなさを理由とした退職を減らす</li>
+<li><strong>採用力の向上</strong>：求人で競合と同じく在宅勤務制度があると示せるようにし、応募や内定承諾で見劣りしないようにする</li>
+</ul>
+<p>在宅勤務だけで離職率が業界平均まで下がるとは考えていません。退職理由のうち、働き方の柔軟性に関わる部分に手を打つ施策と位置づけています。</p>
+<hr />
+<h4>2. 制度の内容</h4>
+<h5>基本の設計</h5>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>対象者</td>
+<td>内勤の従業員180名。試用期間中の者は除く</td>
+</tr>
+<tr>
+<td>日数</td>
+<td>週1日まで。翌週への繰り越しはしない</td>
+</tr>
+<tr>
+<td>曜日</td>
+<td>部署ごとに割り当てる</td>
+</tr>
+<tr>
+<td>勤務場所</td>
+<td>自宅に限る。カフェ等は情報管理の観点から認めない</td>
+</tr>
+</tbody>
+</table>
+<p>競合は週1〜2日です。当社はまず週1日から始め、運用が安定したら日数の見直しを検討します。最初から大きく始めず、確実に回る形で始めることを優先します。</p>
+<h5>曜日の割り当て</h5>
+<p>部署ごとに曜日を割り当てれば、VPNの同時接続は、いちばん多い曜日でも上限の100件に収まります。</p>
+<p>対象の180名が週1日ずつ在宅勤務をする場合、5日に均等に分かれれば1日あたり36名です。ただし、本人の希望に任せると月曜や金曜に偏るおそれがあります。そのため、内勤の8部署それぞれに在宅勤務の曜日を割り当てます。</p>
+<p>在宅勤務者がいちばん多い曜日は、2部署が重なる水曜の44名です。外勤など内勤以外のふだんの同時接続は最大で約40件なので、足すと84件で、上限に対して16件の余りがあります。</p>
+<h5>公平性への配慮</h5>
+<p>内勤以外の従業員70名は対象外になるので、不公平だという声が出る可能性があります。業務の性質上、在宅勤務が難しい職種であることを丁寧に説明するとともに、時差出勤や休暇の取りやすさの改善のような、対象外の職種に向けた施策を別途検討します。</p>
+<hr />
+<h4>3. 期待効果</h4>
+<table>
+<thead>
+<tr>
+<th>効果</th>
+<th>内容</th>
+<th>測り方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>離職の抑制</td>
+<td>柔軟性のなさを理由とした退職が減る</td>
+<td>離職率、退職者アンケートでの理由の順位と割合</td>
+</tr>
+<tr>
+<td>採用力の向上</td>
+<td>求人で在宅勤務制度があると示せる</td>
+<td>応募数、内定承諾率、面接辞退の理由</td>
+</tr>
+<tr>
+<td>定着と満足度</td>
+<td>通勤負担が減り、育児や介護との両立がしやすくなる</td>
+<td>従業員アンケート</td>
+</tr>
+</tbody>
+</table>
+<h5>費用との比較</h5>
+<p>ノートPCの購入と手当の1年分を合わせた費用は約786万円で、離職者およそ4.4名分です。</p>
+<p>退職者1名あたりの採用・育成コストは約180万円で、採用費と教育期間の人件費を合わせた内勤の平均です。離職者が年に1名減るごとに約180万円の削減になります。</p>
+<p>ノートPCを持っていないデスクトップPCの人は、内勤180名のうち約60名です。60台すべては買わず、まず希望者に限って配ります。在宅勤務を希望すると答えた112名のうちデスクトップの人は38名なので、1台約15万円で38台、約570万円です。離職者およそ3.2名分にあたります。</p>
+<p>在宅勤務手当は、設ける場合は1日あたり250円を想定しています。180名全員が48週使う計算で年間約216万円、離職者およそ1.2名分です。</p>
+<p>業界平均との差のおよそ10名のうち、何名分を在宅勤務で埋められるかは、導入後の実績で確かめます。</p>
+<hr />
+<h4>4. 懸念と対策</h4>
+<table>
+<thead>
+<tr>
+<th>懸念</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VPNの同時接続数の上限100件</strong></td>
+<td>部署ごとに曜日を割り当て、上限を超えないように保つ。試行期間中に、実際の接続数の最大値を測る</td>
+</tr>
+<tr>
+<td><strong>就業規則の改定が必要</strong></td>
+<td>在宅勤務規程を新設し、就業規則に位置づける。従業員代表の意見を聴いたうえで、労働基準監督署に届け出る。社会保険労務士に条文を確認してもらう</td>
+</tr>
+<tr>
+<td><strong>費用</strong></td>
+<td>在宅勤務手当として通信費・光熱費を補助するかどうかと、通勤手当の扱いを決める。確定額は2月の最終案で示す</td>
+</tr>
+</tbody>
+</table>
+<p>そのほかの懸念と対策は付録Aに、制度の設計の残りの項目は付録Bに載せています。</p>
+<hr />
+<h4>5. 進め方</h4>
+<p>2027年4月の開始に向けた予定です。</p>
+<table>
+<thead>
+<tr>
+<th>時期</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026年11月</td>
+<td>本日の経営会議で方針を承認</td>
+</tr>
+<tr>
+<td>2026年11月〜12月</td>
+<td>規程の原案を作成。情報システム部とVPN・PC・セキュリティのルールを調整。社会保険労務士に相談</td>
+</tr>
+<tr>
+<td>2027年1月〜2月</td>
+<td>1〜2部署の30名程度で試行。VPNの接続数、業務への影響、利用者の声を確認</td>
+</tr>
+<tr>
+<td>2027年2月</td>
+<td>試行の結果を受けて、規程・費用・運用ルールの最終案を経営会議に付議</td>
+</tr>
+<tr>
+<td>2027年2月〜3月</td>
+<td>従業員代表への意見聴取、労働基準監督署への届出。管理職向け説明会、全従業員向け説明会</td>
+</tr>
+<tr>
+<td>2027年4月</td>
+<td>内勤180名で開始</td>
+</tr>
+<tr>
+<td>2027年10月</td>
+<td>半年の時点で、利用状況・離職率・採用の指標を経営会議に報告し、日数などの見直しを判断</td>
+</tr>
+</tbody>
+</table>
+<p>試行期間中に暫定的なルールが必要かどうかは、社会保険労務士に確認したうえで決めます。</p>
+<hr />
+<h4>まとめ</h4>
+<ul>
+<li>当社の離職率は業界平均より4ポイント高く、退職理由では給与に次いで働き方の柔軟性のなさが挙がっています</li>
+<li>競合はすでに在宅勤務を導入しており、採用でも見劣りしていると考えます</li>
+<li>週1日・曜日の割り当て制で始めれば、VPNはいちばん多い曜日でも84件で、上限の100件に収まります</li>
+<li>費用はノートPCの約570万円と、手当を設ける場合の年間約216万円で、合わせて離職者およそ4.4名分です</li>
+<li>本日は方針の承認をいただき、試行の結果を踏まえて2月に最終案をお諮りします</li>
+</ul>
+<hr />
+<h4>付録A 懸念と対策の残り</h4>
+<table>
+<thead>
+<tr>
+<th>懸念</th>
+<th>対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>労働時間の管理</strong></td>
+<td>勤怠システムでの打刻を必須とする。在宅勤務日の時間外労働は事前申請制にする</td>
+</tr>
+<tr>
+<td><strong>情報セキュリティ</strong></td>
+<td>会社貸与のPCのみ使用可とし、VPN経由で接続する。紙の書類の持ち出しは原則禁止とする。運用ルールは情報システム部と作る</td>
+</tr>
+<tr>
+<td><strong>業務の滞りやコミュニケーションの低下</strong></td>
+<td>在宅勤務日でも連絡がつく手段として、チャットとオンライン会議を決めておく。部署ごとに、在宅でできる業務とできない業務を整理する</td>
+</tr>
+<tr>
+<td><strong>評価への不安</strong></td>
+<td>在宅勤務の利用の有無を評価に影響させないことを、規程と管理職向けの説明で明確にする</td>
+</tr>
+<tr>
+<td><strong>対象外の従業員の不公平感</strong></td>
+<td>2章の「公平性への配慮」のとおり、説明と別施策の検討で対応する</td>
+</tr>
+</tbody>
+</table>
+<h4>付録B 基本の設計の残り</h4>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>申請</td>
+<td>前週までに上長へ申請し、上長が承認する</td>
+</tr>
+<tr>
+<td>勤務時間</td>
+<td>通常の勤務時間と同じ。始業・終業は勤怠システムで打刻する</td>
+</tr>
+<tr>
+<td>業務上の必要</td>
+<td>会議や来客などで出社が必要な日は、上長が日を変更できる</td>
+</tr>
+</tbody>
+</table>
+<h4>付録C 費用の計算の前提</h4>
+<p>在宅勤務手当の年間約216万円は、1日250円、180名、週1日、48週を掛けた値です。48週は、人事部の勤怠の記録で年間の所定労働週数として使っている値です。</p></article></template>
+<h3>主な変更 5 件</h3>
+<p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
+<ol class="changes"><li><button type="button" class="chg" data-doc="kikaku" data-b="現在の利用状況は情報システム部に確認中です" data-a="外勤など内勤以外のふだんの同時接続は最大で約40件なので、足すと84件で、上限に対して16件の余りがあります"><span class="num">1</span><b>宿題の答えを入れる</b><span>VPN の確認中が、曜日ごとの最大人数と余りの数字になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="これは現在、人事部で集計中です" data-a="ノートPCの購入と手当の1年分を合わせた費用は約786万円で、離職者およそ4.4名分です"><span class="num">2</span><b>宿題の答えを入れる</b><span>集計中だったコストが金額になり、費用と比べられた</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="仮にこのコストを1名あたり X 円とすると" data-a="退職者1名あたりの採用・育成コストは約180万円で"><span class="num">3</span><b>仮の X を実額に</b><span>X 円が約180万円に</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="「働き方の柔軟性のなさ」が退職理由の上位" data-a="そのうち内勤は4名です"><span class="num">4</span><b>宿題の答えを入れる</b><span>退職理由の上位、が人数になった</span></button></li><li><button type="button" class="chg" data-doc="kikaku" data-b="5日に均等に分かれれば1日あたり36名です" data-a="在宅勤務者がいちばん多い曜日は、2部署が重なる水曜の44名です"><span class="num">5</span><b>宿題の答えを入れる</b><span>均等に分かれれば、が実際の割り当てになった</span></button></li></ol>
+<h3>どうやったか</h3>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、後述の使い方で指定できるサブコマンド名です。3は full に含まれ、単独では呼べません。somosomo は「そもそも」からの名前です。</p>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を25件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を15件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,894字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">2,893字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:59.6%"></span></span><span class="bv">1,726字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:71.3%"></span></span><span class="bv">2,063字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">VPN は足りるか</th><td>上限100件、外勤の利用は確認中</td><td>外勤などの最大約40件と、いちばん多い曜日の44名で84件。16件の余り</td></tr><tr><th scope="row">効果を金額で言えるか</th><td>退職者1名あたりのコストは集計中、X 円</td><td>1名あたり約180万円。費用の約786万円は離職者およそ4.4名分</td></tr><tr><th scope="row">辞めた人のうち何名に効くか</th><td>「退職理由の上位」</td><td>週1日の在宅で応えられる中身を書いた内勤は4名</td></tr><tr><th scope="row">費用はいくらか</th><td>事前に確認が必要、と列挙</td><td>ノートPC 38台で約570万円、手当は年間約216万円</td></tr><tr><th scope="row">本日決めるのは何か</th><td>2027年4月から始めること</td><td>方針の承認と準備の着手。開始日は2月の最終案で決める</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
+<ol class="list prose-max"><li>昨年の退職者およそ30名のうち、退職者アンケートで「働き方の柔軟性のなさ」を理由に挙げた人は何名で、そのうち在宅勤務の対象になる内勤の人は何名ですか(アンケートに回答した人数も教えてください)。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>昨年の退職者は31名(内勤19名、外勤など12名)です。退職者アンケートの回答者は22名で、「働き方の柔軟性のなさ」を挙げたのは9名、そのうち内勤は7名です。</p></div></details></li><li>退職者1名あたりの採用・育成コストと、導入にかかる費用(ノートPCを持っていない人数と追加購入の費用、在宅勤務手当を設ける場合の想定額)は、それぞれいくらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>退職者1名あたりの採用・育成コストは分かりません。人事部で集計中で、2月までには出ます。ノートPCを持っていないのは、内勤180名のうちデスクトップPCの約60名です(情報システム部の台帳で確認しました)。1台の購入費は約15万円なので、全員分を買うと約900万円です。在宅勤務手当は1日あたり250円を想定しています。手当の年間などの総額は分かりません。</p></div></details></li><li>外勤の方などのいまのVPNの同時接続は、多い日でどのくらいですか。部署ごとの内勤の人数で曜日を割り当てると、在宅勤務者がいちばん多い曜日は何名になりますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>VPNの同時接続は分かりません。情報システム部に聞いていますが、まだ答えをもらっていません。部署ごとの内勤の人数も分からないので、在宅勤務者がいちばん多い曜日の人数も分かりません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>柔軟性のなさを挙げた内勤7名の中身を読む。昨年の退職者アンケートで内勤の7名が書いた内容を見て、週1日の在宅勤務があれば辞めなかったと読める人が何名かを数える。答えが出たら、1章の現状の「理由と考えています」の文に、その人数を書く。少なければ、同じ節の最初の文の「辞める理由」を書き直す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>内勤7名のうち、週1日の在宅勤務で応えられる中身(通院や送り迎えのための在宅)を書いていたのは4名です。9名全体では5名です。9名のうち残り4名は時短や時差出勤を求めていて、在宅勤務では応えられません。私の手元にあるのは「応えられる中身を書いていた」という読み取りまでで、「在宅勤務があれば辞めなかった」と本人が書いていたかどうかは分かりません。なお、退職理由の順位では、「働き方の柔軟性のなさ」は22名中9名で2位、1位は給与で11名です。</p></div></details></li><li>退職者1名あたりの採用・育成コストを出す。人事部の集計を見る。書き手の答えでは2月までに出る見込みなので、付議の前に間に合うかを先に確かめる。答えが出たら、3章の「X円」を金額に置き換え、4章の約900万円が離職者の何名分に当たるかを書く。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>人事部の集計は終わっていて、約180万円が最終値です。採用費と教育期間の人件費を合わせた内勤の平均です。約900万円を約180万円で割ると、離職者5名分です。ただし、ノートPCはまず希望者に限って配るので、購入費は38台で約570万円になります。</p></div></details></li><li>外勤の方などのいまのVPN同時接続を聞き出す。情報システム部に、多い日の同時接続の件数を聞く。答えが出たら、2章の曜日の割り当ての「なお」の文を件数の文に書き換え、まとめの「利用が大きくない限り」の条件を外す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>情報システム部に確認しました。外勤など内勤以外のふだんの同時接続は、最大で約40件です。内勤180名が週1日なら1日36名で、合計76件となり、上限100件に収まります。</p></div></details></li><li>部署ごとの内勤の人数を出す。人事部の人員の記録を見て、部署ごとに曜日を割り当てる。答えが出たら、2章の「均等に分かれれば1日あたり36名」のあとに、在宅勤務者がいちばん多い曜日の人数を書き、3の件数と足して100件に対する余りを書く。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>人事部の人員の記録で、内勤180名は8部署です。部署ごとに曜日を割り当てると、在宅勤務者がいちばん多い曜日は44名で、2部署が重なる水曜です。外勤などの約40件を足すと84件で、上限100件に対して16件の余りです。部署ごとの人数の内訳と、各部署をどの曜日に割り当てたかは分かりません。</p></div></details></li><li>在宅勤務手当の年間の総額を計算する。1日あたり250円に、対象の人数と年間の利用日数を掛ける。答えが出たら、4章の手当の文のあとに総額を書く。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>約216万円です。計算は1日250円×180名×週1日×48週です。48週は、人事部の勤怠の記録で年間の所定労働週数として使っている値です。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>スキルが本文とは別のファイルに出した確認事項 30 件</span></summary><div class="dsc-body"><h4>先に答えるべき問い</h4><p class="p">「本文」は直した後の文書を指します。</p><ol class="list"><li>「在宅勤務があれば辞めなかった」と本人が書いていたかは分からない、との答えでした。本文は「応えられる中身を書いていた」までにとどめ、辞めなかったとは書いていません。一方で、費用の約786万円は離職者およそ4.4名分で、応えられる中身を書いていた内勤は4名です。4名全員が辞めなかったとしても約720万円で、ノートPCと手当の1年分には届きません。経営会議で「費用に見合うのか」と聞かれたら、どう答えるのか。</li><li>本日の承認で4月の開始まで決まるのか。付議事項は「2027年4月から始めること」、まとめと進め方の表は「方針の承認」と書いていて、本文はどちらも元の文のままです。2月の最終案で止める、または延ばす余地はあるのか。2月に修正や持ち越しになったとき、2〜3月の意見聴取と届出、説明会は4月に間に合うのか。</li><li>試行でどんな結果が出たら、4月の開始を止める、または遅らせるのか。VPN、業務への影響、利用者の声のそれぞれの線はどこか。離職率と採用の指標は、いくつになれば成功で、いくつなら見直すのか。半年の時点で年間の離職率の変化は読めるのか。2027年10月の見直しは日数の話で、縮小や取りやめも含むのか。</li></ol><h4>そのほか 27 件</h4><ul class="list"><li>昨年の退職者の内訳を人数で割ると、内勤は19名÷180名でおよそ11%、外勤などは12名÷70名でおよそ17%です。業界平均との差の多くは、施策の対象でない人たちの分ではないか。差のうち内勤の分は何名か。本文には人数だけを書き、割合は書いていません。</li><li>差のおよそ10名は12%と8%の差から出した数で、退職者31名から20名を引くと11名になる。本文はおよそ10名のままにしたが、これでよいか。</li><li>柔軟性のなさを挙げた外勤などの2名と、アンケートに回答しなかった9名は、どう読むのか。</li><li>1位の給与の11名と、時短や時差出勤を求めていた4名には、どう対応するのか。決裁者が決めたいのは「在宅勤務を入れるか」か、「離職率の4ポイントの差をどう縮めるか」か。後者の中で在宅勤務はどれだけを担うのか。</li><li>離職率は全社の数字で測るのか、内勤の数字で測るのか。対象外の70名の不公平感が離職として出たとき、全社の離職率はどう読むのか。</li><li>定着と満足度は目的に入っていないが、効果の表にはある。目的に入れるのか。「両立がしやすくなる」は何から来ているのか。</li><li>競合に在宅勤務があることは、当社の応募や内定承諾を実際に下げているのか。「見劣りしている」は何の測定から来ているのか。本文は「考えます」に改めた。</li><li>曜日が部署で決まり、前週に申請し、上長が日を変えられる制度は、競合の週1〜2日と求人の上で同じと言えるのか。週2日の競合がある場合はどうか。本文は「在宅勤務制度があると示せる」に改めた。</li><li>業界平均8%と競合2社の制度は、何を出どころにした数字か。業界平均は、当社と同じ規模と職種構成との比較と言えるのか。競合2社の週1〜2日は、1社ずつの日数か、2社とも週1〜2日か。</li><li>試用期間中の者を除くことは、採用の条件として見たときにどう説明するのか。</li><li>手当の約216万円は180名全員が48週使う計算で、ノートPCの38台は希望者112名を前提にしている。費用の見積もりはどちらの人数に揃えるのか。本文は答えのとおり、それぞれの計算のままにした。</li><li>在宅勤務を希望すると答えた112名は、いつ、誰に聞いた数か。希望しなかった68名は対象のままで、デスクトップの22名が後から希望したらノートPCはどうするのか。</li><li>手当を設けるのか。通勤手当の扱いはどうするのか。</li><li>試行の部署で使うノートPCと手当の費用は、2月の最終案の前に発生するのか。本日の承認に含むのか。2月の承認から購入して、38台は4月に間に合うのか。</li><li>ノートPCの購入は1回限りの費用として見てよいか。</li><li>退職理由の内訳や費用は今回そろったが、11月に諮らなければならない理由は何か。</li><li>何もしない案、範囲を変える案、試行の結果を見てから開始を諮る案とは比べたか。時差出勤や休暇の取りやすさの改善は、内勤の柔軟性の問題にも当たるのか。</li><li>水曜の44名の内訳になる部署ごとの人数と、各部署をどの曜日に割り当てたかは分からない、との答えでした。経営会議で聞かれたら説明できるのか。</li><li>上長が日を変えたとき、変更先が割り当て外の曜日になっても上限に収まるのか。余りの16件で足りるのか。曜日を部署ごとに割り当てるのに、前週までに何を申請するのか。</li><li>30名程度の試行で測る接続数の最大値から、180名に広げたときの最大値が言えるのか。</li><li>曜日の割り当て、部署ごとの業務の整理、申請の承認、日の変更は、誰がやるのか。上長が日を変えられるとき、利用が少ない部署が出ても効果として測れるのか。</li><li>「運用が安定したら」「確実に回る形」は、何をもって判断するのか。</li><li>180名は、試用期間中の者を除いたあとの数か、前の数か。前の数なら、除かれる人は対象外の70名とは別に何名いるのか。</li><li>対象外の職種に向けた施策の検討は、本日の付議事項に入れるのか。本文は「提案します」を、懸念と対策の表の「別施策の検討で対応する」に合わせて「別途検討します」にした。誰がいつまでに検討するのか。</li><li>試行が規程も暫定ルールも未定のまま始まる順番でよいか。試行は2月まで続くが、2月の経営会議に出す試行の結果はどの時点までのものか。</li><li>2027年10月の報告で、人事部が自部門の施策を自部門の数字で評価することを、経営会議はどう受け取るのか。</li><li>「就業規則の改定」「在宅勤務規程を新設」「規程の原案」は同じものを指すか。「外勤の方など」「外勤など」「内勤以外の従業員」は同じ人たちか。</li></ul></div></details>
+<h4>構成がどう変わったか</h4>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 623.875" class="fig map" role="img" aria-label="元の7節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 2,894字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,063字 + 付録 1,261字</text><path d="M340,57 C500.0,57 500.0,57 660,57" class="mv" data-src="0" data-dst="0"/><path d="M340,110 C500.0,110 500.0,116 660,116" class="mv" data-src="1" data-dst="1"/><path d="M340,110 C500.0,110 500.0,409 660,409" class="mv dashed" data-src="1" data-dst="7"/><path d="M340,191 C500.0,191 500.0,462 660,462" class="mv dashed" data-src="2" data-dst="8"/><path d="M340,191 C500.0,191 500.0,57 660,57" class="mv" data-src="2" data-dst="0"/><path d="M340,266 C500.0,266 500.0,409 660,409" class="mv dashed" data-src="3" data-dst="7"/><path d="M340,266 C500.0,266 500.0,116 660,116" class="mv" data-src="3" data-dst="1"/><path d="M340,338 C500.0,338 500.0,529 660,529" class="mv dashed" data-src="4" data-dst="9"/><path d="M340,415 C500.0,415 500.0,319 660,319" class="mv" data-src="5" data-dst="5"/><path d="M340,468 C500.0,468 500.0,365 660,365" class="mv" data-src="6" data-dst="6"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="34" rx="6" class="mr"/><text x="22" y="63" class="ml">本日お諮りしたいこと</text><text x="328" y="63" class="mn" text-anchor="end">163字</text></g><g class="src" data-i="1"><rect x="10" y="84" width="330" height="53" rx="6" class="mr"/><text x="22" y="116" class="ml">背景と目的</text><text x="328" y="116" class="mn" text-anchor="end">424字</text></g><g class="src" data-i="2"><rect x="10" y="147.0" width="330" height="89" rx="6" class="mr"/><text x="22" y="197" class="ml">制度の内容</text><text x="328" y="197" class="mn" text-anchor="end">711字</text></g><g class="src" data-i="3"><rect x="10" y="245.875" width="330" height="40" rx="6" class="mr"/><text x="22" y="272" class="ml">期待効果</text><text x="328" y="272" class="mn" text-anchor="end">324字</text></g><g class="src" data-i="4"><rect x="10" y="296.375" width="330" height="84" rx="6" class="mr"/><text x="22" y="344" class="ml">懸念と対策</text><text x="328" y="344" class="mn" text-anchor="end">670字</text></g><g class="src" data-i="5"><rect x="10" y="390.125" width="330" height="51" rx="6" class="mr"/><text x="22" y="421" class="ml">進め方</text><text x="328" y="421" class="mn" text-anchor="end">405字</text></g><g class="src" data-i="6"><rect x="10" y="450.75" width="330" height="34" rx="6" class="mr"/><text x="22" y="474" class="ml">まとめ</text><text x="328" y="474" class="mn" text-anchor="end">160字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="34" rx="6" class="mr"/><text x="672" y="63" class="ml">本日お諮りしたいこと</text><text x="978" y="63" class="mn" text-anchor="end">276字</text></g><g class="dst body" data-i="1"><rect x="660" y="84.5" width="330" height="64" rx="6" class="mr"/><text x="672" y="122" class="ml">課題の大きさ</text><text x="978" y="122" class="mn" text-anchor="end">508字</text></g><g class="dst body" data-i="2"><rect x="660" y="158.0" width="330" height="44" rx="6" class="mr"/><text x="672" y="186" class="ml">費用</text><text x="978" y="186" class="mn" text-anchor="end">351字</text></g><g class="dst body" data-i="3"><rect x="660" y="211.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="235" class="ml">VPNの上限</text><text x="978" y="235" class="mn" text-anchor="end">144字</text></g><g class="dst body" data-i="4"><rect x="660" y="255.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="279" class="ml">2月にお諮りすること</text><text x="978" y="279" class="mn" text-anchor="end">207字</text></g><g class="dst body" data-i="5"><rect x="660" y="299.875" width="330" height="38" rx="6" class="mr"/><text x="672" y="325" class="ml">進め方</text><text x="978" y="325" class="mn" text-anchor="end">302字</text></g><g class="dst body" data-i="6"><rect x="660" y="347.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="371" class="ml">まとめ</text><text x="978" y="371" class="mn" text-anchor="end">238字</text></g><g class="dst app" data-i="7"><rect x="660" y="391.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="415" class="ml">付録A 目的と効果</text><text x="978" y="415" class="mn" text-anchor="end">254字</text></g><g class="dst app" data-i="8"><rect x="660" y="435.625" width="330" height="53" rx="6" class="mr"/><text x="672" y="468" class="ml">付録B 制度の内容の残り</text><text x="978" y="468" class="mn" text-anchor="end">423字</text></g><g class="dst app" data-i="9"><rect x="660" y="498.5" width="330" height="61" rx="6" class="mr"/><text x="672" y="535" class="ml">付録C 懸念と対策</text><text x="978" y="535" class="mn" text-anchor="end">491字</text></g><g class="dst app" data-i="10"><rect x="660" y="569.875" width="330" height="34" rx="6" class="mr"/><text x="672" y="593" class="ml">付録D 費用の計算の前提</text><text x="978" y="593" class="mn" text-anchor="end">93字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-3" role="tabpanel" aria-labelledby="doc-tab-3" tabindex="0" hidden><p class="p prose-max">コンサルティング会社が食品卸の北都フーズに、営業支援システムの導入支援を提案する資料。3か月の診断と6か月の導入支援で、2,700万円。読むのは先方の営業本部長と経営会議。</p>
+<h3>ひとめで分かる変化</h3>
+<div class="tiles">
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">差し戻し</div><p class="d">宿題の答えで前提が崩れた。決裁事項を小さくした版を別に出す</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">64%<small>短縮</small></div><p class="d">4,701字 → 直して 3,127字 → 端的に 1,678字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">31<small>件</small></div><p class="d">論理の指摘23件、前提への問い8件。うち3問を書き手に聞く</p></div>
+</div>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">スキルの返答は「このままでは差し戻されます」から始まります。理由は次のとおりです。失注の件数も理由も、本部長に聞けば台帳と話から出せる。確かめないまま2,700万円を頼まれている。3か月目に止めたときの費用も基準も書かれていない。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">失った2社の理由と時期、台帳にある失注の件数と金額</th><td>営業本部長。経営会議の前に数字を出してもらえるかも聞く</td><td>1章の「2社を失った」を件数と金額に</td></tr><tr><th scope="row">3か月目に止めたとき、900万円で終わる契約にできるか</th><td>自社で契約条件を決める人</td><td>要点の表と5章に、止めたときの支払いを1文で</td></tr><tr><th scope="row">3か月目の判断の基準</th><td>書き手が決める</td><td>5章の継続判断の次に、基準を1文で</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題の答えで、決裁事項の前提が崩れました。2回目も差し戻しで、決裁事項を小さくした版を別に出しています。右はその版です。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="teian" data-maps='{"after": [0, 1, 6, 3, 4, 7, 10, 5]}'>
+  <div class="pane"><p class="cap">元の文書 <span class="ln">本編 4,701字</span></p><div class="doc L" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">縮小版 <span class="ln">本編 3,225字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-teian-before"><article><h3>営業部門デジタル化支援のご提案</h3>
+<p>北都フーズ株式会社 御中</p>
+<p>2026年11月
+〇〇コンサルティング株式会社</p>
+<hr />
+<h4>本提案の要点</h4>
+<p>御社の営業担当30名の顧客訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。そのため担当者が異動・退職するたびに顧客の情報が後任に十分引き継がれず、失注が起きています。</p>
+<p>当社は、この訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>期間</td>
+<td>9か月(現状診断 3か月+SFA 導入・定着支援 6か月)</td>
+</tr>
+<tr>
+<td>費用</td>
+<td>月額300万円、総額2,700万円(SFA のライセンス費は別途)</td>
+</tr>
+<tr>
+<td>期待効果</td>
+<td>引き継ぎによる失注の削減、新人が独り立ちするまでの期間の短縮</td>
+</tr>
+<tr>
+<td>判断の区切り</td>
+<td>現状診断が終わる3か月目の時点で、診断結果をもとに導入フェーズへ進むかどうかをご判断いただけます</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4>1. 現状の課題</h4>
+<h5>顧客の情報が担当者個人のもとにある</h5>
+<p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
+<h5>異動・退職のたびに失注が起きている</h5>
+<p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぐことになります。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。御社ではこの引き継ぎの場面で実際に失注が起きています。どのような情報が抜けたことで失注に至ったのか、その件数と金額はどの程度か、は現状診断で具体的に確認します。</p>
+<h5>今後、引き継ぎの機会は増えていく</h5>
+<p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
+<hr />
+<h4>2. ご提案内容</h4>
+<p>支援は2つのフェーズで進めます。</p>
+<h5>フェーズ1 現状診断(3か月)</h5>
+<p>SFA を入れる前に、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。ここを丁寧に行うことで、現場に合わない仕組みを入れてしまう事態を避けます。</p>
+<ul>
+<li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
+<li>引き継ぎ失注の分析:過去の異動・退職で担当が替わった顧客を洗い出し、失注の件数・金額・原因を整理します</li>
+<li>営業担当・管理職へのヒアリング:日々の業務の流れ、記録や報告にかけている手間、新しいツールへの不安や要望をうかがいます</li>
+<li>新人の立ち上がりの実態把握:独り立ちまでにかかっている期間と、その間に困っていることを確認します</li>
+<li>SFA の要件整理と製品選定の支援:記録すべき項目を絞り込み、候補となる製品を比較して選定をお手伝いします</li>
+<li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標・目標値を決めます</li>
+</ul>
+<p>フェーズ1の成果物として、診断報告書、SFA の要件と製品比較、導入計画書(効果目標を含む)をお渡しします。</p>
+<h5>フェーズ2 SFA 導入・定着支援(6か月)</h5>
+<p>フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。</p>
+<ul>
+<li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
+<li>既存データの移行:Excel の記録のうち、どの顧客のどの情報を移すかを決め、移行を支援します</li>
+<li>試行導入:一部の営業担当に先行して使っていただき、使いにくい点を直してから全体に広げます</li>
+<li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
+<li>引き継ぎルールの整備:異動・退職の際に SFA に何を残し、後任者が何を確認するかを決め、社内のルールとして定めます</li>
+<li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
+</ul>
+<h5>現場で使われ続けるための工夫</h5>
+<p>SFA は、入れただけでは効果が出ません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。当社はこの点を最も重要な課題と考え、次の4つの工夫を組み込んでいます。</p>
+<ol>
+<li>
+<p>入力項目を最小限に絞る
+   入力の手間が多いほど、記録は続きません。ヒアリングを通じて「引き継ぎに本当に必要な情報は何か」を現場と一緒に見極め、項目を絞り込みます。</p>
+</li>
+<li>
+<p>ベテランの担当者に試行段階から参加していただく
+   試行メンバーには、若手だけでなくベテランの方にも入っていただきます。現場の第一線にいる方の意見を設定に反映することで、実際に使える仕組みになります。また、試行を経験した方が、全体展開の際に周囲へ使い方を伝える役割を担えます。</p>
+</li>
+<li>
+<p>入力することが本人の手間を減らす形にする
+   現在の日報や上長への報告がどのように作られているかを診断で確認し、SFA への入力で代わりにできるものは置き換えます。Excel と SFA の二重入力が生じないようにします。</p>
+</li>
+<li>
+<p>一人ひとりに合わせて支援する
+   集合研修だけで終わらせず、操作に不安のある方には個別にサポートします。全体展開の後も入力状況を確認し、記録が止まっている方には早めに声をかけます。</p>
+</li>
+</ol>
+<p>あわせて、ベテランの方に記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
+<hr />
+<h4>3. 期待効果</h4>
+<h5>引き継ぎによる失注の削減</h5>
+<p>顧客ごとの訪問履歴や商談の経緯が SFA にまとまるため、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、口頭説明だけに頼る引き継ぎがなくなり、情報の抜け落ちによる失注を減らせます。</p>
+<h5>新人の立ち上がり期間の短縮</h5>
+<p>新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できます。上長も新人の訪問状況を SFA で確認できるため、つまずきに早く気づいて助言できます。</p>
+<h5>同じ規模の食品卸での事例</h5>
+<p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。同業・同規模の会社で、営業記録の共有が成果につながった例です。</p>
+<p>ただし、B社と御社では顧客の構成や営業体制が異なります。また、B社で改善したのは受注率であり、本提案で主に目指す引き継ぎ失注の削減や新人の立ち上がり短縮とは指標が異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
+<h5>効果の測り方</h5>
+<p>次の指標を使い、導入前後を比べて効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。</p>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>内容</th>
+<th>確認の目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>引き継ぎ顧客の失注率</td>
+<td>担当が替わった顧客のうち、一定期間内に失注した割合</td>
+<td>引き継ぎ失注の削減</td>
+</tr>
+<tr>
+<td>新人の独り立ちまでの期間</td>
+<td>入社(配属)から、単独で顧客を担当するまでの期間</td>
+<td>立ち上がり期間の短縮</td>
+</tr>
+<tr>
+<td>SFA の入力率</td>
+<td>訪問のうち、SFA に記録された割合</td>
+<td>現場への定着</td>
+</tr>
+</tbody>
+</table>
+<h5>投資額に見合う効果があるかの判断について</h5>
+<p>引き継ぎ失注の削減による効果は、おおよそ次の式で見積もれます。</p>
+<blockquote>
+<p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
+</blockquote>
+<p>現時点で当社は御社の失注件数や取引額の資料を持っていないため、本資料では金額での試算を控えています。フェーズ1の最初の1か月で過去の引き継ぎ実績からこれらの数字を算出し、投資額に見合う効果が見込めるかをご報告します。3か月目の継続判断は、この試算をもとに行っていただけます。</p>
+<hr />
+<h4>4. 費用</h4>
+<table>
+<thead>
+<tr>
+<th>フェーズ</th>
+<th>期間</th>
+<th>費用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>フェーズ1 現状診断</td>
+<td>3か月</td>
+<td>900万円</td>
+</tr>
+<tr>
+<td>フェーズ2 SFA 導入・定着支援</td>
+<td>6か月</td>
+<td>1,800万円</td>
+</tr>
+<tr>
+<td>合計</td>
+<td>9か月</td>
+<td>2,700万円</td>
+</tr>
+</tbody>
+</table>
+<p>当社の支援費用は月額300万円です。</p>
+<p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
+<hr />
+<h4>5. 進め方</h4>
+<h5>スケジュール</h5>
+<table>
+<thead>
+<tr>
+<th>月</th>
+<th>フェーズ</th>
+<th>主な作業</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1か月目</td>
+<td>現状診断</td>
+<td>キックオフ、訪問記録の実態調査、引き継ぎ失注の分析と効果の試算</td>
+</tr>
+<tr>
+<td>2か月目</td>
+<td>現状診断</td>
+<td>営業担当・管理職へのヒアリング、新人の立ち上がりの実態把握</td>
+</tr>
+<tr>
+<td>3か月目</td>
+<td>現状診断</td>
+<td>SFA の要件整理と製品選定、導入計画と効果目標の策定、<strong>継続のご判断</strong></td>
+</tr>
+<tr>
+<td>4か月目</td>
+<td>導入・定着</td>
+<td>SFA の初期設定、既存データの移行</td>
+</tr>
+<tr>
+<td>5か月目</td>
+<td>導入・定着</td>
+<td>一部の営業担当での試行導入</td>
+</tr>
+<tr>
+<td>6か月目</td>
+<td>導入・定着</td>
+<td>試行の振り返りと設定の見直し、引き継ぎルールの策定</td>
+</tr>
+<tr>
+<td>7か月目</td>
+<td>導入・定着</td>
+<td>全体展開、研修</td>
+</tr>
+<tr>
+<td>8か月目</td>
+<td>導入・定着</td>
+<td>定着支援(入力状況の確認、個別サポート)</td>
+</tr>
+<tr>
+<td>9か月目</td>
+<td>導入・定着</td>
+<td>効果測定、運用体制の引き渡し</td>
+</tr>
+</tbody>
+</table>
+<h5>3か月目の継続判断</h5>
+<p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。御社はその内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
+<h5>進捗のご報告</h5>
+<p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
+<hr />
+<h4>6. 体制</h4>
+<h5>当社の体制</h5>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>人数</th>
+<th>主な担当</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>プロジェクトマネージャー</td>
+<td>1名</td>
+<td>全体の統括、営業本部長への報告、計画と進捗の管理</td>
+</tr>
+<tr>
+<td>コンサルタント</td>
+<td>1名</td>
+<td>業務の診断、引き継ぎ失注の分析、引き継ぎルールの整備</td>
+</tr>
+<tr>
+<td>コンサルタント</td>
+<td>1名</td>
+<td>SFA の要件整理と製品選定、初期設定、研修、定着支援</td>
+</tr>
+</tbody>
+</table>
+<h5>御社にお願いしたいこと</h5>
+<p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
+<ul>
+<li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
+<li>窓口のご担当者:社内の日程調整や資料のご提供をお願いする方を1名</li>
+<li>試行メンバー:フェーズ2の試行導入に参加いただく営業担当を数名(ベテランの方を含めて)</li>
+<li>ヒアリングへのご協力:営業担当・管理職の方に、1人あたり1時間程度のお時間</li>
+</ul>
+<hr />
+<h4>7. 今後の進め方</h4>
+<ol>
+<li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
+<li>経営会議でご審議いただきます</li>
+<li>ご承認後、契約を締結し、キックオフを行います</li>
+</ol>
+<p>経営会議の前に、過去1〜2年の異動・退職の件数と、そのときに担当が替わった顧客の数をお教えいただければ、効果の概算を本資料に追加できます。ご検討いただけますと幸いです。</p></article></template><template id="t-teian-after"><article><h3>営業部門デジタル化支援のご提案</h3>
+<p>北都フーズ株式会社 御中</p>
+<p>2026年11月
+〇〇コンサルティング株式会社</p>
+<hr />
+<h4>本提案の要点</h4>
+<p>御社の営業担当30名の顧客訪問記録は、現在、担当者それぞれの Excel ファイルに保存されています。そのため担当者が異動・退職するときに顧客の情報が後任に十分引き継がれず、失注につながっていると当社は見ています。営業本部長に見せていただいた台帳では、去年の異動・退職4名の担当顧客38社のうち2社の取引が翌年になくなり、その額は合計で年間約1,200万円です。</p>
+<p>当社は、この訪問記録を個人の手元ではなく会社の資産として蓄積し、活用できる状態にするご支援を提案します。最初の3か月で現状を診断し、続く6か月で SFA(営業支援システム)の導入と、現場で使われ続ける状態になるまでの定着を支援します。</p>
+<p>決めていただきたいのは、この9か月のうち、最初の3か月・900万円の現状診断を当社に発注するかどうかです。フェーズ2の6か月・1,800万円は、3か月目の報告のあとに改めてご判断いただきます。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>今回の発注</td>
+<td>現状診断3か月、900万円</td>
+</tr>
+<tr>
+<td>全体の見通し</td>
+<td>9か月。現状診断3か月と SFA 導入・定着支援6か月。月額300万円、総額2,700万円。SFA のライセンス費は別途</td>
+</tr>
+<tr>
+<td>期待効果</td>
+<td>引き継ぎによる失注の削減、新人が独り立ちするまでの期間の短縮</td>
+</tr>
+<tr>
+<td>判断の区切り</td>
+<td>現状診断が終わる3か月目の時点で、診断結果をもとに導入フェーズへ進むかどうかを営業本部長にご判断いただけます。進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4>1. 現状の課題</h4>
+<h5>担当者個人のもとにある顧客の情報</h5>
+<p>訪問記録が個人の Excel にあるため、どの顧客と、いつ、どのような話をしたのかは、基本的に担当者本人しか分かりません。書式や記録の細かさも人によって違います。上長やほかの担当者が顧客の状況を知ろうとしても、本人に聞くほかないのが実情です。</p>
+<h5>引き継ぎの場面での失注</h5>
+<p>去年の異動・退職4名の担当顧客38社のうち、翌年の取引がなくなったのは2社で、合計で年間約1,200万円です。取引が半分以下に減った顧客も5社あり、減少分の合計は年間約900万円です。失った2社は、担当が替わった直後に先方から「前任者と話していた条件が引き継がれていない」と言われて失注しました。</p>
+<p>担当者が替わるとき、後任者は前任者の Excel と口頭の説明を手がかりに顧客を引き継ぎます。記録に残っていない経緯や顧客との約束事は、ここで抜け落ちやすくなります。</p>
+<h5>今後の引き継ぎの増加</h5>
+<p>御社の営業担当は平均年齢が高く、今後数年のうちに退職に伴う引き継ぎが増えていくと見込まれます。ベテラン担当者が長年かけて築いてきた顧客との関係や知見を、在籍しているうちに会社として残しておけるかどうかが問われています。対策を始めるなら、早いほど残せる情報は多くなります。</p>
+<hr />
+<h4>2. ご提案内容</h4>
+<p>支援は2つのフェーズで進めます。作業の一覧は付録Aに、月ごとの予定は付録Bにまとめました。</p>
+<h5>フェーズ1 現状診断</h5>
+<p>SFA を入れる前の3か月で、御社の営業の実態と、引き継ぎで何が起きているのかを把握します。現場に合わない仕組みを入れてしまう事態を避けるためです。成果物として、診断報告書、SFA の要件と製品比較、効果目標を含む導入計画書をお渡しします。</p>
+<h5>フェーズ2 SFA 導入・定着支援</h5>
+<p>続く6か月で、フェーズ1で決めた計画に沿って SFA を導入し、営業担当が日常的に使う状態まで支援します。異動・退職の際に SFA に何を残し、後任者が何を確認するかも決め、社内のルールとして定めます。</p>
+<h5>現場で使われ続けるための工夫</h5>
+<p>当社は、現場で使われ続けることをこの支援で最も重要な点と考えています。SFA は、入れただけでは効果が出ません。営業担当が毎日記録を入れて、初めて引き継ぎにも新人育成にも使える情報がたまります。御社の営業担当は平均年齢が高く、新しいツールへの抵抗も予想されます。このため、次の4つの工夫を組み込みます。説明は付録Cにまとめました。</p>
+<ol>
+<li>入力項目を最小限に絞る</li>
+<li>ベテランの担当者に試行段階から参加していただく</li>
+<li>入力することが本人の手間を減らす形にする</li>
+<li>一人ひとりに合わせて支援する</li>
+</ol>
+<hr />
+<h4>3. 期待効果</h4>
+<h5>引き継ぎによる失注の削減</h5>
+<p>顧客ごとの訪問履歴や商談の経緯が SFA にまとまれば、後任者は着任前に過去のやりとりを確認できます。引き継ぎルールを整えることで、情報の抜け落ちによる失注を減らせる見込みです。失注は、御社とご相談のうえ、担当交代の翌年に取引がなくなった顧客とします。</p>
+<h5>新人の立ち上がり期間の短縮</h5>
+<p>記録がたまれば、新人は担当する顧客の過去の記録を読んで、これまでの経緯をつかんだうえで訪問できます。上長も新人の訪問状況を SFA で確認でき、つまずきに早く気づいて助言できます。</p>
+<h5>投資額に見合う効果の判断</h5>
+<p>去年の実績では、失注と取引の減少をすべて防げたとしても、効果は年間約2,100万円で、支援費用の総額2,700万円を下回ります。式は次のとおりです。</p>
+<blockquote>
+<p>年間に担当が替わる顧客数 × 失注率の改善幅 × 1顧客あたりの年間取引額</p>
+</blockquote>
+<p>去年の担当交代は38社で、失注は2社でした。2社をすべて防げた場合の効果は、失った取引の年間約1,200万円です。これに取引が半分以下に減った5社の減少分、年間約900万円を足すと、年間約2,100万円になります。いずれも1年分の取引額です。</p>
+<p>フェーズ1の最初の1か月で過去の引き継ぎ実績からこれらの数字を算出し、投資額に見合う効果が見込めるかをご報告します。3か月目の継続判断は、この試算をもとに行っていただけます。</p>
+<h5>同じ規模の食品卸での事例</h5>
+<p>御社と同規模の食品卸であるB社では、SFA の導入後に受注率が12%から15%に上がりました。ただし、B社と御社では顧客の構成や営業体制が異なり、改善した受注率も本提案で主に目指す指標とは異なります。B社と同じ数字をお約束するものではなく、御社での効果目標は現状診断の結果をもとに設定します。</p>
+<h5>効果の測り方</h5>
+<p>指標を使って導入前後を比べ、効果を確認します。導入前の数値はフェーズ1で測定し、目標値は導入計画の中で御社と合意して決めます。指標は付録Dにまとめました。</p>
+<hr />
+<h4>4. 費用</h4>
+<table>
+<thead>
+<tr>
+<th>フェーズ</th>
+<th>期間</th>
+<th>費用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>フェーズ1 現状診断</td>
+<td>3か月</td>
+<td>900万円</td>
+</tr>
+<tr>
+<td>フェーズ2 SFA 導入・定着支援</td>
+<td>6か月</td>
+<td>1,800万円</td>
+</tr>
+<tr>
+<td>合計</td>
+<td>9か月</td>
+<td>2,700万円</td>
+</tr>
+</tbody>
+</table>
+<p>当社の支援費用は月額300万円です。今回ご発注いただくのは、フェーズ1の900万円です。</p>
+<p>SFA のライセンス費は上記に含まれていません。ライセンス費は選ぶ製品と利用人数によって決まるため、フェーズ1の製品選定の段階で候補製品ごとの見積もりをご提示します。製品の決定は、そのお見積もりをご確認いただいてからで構いません。</p>
+<hr />
+<h4>5. 進め方</h4>
+<h5>3か月目の継続判断</h5>
+<p>現状診断が終わった時点で、診断報告書・効果の試算・SFA のお見積もり・導入計画をそろえてご報告します。営業本部長には、その内容をもとに、フェーズ2へ進むかどうかをご判断いただけます。進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。契約は2つに分け、フェーズ2の契約はこの報告のあとに結びます。診断の結果、SFA 導入よりも先に取り組むべきことが見つかった場合は、その旨を率直にご報告します。</p>
+<h5>今後の進め方</h5>
+<ol>
+<li>本資料について、営業本部長からご意見・ご質問をいただき、必要に応じて内容を修正します</li>
+<li>経営会議でご審議いただきます</li>
+<li>ご承認後、フェーズ1の契約を締結し、キックオフを行います</li>
+</ol>
+<hr />
+<h4>付録A 作業の一覧</h4>
+<h5>フェーズ1 現状診断</h5>
+<ul>
+<li>訪問記録の実態調査:30名の Excel に何が、どの程度の細かさで、どのくらいの頻度で記録されているかを確認します</li>
+<li>引き継ぎ失注の分析:過去の異動・退職で担当が替わった顧客を洗い出し、失注の件数・金額・原因を整理します</li>
+<li>営業担当・管理職へのヒアリング:日々の業務の流れ、記録や報告にかけている手間、新しいツールへの不安や要望をうかがいます</li>
+<li>新人の立ち上がりの実態把握:独り立ちまでにかかっている期間と、その間に困っていることを確認します</li>
+<li>SFA の要件整理と製品選定の支援:記録すべき項目を絞り込み、候補となる製品を比較して選定をお手伝いします</li>
+<li>導入計画と効果目標の策定:フェーズ2の詳細な計画と、効果を測る指標・目標値を決めます</li>
+</ul>
+<h5>フェーズ2 SFA 導入・定着支援</h5>
+<ul>
+<li>初期設定:入力項目、画面、閲覧権限などを、SFA ベンダーと連携しながら御社の業務に合わせて設定します</li>
+<li>既存データの移行:Excel の記録のうち、どの顧客のどの情報を移すかを決め、移行を支援します</li>
+<li>試行導入:一部の営業担当に先行して使っていただき、使いにくい点を直してから全体に広げます</li>
+<li>引き継ぎルールの整備:異動・退職の際に SFA に何を残し、後任者が何を確認するかを決め、社内のルールとして定めます</li>
+<li>全体展開と研修:営業担当30名と管理職の方を対象に研修を行います</li>
+<li>効果測定と運用の引き渡し:効果目標に対する結果を測定し、支援終了後も御社だけで運用を続けられるよう体制を整えます</li>
+</ul>
+<h4>付録B 月ごとの予定</h4>
+<table>
+<thead>
+<tr>
+<th>月</th>
+<th>フェーズ</th>
+<th>主な作業</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1か月目</td>
+<td>現状診断</td>
+<td>キックオフ、訪問記録の実態調査、引き継ぎ失注の分析と効果の試算</td>
+</tr>
+<tr>
+<td>2か月目</td>
+<td>現状診断</td>
+<td>営業担当・管理職へのヒアリング、新人の立ち上がりの実態把握</td>
+</tr>
+<tr>
+<td>3か月目</td>
+<td>現状診断</td>
+<td>SFA の要件整理と製品選定、導入計画と効果目標の策定、<strong>継続のご判断</strong></td>
+</tr>
+<tr>
+<td>4か月目</td>
+<td>導入・定着</td>
+<td>SFA の初期設定、既存データの移行</td>
+</tr>
+<tr>
+<td>5か月目</td>
+<td>導入・定着</td>
+<td>一部の営業担当での試行導入</td>
+</tr>
+<tr>
+<td>6か月目</td>
+<td>導入・定着</td>
+<td>試行の振り返りと設定の見直し、引き継ぎルールの策定</td>
+</tr>
+<tr>
+<td>7か月目</td>
+<td>導入・定着</td>
+<td>全体展開、研修</td>
+</tr>
+<tr>
+<td>8か月目</td>
+<td>導入・定着</td>
+<td>定着支援、入力状況の確認と個別サポート</td>
+</tr>
+<tr>
+<td>9か月目</td>
+<td>導入・定着</td>
+<td>効果測定、運用体制の引き渡し</td>
+</tr>
+</tbody>
+</table>
+<h4>付録C 現場で使われ続けるための工夫の説明</h4>
+<ol>
+<li>
+<p>入力項目を最小限に絞る
+   入力の手間が多いほど、記録は続きません。ヒアリングを通じて「引き継ぎに本当に必要な情報は何か」を現場と一緒に見極め、項目を絞り込みます。</p>
+</li>
+<li>
+<p>ベテランの担当者に試行段階から参加していただく
+   試行メンバーには、若手だけでなくベテランの方にも入っていただきます。現場の第一線にいる方の意見を設定に反映し、実際に使える仕組みに近づけます。また、試行を経験した方が、全体展開の際に周囲へ使い方を伝える役割を担えます。</p>
+</li>
+<li>
+<p>入力することが本人の手間を減らす形にする
+   現在の日報や上長への報告がどのように作られているかを診断で確認し、SFA への入力で代わりにできるものは置き換えます。Excel と SFA の二重入力が生じないようにします。</p>
+</li>
+<li>
+<p>一人ひとりに合わせて支援する
+   集合研修だけで終わらせず、操作に不安のある方には個別にサポートします。全体展開の後も入力状況を確認し、記録が止まっている方には早めに声をかけます。</p>
+</li>
+</ol>
+<p>あわせて、ベテランの方に記録をお願いする際には、それがご本人の仕事を会社に残し、後輩に引き継ぐことでもあるとお伝えしていきます。</p>
+<h4>付録D 効果を測る指標</h4>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>内容</th>
+<th>確認の目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>引き継ぎ顧客の失注率</td>
+<td>担当が替わった顧客のうち、担当交代の翌年に取引がなくなった顧客の割合</td>
+<td>引き継ぎ失注の削減</td>
+</tr>
+<tr>
+<td>新人の独り立ちまでの期間</td>
+<td>入社または配属から、単独で顧客を担当するまでの期間</td>
+<td>立ち上がり期間の短縮</td>
+</tr>
+<tr>
+<td>SFA の入力率</td>
+<td>訪問のうち、SFA に記録された割合</td>
+<td>現場への定着</td>
+</tr>
+</tbody>
+</table>
+<h4>付録E 体制</h4>
+<h5>当社の体制</h5>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>人数</th>
+<th>主な担当</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>プロジェクトマネージャー</td>
+<td>1名</td>
+<td>全体の統括、営業本部長への報告、計画と進捗の管理</td>
+</tr>
+<tr>
+<td>コンサルタント</td>
+<td>1名</td>
+<td>業務の診断、引き継ぎ失注の分析、引き継ぎルールの整備</td>
+</tr>
+<tr>
+<td>コンサルタント</td>
+<td>1名</td>
+<td>SFA の要件整理と製品選定、初期設定、研修、定着支援</td>
+</tr>
+</tbody>
+</table>
+<p>月に1回、営業本部長に定例報告を行い、進捗と課題、次の月の予定をご説明します。判断が必要な事項はその場でご相談します。</p>
+<h5>御社にお願いしたいこと</h5>
+<p>プロジェクトを円滑に進めるため、御社には次のご協力をお願いする想定です。具体的な人選や負荷は、キックオフの際にご相談させてください。</p>
+<ul>
+<li>プロジェクトの責任者:営業本部長にお願いし、継続判断などの重要事項をご判断いただきます</li>
+<li>窓口のご担当者:社内の日程調整や資料のご提供をお願いする方を1名</li>
+<li>試行メンバー:フェーズ2の試行導入に参加いただく、ベテランの方を含む営業担当を数名</li>
+<li>ヒアリングへのご協力:営業担当・管理職の方に、1人あたり1時間程度のお時間</li>
+</ul></article></template>
+<h3>主な変更 5 件</h3>
+<p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
+<ol class="changes"><li><button type="button" class="chg" data-doc="teian" data-b="御社ではこの引き継ぎの場面で実際に失注が起きています" data-a="決めていただきたいのは、この9か月のうち、最初の3か月・900万円の現状診断を当社に発注するかどうかです"><span class="num">1</span><b>決裁事項を小さくする</b><span>9か月・2,700万円の発注が、最初の3か月・900万円の診断の発注に</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="口頭説明だけに頼る引き継ぎがなくなり" data-a="去年の異動・退職4名の担当顧客38社のうち、翌年の取引がなくなったのは2社で、合計で年間約1,200万円です"><span class="num">2</span><b>台帳の数字を入れる</b><span>聞いた話だった失注が、件数と金額になった</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="本資料では金額での試算を控えています" data-a="失注と取引の減少をすべて防げたとしても、効果は年間約2,100万円で、支援費用の総額2,700万円を下回ります"><span class="num">3</span><b>効果の上限を書く</b><span>すべて防いでも年約2,100万円で費用を下回る、と提案側が自ら明記</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="導入フェーズへ進むかどうかをご判断いただけます" data-a="進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。契約は2つに分け"><span class="num">4</span><b>止めたときの支払いを明記</b><span>3か月目で止めれば900万円で終わる。契約も2つに分ける</span></button></li><li><button type="button" class="chg" data-doc="teian" data-b="同業・同規模の会社で、営業記録の共有が成果につながった例です" data-a="B社と同じ数字をお約束するものではなく"><span class="num">5</span><b>事例の限界を書く</b><span>B社と指標が違うことを明記</span></button></li></ol>
+<h3>どうやったか</h3>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、後述の使い方で指定できるサブコマンド名です。3は full に含まれ、単独では呼べません。somosomo は「そもそも」からの名前です。</p>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を23件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を8件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">4,701字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:66.5%"></span></span><span class="bv">3,127字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:35.7%"></span></span><span class="bv">1,678字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:48.3%"></span></span><span class="bv">2,269字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">失注はどのくらい起きているか</th><td>「実際に失注が起きています」と言い切り</td><td>台帳で確かめた。担当交代38社のうち2社、年間約1,200万円。半減が5社、年約900万円</td></tr><tr><th scope="row">投資に見合うか</th><td>台帳を見ていないので試算を控える、と明記</td><td>すべて防いでも年約2,100万円で、2,700万円を下回る、と提案側が自ら明記</td></tr><tr><th scope="row">何を決めてもらうのか</th><td>9か月・2,700万円の発注</td><td>縮小版では、最初の3か月・900万円の現状診断だけ。フェーズ2は3か月目の報告のあとに</td></tr><tr><th scope="row">3か月目で止めたら、いくらで終わるか</th><td>書いていない</td><td>900万円で終わり、1,800万円は発生しない。契約も2つに分ける</td></tr><tr><th scope="row">B社の事例は当てはまるか</th><td>成果につながった例、と紹介</td><td>指標が違い、同じ数字は約束しない、と明記</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
+<ol class="list prose-max"><li>「御社ではこの引き継ぎの場面で実際に失注が起きています」(行12、33)は、誰から聞いた、どの話をもとに書きましたか。顧客の数、件数、金額など、いま分かっていることがあれば教えてください。また、過去の失注の数字を、経営会議の前に北都フーズから出してもらえそうですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>営業本部長が「引き継ぎで2社失った」と話したのを聞いたのがもとです。その2社の失注理由は聞いておらず、理由を確かめた記録もありません。失注の件数と金額は分かりません。御社の台帳を見せてもらっていないためです。ほかに分かっているのは、営業本部長の話で去年の異動と退職が合わせて4名だったことだけで、担当が替わった顧客の数は聞いていません。営業本部長によれば台帳はありますが、経営会議の前に数字を出してもらえるかどうかは分かりません。</p></div></details></li><li>3か月目に「進まない」と判断された場合、契約はどうなりますか。900万円で終えられて、残りの1,800万円は発生しないという条件ですか。契約は9か月で一括ですか、フェーズごとに分けますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>3か月目で止められる形にしてあります。ただし、先方の経営会議にかけるのは9か月分の契約です。フェーズ1だけの契約にすることもでき、その場合も900万円は変わりません。9か月分の契約を結んだうえで3か月目に止めた場合に、900万円で終わり残りの1,800万円が発生しないという条件になるのかは分かりません。なお、3か月目の判断の基準は決めておらず、御社の営業本部長が判断する想定です。</p></div></details></li><li>この文書で決めてもらうのは「9か月・総額2,700万円の支援を発注するか」だと読みました。違いますか。まず3か月・900万円の現状診断だけを決めてもらう形に変えるお考えはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>その読みのとおりです。決めてもらうのは、9か月・2,700万円の支援を当社に発注するかです。フェーズ1だけの契約にもできますが、まず3か月・900万円だけを決めてもらう形に変える考えがあるかどうかは分かりません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>引き継ぎで失った2社の失注理由と時期、台帳にある引き継ぎ失注の件数と金額、担当が替わった顧客の数、取引額を、営業本部長に聞く。経営会議の前に数字を出してもらえるかも、ここで聞く→答えが出たら、1章「引き継ぎの場面での失注」の「2社を失った」を件数と金額に書き換え、理由が分かった分は「どのような情報が抜けたことで失注に至ったのか」の文を分かったことに置き換える。3章「投資額に見合う効果の判断」の「本資料では金額での試算を控えています」を、式に数字を入れた概算に置き換える。理由が記録の抜けでなければ、「本提案の要点」の「失注につながっていると当社は見ています」を取り下げ、下の「頼む中身を小さくする案」に切り替えるかを決める。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>営業本部長に台帳を見せてもらい、次のことが分かりました。-失注の理由:2社は、担当が替わった直後に先方から「前任者と話していた条件が引き継がれていない」と言われて失注しました。-失注の時期:担当が替わった直後です。具体的な年月は分かりません。-失注の件数と金額:2社、合計で年間約1,200万円です。失注の定義は、先方と相談し、「担当交代の翌年に取引がなくなった顧客」とします。-担当が替わった顧客の数:去年の異動・退職4名の担当顧客が合計38社です。-取引額:翌年の取引がなくなった2社が合計で年間約1,200万円、取引が半分以下に減った5社が減少分の合計で年間約900万円です。38社全体の取引額は分かりません。-経営会議の前に数字を出してもらえるか:分かりません。-「頼む中身を小さくする案」に切り替えるか:切り替えるかどうかを決めたかは、分かりません。</p></div></details></li><li>9か月分の契約を結んだうえで3か月目に止めたとき、900万円で終わり、残りの1,800万円が発生しない条件にできるかを、自社で契約条件を決める人に確かめる→発生しないなら、「本提案の要点」の表の「判断の区切り」と5章「3か月目の継続判断」に、進まない場合は900万円で終わり1,800万円は発生しないことを書く。発生するなら、9か月分の契約のまま出すか、フェーズ1だけの契約に変えるかを決める。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>3か月目で止めた場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。ただし、9か月分を1本で結ぶのではなく、契約を2つに分け、フェーズ2は3か月目の報告のあとに結びます。自社の誰に確かめたかは、分かりません。</p></div></details></li><li>3か月目の判断の基準を決める。どの数字がどの線を下回ったら進まないのかを、書き手が決める→5章「3か月目の継続判断」の「フェーズ2へ進むかどうかをご判断いただけます」の次に、その基準を一文で書く。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>基準は決めていません。御社の営業本部長が判断する想定です。どの数字がどの線を下回ったら進まないのかは、分かりません。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>スキルが本文とは別のファイルに出した確認事項 17 件</span></summary><div class="dsc-body"><p class="p"><b>決裁事項を小さくする案</b> 3か月・900万円の現状診断だけを発注してもらい、フェーズ2の6か月・1,800万円は3か月目の報告のあとに改めて決めてもらう。この案で書いた版は doc.review.縮小.md にある。</p><h4>先に答えるべき問い</h4><p class="p">「本文」は直した後の文書を指します。</p><ol class="list"><li>失った2社の「前任者と話していた条件」は、前任者の Excel に書いてあったか。書いてあったのに伝わらなかったなら、SFA に記録を集めても失注は減らないのではないか(行12、行33、行93)</li><li>効果の試算と製品比較を、導入も受注する当社が作ることについて、誰が検証するか。製品を売る側と当社の間に利害はあるか(行53、行121、行157)</li><li>失注を「担当交代の翌年に取引がなくなった顧客」と定めると、全体展開が7か月目で効果測定が9か月目の予定では、失注率の結果を支援の期間内に測れない。効果測定の時期と、何を測って支援の終わりとするか(行67、行111、行153)</li></ol><h4>そのほか 14 件</h4><ul class="list"><li>取引が半分以下に減った5社の減少は、引き継ぎが原因か。原因が分からないまま、効果の上限に含めてよいか</li><li>効果の式は取引額で見ている。投資の回収を取引額で見てよいか、粗利で見るか</li><li>去年の4名、38社は、毎年の水準として読んでよいか。今後の退職は何年に何名の見込みか(行37)</li><li>「平均年齢が高く」は、どの数字から言っているか(行37、行71)</li><li>「新しいツールへの抵抗も予想されます」は、誰のどの発言や記録から予想したか。入力の手間を負う営業担当の受け止めは、どこまで聞いているか(行71、行77)</li><li>営業担当が毎日入力し続けることが、この支援の条件になっている。SFA の入力率がどこまで届かなければ失敗とするか、同種の支援での実績はあるか(行71、行113)</li><li>新人の立ち上がりは、北都フーズが課題だと言っていることか。1章の課題に新人の話がないが、期待効果に入れたままでよいか(行20、行95)</li><li>B社の事例はどこから得たもので、本当に同規模か。受注率が上がった理由は分かっているか(行101)</li><li>何もしない案、小さく始める案、自前でやる案と比べたか。比べたなら記録を文書に出せるか(行14)</li><li>SFA のライセンス費の価格帯は、いま示せるか。いくらなら3か月目に止めるのか(行19、行135)</li><li>SFA を前提にしている。SFA 以外で引き継ぎを補える範囲を検討したか(行14、行47)</li><li>3か月目の継続判断を営業本部長が下す想定だが、経営会議にかけなくてよいか(行21、行179、行189)</li><li>行85の「あわせて」は、4つの工夫の内か外か。本文では付録Cの末尾に置いた</li><li>引き継ぎルールの整備は、元の一覧では全体展開の後に、予定表では全体展開より前の6か月目にあった。付録Aでは予定表の順に並べた</li></ul></div></details>
+<h4>構成がどう変わったか</h4>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 857.625" class="fig map" role="img" aria-label="元の8節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 4,701字</text><text x="660" y="24" class="mh">組み直した文書 本編 2,269字 + 付録 2,820字</text><path d="M340,65 C500.0,65 500.0,75 660,75" class="mv" data-src="0" data-dst="0"/><path d="M340,131 C500.0,131 500.0,500 660,500" class="mv dashed" data-src="1" data-dst="8"/><path d="M340,131 C500.0,131 500.0,138 660,138" class="mv" data-src="1" data-dst="1"/><path d="M340,231 C500.0,231 500.0,606 660,606" class="mv dashed" data-src="2" data-dst="9"/><path d="M340,231 C500.0,231 500.0,740 660,740" class="mv dashed" data-src="2" data-dst="11"/><path d="M340,231 C500.0,231 500.0,322 660,322" class="mv" data-src="2" data-dst="5"/><path d="M340,231 C500.0,231 500.0,270 660,270" class="mv" data-src="2" data-dst="4"/><path d="M340,358 C500.0,358 500.0,500 660,500" class="mv dashed" data-src="3" data-dst="8"/><path d="M340,358 C500.0,358 500.0,182 660,182" class="mv" data-src="3" data-dst="2"/><path d="M340,358 C500.0,358 500.0,322 660,322" class="mv" data-src="3" data-dst="5"/><path d="M340,442 C500.0,442 500.0,374 660,374" class="mv" data-src="4" data-dst="6"/><path d="M340,504 C500.0,504 500.0,677 660,677" class="mv dashed" data-src="5" data-dst="10"/><path d="M340,504 C500.0,504 500.0,226 660,226" class="mv" data-src="5" data-dst="3"/><path d="M340,504 C500.0,504 500.0,809 660,809" class="mv dashed" data-src="5" data-dst="12"/><path d="M340,575 C500.0,575 500.0,809 660,809" class="mv dashed" data-src="6" data-dst="12"/><path d="M340,627 C500.0,627 500.0,418 660,418" class="mv" data-src="7" data-dst="7"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="50" rx="6" class="mr"/><text x="22" y="71" class="ml">本提案の要点</text><text x="328" y="71" class="mn" text-anchor="end">400字</text></g><g class="src" data-i="1"><rect x="10" y="100.0" width="330" height="61" rx="6" class="mr"/><text x="22" y="137" class="ml">現状の課題</text><text x="328" y="137" class="mn" text-anchor="end">491字</text></g><g class="src" data-i="2"><rect x="10" y="171.375" width="330" height="120" rx="6" class="mr"/><text x="22" y="237" class="ml">ご提案内容</text><text x="328" y="237" class="mn" text-anchor="end">1,471字※</text></g><g class="src" data-i="3"><rect x="10" y="301.375" width="330" height="114" rx="6" class="mr"/><text x="22" y="364" class="ml">期待効果</text><text x="328" y="364" class="mn" text-anchor="end">910字</text></g><g class="src" data-i="4"><rect x="10" y="425.125" width="330" height="34" rx="6" class="mr"/><text x="22" y="448" class="ml">費用</text><text x="328" y="448" class="mn" text-anchor="end">232字</text></g><g class="src" data-i="5"><rect x="10" y="469.125" width="330" height="71" rx="6" class="mr"/><text x="22" y="510" class="ml">進め方</text><text x="328" y="510" class="mn" text-anchor="end">566字</text></g><g class="src" data-i="6"><rect x="10" y="549.875" width="330" height="50" rx="6" class="mr"/><text x="22" y="581" class="ml">体制</text><text x="328" y="581" class="mn" text-anchor="end">401字</text></g><g class="src" data-i="7"><rect x="10" y="610.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="633" class="ml">今後の進め方</text><text x="328" y="633" class="mn" text-anchor="end">178字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="70" rx="6" class="mr"/><text x="672" y="81" class="ml">本提案の要点</text><text x="978" y="81" class="mn" text-anchor="end">564字</text></g><g class="dst body" data-i="1"><rect x="660" y="120.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="144" class="ml">引き継ぎの場面での失注</text><text x="978" y="144" class="mn" text-anchor="end">263字</text></g><g class="dst body" data-i="2"><rect x="660" y="164.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="188" class="ml">投資額に見合う効果の判断</text><text x="978" y="188" class="mn" text-anchor="end">266字</text></g><g class="dst body" data-i="3"><rect x="660" y="208.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="232" class="ml">3か月目の継続判断</text><text x="978" y="232" class="mn" text-anchor="end">227字</text></g><g class="dst body" data-i="4"><rect x="660" y="252.5" width="330" height="34" rx="6" class="mr"/><text x="672" y="276" class="ml">フェーズ1 現状診断</text><text x="978" y="276" class="mn" text-anchor="end">160字</text></g><g class="dst body" data-i="5"><rect x="660" y="296.5" width="330" height="51" rx="6" class="mr"/><text x="672" y="328" class="ml">フェーズ2 SFA 導入・定着支援</text><text x="978" y="328" class="mn" text-anchor="end">405字</text></g><g class="dst body" data-i="6"><rect x="660" y="357.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="380" class="ml">費用</text><text x="978" y="380" class="mn" text-anchor="end">229字</text></g><g class="dst body" data-i="7"><rect x="660" y="401.125" width="330" height="34" rx="6" class="mr"/><text x="672" y="424" class="ml">今後の進め方</text><text x="978" y="424" class="mn" text-anchor="end">103字</text></g><g class="dst app" data-i="8"><rect x="660" y="445.125" width="330" height="110" rx="6" class="mr"/><text x="672" y="506" class="ml">付録A 課題と効果の補足</text><text x="978" y="506" class="mn" text-anchor="end">881字</text></g><g class="dst app" data-i="9"><rect x="660" y="565.25" width="330" height="80" rx="6" class="mr"/><text x="672" y="612" class="ml">付録B 作業の一覧</text><text x="978" y="612" class="mn" text-anchor="end">644字</text></g><g class="dst app" data-i="10"><rect x="660" y="655.75" width="330" height="43" rx="6" class="mr"/><text x="672" y="683" class="ml">付録C 月ごとの予定</text><text x="978" y="683" class="mn" text-anchor="end">343字</text></g><g class="dst app" data-i="11"><rect x="660" y="708.625" width="330" height="62" rx="6" class="mr"/><text x="672" y="746" class="ml">付録D 現場で使われ続けるための工夫の説明</text><text x="978" y="746" class="mn" text-anchor="end">496字</text></g><g class="dst app" data-i="12"><rect x="660" y="780.625" width="330" height="57" rx="6" class="mr"/><text x="672" y="815" class="ml">付録E 体制</text><text x="978" y="815" class="mn" text-anchor="end">456字</text></g></svg></div></div></details></div><div class="dads-tab__panel" id="doc-panel-4" role="tabpanel" aria-labelledby="doc-tab-4" tabindex="0" hidden><p class="p prose-max">情報システム部の運用チームが、受注管理システムが1時間半止まった障害を、情報システム部長と営業本部長に報告する文書。</p>
+<h3>ひとめで分かる変化</h3>
+<div class="tiles">
+  <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は3つ</p></div>
+  <div class="tile"><p class="l">2回目の判定</p><div class="v">出せる</div><p class="d">宿題を済ませた2回目は、そのまま出せる</p></div>
+  <div class="tile"><p class="l">本編の長さ</p><div class="v">30%<small>短縮</small></div><p class="d">1,246字 → 直して 1,202字 → 端的に 874字</p></div>
+  <div class="tile"><p class="l">検査で見つけた問い</p><div class="v">19<small>件</small></div><p class="d">論理の指摘8件、前提への問い11件。うち3問を書き手に聞く</p></div>
+</div>
+<h3>1回目: 差し戻しと宿題</h3>
+<p class="p prose-max">スキルの返答は「このままでは差し戻されます」から始まります。理由は次のとおりです。止まり方の確認と再起動後のメモリ使用量の整理は、了承を頼む前に運用チームが手元の記録でできる。</p>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>調べること</th><th>誰に聞くか・何を見るか</th><th>分かったら直す箇所</th></tr></thead><tbody><tr><th scope="row">再起動後のメモリ使用量の数値と推移</th><td>運用チームが1時間ごとに見てきた記録</td><td>概要の「再発はありません」のあとに数値と推移を1文で</td></tr><tr><th scope="row">止まり方が全面的だったか断続的だったか</th><td>入力の成功と失敗の時刻が分かる記録</td><td>概要の「確認中です」を分かった止まり方に</td></tr><tr><th scope="row">この注文をふだん入力するのは営業か顧客か</th><td>営業本部</td><td>概要の「顧客に再入力を頼み」を、誰が何をしたかの文に</td></tr></tbody></table></div>
+<h3>2回目: 宿題を済ませて出し直す</h3>
+<p class="p prose-max">宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
+<div class="viewer" data-doc="postmortem" data-maps='{"after": [0, 4, 1, 2, 3]}'>
+  <div class="pane"><p class="cap">元の文書 <span class="ln">本編 1,246字</span></p><div class="doc L" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">直した後 <span class="ln">本編 1,202字</span></p><div class="doc R" tabindex="0"></div></div>
+</div><template id="t-postmortem-before"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
+<p>宛先:情報システム部長、営業本部長
+作成:情報システム部 運用チーム</p>
+<h4>概要</h4>
+<p>10月21日(火)の午前中、受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー(受注管理システムの処理を動かすサーバー)のメモリが上限に達したためで、サーバーを再起動し、11:50 ごろに復旧しました。</p>
+<p>営業が入力した注文約300件のうち約40件が入力に失敗し、営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでした。</p>
+<p>メモリが上限に達した原因は、まだ確定していません。前日の夕方に本番へ反映した受注検索の改修を疑っていますが、改修が原因だとは確かめられていません。再発防止策として、改修のメモリ使用量の確認、監視のしきい値の見直し、レビュー体制の強化を考えています。</p>
+<h4>経緯</h4>
+<table>
+<thead>
+<tr>
+<th>日時</th>
+<th>出来事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10月20日 夕方</td>
+<td>受注検索の改修を本番に反映した。レビューは1人で行った</td>
+</tr>
+<tr>
+<td>10月21日 10:15</td>
+<td>監視の通知が出て、運用チームが調べた。アプリケーションサーバーのメモリが上限に達していた</td>
+</tr>
+<tr>
+<td>10月21日 11:05</td>
+<td>サーバーを再起動した</td>
+</tr>
+<tr>
+<td>10月21日 11:50 ごろ</td>
+<td>復旧した</td>
+</tr>
+</tbody>
+</table>
+<p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p>
+<h4>原因</h4>
+<p>直接の原因は、アプリケーションサーバーのメモリが上限に達したことです。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
+<p>メモリが上限に達した理由は確定していません。疑っているのは前日の夕方に反映した受注検索の改修ですが、根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。</p>
+<p>改修のレビューは1人で行いました。レビューの体制が障害につながったかどうかは、改修が原因かどうかが分かるまで判断できません。</p>
+<h4>影響</h4>
+<p>この時間帯に営業が入力した注文は約300件で、そのうち約40件(約13%)が入力に失敗しました。失敗した分は、営業が顧客に再入力を頼みました。顧客からの問い合わせはありませんでしたが、約40件の分は顧客に再入力の手間をかけています。</p>
+<p>残りの約260件は入力できています。画面が応答しなかった時間帯にも入力できた注文があることになり、止まり方が全面的だったのか断続的だったのかは確認中です。</p>
+<h4>再発防止策</h4>
+<p>次の3つを考えています。いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません。</p>
+<table>
+<thead>
+<tr>
+<th>再発防止策</th>
+<th>今回の障害との関係</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>改修のメモリ使用量の確認</td>
+<td>受注検索の改修がメモリ上限到達の原因かどうかを判断する材料になる</td>
+</tr>
+<tr>
+<td>監視のしきい値(通知を出す基準の値)の見直し</td>
+<td>今回、運用チームが調べ始めたきっかけは 10:15 の通知だった</td>
+</tr>
+<tr>
+<td>レビュー体制の強化</td>
+<td>今回の改修のレビューは1人で行った</td>
+</tr>
+</tbody>
+</table>
+<p>改修のメモリ使用量を確認した結果によっては、ほかの2つの策の中身も変わることがあります。</p></article></template><template id="t-postmortem-after"><article><h3>受注管理システム障害報告書(10月21日発生分)</h3>
+<p>宛先:情報システム部長、営業本部長
+作成:情報システム部 運用チーム</p>
+<h4>概要</h4>
+<p>情報システム部長に決めていただきたいのは、再発防止の3つの方向でよいかと、受注検索の改修が原因かどうかの調査に1週間かけてよいかの2つです。営業本部長には報告のみです。</p>
+<p>10月21日(火)の 10:05 から、受注管理システムの Web 画面の応答が極端に遅くなりました。受注管理システムの処理を動かすアプリケーションサーバーのメモリが上限に達していて、サーバーを再起動し、11:50 ごろに復旧しました。</p>
+<p>注文約40件が入力に失敗し、10月22日までに全件を入力し直しました。</p>
+<p>メモリが上限に達した理由は、まだ確定していません。前日に反映した受注検索の改修を疑っています。改修は切り戻しておらず、10月28日の時点で再発はありません。</p>
+<h4>原因</h4>
+<p>直接の原因は、アプリケーションサーバーのメモリが上限に達したことだと見ています。調査でこの状態を確認し、サーバーの再起動のあとに復旧しました。</p>
+<p>メモリが上限に達した理由は確定していません。疑っているのは前日の夕方に反映した受注検索の改修ですが、根拠は反映と障害の時期が近いことだけで、改修がメモリの使用量を増やしたことはまだ確かめていません。1週間の調査は、運用チームの担当者2名が検証環境で改修の前後のメモリ使用量を比べるもので、10月29日に始めて11月5日に終えます。</p>
+<p>改修は切り戻しておらず、本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、使用率は再起動直後が45%、その後1週間は60〜70%で推移し、増え続けてはいません。</p>
+<h4>影響</h4>
+<p>この時間帯に営業が入力した注文は約300件で、そのうち約13%の約40件が入力に失敗しました。失敗した分は、営業が顧客に聞き直して入力し直しました。納期の遅れが出ていないことは営業本部に確認しました。顧客からの問い合わせはありませんでしたが、約40件の分は顧客に聞き直しの手間をかけています。</p>
+<p>残りの約260件は入力できています。アクセスログでは、応答に30秒以上かかったリクエストが全体の約8割で、全面停止ではありませんでした。</p>
+<h4>再発防止策</h4>
+<p>次の3つの方向を考えています。中身、担当、期限は、調査の結果が出てから改めて出したいと考えています。</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>今回の障害との関係</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>改修のメモリ使用量の確認</td>
+<td>受注検索の改修がメモリ上限到達の原因かどうかを判断する材料になる</td>
+</tr>
+<tr>
+<td>監視のしきい値の見直し</td>
+<td>しきい値は通知を出す基準の値で、今回、運用チームが調べ始めたきっかけは 10:15 の通知だった</td>
+</tr>
+<tr>
+<td>レビュー体制の強化</td>
+<td>今回の改修のレビューは1人で行った。体制が障害につながったかは、改修が原因かどうかが分かるまで判断できない</td>
+</tr>
+</tbody>
+</table>
+<p>調査の結果によっては、ほかの2つの策の中身も変わることがあります。</p>
+<h4>付録:経緯</h4>
+<table>
+<thead>
+<tr>
+<th>日時</th>
+<th>出来事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10月20日 夕方</td>
+<td>受注検索の改修を本番に反映した。レビューは1人で行った</td>
+</tr>
+<tr>
+<td>10月21日 10:05</td>
+<td>Web 画面の応答が極端に遅くなり始めた。11:50 までのリクエストは、全体の約8割の応答に30秒以上かかり、残りの約2割は数秒で返っていた</td>
+</tr>
+<tr>
+<td>10月21日 10:15</td>
+<td>監視の通知が出て、運用チームが調べた。アプリケーションサーバーのメモリが上限に達していた</td>
+</tr>
+<tr>
+<td>10月21日 11:05</td>
+<td>サーバーを再起動した</td>
+</tr>
+<tr>
+<td>10月21日 11:50 ごろ</td>
+<td>復旧した</td>
+</tr>
+</tbody>
+</table>
+<p>通知から再起動までに50分、再起動から復旧までに約45分かかりました。</p></article></template>
+<h3>主な変更 6 件</h3>
+<p class="p prose-max">番号を押すと、上の比較で該当箇所へ移動します。</p>
+<ol class="changes"><li><button type="button" class="chg" data-doc="postmortem" data-b="受注管理システムの Web 画面が1時間半ほど応答しなくなりました。アプリケーションサーバー" data-a="情報システム部長に決めていただきたいのは、再発防止の3つの方向でよいかと"><span class="num">1</span><b>決めることを明記</b><span>共有で終わる報告が、情報システム部長に2つの判断を頼む報告になった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="全面的だったのか断続的だったのかは確認中" data-a="応答に30秒以上かかったリクエストが全体の約8割で、全面停止ではありませんでした"><span class="num">2</span><b>宿題の答えを入れる</b><span>止まり方は確認中から、約8割が30秒超に</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="改修が原因だとは確かめられていません" data-a="使用率は再起動直後が45%、その後1週間は60〜70%で推移し、増え続けてはいません"><span class="num">3</span><b>宿題の答えを入れる</b><span>再起動後のメモリの値が入った</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="営業が顧客に再入力を頼みました" data-a="営業が顧客に聞き直して入力し直しました"><span class="num">4</span><b>宿題の答えを入れる</b><span>再入力したのは営業、と分かった</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="いずれも検討中で、具体的な内容、担当、期限はまだ決まっていません" data-a="運用チームの担当者2名が検証環境で改修の前後のメモリ使用量を比べるもので、10月29日に始めて11月5日に終えます"><span class="num">5</span><b>調査の担当と期限</b><span>検討中だった調査に、担当2名と終える日が付いた</span></button></li><li><button type="button" class="chg" data-doc="postmortem" data-b="メモリが上限に達したためで、サーバーを再起動し" data-a="メモリが上限に達したことだと見ています"><span class="num">6</span><b>言い切りを根拠に合わせる</b><span>原因は「と見ています」に</span></button></li></ol>
+<h3>どうやったか</h3>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>工程と、決裁者の問いへの答え、構成の変化</span></summary><div class="dsc-body"><p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、後述の使い方で指定できるサブコマンド名です。3は full に含まれ、単独では呼べません。somosomo は「そもそも」からの名前です。</p>
+<ol class="flow"><li><b>1. 文書の中を検査 <span class="chip" data-color="gray">logic</span></b><span>主張と根拠の対応、矛盾を8件指摘</span></li><li><b>2. 文書の外から問う <span class="chip" data-color="gray">somosomo</span></b><span>前提、代案、覆る条件を11件問う</span></li><li><b>3. 書き手に聞く <span class="chip" data-color="gray">3問</span></b><span>答えが要る3問だけを聞く</span></li><li><b>4. 本文を直す <span class="chip" data-color="gray">fix</span></b><span>答えを本文に入れ、言い切りを根拠に合わせる</span></li><li><b>5. 端的にする <span class="chip" data-color="gray">short</span></b><span>決裁に要る根拠を本編に残し、残りは付録へ</span></li><li><b>6. 構成を組み直す <span class="chip" data-color="gray">rebuild</span></b><span>構成案を3つ出し、決裁事項を小さくする案も示す</span></li></ol>
+<h4>工程ごとの本編の字数</h4><div class="cbars"><div class="bar"><span class="bl">元の文書</span><span class="tr"><span class="f " style="width:100.0%"></span></span><span class="bv">1,246字</span></div><div class="bar"><span class="bl">決裁者の目で見て直す</span><span class="tr"><span class="f " style="width:96.5%"></span></span><span class="bv">1,202字</span></div><div class="bar"><span class="bl">もっと端的に</span><span class="tr"><span class="f " style="width:70.1%"></span></span><span class="bv">874字</span></div><div class="bar"><span class="bl">構成から組み直す</span><span class="tr"><span class="f k" style="width:92.5%"></span></span><span class="bv">1,153字</span></div></div>
+<div class="tbl-wrap"><table class="tbl"><caption>上司や顧客が最初に聞くことへの答え</caption><thead><tr><th>問い</th><th>元の文書では</th><th>直した後では</th></tr></thead><tbody><tr><th scope="row">何を決めてほしいのか</th><td>書いていない</td><td>情報システム部長に2つ。再発防止の方向と、調査の1週間。営業本部長には報告のみ</td></tr><tr><th scope="row">止まり方は全面か断続か</th><td>確認中</td><td>約8割の要求が30秒以上かかった。全面停止ではない</td></tr><tr><th scope="row">再起動後に再発していないか</th><td>再発なし、とだけ</td><td>使用率は再起動直後45%、その後1週間は60〜70%で安定</td></tr><tr><th scope="row">調査の担当と期限は</th><td>まだ決まっていない</td><td>運用チームの2名が検証環境で比べ、11月5日に終える</td></tr><tr><th scope="row">再入力したのは誰か</th><td>書いていない</td><td>営業が顧客に聞き直して入力し直した。納期の遅れはない</td></tr></tbody></table></div>
+<h4>1回目に書き手に聞いた3問と答え</h4>
+<p class="p prose-max">答えは書き手の役の AI が返しました。スキルの作者が書いた事実の一覧だけを見て答え、一覧にないことは「分からない」と答えます。</p>
+<ol class="list prose-max"><li>疑っている受注検索の改修は、いま本番で動いたままですか、元に戻しましたか。再起動のあと、メモリの使用量はどう動いていますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>切り戻していません。改修は本番に残っています。再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません。使用量の具体的な数値や推移は分かりません。</p></div></details></li><li>入力に失敗した約40件は、全件が入力し直されたことを確かめましたか。文書には「営業が入力した注文」と「顧客に再入力を頼みました」の両方がありますが、この注文をシステムに入力するのは営業と顧客のどちらですか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>営業が電話で顧客に再入力を頼み、10月22日までに全件入力し直しました。納期の遅れが出ていないことは営業本部に確認しました。この注文をふだんシステムに入力するのが営業と顧客のどちらかは分かりません。</p></div></details></li><li>この報告で情報システム部長と営業本部長に求めるのは、「再発防止策の中身は、改修のメモリ使用量を確かめてから決める」という進め方の了承だと読みました。違いますか。ほかに2人に決めてもらうことはありますか。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>書き手の答え</span></summary><div class="dsc-body"><p>少し違います。決めてもらうことは、再発防止の3つの方向でよいかの了承と、改修が原因かどうかの調査に1週間かけてよいかの2つです。防止策の中身・担当・期限は、調査の結果が出てから改めて出します。調査は、検証環境で改修の前後のメモリ使用量を比べる予定で、まだ始めていません。1週間あればできる見込みです。ほかに決めてもらうことはありません。</p></div></details></li></ol>
+<h4>2回目: 宿題の答え</h4>
+<p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
+<ol class="list prose-max"><li>再起動後のメモリ使用量の数値と推移を調べる。運用チームが1時間ごとに見てきた記録を見る→概要の「再起動後はメモリ使用量を1時間ごとに見ていて、10月28日の時点で再発はありません」のあとに、数値と推移を1文で足す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>使用率は再起動直後が45%で、その後1週間は60〜70%で推移し、増え続けてはいません。</p></div></details></li><li>止まり方が全面的だったのか断続的だったのかを調べる。入力の成功と失敗の時刻が分かる記録を見る→概要の「止まり方が全面的だったのか断続的だったのかは確認中です」を分かった止まり方に置き換え、同じ段落の前にある「Web画面が1時間半ほど応答しなくなりました」も、それに合う言い方にそろえる。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>アクセスログを調べました。10:05から11:50のあいだ、応答に30秒以上かかった要求が全体の約8割で、残りの約2割は数秒で返っていました。全面停止ではなく、ほとんどの要求が極端に遅くなった状態でした。入力の成功と失敗の時刻ごとの内訳は分かりません。</p></div></details></li><li>この注文をふだんシステムに入力するのが営業か顧客かを営業本部に聞く→営業なら、概要の「営業が電話で顧客に再入力を頼み」を、顧客に何を頼んだのかが分かる文に直す。顧客なら、概要の「営業が入力した注文」を顧客が入力した注文に直す。<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>宿題を済ませた書き手の答え</span></summary><div class="dsc-body"><p>ふだんの入力を営業と顧客のどちらがするのかは分かりません。確認できているのは今回の約40件についてだけで、営業に確認したところ、営業が顧客に聞き直して営業が入力し直しており、顧客自身の入力はありません。顧客には聞き直しをしたのであって、顧客が再入力したのではありません。</p></div></details></li></ol>
+<details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>スキルが本文とは別のファイルに出した確認事項 16 件</span></summary><div class="dsc-body"><h4>先に答えるべき問い</h4><p class="p">「本文」は直した後の文書を指します。</p><ol class="list"><li>改修を切り戻さずに本番に残している理由は、本文にありません。決裁者に聞かれたら、どう答えますか。調査が終わる11月5日までに再発したときの扱いは決まっていますか。</li><li>改修を疑う根拠は「反映と障害の時期が近いことだけ」と書いています。反映の前後でメモリ使用量がどう動いたかと、同じ時期に本番で変わったものがほかにないかは、手元の監視の記録と変更の記録で分かりますか。</li><li>聞いて分からなかったことが2つあります。この注文をふだん入力するのは営業と顧客のどちらか、入力の成功と失敗の時刻ごとの内訳はどうかです。どちらも今回の2つの決めごとを左右しないので、本文は書き手の答えの範囲で書きました。報告の相手から聞かれたら答えられますか。</li></ol><h4>そのほか 13 件</h4><ul class="list"><li>再起動から復旧までに約45分かかった理由は何ですか。本文は、メモリの上限到達を「直接の原因と見ている」と書いていますが、再起動のあとすぐには直っていません。</li><li>通知から再起動までの50分は、何にかかった時間ですか。再発防止の3つの方向は、この時間も再起動のあとの約45分も扱っていません。</li><li>改修が原因でなかったとき、3つの方向のどれが残りますか。本文は「ほかの2つの策の中身も変わることがあります」としか書いていません。</li><li>原因が分かる前に「レビュー体制の強化」の方向を了承してもらう理由は何ですか。本文は、体制が障害につながったかは判断できないと書いています。</li><li>監視のしきい値を見直すと、今回の何が防げますか。本文に書いてあるのは、10:15 の通知がきっかけだったという事実だけです。</li><li>ふだんのレビューは何人で行っていますか。今回の1人がふだんの運用なのか例外なのかで、「強化」の意味が変わります。</li><li>改修を元に戻す案と残す案を比べた記録はありますか。</li><li>3つの方向のうち、レビュー体制を決める人は宛先の中にいますか。実行する人は誰を想定していますか。</li><li>過去に同じサーバーで、同じ通知が出たことはありますか。</li><li>調査の開始日は10月29日ですが、了承が必要な期限が本文にありません。この報告を出す日と、いつまでに了承が要るかを書くかどうかを決めてください。報告書には作成日もありません。</li><li>入力の失敗のほかに、検索や参照など、受注管理システムのほかの業務への影響はありましたか。</li><li>「顧客からの問い合わせはありませんでした」は、顧客への影響の物差しになりますか。聞き直しの手間をかけた顧客への対応は決まっていますか。</li><li>3つの方向の並びは、調査、検知、開発の工程と切り口がそろっていません。「改修のメモリ使用量の確認」は調査そのものなので、決めごとの2つが重なっています。このまま並べますか。</li></ul></div></details>
+<h4>構成がどう変わったか</h4>
+<p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
+<div class="map-wrap"><svg viewBox="0 0 1000 316.875" class="fig map" role="img" aria-label="元の5節が、組み直した後のどの節へ移ったか。箱の高さは字数に比例する。※は縮めている"><text x="10" y="24" class="mh">元の文書 本編 1,246字</text><text x="660" y="24" class="mh">組み直した文書 本編 1,153字 + 付録 282字</text><path d="M340,60 C500.0,60 500.0,57 660,57" class="mv" data-src="0" data-dst="0"/><path d="M340,106 C500.0,106 500.0,279 660,279" class="mv dashed" data-src="1" data-dst="5"/><path d="M340,150 C500.0,150 500.0,101 660,101" class="mv" data-src="2" data-dst="1"/><path d="M340,150 C500.0,150 500.0,191 660,191" class="mv" data-src="2" data-dst="3"/><path d="M340,194 C500.0,194 500.0,235 660,235" class="mv" data-src="3" data-dst="4"/><path d="M340,238 C500.0,238 500.0,146 660,146" class="mv" data-src="4" data-dst="2"/><g class="src" data-i="0"><rect x="10" y="40" width="330" height="39" rx="6" class="mr"/><text x="22" y="66" class="ml">概要</text><text x="328" y="66" class="mn" text-anchor="end">312字</text></g><g class="src" data-i="1"><rect x="10" y="89.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="112" class="ml">経緯</text><text x="328" y="112" class="mn" text-anchor="end">196字</text></g><g class="src" data-i="2"><rect x="10" y="133.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="156" class="ml">原因</text><text x="328" y="156" class="mn" text-anchor="end">231字</text></g><g class="src" data-i="3"><rect x="10" y="177.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="200" class="ml">影響</text><text x="328" y="200" class="mn" text-anchor="end">197字</text></g><g class="src" data-i="4"><rect x="10" y="221.0" width="330" height="34" rx="6" class="mr"/><text x="22" y="244" class="ml">再発防止策</text><text x="328" y="244" class="mn" text-anchor="end">253字</text></g><g class="dst body" data-i="0"><rect x="660" y="40" width="330" height="34" rx="6" class="mr"/><text x="672" y="63" class="ml">概要</text><text x="978" y="63" class="mn" text-anchor="end">255字</text></g><g class="dst body" data-i="1"><rect x="660" y="84" width="330" height="34" rx="6" class="mr"/><text x="672" y="107" class="ml">原因の調査</text><text x="978" y="107" class="mn" text-anchor="end">260字</text></g><g class="dst body" data-i="2"><rect x="660" y="128" width="330" height="36" rx="6" class="mr"/><text x="672" y="152" class="ml">再発防止策</text><text x="978" y="152" class="mn" text-anchor="end">285字</text></g><g class="dst body" data-i="3"><rect x="660" y="173.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="197" class="ml">障害の内容</text><text x="978" y="197" class="mn" text-anchor="end">128字</text></g><g class="dst body" data-i="4"><rect x="660" y="217.625" width="330" height="34" rx="6" class="mr"/><text x="672" y="241" class="ml">影響</text><text x="978" y="241" class="mn" text-anchor="end">168字</text></g><g class="dst app" data-i="5"><rect x="660" y="261.625" width="330" height="35" rx="6" class="mr"/><text x="672" y="285" class="ml">付録:経緯</text><text x="978" y="285" class="mn" text-anchor="end">282字</text></g></svg></div></div></details></div></div></div>
+</div></section>
 
-      <div class="pairs" role="table" aria-label="v1.6.0 と v1.6.1 で直した文の比較">
-        <div class="pair-head" role="row">
-          <div role="columnheader">宛先と、直す前の言葉</div>
-          <div role="columnheader"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0 で直した後</span></div>
-          <div role="columnheader"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1 で直した後</span></div>
-        </div>
-        <div class="pair" role="row">
-          <div class="k" role="rowheader"><strong>入れません</strong>インフラ担当者宛て。インフラ担当者は「アクセスできない」と言う</div>
-          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>ただ、ベルトは社内 VPN からしか<em>入れません</em>。</div>
-          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>ただ、ベルトには社内 VPN からしか<em>アクセスできません</em>。</div>
-        </div>
-        <div class="pair" role="row">
-          <div class="k" role="rowheader"><strong>受ける・売上にする</strong>経理担当者宛て。経理担当者は「計上する」と言う</div>
-          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>年額で前払いされた分は、経理では前受金として<em>受けて</em>、毎月12分の1ずつ<em>売上にする</em>と聞いています。</div>
-          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>年額で前払いされた分は、経理では前受金として<em>計上し</em>、毎月12分の1ずつ<em>売上に計上する</em>と聞いています。</div>
-        </div>
-        <div class="pair" role="row">
-          <div class="k" role="rowheader"><strong>届く</strong>デザイナー宛て。デザイナーは「反映される」と言う</div>
-          <div class="old" role="cell"><span class="cell-tag"><span class="mark" aria-hidden="true"></span>&nbsp;v1.6.0</span>Figma の値がボタンに<em>届く</em>まで</div>
-          <div class="new" role="cell"><span class="cell-tag"><span class="mark new" aria-hidden="true"></span>&nbsp;v1.6.1</span>Figma の値がボタンに<em>反映される</em>まで</div>
-        </div>
-      </div>
-      <p class="pairs-note">どれも、直した後の文書から、文をそのまま写しています。</p>
-    </div>
+
+<section class="block" id="checked"><div class="wrap">
+  <h2 data-chip>確かめたこと</h2>
+  <h3>上の4本で</h3>
+  <p class="p prose-max">想定した読み手を演じる AI に、元の文書、1回目、2回目をそれぞれ渡し、返事と指摘を返させました。右端は、元の文書への指摘のうち、スキルが1回目に出した確認事項がすでに拾っていた数です。</p>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>1回目への返事</th><th>2回目への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody><tr><th scope="row">稟議書</th><td>経営者</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>14 件のうち 11 件</td></tr><tr><th scope="row">社内の制度企画</th><td>経営者</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>16 件のうち 16 件</td></tr><tr><th scope="row">コンサルからの提案資料</th><td>提案を受け取る会社の役員</td><td>条件つきOK</td><td>却下</td><td>条件つきOK</td><td>9 件のうち 9 件</td></tr><tr><th scope="row">障害報告書</th><td>報告を受け取る上司</td><td>却下</td><td>却下</td><td>条件つきOK</td><td>14 件のうち 14 件</td></tr></tbody></table></div>
+  <p class="p prose-max">読み手役の AI が元の文書に出した指摘は、1本につき3回の試行で合計 53 件。うち 50 件は、スキルが1回目に出した確認事項にすでに入っていました。25 件は宿題と「先に答えるべき問い」に、残りは「そのほか」にです。入っていなかった 3 件はどれも稟議書の時間単価で、1回目に書き手が答えて本文に入ったので、確認事項には残っていません。コンサルからの提案資料は、元の文書は失注を言い切っていたため「フェーズ1だけなら」と通りかけました。台帳の数字と効果の上限を正直に書くと2,700万円のままでは却下で、決裁事項を900万円の診断だけに小さくした版は3回中2回が条件つきOKでした。表の2回目はその版への返事です。</p>
+  <h3>テスト用の文書で</h3>
+  <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
+  <div class="tiles">
+    <div class="tile"><p class="l">仕込んだ欠陥を問いにできた</p><div class="v">219<small>/ 219 回</small></div><p class="d">73か所 × 3回。見落とし 0</p></div>
+    <div class="tile"><p class="l">元にない事実の持ち込み</p><div class="v">0<small>件</small></div><p class="d">欠陥のない4本で誤って指摘した数も 0 件</p></div>
+    <div class="tile"><p class="l">書き手への問い</p><div class="v">27<small>件</small></div><p class="d">問いが出た3本 × 3回。文書の中で答えが出る問いは 0。答えはすべて変えずに本文に入れた</p></div>
+    <div class="tile"><p class="l">仕込んだ欠陥を直すか確認事項に回した</p><div class="v">219<small>/ 219 回</small></div><p class="d">5本 × 3回。取りこぼし 0。直した本編が元より長くなった回は 15 回中 3 回</p></div>
   </div>
+  <details class="dsc"><summary><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 15.2 6.8 10l1.06-1.06L12 13.08l4.14-4.14L17.2 10 12 15.2Z" fill="currentColor"/><circle cx="12" cy="12" r="10.5" stroke="currentColor" fill="none"/></svg><span>測り方と注</span></summary><div class="dsc-body"><p>想定した読み手は、別のセッションの Claude Opus 5.5 に役を与えたもので、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事と指摘を3回ずつ返させました。返事は OK、条件つきOK、判断の前に質問あり、却下の4つから選びます。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、ある文書への指摘を無関係な文書の確認事項と組み合わせた42組で、全部「ない」と出ることを確かめました。</p>
+<p>テスト用の文書は、スキルの作者が欠陥を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。仕込んだ欠陥は、表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」などです。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した 12 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は 12 本すべてで元のままでした。組み直した本編が元より長くなった回が 12 回中 7 回ありました。どれも元の 4% 以内で、括弧の補足を文に開いたぶんです。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応することを条件とし、15 回中 15 回で満たしました。満たさなかった1回は、丁寧にした本編が元の 110% を超えたものです。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p></div></details>
+</div></section>
 
-  <div class="route">
-    <nav class="toc" aria-label="目次">
-      <p>目次</p>
-      <ol>
-        <li><a href="#changes">何が変わったか</a></li>
-        <li><a href="#checked">確かめたこと</a></li>
-        <li><a href="#limits">苦手なこと</a></li>
-        <li><a href="#install">インストール</a></li>
-      </ol>
-    </nav>
-    <div class="stations">
+<section class="block" id="how"><div class="wrap">
+  <h2 data-chip>使い方</h2>
+  <p class="p prose-max">ふだんは <code class="ic"><span class="ck">/critical-thinking</span> <span class="cf">稟議書.md</span></code> だけで足ります。検査から組み直しまで6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて実行するときだけ、<code class="ic"><span class="ck">/critical-thinking</span> <span class="cs">short</span> <span class="cf">稟議書.md</span></code> のようにサブコマンドを挟みます。</p>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の指示</th><th>何をするか</th></tr></thead><tbody>
+    <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
+    <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
+    <tr><th scope="row">somosomo</th><td>「決裁者目線で、前提から疑って」</td><td>文書の外から、前提、他の選択肢、結論が覆る条件、誰が得をして誰が動くのか、を問う</td></tr>
+    <tr><th scope="row">fix</th><td>「指摘を反映して直して」</td><td>検査の報告を本文に反映し、残りの問いを確認事項に出す</td></tr>
+    <tr><th scope="row">short / detail</th><td>「もっと端的に」「もっと丁寧に」</td><td>決裁に要る根拠だけを本編に残す / 裏づけと論拠を本編に戻す</td></tr>
+    <tr><th scope="row">rebuild</th><td>「構成から組み直して」</td><td>事実と決裁事項は保ち、構成案を3つ出す。1つは決裁事項を小さくする案</td></tr>
+  </tbody></table></div>
+  <div class="cmd"><code id="cmd2">/critical-thinking 稟議書.md</code><button type="button" data-copy="cmd2">コピー</button></div>
+</div></section>
 
-      <section id="changes">
-        <h2>何が変わったか</h2>
-        <p>v1.6.1 は、Claude Opus 5.5 で使うことに絞って調整しました。いまいちばん使い勝手がよく、使っている人も多いモデルだと考えたためです。規則を足すかどうかも、Opus 5.5 に書かせたり直させたりした結果で決めています。</p>
-        <p>何が起きるのかを短い言葉で済ませず、言い方が長くなっても具体的に書くよう AI に求める規則を、スキルの本体である SKILL.md に足しました。</p>
-        <p>AI が書き終えたら、スキルに付いている検査スクリプトが、「効く」「届く」のように何が起きるのかをぼかす言葉の候補を一覧にします。そのうえで、AI が文脈を見て直すかどうかを決めます。</p>
-        <p>AI に渡したメモに出てくる、ブランチ名や実験の条件名のような作業用の名前をそのまま出さないことと、文書の中で呼び名を作って読み手に覚えさせないことも、同じ規則に足しました。</p>
-        <p>SKILL.md と、検査スクリプトが出す指摘の文も、何を指すのかが分かる言い方に書き直しました。</p>
-      </section>
-
-      <section id="checked">
-        <h2>確かめたこと</h2>
-        <p>Claude Opus 5.5 に、スキルなしで相談文を9本書かせました。宛先は経理・インフラ・デザイナーの担当者で、3本ずつです。この9本を、同じ Claude Opus 5.5 に、v1.6.0 と v1.6.1 のスキルでそれぞれ直させました。</p>
-        <p>直す前の9本は、別の AI である Claude Fable 5.1 に読ませ、宛先の人には何を指すのか分からない言葉を探させました。見つかったのは、9本で44か所です。そのうえで、直した後の文書でそれぞれが直っているかを、どちらのバージョンで直したかを伏せて Fable 5.1 に判定させました。言い方を少し変えただけで、問題の部分が残っているものは、残ったと数えています。「本番」を「本番環境」にしたものなどです。何を指すのか分からない言葉44か所のうち、v1.6.0 が直したのは1か所、v1.6.1 は23か所でした。</p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th scope="col">宛先</th><th scope="col"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0 が直した</span></th><th scope="col"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1 が直した</span></th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row"><button type="button" class="open" data-topic="finance" aria-controls="viewer">経理</button></th><td class="n"><small>15か所のうち</small> <b>1</b>か所</td><td class="n"><small>15か所のうち</small> <b>7</b>か所</td></tr>
-              <tr><th scope="row"><button type="button" class="open" data-topic="infra" aria-controls="viewer">インフラ</button></th><td class="n"><small>15か所のうち</small> <b>0</b>か所</td><td class="n"><small>15か所のうち</small> <b>10</b>か所</td></tr>
-              <tr><th scope="row"><button type="button" class="open" data-topic="design" aria-controls="viewer">デザイナー</button></th><td class="n"><small>14か所のうち</small> <b>0</b>か所</td><td class="n"><small>14か所のうち</small> <b>6</b>か所</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="hint">宛先を押すと、3本のうち1本について、分からない言葉ごとに直したか残ったかと、直した後の全文が見られます。</p>
-        <div class="viewer" id="viewer" hidden>
-          <div class="viewer-head">
-            <h3 id="viewer-title"></h3>
-            <button type="button" class="viewer-close">閉じる</button>
-          </div>
-          <div class="viewer-body"></div>
-        </div>
-        <ul class="notes">
-          <li>1本を直す時間は、v1.6.0 より宛先によって2〜15秒延びました。宛先ごとの中央値で、v1.6.0 は55〜74秒、v1.6.1 は57〜81秒です。</li>
-        </ul>
-        <h3>余計なところまで変えていないか</h3>
-        <p>新しい規則のせいで、直さなくてよいところまで書き換えていないかも確かめました。前のバージョンのときから同じ条件で続けているチェックです。AI が書いた技術記事と PR の説明文10本に、作者が直すべき箇所と、手を入れてはいけない箇所の印をあらかじめ付けておき、Claude Sonnet 5.5 に2回ずつ直させました。数字は1回目・2回目の順に並べています。</p>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th scope="col"></th><th scope="col"><span class="tag"><span class="mark" aria-hidden="true"></span>v1.6.0</span></th><th scope="col"><span class="tag"><span class="mark new" aria-hidden="true"></span>v1.6.1</span></th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">直すべき23か所のうち、直した</th><td class="n"><b>11</b>・<b>13</b>か所</td><td class="n"><b>16</b>・<b>18</b>か所</td></tr>
-              <tr><th scope="row">手を入れてはいけない40か所のうち、手を入れた</th><td class="n"><b>7</b>・<b>7</b>か所</td><td class="n"><b>11</b>・<b>8</b>か所</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="notes">直すべき箇所を直した数は増えました。手を入れてはいけない箇所に手を入れた数も、2回とも v1.6.0 より多くなりました。</p>
-      </section>
-
-      <section id="limits">
-        <h2>苦手なこと</h2>
-        <ul>
-          <li>開発の人どうしではふつうに通じる言葉は、ほかの職種の人に宛てた文書でも残りました。経理宛ての「本番には出していません」「動きます」、デザイナー宛ての「Figma に定義がない」「主ボタン」です。どれも開発の現場では正しい用語なので、AI が言い換える必要に気づかないのではないかと考えています。元のメモにその言葉があったことも、残った理由の一つかもしれません。</li>
-          <li>「影響」のように、言葉そのものはふつうでも、文脈によって何を指すのか分からなくなる言葉は、検査スクリプトでは見つけられません。</li>
-        </ul>
-      </section>
-
-      <section id="install">
-        <h2>インストール</h2>
+<section class="block" id="install"><div class="wrap">
+  <h2 data-chip>インストール</h2>
+  <div class="dads-tab">
+    <ul class="dads-tab__list" role="tablist" aria-label="使う環境">
+      <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-1" aria-selected="true" aria-controls="env-panel-1" tabindex="0"><span>Claude Code など</span></button></li>
+      <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-2" aria-selected="false" aria-controls="env-panel-2" tabindex="-1"><span>claude.ai</span></button></li>
+      <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-3" aria-selected="false" aria-controls="env-panel-3" tabindex="-1"><span>ChatGPT</span></button></li>
+      <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-4" aria-selected="false" aria-controls="env-panel-4" tabindex="-1"><span>Gemini</span></button></li>
+      <li><button type="button" class="dads-tab__tab" role="tab" id="env-tab-5" aria-selected="false" aria-controls="env-panel-5" tabindex="-1"><span>Microsoft 365 Copilot</span></button></li>
+    </ul>
+    <div class="dads-tab__panels">
+      <div class="dads-tab__panel" id="env-panel-1" role="tabpanel" aria-labelledby="env-tab-1" tabindex="0">
+        <p class="p">Claude Code、Codex、Cursor、OpenCode、Gemini CLI、GitHub Copilot など、Agent Skills に対応したコーディングエージェントで使えます。</p>
         <div class="cmd"><code id="cmd">npx skills add coji/natural-japanese</code><button type="button" data-copy="cmd">コピー</button></div>
-        <p>インストール済みの人も、同じコマンドをもう一度実行すると v1.6.1 になります。あとは、エージェントに「読みやすくして」のように頼みます。ほかのインストール方法は <a href="https://github.com/coji/natural-japanese#使い方">README</a> にあります。</p>
-      </section>
-
+        <p class="p">このコマンドで natural-japanese と critical-thinking の両方が入ります。natural-japanese の検査ツールには uv と Python が要りますが、critical-thinking には要りません。入れた直後は、セッションを開き直すか <code class="ic"><span class="ck">/reload-plugins</span></code> で読み込みます。</p>
+      </div>
+      <div class="dads-tab__panel" id="env-panel-2" role="tabpanel" aria-labelledby="env-tab-2" tabindex="0" hidden>
+        <ol class="steps">
+          <li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li>
+          <li>「カスタマイズ」→「スキル」→「+」→「スキルをアップロード」で、ダウンロードした zip ファイルを選ぶ</li>
+          <li>文書を貼るか添付して、「この稟議書を決裁者の目で見て直して」と指示する</li>
+        </ol>
+      </div>
+      <div class="dads-tab__panel" id="env-panel-3" role="tabpanel" aria-labelledby="env-tab-3" tabindex="0" hidden>
+        <p class="p">ChatGPT Business、Enterprise、Edu で使えます。管理者がスキルのアップロードを許可している必要があります。</p>
+        <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li><li>「スキル」→「作成」→「コンピューターからアップロード」で、ダウンロードした zip ファイルを選ぶ</li><li>文書を添付して頼む</li></ol>
+      </div>
+      <div class="dads-tab__panel" id="env-panel-4" role="tabpanel" aria-labelledby="env-tab-4" tabindex="0" hidden>
+        <p class="p">Gemini アプリで使えます。2026年11月の時点では個人アカウントでも使えます。</p>
+        <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードして展開する</li><li>「カスタマイズ」→「スキル」→「作成」から、SKILL.md を含むフォルダをアップロードする</li><li>文書を添付して頼む</li></ol>
+      </div>
+      <div class="dads-tab__panel" id="env-panel-5" role="tabpanel" aria-labelledby="env-tab-5" tabindex="0" hidden>
+        <p class="p">Microsoft 365 Copilot の宣言型エージェントにスキルを足す機能は、2026年11月の時点でプレビューです。</p>
+        <ol class="steps"><li>Agent Builder でエージェントを作り、スキルとして <a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> を追加する</li><li>そのエージェントに文書を渡して頼む</li></ol>
+      </div>
     </div>
   </div>
+  <p class="p prose-max">4本の文書の元、直した後、端的にした後、組み直した後、検査の報告、確認事項の全文は <a href="https://github.com/coji/natural-japanese/tree/main/release-notes/data/v2.0.0">リポジトリの release-notes/data/v2.0.0</a> にあります。社名・人名・製品名は実在しません。</p>
+</div></section>
 </main>
 
-<footer>
-  <div class="foot-inner">
-    <p>このページも natural-japanese の規則で書いています。</p>
-    <p>これまでのリリースノート <a href="https://6c8j7oke3x.artifactshare.link/">v1.6.0</a>・<a href="https://7ttv0opj3s.artifactshare.link/">v1.5.2</a>・<a href="https://x3a7rghxqv.artifactshare.link/">v1.5.0</a>・<a href="https://2aretj5195.artifactshare.link/">v1.4.0</a></p>
-    <p><a href="https://github.com/coji/natural-japanese/pull/19">変更の詳細を書いた GitHub の PR #19</a>・<a href="https://github.com/coji/natural-japanese/releases">GitHub の Releases</a></p>
-  </div>
-</footer>
-
+<footer><div class="wrap">
+  <p>見た目は、デジタル庁デザインシステムの <a href="https://github.com/digital-go-jp/design-system-example-components-html">HTML 実装例</a>に基づきます。ライセンスは MIT です。</p>
+  <p><a href="https://github.com/coji/natural-japanese">github.com/coji/natural-japanese</a></p>
+</div></footer>
 <script>
-(() => {
-  for (const btn of document.querySelectorAll("[data-copy]")) {
-    btn.addEventListener("click", async () => {
-      const text = document.getElementById(btn.dataset.copy).textContent;
-      try {
-        await navigator.clipboard.writeText(text);
-        btn.textContent = "コピーしました";
-      } catch {
-        btn.textContent = "選んでコピーしてください";
-      }
-      setTimeout(() => { btn.textContent = "コピー"; }, 2000);
-    });
-  }
-
-  // 表の宛先から、代表の1本について、分からない言葉ごとの判定と全文の差分を開く
-  const viewer = document.getElementById("viewer");
-  const title = document.getElementById("viewer-title");
-  const body = viewer.querySelector(".viewer-body");
-  const VERS = ["v1.6.0", "v1.6.1"];
-  const LABEL = { fixed: "直した", kept: "残った", removed: "消えた" };
-  let docs = null;
-  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-
-  // 2つの列の最長共通部分から、同じ・消した・足したの並びを作る
-  function lcs(a, b) {
-    const n = a.length, m = b.length, t = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
-    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) t[i][j] = a[i] === b[j] ? t[i + 1][j + 1] + 1 : Math.max(t[i + 1][j], t[i][j + 1]);
-    const ops = []; let i = 0, j = 0;
-    while (i < n && j < m) {
-      if (a[i] === b[j]) { ops.push(["eq", a[i]]); i++; j++; }
-      else if (t[i + 1][j] >= t[i][j + 1]) ops.push(["del", a[i++]]);
-      else ops.push(["ins", b[j++]]);
-    }
-    while (i < n) ops.push(["del", a[i++]]);
-    while (j < m) ops.push(["ins", b[j++]]);
-    return ops;
-  }
-  // 文字単位の差分を、同じ種類どうしでまとめる
-  function chars(a, b) {
-    const out = [];
-    for (const [op, c] of lcs([...a], [...b])) {
-      const last = out[out.length - 1];
-      if (last && last[0] === op) last[1] += c; else out.push([op, c]);
-    }
-    return out;
-  }
-  // 行の差分。消えた行と足した行が続くところは、順に組にして「変わった行」にする
-  function lines(a, b) {
-    const ops = lcs(a, b), out = [];
-    for (let k = 0; k < ops.length;) {
-      if (ops[k][0] === "eq") { out.push({ kind: "eq", text: ops[k][1] }); k++; continue; }
-      const dels = [], inss = [];
-      while (k < ops.length && ops[k][0] !== "eq") (ops[k][0] === "del" ? dels : inss).push(ops[k++][1]);
-      const n = Math.min(dels.length, inss.length);
-      for (let x = 0; x < n; x++) out.push({ kind: "chg", text: inss[x], orig: dels[x] });
-      for (const t of dels.slice(n)) out.push({ kind: "del", text: t });
-      for (const t of inss.slice(n)) out.push({ kind: "ins", text: t });
-    }
-    return out;
-  }
-  const clean = t => t.replace(/\*\*|`/g, "");
-  function plain(t) {
-    const f = document.createDocumentFragment();
-    for (const part of t.split(/(`[^`]+`|\*\*[^*]+\*\*)/)) {
-      if (!part) continue;
-      if (part.startsWith("`")) f.append(el("code", null, part.slice(1, -1)));
-      else if (part.startsWith("**")) f.append(el("strong", null, part.slice(2, -2)));
-      else f.append(part);
-    }
-    return f;
-  }
-  // 1行(または表の1マス)を、元の文との差分つきで組む
-  function inline(text, orig, kind) {
-    if (kind === "eq" || orig == null && kind !== "ins") return plain(text);
-    if (kind === "ins") { const f = document.createDocumentFragment(); f.append(el("ins", null, clean(text))); return f; }
-    const f = document.createDocumentFragment(), segs = chars(clean(orig), clean(text));
-    const same = segs.filter(x => x[0] === "eq").reduce((n, x) => n + x[1].length, 0);
-    // 半分近く書き換えた行は、細切れにせず、消した文と足した文を続けて見せる
-    if (same < 0.6 * Math.max(orig.length, text.length)) {
-      if (clean(orig).trim()) f.append(el("del", null, clean(orig)), " ");
-      f.append(el("ins", null, clean(text)));
-      return f;
-    }
-    for (const [op, t] of segs) f.append(op === "eq" ? t : el(op === "ins" ? "ins" : "del", null, t));
-    return f;
-  }
-  // 判定役が写した文が表の行なら、マスの区切りを「/」にして読める形にする
-  // 図(mermaid)の行なら、矢印と枠の記号を外して、枠の中の文だけにする
-  const sentence = t => {
-    t = isRow(t) ? cells(t).map(c => c.trim()).filter(Boolean).join(" / ") : t;
-    const m = t.match(/^\s*\w+\s*(?:--?>|-- .*? -->|-\.->)\s*\|?[^|]*\|?\s*\w+\s*[\[({]+"?(.*?)"?[\])}]+\s*$/);
-    if (m) t = m[1];
-    return t.replace(/<br\s*\/?>/g, " ").replace(/^\s*#+\s+/, "").replace(/^\s*([-*]|\d+\.)\s+/, "").replace(/\*\*|`/g, "");
-  };
-  const cells = t => t.trim().replace(/^\||\|$/g, "").split("|");
-  const isRow = t => t.trim().startsWith("|");
-  const isRule = t => /^\s*\|[\s:|-]+\|\s*$/.test(t);
-  const item = /^\s*([-*]|\d+\.)\s+/;
-
-  // 直した後の文書を、Markdown の見出し・箇条書き・表・図として組み、直す前からの差分を付ける
-  function renderDiff(box, before, after) {
-    box.replaceChildren();
-    const L = lines(before.replace(/\n$/, "").split("\n"), after.replace(/\n$/, "").split("\n"));
-    let i = 0;
-    while (i < L.length) {
-      const it = L[i], t = it.text;
-      if (it.kind === "del") { if (t.trim()) { const p = el("p", "gone-line"); p.append(el("del", null, clean(t))); box.append(p); } i++; continue; }
-      if (!t.trim()) { i++; continue; }
-      if (t.startsWith("```")) {
-        const pre = el("pre"); const buf = [];
-        for (i++; i < L.length && !L[i].text.startsWith("```"); i++) if (L[i].kind !== "del") buf.push(L[i]);
-        buf.forEach((x, j) => { pre.append(inline(x.text, x.orig, x.kind)); if (j < buf.length - 1) pre.append("\n"); });
-        box.append(pre); i++; continue;
-      }
-      if (isRow(t)) {
-        const table = el("table"), thead = el("thead"), tbody = el("tbody"); let first = true;
-        for (; i < L.length && isRow(L[i].text); i++) {
-          const x = L[i];
-          if (isRule(x.text) || x.kind === "del") continue;
-          const tr = el("tr"), oc = x.orig != null ? cells(x.orig) : [];
-          cells(x.text).forEach((c, k) => {
-            const td = el(first ? "th" : "td");
-            td.append(inline(c.trim(), x.kind === "chg" ? (oc[k] ?? "").trim() : null, x.kind === "chg" && oc[k] == null ? "ins" : x.kind));
-            tr.append(td);
-          });
-          (first ? thead : tbody).append(tr); first = false;
-        }
-        table.append(thead, tbody); box.append(table); continue;
-      }
-      const h = t.match(/^(#{1,3})\s+(.*)/);
-      if (h) {
-        const e = el("h" + h[1].length), o = it.orig?.match(/^(#{1,3})\s+(.*)/);
-        e.append(inline(h[2], o ? o[2] : it.orig, it.kind)); box.append(e); i++; continue;
-      }
-      if (item.test(t)) {
-        const list = el(/^\s*\d+\./.test(t) ? "ol" : "ul", "md");
-        for (; i < L.length && item.test(L[i].text); i++) {
-          const x = L[i]; if (x.kind === "del") continue;
-          const li = el("li");
-          li.append(inline(x.text.replace(item, ""), x.orig?.replace(item, ""), x.kind));
-          list.append(li);
-        }
-        box.append(list); continue;
-      }
-      const para = el("p"); para.append(inline(t, it.orig, it.kind)); box.append(para); i++;
-    }
-    box.scrollTop = 0;
-  }
-
-  function showDoc(d) {
-    const wrap = el("div");
-    const table = el("table", "flags");
-    const head = el("thead"), hr = el("tr");
-    hr.append(el("th", null, "直す前の言葉"), el("th", null, "v1.6.0 で直した後"), el("th", null, "v1.6.1 で直した後"));
-    head.append(hr);
-    const tb = el("tbody");
-    for (const f of d.flags) {
-      const tr = el("tr"), w = el("td", null, f.word);
-      w.append(el("span", null, `直す前の${f.line}行目`));
-      tr.append(w);
-      for (const v of VERS) {
-        const td = el("td"); td.dataset.v = v;
-        td.append(el("span", "st " + f.status[v], LABEL[f.status[v]]));
-        if (f.text[v]) td.append(sentence(f.text[v]));
-        tr.append(td);
-      }
-      tb.append(tr);
-    }
-    table.append(head, tb);
-    const dh = el("div", "diff-head");
-    dh.append(el("p", null, "直す前の文書から、どこをどう変えたかの全文です。消した文字に取り消し線、足した文字に色を付けています。"));
-    const seg = el("div", "seg"), doc = el("div", "doc"); doc.tabIndex = 0;
-    for (const v of VERS) {
-      const b = el("button", null, `${v} の直し`); b.type = "button";
-      b.addEventListener("click", () => {
-        seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
-        renderDiff(doc, d.original, d.out[v]);
-      });
-      seg.append(b);
-    }
-    dh.append(seg);
-    wrap.append(table, dh, doc);
-    seg.lastChild.click();
-    return wrap;
-  }
-
-  async function open(btn) {
-    if (!docs) {
-      try { docs = await (await fetch("data/docs.json")).json(); }
-      catch { viewer.hidden = false; title.textContent = "文書を読み込めませんでした。ページを開き直してください。"; return; }
-    }
-    const topic = docs.find(t => t.key === btn.dataset.topic);
-    document.querySelectorAll("th .open").forEach(b => b.setAttribute("aria-expanded", b === btn ? "true" : "false"));
-    const d = topic.docs[topic.rep];
-    const fixed = v => d.flags.filter(f => f.status[v] === "fixed").length;
-    title.textContent = `${topic.reader}宛ての相談文、3本のうちの1本`;
-    const sum = el("p", "doc-sum", `この1本では、分からない言葉${d.flags.length}か所のうち、v1.6.0 が${fixed("v1.6.0")}か所、v1.6.1 が${fixed("v1.6.1")}か所を直しました。`);
-    body.replaceChildren(sum, showDoc(d));
-    viewer.hidden = false;
-    viewer.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-  }
-  document.querySelectorAll("th .open").forEach(b => b.addEventListener("click", () => open(b)));
-  viewer.querySelector(".viewer-close").addEventListener("click", () => {
-    viewer.hidden = true;
-    const b = document.querySelector('th .open[aria-expanded="true"]');
-    document.querySelectorAll("th .open").forEach(x => x.setAttribute("aria-expanded", "false"));
-    b?.focus();
+(function(){
+  document.querySelectorAll('[role=tablist]').forEach(list=>{
+  const tabs=[...list.querySelectorAll('[role=tab]')];
+  function select(i,focus){tabs.forEach((t,j)=>{const on=i===j;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!on;});if(focus)tabs[i].focus();}
+  tabs.forEach((t,i)=>{t.addEventListener('click',()=>select(i,false));
+    t.addEventListener('keydown',e=>{const n=tabs.length;let j=null;
+      if(e.key==='ArrowRight')j=(i+1)%n;else if(e.key==='ArrowLeft')j=(i-1+n)%n;else if(e.key==='Home')j=0;else if(e.key==='End')j=n-1;
+      if(j!==null){e.preventDefault();select(j,true);}});});
   });
+})();
+(function(){
+  const nodes=[...document.querySelectorAll('.flow .node')];const descs=[...document.querySelectorAll('.nd')];
+  function pick(key){nodes.forEach(n=>n.setAttribute('aria-pressed',n.dataset.node===key));descs.forEach(d=>d.hidden=d.dataset.for!==key);}
+  nodes.forEach(n=>{n.addEventListener('click',()=>pick(n.dataset.node));n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(n.dataset.node);}});});
+  pick('ask');
+})();
+(function(){
+  document.querySelectorAll('.map').forEach(svg=>{
+  const srcs=[...svg.querySelectorAll('.src')],paths=[...svg.querySelectorAll('.mv')],dsts=[...svg.querySelectorAll('.dst')];
+  function on(i){svg.classList.add('hl');srcs.forEach(s=>s.classList.toggle('on',s.dataset.src===i));
+    const hit=new Set();paths.forEach(p=>{const m=p.dataset.src===i;p.classList.toggle('on',m);if(m)hit.add(p.dataset.dst);});
+    dsts.forEach(d=>d.classList.toggle('on',hit.has(d.dataset.dst)));}
+  function off(){svg.classList.remove('hl');srcs.forEach(s=>s.classList.remove('on'));paths.forEach(p=>p.classList.remove('on'));dsts.forEach(d=>d.classList.remove('on'));}
+  srcs.forEach(s=>{s.addEventListener('mouseenter',()=>on(s.dataset.src));s.addEventListener('mouseleave',off);s.addEventListener('focus',()=>on(s.dataset.src));s.addEventListener('blur',off);
+    s.addEventListener('click',()=>{if(s.classList.contains('on')&&svg.classList.contains('hl')){off();}else{on(s.dataset.src);}});});
+  });
+})();
+(function(){
+  const links=[...document.querySelectorAll('.toc-list a')];const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function update(){let cur=secs[0];for(const s of secs){if(s.getBoundingClientRect().top<=96)cur=s;}links.forEach(a=>{const on=a.getAttribute('href')==='#'+cur.id;if(on)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+function openTarget(){const el=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(!el)return;let d=el.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details');}el.scrollIntoView({block:'center'});}
+window.addEventListener('hashchange',openTarget);openTarget();
 
-  // いま読んでいる節を、路線図の駅のように塗る
-  const sections = [...document.querySelectorAll(".stations section")];
-  const links = [...document.querySelectorAll(".band nav a, .toc a")];
-  if (!("IntersectionObserver" in window)) return;
-  const io = new IntersectionObserver(entries => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      for (const s of sections) {
-        const on = s === e.target;
-        s.classList.toggle("here", on);
-        for (const a of links) if (a.hash === "#" + s.id) a.setAttribute("aria-current", on ? "true" : "false");
-        const t = on && document.querySelector(`.toc a[href="#${s.id}"]`);
-        if (t) t.closest(".toc").scrollLeft = t.offsetLeft - 16;
-      }
+document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent);b.textContent='コピーした';setTimeout(()=>b.textContent='コピー',1500);}));
+
+// 左右に並べて読む: 文書ごとに、右の文書の切り替え、節の対応でのスクロール同期、主な変更の下線と移動
+(function(){
+  const views=[...document.querySelectorAll('.viewer[data-doc]')];
+  views.forEach(v=>{
+    const key=v.dataset.doc, maps=JSON.parse(v.dataset.maps), L=v.querySelector('.doc.L'), R=v.querySelector('.doc.R');
+    function load(d,k){d.replaceChildren(document.getElementById('t-'+key+'-'+k).content.cloneNode(true));d.dataset.key=k;d.scrollTop=0;}
+    function mark(d,texts,cls){texts.forEach(t=>{const walker=document.createTreeWalker(d,NodeFilter.SHOW_TEXT);let n;while((n=walker.nextNode())){const i=n.nodeValue.indexOf(t);if(i>=0){const r=document.createRange();r.setStart(n,i);r.setEnd(n,i+t.length);const m=document.createElement('mark');m.className=cls;m.dataset.t=t;r.surroundContents(m);return;}}});}
+    const chgs=[...document.querySelectorAll('.chg[data-doc="'+key+'"]')];
+    function markAll(){mark(L,chgs.map(b=>b.dataset.b),'chg-b');mark(R,chgs.map(b=>b.dataset.a),'chg-a');}
+    load(L,'before');load(R,'after');markAll();
+    const right='after';
+    // 節の対応でスクロール同期。左右の見出しの対応のうち、順序を保つもの(付録へ移った節のように前後が入れ替わるものは除く)を
+    // 目印にして、スクロール位置を目印のあいだで線形に補間する。自分が動かした側から返ってくる scroll イベントは、200ms のあいだ無視する
+    const hold={L:0,R:0};
+    function heads(d){return [...d.querySelectorAll('article h4')];}
+    function pos(el,d){return el.getBoundingClientRect().top-d.getBoundingClientRect().top+d.scrollTop;}
+    function lis(pairs){ // j が増える最長の並び(節の数は十数個なので O(n^2) でよい)
+      const n=pairs.length, best=new Array(n).fill(1), prev=new Array(n).fill(-1); let end=0;
+      for(let a=0;a<n;a++){for(let b=0;b<a;b++){if(pairs[b][1]<pairs[a][1]&&best[b]+1>best[a]){best[a]=best[b]+1;prev[a]=b;}} if(best[a]>best[end])end=a;}
+      const out=[]; for(let k=end;k>=0&&n;k=prev[k]){out.unshift(pairs[k]); if(prev[k]<0)break;} return out;
     }
-  }, { rootMargin: "-35% 0px -55% 0px" });
-  sections.forEach(s => io.observe(s));
+    function anchors(from,to,map){
+      const hs=heads(from), ts=heads(to); const pairs=[]; map.forEach((j,i)=>{if(j>=0&&hs[i]&&ts[j])pairs.push([i,j]);});
+      const kept=lis(pairs); const pts=[[0,0]]; kept.forEach(([i,j])=>pts.push([pos(hs[i],from),pos(ts[j],to)]));
+      pts.push([from.scrollHeight-from.clientHeight, to.scrollHeight-to.clientHeight]); return pts;
+    }
+    function interp(pts,y){
+      for(let k=1;k<pts.length;k++){const [a,ta]=pts[k-1],[b,tb]=pts[k]; if(y<=b){return b>a?ta+(y-a)/(b-a)*(tb-ta):tb;}}
+      return pts[pts.length-1][1];
+    }
+    const sideBySide=matchMedia('(min-width:48rem)');
+    function sync(from,to,map,name){
+      if(!sideBySide.matches)return;
+      if(Date.now()<hold[name])return;
+      const pts=anchors(from,to,map); let target=interp(pts,from.scrollTop);
+      target=Math.max(0,Math.min(target,to.scrollHeight-to.clientHeight));
+      if(Math.abs(to.scrollTop-target)<1)return;
+      hold[name==='L'?'R':'L']=Date.now()+200; to.scrollTop=target;
+    }
+    function inv(map,n){const m=new Array(n).fill(-1);map.forEach((j,i)=>{if(j>=0&&m[j]<0)m[j]=i;});return m;}
+    L.addEventListener('scroll',()=>sync(L,R,maps[right],'L'),{passive:true});
+    R.addEventListener('scroll',()=>sync(R,L,inv(maps[right],heads(R).length),'R'),{passive:true});
+    // 主な変更を押すと移動
+    chgs.forEach(b=>b.addEventListener('click',()=>{v.scrollIntoView({block:'start'});const mb=[...L.querySelectorAll('mark.chg-b')].find(m=>m.dataset.t===b.dataset.b);const ma=[...R.querySelectorAll('mark.chg-a')].find(m=>m.dataset.t===b.dataset.a);
+      document.querySelectorAll('.doc mark.on').forEach(m=>m.classList.remove('on'));
+      hold.L=hold.R=Date.now()+300;if(mb){mb.classList.add('on');L.scrollTop=pos(mb,L)-40;}if(ma){ma.classList.add('on');R.scrollTop=pos(ma,R)-40;}}));
+  });
 })();
 </script>
 </body>
