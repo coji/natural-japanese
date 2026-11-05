@@ -111,6 +111,12 @@ def load(name):
          "plans_md": (d2 / "doc.review.plans.md").read_text(), "kak_md": (d2 / "doc.確認事項.md").read_text(), "reply2": (d2 / "reply.md").read_text(),
          "q_md": (d2 / "questions.md").read_text(), "a_md": (d2 / "answers.md").read_text()}
     t["v1"], t["v2"] = verdict(t["reply1"]), verdict(t["reply2"])
+    # 前提が崩れたときは、縮小案で書いた版が別に出る。ページの2回目の右側にはそれを出す
+    sp = d2 / "doc.review.縮小.md"
+    t["shrunk"] = sp.read_text() if sp.exists() else ""
+    assert (t["v2"] == "差し戻し") == bool(t["shrunk"]), (name, t["v2"], bool(t["shrunk"]))
+    t["after_show"] = t["shrunk"] or t["after"]
+    t["P_show"] = parts(t["after_show"])
     t["hw1"] = parse_hw(t["kak1_md"])
     t["P0"], t["P1"], t["P_short"], t["P_rebuild"], t["P_after1"] = parts(t["before"]), parts(t["after"]), parts(t["short"]), parts(t["rebuild"]), parts(t["after1"])
     t["qa1"] = parse_qa(t["q1_md"], t["a1_md"]); t["qa"] = parse_qa(t["q_md"], t["a_md"])
@@ -129,7 +135,7 @@ def load(name):
 DOCSETS = [
     ("ringi", "稟議書", "営業部の12名で、議事録を作る AI ツールを6か月、上限60万円で試験導入したいという社内の申請。読むのは経営会議。", "経営者", "exec"),
     ("kikaku", "社内の制度企画", "人事企画が、内勤180名を対象に週1日の在宅勤務制度を来年4月から始めたいという企画。昨年の離職率12%を業界平均の8%に近づけたい。全社250名で、差はおよそ10名。読むのは経営会議。", "経営者", "exec"),
-    ("teian", "コンサルの提案資料", "コンサルティング会社が食品卸の北都フーズに、営業支援システムの導入支援を提案する資料。3か月の診断と6か月の導入支援で、2,700万円。読むのは先方の営業本部長と経営会議。", "提案を受け取る会社の役員", "customer"),
+    ("teian", "コンサルからの提案資料", "コンサルティング会社が食品卸の北都フーズに、営業支援システムの導入支援を提案する資料。3か月の診断と6か月の導入支援で、2,700万円。読むのは先方の営業本部長と経営会議。", "提案を受け取る会社の役員", "customer"),
     ("postmortem", "障害報告書", "情報システム部の運用チームが、受注管理システムが1時間半止まった障害を、情報システム部長と営業本部長に報告する文書。", "報告を受け取る上司", "boss"),
 ]
 SETS = {n: load(n) for n, *_ in DOCSETS}
@@ -231,14 +237,14 @@ ASKS = {
     ("時間単価はいくらか", "空欄", "経理部の標準単価 1時間3,500円。9名なら1件36分減れば費用に見合う"),
     ("データの扱いは社内規程に合うか", "契約前に確認する", "情報システム部門が確認した。保存先は国内、AI の学習に使われない"),
     ("12名全員に要るか", "書いていない", "内勤寄りの3名を除く9名、上限50万円に縮めた"),
-    ("顧客は録音に同意するか", "全件で使う前提の試算", "同意が得られない打ち合わせがあれば要る削減は大きくなる、と明記。利用率の目安は空欄のまま"),
+    ("顧客は録音に同意するか", "全件で使う前提の試算", "同意が得られない打ち合わせがあるぶん必要な削減時間は増える、と明記。利用率の目安は空欄のまま"),
  ],
  "teian": [
-    ("失注はどのくらい起きているか", "「実際に失注が起きています」と言い切り", "台帳で確かめた。担当交代38社のうち2社、年間約1,200万円"),
-    ("3か月目で止めたら、いくらで終わるか", "書いていない", "フェーズ1の900万円で終わり、1,800万円は発生しない、と明記"),
-    ("投資に見合うか", "台帳を見ていないので試算を控える、と明記", "失注をすべて防いでも年間約1,200万円、と書いたうえで試算は診断で出す"),
+    ("失注はどのくらい起きているか", "「実際に失注が起きています」と言い切り", "台帳で確かめた。担当交代38社のうち2社、年間約1,200万円。半減が5社、年約900万円"),
+    ("投資に見合うか", "台帳を見ていないので試算を控える、と明記", "すべて防いでも年約2,100万円で、2,700万円を下回る、と提案側が自ら明記"),
+    ("何を決めてもらうのか", "9か月・2,700万円の発注", "縮小版では、最初の3か月・900万円の現状診断だけ。フェーズ2は3か月目の報告のあとに"),
+    ("3か月目で止めたら、いくらで終わるか", "書いていない", "900万円で終わり、1,800万円は発生しない。契約も2つに分ける"),
     ("B社の事例は当てはまるか", "成果につながった例、と紹介", "指標が違い、同じ数字は約束しない、と明記"),
-    ("効果は何で測るか", "指標を列挙", "失注率と独り立ち期間で測り、入力率は定着の指標と分ける"),
  ],
  "kikaku": [
     ("VPN は足りるか", "上限100件、外勤の利用は確認中", "外勤などの最大約40件と、いちばん多い曜日の44名で84件。16件の余り"),
@@ -266,11 +272,11 @@ CHANGES = {
     ("言い切りを根拠に合わせる", "確かめていないことは見立てとして書く", "担当者のメモの取り方に左右される。", "担当者のメモの取り方に左右されると見ている"),
  ],
  "teian": [
-    ("台帳の数字を入れる", "聞いた話だった失注が、件数と金額になった", "御社ではこの引き継ぎの場面で実際に失注が起きています", "昨年は異動・退職した4名の担当顧客38社のうち2社、年間約1,200万円の取引を、担当交代のあとに失いました"),
-    ("止めたときの支払いを明記", "3か月目で止めれば900万円で終わる", "導入フェーズへ進むかどうかをご判断いただけます", "進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません"),
-    ("効果の上限を書く", "失注をすべて防いでも年間約1,200万円、と自分で書く", "本資料では金額での試算を控えています", "失注をすべて防げた場合の効果が、この年間約1,200万円にあたります"),
+    ("決裁事項を小さくする", "9か月・2,700万円の発注が、最初の3か月・900万円の診断の発注に", "御社ではこの引き継ぎの場面で実際に失注が起きています", "決めていただきたいのは、この9か月のうち、最初の3か月・900万円の現状診断を当社に発注するかどうかです"),
+    ("台帳の数字を入れる", "聞いた話だった失注が、件数と金額になった", "口頭説明だけに頼る引き継ぎがなくなり", "去年の異動・退職4名の担当顧客38社のうち、翌年の取引がなくなったのは2社で、合計で年間約1,200万円です"),
+    ("効果の上限を書く", "すべて防いでも年約2,100万円で費用を下回る、と提案側が自ら明記", "本資料では金額での試算を控えています", "失注と取引の減少をすべて防げたとしても、効果は年間約2,100万円で、支援費用の総額2,700万円を下回ります"),
+    ("止めたときの支払いを明記", "3か月目で止めれば900万円で終わる。契約も2つに分ける", "導入フェーズへ進むかどうかをご判断いただけます", "進まない場合はフェーズ1の900万円で終わり、フェーズ2の1,800万円は発生しません。契約は2つに分け"),
     ("事例の限界を書く", "B社と指標が違うことを明記", "同業・同規模の会社で、営業記録の共有が成果につながった例です", "B社と同じ数字をお約束するものではなく"),
-    ("指標を分ける", "失注率で効果を測り、入力率は定着の指標にした", "次の指標を使い、導入前後を比べて効果を確認します", "失注は担当交代の翌年の取引で見るため"),
  ],
  "kikaku": [
     ("宿題の答えを入れる", "VPN の確認中が、曜日ごとの最大人数と余りの数字になった", "現在の利用状況は情報システム部に確認中です", "外勤など内勤以外のふだんの同時接続は最大で約40件なので、足すと84件で、上限に対して16件の余りがあります"),
@@ -298,7 +304,7 @@ for _k in SETS:
     _t = SETS[_k]
     for _title, _desc, _b, _a in CHANGES[_k]:
         assert _norm(_b) in _norm(_t["before"]), (_k, "before", _b[:20])
-        assert _norm(_a) in _norm(_t["after"]), (_k, "after", _a[:20])
+        assert _norm(_a) in _norm(_t["after_show"]), (_k, "after", _a[:20])
 
 
 # 1回目の返答の、差し戻しの理由(決裁者の言葉)。返答の文を短くしたもの
@@ -344,7 +350,7 @@ def tiles(key):
     t = SETS[key]
     b0, b1, b2 = t["P0"]["body"], t["P1"]["body"], t["P_short"]["body"]
     v2 = t["v2"]
-    v2d = "宿題を済ませた2回目は、そのまま出せる" if v2 == "出せる" else "宿題の答えで前提が崩れ、2回目も差し戻し。縮小案を添える"
+    v2d = "宿題を済ませた2回目は、そのまま出せる" if v2 == "出せる" else "宿題の答えで前提が崩れた。決裁事項を小さくした版を別に出す"
     return f'''<div class="tiles">
   <div class="tile"><p class="l">1回目の判定</p><div class="v">差し戻し</div><p class="d">出す前に調べられることが残っていた。宿題は{len(HOMEWORK[key])}つ</p></div>
   <div class="tile"><p class="l">2回目の判定</p><div class="v">{E(v2)}</div><p class="d">{E(v2d)}</p></div>
@@ -410,7 +416,7 @@ def changes_list(key):
     return f'<ol class="changes">{items}</ol>'
 def viewer(key):
     t = SETS[key]
-    docs = {"before": t["before"], "after": t["after"]}
+    docs = {"before": t["before"], "after": t["after_show"]}
     tpl = "".join(f'<template id="t-{key}-{k}"><article>{demote(md(v))}</article></template>' for k, v in docs.items())
     # 節の対応(左の節 i → 右の各文書の節 j)
     maps = {}
@@ -420,15 +426,16 @@ def viewer(key):
         maps[k] = [rh.index(mv[_hname(h)][0]) if h and mv.get(_hname(h)) and mv[_hname(h)][0] in rh else -1 for h, _ in sections(t["before"]) if h]
     return f'''<div class="viewer" data-doc="{key}" data-maps='{json.dumps(maps)}'>
   <div class="pane"><p class="cap">元の文書 <span class="ln">本編 {fmt(t["P0"]["body"])}字</span></p><div class="doc L" tabindex="0"></div></div>
-  <div class="pane"><p class="cap">直した後 <span class="ln">本編 {fmt(t["P1"]["body"])}字</span></p><div class="doc R" tabindex="0"></div></div>
+  <div class="pane"><p class="cap">{"縮小版" if t["shrunk"] else "直した後"} <span class="ln">本編 {fmt(t["P_show"]["body"])}字</span></p><div class="doc R" tabindex="0"></div></div>
 </div>{tpl}'''
 def doc_panel(key):
     t = SETS[key]; desc = dict((k, d) for k, _, d, *_ in DOCSETS)[key]
     steps = "".join(f'<li><b>{E(n)} <span class="chip" data-color="gray">{E(c)}</span></b><span>{E(x)}</span></li>' for (n, c), x in zip(STEPS, step_texts(t)))
     qa = "".join(f'<li>{E(q)}{disclosure("書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa1"])
-    hwa = "".join(f'<li>{E(re.sub(r"^宿題[:：]", "", q))}{disclosure("宿題を済ませた書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"][3:])
-    kak = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p><h4>先に答えるべき問い</h4><p class="p">行番号は元の文書の行です。「本文」は直した後の文書を指します。</p><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
-    how = f'''<p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、そのままサブコマンドです。</p>
+    hwa = "".join(f'<li>{E(re.sub(r"。*調べた結果を教えてください$", "", re.sub(r"^宿題[:：]", "", q)).rstrip("。") + "。")}{disclosure("宿題を済ませた書き手の答え", f"<p>{E(a)}</p>")}</li>' for n, q, a in t["qa"][3:])
+    shrink_p = f'<p class="p"><b>決裁事項を小さくする案</b> {E(t["shrink"])}</p>' if t["shrink"] else ""
+    kak = f'{shrink_p}<h4>先に答えるべき問い</h4><p class="p">「本文」は直した後の文書を指します。</p><ol class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_first"])}</ol><h4>そのほか {len(t["kak_rest"])} 件</h4><ul class="list">{"".join(f"<li>{E(x)}</li>" for x in t["kak_rest"])}</ul>'
+    how = f'''<p class="p prose-max">文書の中で答えが出ることはそのまま直し、書き手にしか答えられないことだけを3つまで聞きます。工程の名前は、後述の使い方で指定できるサブコマンド名です。3は full に含まれ、単独では呼べません。somosomo は「そもそも」からの名前です。</p>
 <ol class="flow">{steps}</ol>
 <h4>工程ごとの本編の字数</h4>{bars(key)}
 {asks_table(key)}
@@ -438,17 +445,17 @@ def doc_panel(key):
 <h4>2回目: 宿題の答え</h4>
 <p class="p prose-max">宿題を済ませて分かったことを、作者が事実の一覧に足しました。書き手の役の AI はそれを見て答えます。</p>
 <ol class="list prose-max">{hwa}</ol>
-{disclosure(f"別ファイルに出した確認事項 {len(t['kak'])} 件と、先頭の「決裁事項を小さくする案」", kak)}
+{disclosure(f"スキルが本文とは別のファイルに出した確認事項 {len(t['kak'])} 件", kak)}
 <h4>構成がどう変わったか</h4>
 <p class="p prose-max">左が元の文書、右が「構成から組み直す」の出力です。線は文の移り先で、点線は付録へ。箱の高さは字数に比例します。</p>
 <div class="map-wrap">{sankey(key)}</div>'''
     v2 = t["v2"]
-    second = "宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。" if v2 == "出せる" else "宿題の答えで、頼む中身の前提が崩れました。2回目も差し戻しで、頼む中身を小さくする案を添えています。"
+    second = "宿題を済ませた書き手の答えを入れると、「このまま出せます」になりました。" if v2 == "出せる" else "宿題の答えで、決裁事項の前提が崩れました。2回目も差し戻しで、決裁事項を小さくした版を別に出しています。右はその版です。"
     return f'''<p class="p prose-max">{E(desc)}</p>
 <h3>ひとめで分かる変化</h3>
 {tiles(key)}
 <h3>1回目: 差し戻しと宿題</h3>
-<p class="p prose-max">返答の先頭は「このままでは差し戻されます」。決裁者の言葉で言えば、{E(REASON[key])}。</p>
+<p class="p prose-max">スキルの返答は「このままでは差し戻されます」から始まります。理由は次のとおりです。{E(REASON[key])}。</p>
 {homework(key)}
 <h3>2回目: 宿題を済ませて出し直す</h3>
 <p class="p prose-max">{E(second)}<span class="wide">左が元の文書、右が2回目に直した後です。片方を動かすと、対応する節が並ぶようにもう片方も動きます。</span><span class="narrow">上が元の文書、下が2回目に直した後です。</span></p>
@@ -478,15 +485,16 @@ def checked_html():
     method = f'''<p>想定した読み手は、別のセッションの Claude Opus 5.5 に役を与えたもので、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事と指摘を3回ずつ返させました。返事は OK、条件つきOK、判断の前に質問あり、却下の4つから選びます。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、ある文書への指摘を無関係な文書の確認事項と組み合わせた42組で、全部「ない」と出ることを確かめました。</p>
 <p>テスト用の文書は、スキルの作者が欠陥を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。仕込んだ欠陥は、表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」などです。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd["kept"]} 本すべてで元のままでした。組み直した本編が元より長くなった回が制度企画で2本ありました。どちらも元の 2% 以内です。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました。満たさなかった1回は、丁寧にした本編が元の 110% を超えたものです。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
     return f'''<h3>上の4本で</h3>
+  <p class="p prose-max">想定した読み手を演じる AI に、元の文書、1回目、2回目をそれぞれ渡し、返事と指摘を返させました。右端は、元の文書への指摘のうち、スキルが1回目に出した確認事項がすでに拾っていた数です。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>1回目への返事</th><th>2回目への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
-  <p class="p prose-max">想定した読み手の AI が4本に出した指摘は、各文書3回の合計で {OV_TOTAL} 件。確認事項になかったものは {OV_NONE} 件で、どれも稟議書の時間単価です。1回目に書き手が答えて本文に入ったので、確認事項には残っていません。1回目の確認事項の先頭にある「出す前にやること」と「先に答える問い」に入っていたのは {OV_FIRST} 件で、残りは「そのほか」にありました。</p>
+  <p class="p prose-max">読み手役の AI が元の文書に出した指摘は、1本につき3回の試行で合計 {OV_TOTAL} 件。うち {OV_TOTAL - OV_NONE} 件は、スキルが1回目に出した確認事項にすでに入っていました({OV_FIRST} 件は宿題と「先に答えるべき問い」に、残りは「そのほか」に)。入っていなかった {OV_NONE} 件はどれも稟議書の時間単価で、1回目に書き手が答えて本文に入ったので、確認事項には残っていません。コンサルからの提案資料は、元の文書が失注を言い切っていたため通りかけ、台帳の数字と効果の上限を正直に書いた2回目は却下になりました。決裁事項を小さくした版を別に出したのはそのためです。</p>
   <h3>テスト用の文書で</h3>
   <p class="p prose-max">スキルの作者が欠陥を仕込んだ架空の文書5本と、欠陥のない4本に、このバージョンのスキルを3回ずつかけました。</p>
   <div class="tiles">
     <div class="tile"><p class="l">仕込んだ欠陥を問いにできた</p><div class="v">{DET["found"]}<small>/ {DET["found"] + DET["partial"] + DET["missed"]} 回</small></div><p class="d">{DET["rows"]}か所 × 3回。見落とし {DET["missed"]}</p></div>
     <div class="tile"><p class="l">元にない事実の持ち込み</p><div class="v">{DET["crossing"]}<small>件</small></div><p class="d">欠陥のない4本で誤って指摘した数も {sum(DET["false_clean"])} 件</p></div>
-    <div class="tile"><p class="l">書き手に聞いた問い</p><div class="v">{rv_q}<small>件</small></div><p class="d">3本 × 3回。文書の中で答えが出るものは {rv_q_doc}。答えは改変せずに本文に入れ、落としは {rv_drop}</p></div>
-    <div class="tile"><p class="l">直すか確認事項に回した欠陥</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>回</small></div><p class="d">5本 × 3回。残り {rw["remains"]}、本編が元より長くなったのは {rw["n"]} 本中 {rw["n"] - rw["not_longer"]} 本</p></div>
+    <div class="tile"><p class="l">書き手への問い</p><div class="v">{rv_q}<small>件</small></div><p class="d">問いが出た3本 × 3回。文書の中で答えが出る問いは {rv_q_doc}。答えはすべて変えずに本文に入れた</p></div>
+    <div class="tile"><p class="l">仕込んだ欠陥を直すか確認事項に回した</p><div class="v">{rw["fixed"] + rw["deferred"]}<small>/ {rw["fixed"] + rw["deferred"] + rw["remains"]} 回</small></div><p class="d">5本 × 3回。取りこぼし {rw["remains"]}。直した本編が元より長くなった回は {rw["n"]} 回中 {rw["n"] - rw["not_longer"]} 回</p></div>
   </div>
   {disclosure("測り方と注", method)}'''
 
@@ -523,14 +531,14 @@ page = f"""<!doctype html>
 <header class="hero" id="top"><div class="wrap">
   <p class="eye">natural-japanese v{VER} リリースノート</p>
   <h1>AI の文書に、クリティカルシンキングを</h1>
-  <p class="p lead">AI が書いた稟議書や企画書、提案書は、丁寧に見えて、決める人の問いに答えていないことがあります。<mark>根拠のない言い切り</mark>、<mark>よく見ると辻褄の合わない数字</mark>、そして<mark>論点がはっきりしないダラダラした文章</mark>。新しいスキル <code class="ic sk">critical-thinking</code> は、提出する前に決裁者の目で読み、文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れ、決裁に要る根拠だけを残して短くします。</p>
-  <p class="p lead">下は、架空の文書4本にかけた実演です。1回目は4本とも「このままでは差し戻されます」と宿題が返り、宿題を済ませると3本が通りました。</p>
+  <p class="p lead">AI が書いた稟議書や企画書、提案書は、丁寧に見えて、決める人の問いに答えていないことがあります。<mark>根拠のない言い切り</mark>、<mark>よく見ると辻褄の合わない数字</mark>、そして<mark>論点がはっきりしないダラダラした文章</mark>。natural-japanese に同梱した新しいスキル <code class="ic sk">critical-thinking</code> は、提出する前に決裁者の目で読み、文書の中で直せることは直し、書き手にしか答えられないことだけを3つ聞いて本文に入れ、決裁に要る根拠だけを残して短くします。</p>
+  <p class="p lead">下は、架空の文書4本にかけた実演です。1回目は4本とも「このままでは差し戻されます」の判定と、出す前に調べておくことの一覧が返りました。このページではその一覧を宿題と呼びます。宿題を済ませると、3本が「このまま出せます」になりました。</p>
 </div></header>
 
 <main>
 <section class="block" id="docs-sec"><div class="wrap">
   <h2 data-chip>4つの文書で見る</h2>
-  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。スキルを2回実行した結果で、手を入れずに載せています。1回目は差し戻しと宿題が返り、宿題を済ませた書き手の答えで2回目を回しました。</p>
+  <p class="p prose-max">どれもスキルなしの Claude Code に短い依頼文から書かせた架空の文書です。書き手の役も別の AI で、スキルの作者が用意した事実の一覧だけを見て答えます。1回目の宿題にその AI が答え、答えを入れて2回目を回しました。出力は手直しせずに載せています。</p>
   {doc_tabs}
 </div></section>
 
@@ -542,7 +550,7 @@ page = f"""<!doctype html>
 
 <section class="block" id="how"><div class="wrap">
   <h2 data-chip>使い方</h2>
-  <p class="p prose-max">基本は {cmd("/critical-thinking 稟議書.md")} の1つで、検査から組み直しまでの6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて実行するときだけ、{cmd("/critical-thinking short 稟議書.md")} のようにサブコマンドを挟みます。</p>
+  <p class="p prose-max">ふだんは {cmd("/critical-thinking 稟議書.md")} だけで足ります。検査から組み直しまで6つの工程を通します。文書は Markdown かテキストのファイルで渡します。工程を分けて実行するときだけ、{cmd("/critical-thinking short 稟議書.md")} のようにサブコマンドを挟みます。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>サブコマンド</th><th>同じ意味の指示</th><th>何をするか</th></tr></thead><tbody>
     <tr><th scope="row">なし、または full</th><td>「稟議書.md を決裁者の目で見て直して」</td><td>全工程を通す。検査し、書き手にしか答えられない問いを3つまで聞いて答えを本文に入れ、直した文書から端的にした版と組み直した版も作る</td></tr>
     <tr><th scope="row">logic</th><td>「筋が通っているか検査して」</td><td>文書の中だけで、矛盾・根拠のない主張・食い違いを行番号つきの問いにする</td></tr>
@@ -582,7 +590,7 @@ page = f"""<!doctype html>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードする</li><li>「スキル」→「作成」→「コンピューターからアップロード」で、ダウンロードした zip ファイルを選ぶ</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-4" role="tabpanel" aria-labelledby="env-tab-4" tabindex="0" hidden>
-        <p class="p">Gemini アプリで使えます。2026年11月の時点で個人アカウントで使えます。</p>
+        <p class="p">Gemini アプリで使えます。2026年11月の時点では個人アカウントでも使えます。</p>
         <ol class="steps"><li><a href="https://github.com/coji/natural-japanese/releases/latest/download/critical-thinking.skill">critical-thinking.skill</a> をダウンロードして展開する</li><li>「カスタマイズ」→「スキル」→「作成」から、SKILL.md を含むフォルダをアップロードする</li><li>文書を添付して頼む</li></ol>
       </div>
       <div class="dads-tab__panel" id="env-panel-5" role="tabpanel" aria-labelledby="env-tab-5" tabindex="0" hidden>
