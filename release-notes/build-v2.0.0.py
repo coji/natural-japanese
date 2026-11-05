@@ -206,7 +206,7 @@ def rewrite_stats(label):
                 shrink=sum(1 for r in rows if len(r["cells"]) > 12 and r["cells"][12] == "○"),
                 kept=sum(1 for r in rows if len(r["cells"]) > 9 and r["cells"][8] == "○" and r["cells"][9] == "○"))
 DET = detect_stats("r46")
-R46 = {k: summary(k) for k in ("r46b", "r46c", "r46d", "r46e", "r46f")}
+R46 = {k: summary(k) for k in ("r48b2", "r48c2", "r48d2", "r48e", "r48f")}
 HAVE_R46 = all(R46.values()) and bool(DET["stable"])
 
 # ---------- 部品 ----------
@@ -477,15 +477,15 @@ doc_tabs = f'<div class="dads-tab" id="docs">{tabs_html}<div class="dads-tab__pa
 def checked_html():
     rows = "".join(f'<tr><th scope="row">{E(DOC_LABEL[k])}</th><td>{E(READER[k])}</td><td>{E(V(OUTC[k]["元"]["verdict"]))}</td><td>{E(V(OUTC[k]["1回目"]["verdict"]))}</td><td>{E(V(OUTC[k]["2回目"]["verdict"]))}</td><td>{OV[k]["n"]} 件のうち {OV[k]["n"] - OV[k]["none"]} 件</td></tr>' for k, *_ in DOCSETS)
     assert HAVE_R46, "r46 系の summary がない"
-    rw = rewrite_stats("r46b"); rd = rewrite_stats("r46d")
-    cc = summary("r46e"); cl = summary("r46f")
-    rv_rows = table_rows("r46c")
+    rw = rewrite_stats("r48b2"); rd = rewrite_stats("r48d2")
+    cc = summary("r48e"); cl = summary("r48f")
+    rv_rows = table_rows("r48c2")
     rv_q = sum(int(r["cells"][0]) for r in rv_rows); rv_q_doc = sum(int(r["cells"][1]) for r in rv_rows)
     uudd = [tuple(int(x) for x in r["cells"][2].split("/")) for r in rv_rows]
     rv_used = sum(u[0] for u in uudd); rv_drop = sum(u[3] for u in uudd)
     cc_ok = [(int(a), int(b)) for a, b in re.findall(r"満たした run: (\d+)/(\d+)", cc + cl)]
     method = f'''<p>想定した読み手は、別のセッションの Claude Opus 5.5 に役を与えたもので、文書ごとに経営者、提案を受け取る会社の役員、報告を受け取る上司です。元の文書と直した後を、どちらが直した後かを知らせずに別々に渡し、返事と指摘を3回ずつ返させました。返事は OK、条件つきOK、判断の前に質問あり、却下の4つから選びます。指摘と確認事項の照合は Claude Sonnet 5.5 が行い、判定が甘くないかは、ある文書への指摘を無関係な文書の確認事項と組み合わせた42組で、全部「ない」と出ることを確かめました。</p>
-<p>テスト用の文書は、スキルの作者が欠陥を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。仕込んだ欠陥は、表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」などです。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd["kept"]} 本すべてで元のままでした。組み直した本編が元より長くなった回が制度企画で2本ありました。どちらも元の 2% 以内です。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました。満たさなかった1回は、丁寧にした本編が元の 110% を超えたものです。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
+<p>テスト用の文書は、スキルの作者が欠陥を仕込んだ架空の文書5本と、ない欠陥を指摘しないかを見る欠陥のない4本です。仕込んだ欠陥は、表と本文で食い違う数字、根拠のない見込み、診断の後で決めるはずなのにもう書いてある製品名、報告日より後の「実施済み」などです。問いが欠陥を捉えたか、直しが欠陥を解いたか、書き手の答えを改変せずに入れたかは Claude Sonnet 5.5 が判定しました。書かせたのも直したのも Claude Opus 5.5 で、人による確認はしていません。「構成から組み直して」は、欠陥を仕込んだ文書のうち4本を3回ずつ組み直した {rd['n']} 本すべてで決裁事項を小さくする案が出て、主結論と決裁事項は {rd["kept"]} 本すべてで元のままでした。組み直した本編が元より長くなった回が {rd["n"]} 回中 {rd["n"] - rd["not_longer"]} 回ありました。どれも元の 4% 以内で、括弧の補足を文に開いたぶんです。「もっと端的に」「もっと丁寧に」は、主結論・決裁事項・数値が保たれ、本編の各文が元の文書に対応することを条件とし、{sum(b for _, b in cc_ok)} 回中 {sum(a for a, _ in cc_ok)} 回で満たしました。満たさなかった1回は、丁寧にした本編が元の 110% を超えたものです。回ごとの結果は <a href="https://github.com/coji/natural-japanese/blob/main/dev/ct-eval/RESULTS.md">dev/ct-eval/RESULTS.md</a> にあります。</p>'''
     return f'''<h3>上の4本で</h3>
   <p class="p prose-max">想定した読み手を演じる AI に、元の文書、1回目、2回目をそれぞれ渡し、返事と指摘を返させました。右端は、元の文書への指摘のうち、スキルが1回目に出した確認事項がすでに拾っていた数です。</p>
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>文書</th><th>想定した読み手</th><th>元の文書への返事</th><th>1回目への返事</th><th>2回目への返事</th><th>元の文書への指摘のうち、確認事項にあったもの</th></tr></thead><tbody>{rows}</tbody></table></div>
