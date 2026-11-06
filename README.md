@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/coji/natural-japanese)](https://github.com/coji/natural-japanese/releases)
 
-AI に書かせた仕事の日本語を、読みやすく直す [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) です。議事録、レポート、技術記事、PR の説明文などを、新しく書くときにも使えます。
+AI に書かせた仕事の日本語を、読みやすく直す [Agent Skill](https://code.claude.com/docs/en/skills) です。議事録、レポート、技術記事、PR の説明文などを、新しく書くときにも使えます。
 
 > **English summary:** An Agent Skill that makes AI-written Japanese work documents read naturally. It never adds facts, opinions, or certainty that the original did not have.
 
@@ -77,7 +77,7 @@ Claude Code プラグイン:
 /plugin install natural-japanese@natural-japanese
 ```
 
-手動で入れる場合は、[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill` をダウンロードし、エージェントのスキルディレクトリに展開してください。
+手動で入れる場合は、[Releases](https://github.com/coji/natural-japanese/releases) から `natural-japanese.skill`(critical-thinking も使うなら `critical-thinking.skill` も)をダウンロードし、エージェントのスキルディレクトリに展開してください。
 
 </details>
 
@@ -111,7 +111,7 @@ Claude Code プラグイン:
 /critical-thinking rebuild 稟議書.md    # 構成から組み直す。構成案を出して選んでもらう
 ```
 
-どちらも文書には一文字も書き込まず、行番号つきの問いと `<ファイル>.logic.yaml` を返します。直すかどうかは書き手が決めます。検査は LLM の読みに頼るため、同じ文書を2回かけると指摘は揺れます。
+logic と somosomo は文書には一文字も書き込まず、行番号つきの問いと `<ファイル>.logic.yaml` を返します。直すかどうかは書き手が決めます。検査は LLM の読みに頼るため、同じ文書を2回かけると指摘は揺れます。
 
 「もっと端的に」「もっと丁寧に」と頼むと、検査で書き出した論理構造(主結論、論点、論拠、根拠の重み)をどの深さまで本文にするかを決めて書き直します。端的は、主張と決裁に要る根拠だけを本編に残し、裏づけは付録に移します。事実と数値は落とさず、矛盾も直さず、主結論と決裁事項は変えません。AI の書いた 3,000〜4,700 字の文書で、本編は 35〜46% になりました。検査のあとで「指摘を反映して直して」と頼むと、答えられる問いは本文で直し、答えられない問いは別ファイルの確認事項に回します。「構成から組み直して」と頼むと、事実と頼む中身は保ったまま論の背骨だけを替え、構成案を2〜3つ出して書き手に選んでもらってから書きます。案のうち1つは必ず「頼む中身を小さくする案」で、検査の問いが決裁事項の前提を疑っているとき、どの問いの答えで元の頼みが倒れるかを示したうえで、縮める・分ける・先に確かめる・取り下げるのどれかを置きます。この案は書き手にしか選べないので、スキルは勝手に選びません。AI に下書きを任せた人は構成を自分の頭に持っていないことが多いので、別の組み立てを見せるのはこの工程の仕事です。
 
