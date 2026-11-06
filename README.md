@@ -50,7 +50,7 @@ npx skills add coji/natural-japanese
 <details>
 <summary>ほかの入れ方(プラグイン・AGENTS.md 経由・手動)</summary>
 
-Cursorプラグインとして入れる場合:
+Cursor プラグインとして入れる場合:
 
 Cursor Marketplace での公開は審査待ちです。公開後は Marketplace で `natural-japanese` を探してインストールできます。公開前にローカルで試す場合は、リポジトリのルートで次を実行します。
 
