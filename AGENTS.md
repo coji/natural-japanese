@@ -37,7 +37,7 @@ npx openskills sync
 ```
 
 `npx openskills sync` がこの AGENTS.md の中に `<available_skills>` ブロックを生成し、
-Claude Code 以外のエージェント(Cursor, ChatGPT, Codex など)からもこのスキルを利用できるようにします。
+Claude Code 以外のエージェント(Cursor, Codex など)からもこのスキルを利用できるようにします。
 
 ## 検査スクリプトの実行
 
@@ -54,3 +54,7 @@ uv run skills/natural-japanese/scripts/calques.py path/to/draft.md     # 仕組�
 
 依存関係(sudachipy, sudachidict-core)は各スクリプト冒頭の PEP 723 インラインメタデータで宣言されているため、
 `uv run` が自動的に解決します。各スクリプトが共通で使う処理は `skills/natural-japanese/scripts/textcore.py` にまとまっています。
+
+## 版を上げるとき
+
+版番号は3つのファイルに書いてあります。`plugin.json`(Cursor 向け)、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json` の3つをそろえて書き換えてから、`v<版>` のタグを push してください。タグを push すると `.github/workflows/release.yml` が `.skill` を作って Release に載せます。
